@@ -631,6 +631,11 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 Total ≈ 50 h (6.6 tomó 8 h por los esquemas verticales, los índices y el lote bandera). Mínimo viable ≈ 14 h: 6.5a con 4 arquetipos, 6.5b nivel base, 6.5c solo cocina y matriz D/I/N.
 El paso 7 detallado (zonificación por piso con la junta como núcleo) queda para un curso o después de F3.
 
+### Reestructuración modular (opción A, 8-oct-2026)
+Antes del paso 6.7 se reestructura spaceplan en módulos por etapa con contratos JSON, en 4 tandas programadas sobre
+la rama `spaceplan-modular` del repositorio `Remolino777/rule_forge` (etiquetas `tanda-0` a `tanda-4`). Plan completo:
+`docs/refactor/REFACTOR_PLAN.md`; verificación de que nada cambia: `python tools/golden_check.py check`.
+
 ## 9. Posibilidades de innovación registradas
 
 - (paso 6.6) Curva IO–IC del piloto como figura central; umbral de cruce un piso / dos pisos (IC ≈ 0.35) como regla

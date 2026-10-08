@@ -1,0 +1,2534 @@
+{
+ "boundaries": [
+  {
+   "boundary_class": "front",
+   "edge_id": "e0",
+   "inferred": false,
+   "length_ft": 50.0,
+   "note": null,
+   "outward_azimuth_deg": 180.0,
+   "setback_ft": 15.0,
+   "status": "verified",
+   "street_id": "street_main"
+  },
+  {
+   "boundary_class": "side",
+   "edge_id": "e1",
+   "inferred": true,
+   "length_ft": 100.0,
+   "note": null,
+   "outward_azimuth_deg": 90.0,
+   "setback_ft": 4.0,
+   "status": "verified",
+   "street_id": null
+  },
+  {
+   "boundary_class": "rear",
+   "edge_id": "e2",
+   "inferred": true,
+   "length_ft": 50.0,
+   "note": null,
+   "outward_azimuth_deg": 0.0,
+   "setback_ft": 13.0,
+   "status": "verified",
+   "street_id": null
+  },
+  {
+   "boundary_class": "side",
+   "edge_id": "e3",
+   "inferred": true,
+   "length_ft": 100.0,
+   "note": null,
+   "outward_azimuth_deg": 270.0,
+   "setback_ft": 4.0,
+   "status": "verified",
+   "street_id": null
+  }
+ ],
+ "capacity": {
+  "active_constraint_effective": {
+   "constraint": "garden_preference",
+   "value": {
+    "note": "upper bound with a front-anchored footprint spanning the envelope; exact site partition in step 4",
+    "sources": [
+     "SDMC Table 131-04D",
+     "SDMC Table 131-04D note 2",
+     "SDMC Table 131-04D note 3",
+     "geometry:setback_envelope",
+     "preference:min_garden_area_sqft",
+     "model:front_anchored_full_width_footprint"
+    ],
+    "status": "provisional",
+    "unit": "sq_ft",
+    "value": 1890.0
+   }
+  },
+  "active_constraint_normative": {
+   "constraint": "far",
+   "value": {
+    "note": null,
+    "sources": [
+     "SDMC 131.0446(a)(1), Table 131-04J"
+    ],
+    "status": "verified",
+    "unit": "sq_ft",
+    "value": 3000.0
+   }
+  },
+  "coverage_max": {
+   "note": null,
+   "sources": [
+    "SDMC 131.0445(a)"
+   ],
+   "status": "verified",
+   "unit": "ratio",
+   "value": null
+  },
+  "envelope": {
+   "area": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D",
+     "SDMC Table 131-04D note 2",
+     "SDMC Table 131-04D note 3",
+     "geometry:setback_envelope"
+    ],
+    "status": "verified",
+    "unit": "sq_ft",
+    "value": 3024.0
+   },
+   "distance_semantics": "euclidean_to_boundary",
+   "polygon": {
+    "coordinates": [
+     [
+      [
+       4.0,
+       87.0
+      ],
+      [
+       46.0,
+       87.0
+      ],
+      [
+       46.0,
+       15.0
+      ],
+      [
+       4.0,
+       15.0
+      ],
+      [
+       4.0,
+       87.0
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   }
+  },
+  "envelope_plane": {
+   "angle_deg": 45,
+   "applied": false,
+   "front_trigger_height_ft": 27,
+   "note": "Exact plane geometry per Diagram 131-04L is pending; reported, not applied geometrically in step 2.",
+   "source": "SDMC 131.0444(b)(c)",
+   "status": "provisional"
+  },
+  "far_base_area": {
+   "note": "area the FAR applies to",
+   "sources": [
+    "SDMC 131.0446(a)(1), Table 131-04J"
+   ],
+   "status": "verified",
+   "unit": "sq_ft",
+   "value": 5000.0
+  },
+  "far_ratio": {
+   "note": null,
+   "sources": [
+    "SDMC 131.0446(a)(1), Table 131-04J"
+   ],
+   "status": "verified",
+   "unit": "ratio",
+   "value": 0.6
+  },
+  "feasibility": {
+   "false_infeasible_risk": false,
+   "levels": [
+    {
+     "feasible": false,
+     "floors_cap": 2,
+     "floors_min": 2,
+     "footprint": {
+      "note": null,
+      "sources": [
+       "SDMC Table 131-04D",
+       "SDMC Table 131-04D note 2",
+       "SDMC Table 131-04D note 3",
+       "geometry:setback_envelope"
+      ],
+      "status": "verified",
+      "unit": "sq_ft",
+      "value": 3024.0
+     },
+     "level": "normative",
+     "reasons": [
+      "required gross area 3076 sq ft exceeds FAR limit 3000 sq ft"
+     ],
+     "status": "provisional"
+    },
+    {
+     "feasible": false,
+     "floors_cap": 2,
+     "floors_min": 2,
+     "footprint": {
+      "note": "upper bound with a front-anchored footprint spanning the envelope; exact site partition in step 4",
+      "sources": [
+       "SDMC Table 131-04D",
+       "SDMC Table 131-04D note 2",
+       "SDMC Table 131-04D note 3",
+       "geometry:setback_envelope",
+       "preference:min_garden_area_sqft",
+       "model:front_anchored_full_width_footprint"
+      ],
+      "status": "provisional",
+      "unit": "sq_ft",
+      "value": 1890.0
+     },
+     "level": "normative_with_preferences",
+     "reasons": [
+      "required gross area 3076 sq ft exceeds FAR limit 3000 sq ft"
+     ],
+     "status": "provisional"
+    },
+    {
+     "feasible": false,
+     "floors_cap": 2,
+     "floors_min": 2,
+     "footprint": {
+      "note": "upper bound with a front-anchored footprint spanning the envelope; exact site partition in step 4",
+      "sources": [
+       "SDMC Table 131-04D",
+       "SDMC Table 131-04D note 2",
+       "SDMC Table 131-04D note 3",
+       "geometry:setback_envelope",
+       "preference:min_garden_area_sqft",
+       "model:front_anchored_full_width_footprint",
+       "strategy:A_inscribed_rectangle"
+      ],
+      "status": "provisional",
+      "unit": "sq_ft",
+      "value": 1890.0
+     },
+     "level": "strategy_A_with_preferences",
+     "reasons": [
+      "required gross area 3076 sq ft exceeds FAR limit 3000 sq ft"
+     ],
+     "status": "provisional"
+    }
+   ]
+  },
+  "floors_max_height": {
+   "note": "floor-to-floor 10 ft; angled plane not applied",
+   "sources": [
+    "SDMC Table 131-04D note 4; 131.0444(b)",
+    "assumption:floor_to_floor_ft"
+   ],
+   "status": "provisional",
+   "unit": "floors",
+   "value": 2.0
+  },
+  "footprint_max_normative": {
+   "note": null,
+   "sources": [
+    "SDMC Table 131-04D",
+    "SDMC Table 131-04D note 2",
+    "SDMC Table 131-04D note 3",
+    "geometry:setback_envelope"
+   ],
+   "status": "verified",
+   "unit": "sq_ft",
+   "value": 3024.0
+  },
+  "garden_footprint_limit": {
+   "note": "upper bound with a front-anchored footprint spanning the envelope; exact site partition in step 4",
+   "sources": [
+    "SDMC Table 131-04D",
+    "SDMC Table 131-04D note 2",
+    "SDMC Table 131-04D note 3",
+    "geometry:setback_envelope",
+    "preference:min_garden_area_sqft",
+    "model:front_anchored_full_width_footprint"
+   ],
+   "status": "provisional",
+   "unit": "sq_ft",
+   "value": 1890.0
+  },
+  "gross_area_max": {
+   "note": null,
+   "sources": [
+    "SDMC 131.0446(a)(1), Table 131-04J"
+   ],
+   "status": "verified",
+   "unit": "sq_ft",
+   "value": 3000.0
+  },
+  "height_max": {
+   "note": "Table 131-04D note 4 gives 24/30 ft; which value applies (131.0444(b)) and the measuring method (113.0270) are pending. 24 ft is the conservative default.",
+   "sources": [
+    "SDMC Table 131-04D note 4; 131.0444(b)"
+   ],
+   "status": "provisional",
+   "unit": "ft",
+   "value": 24.0
+  },
+  "required_gross_area": {
+   "note": "net program 2675 sq ft x gross factor 1.15",
+   "sources": [
+    "brief:program.spaces",
+    "assumption:gross_factor"
+   ],
+   "status": "provisional",
+   "unit": "sq_ft",
+   "value": 3076.25
+  },
+  "setbacks": {
+   "front": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 15.0
+   },
+   "rear": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D note 3"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 13.0
+   },
+   "side": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D note 2"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 4.0
+   },
+   "street_side": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D note 2"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 5.0
+   }
+  },
+  "third_floor": {
+   "applicable": false,
+   "max_depth": {
+    "note": "'100% of its maximum width' read as the third floor's maximum width (interpretation pending).",
+    "sources": [
+     "SDMC 131.0460"
+    ],
+    "status": "provisional",
+    "unit": "ft",
+    "value": 50.0
+   },
+   "max_width": {
+    "note": "'100% of its maximum width' read as the third floor's maximum width (interpretation pending).",
+    "sources": [
+     "SDMC 131.0460"
+    ],
+    "status": "provisional",
+    "unit": "ft",
+    "value": 35.0
+   }
+  }
+ },
+ "corrections": {
+  "applied": null,
+  "baseline": {
+   "front_recess_ft": 0.0,
+   "garage_layout": "as_brief",
+   "strategy": "A_inscribed_rectangle"
+  },
+  "candidates": 8,
+  "cost_model_source": {
+   "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+   "kind": "client",
+   "status": "provisional"
+  },
+  "evaluated": [
+   {
+    "changes": 1,
+    "cost": 0.25,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint 3076 sq ft exceeds what B_stepped_footprint holds behind the front line (3024)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "as_brief",
+    "labels": [
+     "strategy B_stepped_footprint"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "B_stepped_footprint"
+   },
+   {
+    "changes": 1,
+    "cost": 0.75,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint 3076 sq ft exceeds what B_polygonal_footprint holds behind the front line (3024)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "as_brief",
+    "labels": [
+     "strategy B_polygonal_footprint"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "B_polygonal_footprint"
+   },
+   {
+    "changes": 1,
+    "cost": 1.5,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint depth 73.2 ft exceeds strategy A depth 72.0 ft (realization)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "tandem",
+    "labels": [
+     "garage tandem"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "A_inscribed_rectangle"
+   },
+   {
+    "changes": 2,
+    "cost": 1.75,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint 3076 sq ft exceeds what B_stepped_footprint holds behind the front line (3024)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "tandem",
+    "labels": [
+     "strategy B_stepped_footprint",
+     "garage tandem"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "B_stepped_footprint"
+   },
+   {
+    "changes": 2,
+    "cost": 2.25,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint 3076 sq ft exceeds what B_polygonal_footprint holds behind the front line (3024)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "tandem",
+    "labels": [
+     "strategy B_polygonal_footprint",
+     "garage tandem"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "B_polygonal_footprint"
+   },
+   {
+    "changes": 1,
+    "cost": 3.0,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint depth 73.2 ft exceeds strategy A depth 72.0 ft (realization)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "one_car",
+    "labels": [
+     "garage one_car"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "A_inscribed_rectangle"
+   },
+   {
+    "changes": 2,
+    "cost": 3.25,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint 3076 sq ft exceeds what B_stepped_footprint holds behind the front line (3024)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "one_car",
+    "labels": [
+     "strategy B_stepped_footprint",
+     "garage one_car"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "B_stepped_footprint"
+   },
+   {
+    "changes": 2,
+    "cost": 3.75,
+    "detail": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint 3076 sq ft exceeds what B_polygonal_footprint holds behind the front line (3024)",
+    "front_recess_ft": 0.0,
+    "garage_layout": "one_car",
+    "labels": [
+     "strategy B_polygonal_footprint",
+     "garage one_car"
+    ],
+    "outcome": "site_not_feasible",
+    "strategy": "B_polygonal_footprint"
+   }
+  ],
+  "full_runs": 8,
+  "pareto": [],
+  "status": "no_correction_found",
+  "triggered_by": "site: required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint depth 73.2 ft exceeds strategy A depth 72.0 ft (realization)"
+ },
+ "cost": {
+  "budget": {
+   "applies": true,
+   "budget": null,
+   "buildable_max_index": 1.0,
+   "governing": "normative",
+   "suggestions": [
+    "some options exceed the normative maximum of the lot (index > 1)"
+   ],
+   "verdicts": {
+    "desirable@1f": {
+     "headroom": -0.1366,
+     "index": 1.1366,
+     "within_budget": null,
+     "within_normative": false
+    },
+    "desirable@2f": {
+     "headroom": -0.1766,
+     "index": 1.1766,
+     "within_budget": null,
+     "within_normative": false
+    },
+    "preferred@1f": {
+     "headroom": -0.0254,
+     "index": 1.0254,
+     "within_budget": null,
+     "within_normative": false
+    },
+    "preferred@2f": {
+     "headroom": -0.0654,
+     "index": 1.0654,
+     "within_budget": null,
+     "within_normative": false
+    },
+    "required@1f": {
+     "headroom": 0.4921,
+     "index": 0.5079,
+     "within_budget": null,
+     "within_normative": true
+    },
+    "required@2f": {
+     "headroom": 0.4521,
+     "index": 0.5479,
+     "within_budget": null,
+     "within_normative": true
+    }
+   }
+  },
+  "legend": "Comparative relative index, not a cost estimate or quote",
+  "model": "base",
+  "options": [
+   {
+    "breakdown": {
+     "gross_area_sqft": 1523.75
+    },
+    "by_model": {
+     "base": 0.5079,
+     "shape": 0.529,
+     "weighted": 0.529
+    },
+    "index": 0.5079,
+    "kind": "household_tier",
+    "label": "required@1f",
+    "quantities": {
+     "area_by_class": {
+      "circulation": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 132.25
+      },
+      "garage": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 287.5
+      },
+      "habitable_dry": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 816.5
+      },
+      "wet": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 287.5
+      }
+     },
+     "area_by_floor": [
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 1523.75
+      }
+     ],
+     "confidence": "estimated",
+     "exterior_by_class": {
+      "backyard": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "deck": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "paving": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      }
+     },
+     "facade_perimeter": {
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5",
+      "unit": "ft",
+      "value": 159.361
+     },
+     "floors": 1,
+     "footprint": {
+      "basis": "estimated",
+      "note": "gross area split evenly by floor",
+      "unit": "sq_ft",
+      "value": 1523.75
+     },
+     "footprint_form": "rectangle",
+     "gross_area_sqft": 1523.75,
+     "label": "required@1f",
+     "mean_slope": 0.03,
+     "notes": [],
+     "roof": {
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint",
+      "unit": "sq_ft",
+      "value": 1523.75
+     },
+     "stairs": 0,
+     "wet_cores": {
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces",
+      "unit": "count",
+      "value": 1.0
+     },
+     "wet_spaces": 4
+    }
+   },
+   {
+    "breakdown": {
+     "gross_area_sqft": 1643.75
+    },
+    "by_model": {
+     "base": 0.5479,
+     "shape": 0.5372,
+     "weighted": 0.5655
+    },
+    "index": 0.5479,
+    "kind": "household_tier",
+    "label": "required@2f",
+    "quantities": {
+     "area_by_class": {
+      "circulation": {
+       "basis": "derived",
+       "note": "includes the stair repeated on 2 floors",
+       "unit": "sq_ft",
+       "value": 252.25
+      },
+      "garage": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 287.5
+      },
+      "habitable_dry": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 816.5
+      },
+      "wet": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 287.5
+      }
+     },
+     "area_by_floor": [
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 821.875
+      },
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 821.875
+      }
+     ],
+     "confidence": "estimated",
+     "exterior_by_class": {
+      "backyard": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "deck": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "paving": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      }
+     },
+     "facade_perimeter": {
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5",
+      "unit": "ft",
+      "value": 117.038
+     },
+     "floors": 2,
+     "footprint": {
+      "basis": "estimated",
+      "note": "gross area split evenly by floor",
+      "unit": "sq_ft",
+      "value": 821.875
+     },
+     "footprint_form": "rectangle",
+     "gross_area_sqft": 1643.75,
+     "label": "required@2f",
+     "mean_slope": 0.03,
+     "notes": [
+      "stair added: 120 sq ft over 2 floors"
+     ],
+     "roof": {
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint",
+      "unit": "sq_ft",
+      "value": 821.875
+     },
+     "stairs": 1,
+     "wet_cores": {
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces",
+      "unit": "count",
+      "value": 2.0
+     },
+     "wet_spaces": 4
+    }
+   },
+   {
+    "breakdown": {
+     "gross_area_sqft": 3076.25
+    },
+    "by_model": {
+     "base": 1.0254,
+     "shape": 1.0712,
+     "weighted": 1.0712
+    },
+    "index": 1.0254,
+    "kind": "household_tier",
+    "label": "preferred@1f",
+    "quantities": {
+     "area_by_class": {
+      "circulation": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 161.0
+      },
+      "garage": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 483.0
+      },
+      "habitable_dry": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 1891.75
+      },
+      "service": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 23.0
+      },
+      "wet": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 517.5
+      }
+     },
+     "area_by_floor": [
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 3076.25
+      }
+     ],
+     "confidence": "estimated",
+     "exterior_by_class": {
+      "backyard": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "deck": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "paving": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      }
+     },
+     "facade_perimeter": {
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5",
+      "unit": "ft",
+      "value": 226.431
+     },
+     "floors": 1,
+     "footprint": {
+      "basis": "estimated",
+      "note": "gross area split evenly by floor",
+      "unit": "sq_ft",
+      "value": 3076.25
+     },
+     "footprint_form": "rectangle",
+     "gross_area_sqft": 3076.25,
+     "label": "preferred@1f",
+     "mean_slope": 0.03,
+     "notes": [],
+     "roof": {
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint",
+      "unit": "sq_ft",
+      "value": 3076.25
+     },
+     "stairs": 0,
+     "wet_cores": {
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces",
+      "unit": "count",
+      "value": 1.0
+     },
+     "wet_spaces": 6
+    }
+   },
+   {
+    "breakdown": {
+     "gross_area_sqft": 3196.25
+    },
+    "by_model": {
+     "base": 1.0654,
+     "shape": 1.0523,
+     "weighted": 1.1077
+    },
+    "index": 1.0654,
+    "kind": "household_tier",
+    "label": "preferred@2f",
+    "quantities": {
+     "area_by_class": {
+      "circulation": {
+       "basis": "derived",
+       "note": "includes the stair repeated on 2 floors",
+       "unit": "sq_ft",
+       "value": 281.0
+      },
+      "garage": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 483.0
+      },
+      "habitable_dry": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 1891.75
+      },
+      "service": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 23.0
+      },
+      "wet": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 517.5
+      }
+     },
+     "area_by_floor": [
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 1598.125
+      },
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 1598.125
+      }
+     ],
+     "confidence": "estimated",
+     "exterior_by_class": {
+      "backyard": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "deck": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "paving": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      }
+     },
+     "facade_perimeter": {
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5",
+      "unit": "ft",
+      "value": 163.204
+     },
+     "floors": 2,
+     "footprint": {
+      "basis": "estimated",
+      "note": "gross area split evenly by floor",
+      "unit": "sq_ft",
+      "value": 1598.125
+     },
+     "footprint_form": "rectangle",
+     "gross_area_sqft": 3196.25,
+     "label": "preferred@2f",
+     "mean_slope": 0.03,
+     "notes": [
+      "stair added: 120 sq ft over 2 floors"
+     ],
+     "roof": {
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint",
+      "unit": "sq_ft",
+      "value": 1598.125
+     },
+     "stairs": 1,
+     "wet_cores": {
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces",
+      "unit": "count",
+      "value": 2.0
+     },
+     "wet_spaces": 6
+    }
+   },
+   {
+    "breakdown": {
+     "gross_area_sqft": 3409.75
+    },
+    "by_model": {
+     "base": 1.1366,
+     "shape": 1.1814,
+     "weighted": 1.1814
+    },
+    "index": 1.1366,
+    "kind": "household_tier",
+    "label": "desirable@1f",
+    "quantities": {
+     "area_by_class": {
+      "circulation": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 161.0
+      },
+      "garage": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 483.0
+      },
+      "habitable_dry": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 2156.25
+      },
+      "service": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 92.0
+      },
+      "wet": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 517.5
+      }
+     },
+     "area_by_floor": [
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 3409.75
+      }
+     ],
+     "confidence": "estimated",
+     "exterior_by_class": {
+      "backyard": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "deck": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "paving": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      }
+     },
+     "facade_perimeter": {
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5",
+      "unit": "ft",
+      "value": 238.389
+     },
+     "floors": 1,
+     "footprint": {
+      "basis": "estimated",
+      "note": "gross area split evenly by floor",
+      "unit": "sq_ft",
+      "value": 3409.75
+     },
+     "footprint_form": "rectangle",
+     "gross_area_sqft": 3409.75,
+     "label": "desirable@1f",
+     "mean_slope": 0.03,
+     "notes": [],
+     "roof": {
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint",
+      "unit": "sq_ft",
+      "value": 3409.75
+     },
+     "stairs": 0,
+     "wet_cores": {
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces",
+      "unit": "count",
+      "value": 1.0
+     },
+     "wet_spaces": 6
+    }
+   },
+   {
+    "breakdown": {
+     "gross_area_sqft": 3529.75
+    },
+    "by_model": {
+     "base": 1.1766,
+     "shape": 1.157,
+     "weighted": 1.2179
+    },
+    "index": 1.1766,
+    "kind": "household_tier",
+    "label": "desirable@2f",
+    "quantities": {
+     "area_by_class": {
+      "circulation": {
+       "basis": "derived",
+       "note": "includes the stair repeated on 2 floors",
+       "unit": "sq_ft",
+       "value": 281.0
+      },
+      "garage": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 483.0
+      },
+      "habitable_dry": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 2156.25
+      },
+      "service": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 92.0
+      },
+      "wet": {
+       "basis": "derived",
+       "unit": "sq_ft",
+       "value": 517.5
+      }
+     },
+     "area_by_floor": [
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 1764.875
+      },
+      {
+       "basis": "estimated",
+       "unit": "sq_ft",
+       "value": 1764.875
+      }
+     ],
+     "confidence": "estimated",
+     "exterior_by_class": {
+      "backyard": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "deck": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      },
+      "paving": {
+       "basis": "not_available",
+       "unit": "sq_ft",
+       "value": 0.0
+      }
+     },
+     "facade_perimeter": {
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5",
+      "unit": "ft",
+      "value": 171.507
+     },
+     "floors": 2,
+     "footprint": {
+      "basis": "estimated",
+      "note": "gross area split evenly by floor",
+      "unit": "sq_ft",
+      "value": 1764.875
+     },
+     "footprint_form": "rectangle",
+     "gross_area_sqft": 3529.75,
+     "label": "desirable@2f",
+     "mean_slope": 0.03,
+     "notes": [
+      "stair added: 120 sq ft over 2 floors"
+     ],
+     "roof": {
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint",
+      "unit": "sq_ft",
+      "value": 1764.875
+     },
+     "stairs": 1,
+     "wet_cores": {
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces",
+      "unit": "count",
+      "value": 2.0
+     },
+     "wet_spaces": 6
+    }
+   }
+  ],
+  "reading": "lot",
+  "reference": {
+   "form": "one floor, rectangle, flat, no exterior works",
+   "gross_area_sqft": 3000.0,
+   "label": "lot_normative_max",
+   "mix": {
+    "circulation": 0.08,
+    "garage": 0.18,
+    "habitable_dry": 0.58,
+    "service": 0.04,
+    "wet": 0.12
+   }
+  },
+  "sources": {
+   "catalog_id": "spaceplan-residential-catalog",
+   "catalog_version": "0.11.0",
+   "citation": "Student-defined relative cost hypothesis, spaceplan step 6.5b (2026-10); dimensionless, never a price; validate ratios with local builders and public data before use",
+   "status": "provisional"
+  },
+  "tornado": {
+   "a": "required@1f",
+   "b": null,
+   "base": 0.52902,
+   "decisive_parameters": [],
+   "model": "shape",
+   "note": "one parameter at a time; interactions are left to the Monte Carlo interval (step 6.8)",
+   "quantity": "index",
+   "rows": [
+    {
+     "at_high": 0.54151,
+     "at_low": 0.51883,
+     "base": 0.52902,
+     "crosses_zero": false,
+     "high_input": 2.0,
+     "low_input": 1.3,
+     "parameter": "coef:wet",
+     "swing": 0.02269
+    },
+    {
+     "at_high": 0.52689,
+     "at_low": 0.53117,
+     "base": 0.52902,
+     "crosses_zero": false,
+     "high_input": 1.0,
+     "low_input": 0.8,
+     "parameter": "coef:service",
+     "swing": 0.00428
+    },
+    {
+     "at_high": 0.5292,
+     "at_low": 0.52884,
+     "base": 0.52902,
+     "crosses_zero": false,
+     "high_input": 1.0,
+     "low_input": 0.8,
+     "parameter": "coef:circulation",
+     "swing": 0.00036
+    },
+    {
+     "at_high": 0.52911,
+     "at_low": 0.52893,
+     "base": 0.52902,
+     "crosses_zero": false,
+     "high_input": 0.75,
+     "low_input": 0.45,
+     "parameter": "coef:garage",
+     "swing": 0.00019
+    }
+   ]
+  }
+ },
+ "geometric_scheme": null,
+ "graphs": null,
+ "household": {
+  "archetype_id": "multigenerational",
+  "composition": {
+   "adult": 2,
+   "child_0_5": 0,
+   "child_6_12": 2,
+   "senior": 1,
+   "teen_13_18": 0
+  },
+  "culture": {
+   "applied": false
+  },
+  "driveway_vehicles": 0,
+  "garage_cars": {
+   "desirable": 2,
+   "preferred": 2,
+   "required": 1
+  },
+  "household_catalog_id": "mpi-household-model",
+  "household_catalog_sha256": "fdab4ffa2c0a379ec486e42af55a018efbc61e312a1cd1942ceae61d821e36b2",
+  "household_catalog_version": "0.3.0",
+  "needs": [
+   {
+    "counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H02-SOCIAL-COMBINED"
+    ],
+    "space_type": "living_dining"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H04-SOCIAL-SPLIT"
+    ],
+    "space_type": "living_room"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H04-SOCIAL-SPLIT"
+    ],
+    "space_type": "dining_room"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H05-FAMILY-ROOM",
+     "H06-FAMILY-ROOM-GATHERINGS"
+    ],
+    "space_type": "family_room"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H01-KITCHEN"
+    ],
+    "space_type": "kitchen"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 0,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H09-BREAKFAST-NOOK"
+    ],
+    "space_type": "breakfast_nook"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H07-PANTRY",
+     "H08-PANTRY-INTENSIVE"
+    ],
+    "space_type": "pantry"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "primary",
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ],
+    "space_type": "primary_suite"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "household_role": "accessible",
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ],
+    "space_type": "bedroom"
+   },
+   {
+    "counts": {
+     "desirable": 2,
+     "preferred": 2,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "child",
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ],
+    "space_type": "bedroom"
+   },
+   {
+    "counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "primary",
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ],
+    "space_type": "bedroom"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "primary",
+    "rule_ids": [
+     "H14-PRIMARY-BATH"
+    ],
+    "space_type": "primary_bath"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "household_role": "accessible",
+    "rule_ids": [
+     "H17-ACCESSIBLE-BATH-REDUCED",
+     "H18-ACCESSIBLE-BATH-ANTICIPATED"
+    ],
+    "space_type": "bathroom"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H11-BATH-MINIMUM",
+     "H12-BATH-SHARED"
+    ],
+    "space_type": "bathroom"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "primary",
+    "rule_ids": [
+     "H14-PRIMARY-BATH"
+    ],
+    "space_type": "walk_in_closet"
+   },
+   {
+    "counts": {
+     "desirable": 3,
+     "preferred": 3,
+     "required": 3
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H32-CLOSETS"
+    ],
+    "space_type": "closet"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H19-HALF-BATH-SOCIAL",
+     "H20-HALF-BATH"
+    ],
+    "space_type": "half_bath"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H27-LAUNDRY-ROOM"
+    ],
+    "space_type": "laundry"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H29-STORAGE"
+    ],
+    "space_type": "storage"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 0,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H29-STORAGE"
+    ],
+    "space_type": "mechanical"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H10-ENTRY"
+    ],
+    "space_type": "foyer"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 1,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H10-ENTRY"
+    ],
+    "space_type": "hall"
+   },
+   {
+    "counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 1
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H26-LAUNDRY-MINIMUM"
+    ],
+    "space_type": "laundry_closet"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 0,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "guest",
+    "rule_ids": [
+     "H23-GUESTS-RARE"
+    ],
+    "space_type": "flex_room"
+   },
+   {
+    "counts": {
+     "desirable": 1,
+     "preferred": 0,
+     "required": 0
+    },
+    "ground_floor_counts": {
+     "desirable": 0,
+     "preferred": 0,
+     "required": 0
+    },
+    "household_role": "general",
+    "rule_ids": [
+     "H31-MUDROOM-CHILDREN"
+    ],
+    "space_type": "mudroom"
+   }
+  ],
+  "privacy": "Composition by age band only; member list and cultural profile are copied only when household.include_household is true. Bedroom grouping is design guidance, not an occupancy limit.",
+  "program_source": "derived",
+  "program_tier": "preferred",
+  "quality_weights": {},
+  "relation_hints": [
+   {
+    "a": "bedroom:accessible",
+    "b": "bathroom:accessible",
+    "relation": "en_suite",
+    "rule_ids": [
+     "H17-ACCESSIBLE-BATH-REDUCED",
+     "H18-ACCESSIBLE-BATH-ANTICIPATED"
+    ]
+   }
+  ],
+  "rule_trace": [
+   {
+    "rule_id": "BEDROOM-POLICY",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H01-KITCHEN",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H02-SOCIAL-COMBINED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H04-SOCIAL-SPLIT",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H05-FAMILY-ROOM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H06-FAMILY-ROOM-GATHERINGS",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H07-PANTRY",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H08-PANTRY-INTENSIVE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H09-BREAKFAST-NOOK",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H10-ENTRY",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H11-BATH-MINIMUM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H12-BATH-SHARED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H14-PRIMARY-BATH",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H17-ACCESSIBLE-BATH-REDUCED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H18-ACCESSIBLE-BATH-ANTICIPATED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H19-HALF-BATH-SOCIAL",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H20-HALF-BATH",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H23-GUESTS-RARE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H26-LAUNDRY-MINIMUM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H27-LAUNDRY-ROOM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H29-STORAGE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H31-MUDROOM-CHILDREN",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H32-CLOSETS",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H33-GARAGE",
+    "status": "provisional"
+   }
+  ]
+ },
+ "lot_conformity": [
+  {
+   "check_id": "lot_area",
+   "passes": true,
+   "required": 5000.0,
+   "rule_id": "Z00-LOT-AREA-MIN",
+   "source": "SDMC Table 131-04D",
+   "status": "verified",
+   "unit": "sq_ft",
+   "value": 5000.0
+  },
+  {
+   "check_id": "lot_width",
+   "passes": true,
+   "required": 50.0,
+   "rule_id": "Z00-LOT-WIDTH-MIN",
+   "source": "SDMC Table 131-04D",
+   "status": "verified",
+   "unit": "ft",
+   "value": 50.0
+  },
+  {
+   "check_id": "lot_depth",
+   "passes": true,
+   "required": 95.0,
+   "rule_id": "Z00-LOT-DEPTH-MIN",
+   "source": "SDMC Table 131-04D",
+   "status": "verified",
+   "unit": "ft",
+   "value": 100.0
+  },
+  {
+   "check_id": "street_frontage",
+   "passes": true,
+   "required": 50.0,
+   "rule_id": "Z00-FRONTAGE-MIN",
+   "source": "SDMC Table 131-04D",
+   "status": "verified",
+   "unit": "ft",
+   "value": 50.0
+  }
+ ],
+ "lot_metrics": {
+  "area_sqft": 5000.0,
+  "depth_method": "front_rear_midpoints",
+  "depths_ft": {
+   "front_rear_midpoints": 100.0,
+   "max_extent": 100.0
+  },
+  "frame": {
+   "angle_deg": 0.0,
+   "origin": [
+    0.0,
+    0.0
+   ]
+  },
+  "front_chord_ft": 50.0,
+  "front_curve_radius_ft": null,
+  "frontage_ft": 50.0,
+  "is_convex": true,
+  "is_corner": false,
+  "width_method": "mean_width",
+  "widths_ft": {
+   "at_front_setback": 50.0,
+   "frontage": 50.0,
+   "mean_width": 50.0
+  }
+ },
+ "meta": {
+  "brief_id": "interior-50x100-multigen",
+  "brief_sha256": "d761bc5ab79669a6915a7f856f3959f95588e83ae99686820e014457cedb43a3",
+  "code_edition": "SDMC-Ch13-2026-07",
+  "dwelling_type": "house",
+  "realization_strategy": "A_inscribed_rectangle",
+  "ruleset_id": "sdmc-rs-1-7-capacity",
+  "ruleset_sha256": "953ef4ea5ec82191ca3728169906586b0169d07433698a2249c91e0bfbf3024f",
+  "ruleset_version": "0.4.0",
+  "schema_version": "0.9",
+  "seed": 101
+ },
+ "metrics": null,
+ "program_review": {
+  "buildable_as_stated": true,
+  "catalog_id": "spaceplan-residential-catalog",
+  "catalog_sha256": "450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e",
+  "catalog_version": "0.11.0",
+  "counts": {
+   "error": 0,
+   "info": 0,
+   "warning": 0
+  },
+  "crc_ruleset_id": "crc-2025-habitability",
+  "crc_ruleset_sha256": "f231b2a00817c5aaba27fdcfd9e0eeb33157a93681436d2fb8ac2480719a6b77",
+  "findings": [],
+  "summary": {
+   "by_zone": {
+    "circulation": {
+     "budget_max_sqft": 305.0,
+     "budget_min_sqft": 93.0,
+     "net_target_sqft": 165.0,
+     "within_budget": true
+    },
+    "garage": {
+     "budget_max_sqft": 500.0,
+     "budget_min_sqft": 380.0,
+     "net_target_sqft": 420.0,
+     "within_budget": true
+    },
+    "kitchen": {
+     "budget_max_sqft": 285.0,
+     "budget_min_sqft": 122.0,
+     "net_target_sqft": 205.0,
+     "within_budget": true
+    },
+    "private": {
+     "budget_max_sqft": 1480.0,
+     "budget_min_sqft": 773.0,
+     "net_target_sqft": 980.0,
+     "within_budget": true
+    },
+    "service": {
+     "budget_max_sqft": 115.0,
+     "budget_min_sqft": 45.0,
+     "net_target_sqft": 70.0,
+     "within_budget": true
+    },
+    "social": {
+     "budget_max_sqft": 1040.0,
+     "budget_min_sqft": 530.0,
+     "net_target_sqft": 835.0,
+     "within_budget": true
+    }
+   },
+   "declared_gross_sqft": null,
+   "exterior_edge_required": [
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "living_room",
+     "status": "provisional"
+    },
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "dining_room",
+     "status": "provisional"
+    },
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "family_room",
+     "status": "provisional"
+    },
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "kitchen",
+     "status": "provisional"
+    },
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "primary_suite",
+     "status": "provisional"
+    },
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "bedroom_accessible",
+     "status": "provisional"
+    },
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "bedroom_child_1",
+     "status": "provisional"
+    },
+    {
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "space_id": "bedroom_child_2",
+     "status": "provisional"
+    }
+   ],
+   "gross_estimate_sqft": 3076.25,
+   "gross_factor": 1.15,
+   "habitable_spaces": [
+    "living_room",
+    "dining_room",
+    "family_room",
+    "kitchen",
+    "primary_suite",
+    "bedroom_accessible",
+    "bedroom_child_1",
+    "bedroom_child_2"
+   ],
+   "min_side_ft": {
+    "bedroom_accessible": 7.0,
+    "bedroom_child_1": 7.0,
+    "bedroom_child_2": 7.0,
+    "dining_room": 7.0,
+    "family_room": 7.0,
+    "kitchen": null,
+    "living_room": 7.0,
+    "primary_suite": 7.0
+   },
+   "net_area_sqft": 2675.0,
+   "placement_order": [
+    "family_room",
+    "living_room",
+    "primary_suite",
+    "garage_2car",
+    "kitchen",
+    "dining_room",
+    "bedroom_accessible",
+    "bedroom_child_1",
+    "bedroom_child_2",
+    "hall",
+    "primary_bath",
+    "bathroom",
+    "bathroom_accessible",
+    "foyer",
+    "laundry",
+    "walk_in_closet_primary"
+   ],
+   "satellites": {
+    "closet_1": "bedroom_accessible",
+    "closet_2": "bedroom_child_1",
+    "closet_3": "bedroom_child_2",
+    "half_bath": "foyer",
+    "pantry": "kitchen",
+    "storage": "laundry"
+   }
+  }
+ },
+ "realizable_capacity": [
+  {
+   "area": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D",
+     "SDMC Table 131-04D note 2",
+     "SDMC Table 131-04D note 3",
+     "geometry:setback_envelope",
+     "strategy:A_inscribed_rectangle"
+    ],
+    "status": "verified",
+    "unit": "sq_ft",
+    "value": 3024.0
+   },
+   "depth_ft": 72.0,
+   "polygon": {
+    "coordinates": [
+     [
+      [
+       46.0,
+       15.0
+      ],
+      [
+       46.0,
+       87.0
+      ],
+      [
+       4.0,
+       87.0
+      ],
+      [
+       4.0,
+       15.0
+      ],
+      [
+       46.0,
+       15.0
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   },
+   "strategy": "A_inscribed_rectangle",
+   "utilization": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D",
+     "SDMC Table 131-04D note 2",
+     "SDMC Table 131-04D note 3",
+     "geometry:setback_envelope",
+     "strategy:A_inscribed_rectangle"
+    ],
+    "status": "verified",
+    "unit": "ratio",
+    "value": 1.0
+   },
+   "width_ft": 42.0
+  },
+  {
+   "area": {
+    "note": "best break positions by grid + pattern search",
+    "sources": [
+     "geometry:setback_envelope",
+     "strategy:B_steps_2"
+    ],
+    "status": "provisional",
+    "unit": "sq_ft",
+    "value": 3024.0
+   },
+   "depth_ft": 72.0,
+   "polygon": {
+    "coordinates": [
+     [
+      [
+       46.0,
+       15.0
+      ],
+      [
+       46.0,
+       87.0
+      ],
+      [
+       4.0,
+       87.0
+      ],
+      [
+       4.0,
+       15.0
+      ],
+      [
+       46.0,
+       15.0
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   },
+   "steps": 2,
+   "strategy": "B_stepped_footprint",
+   "utilization": {
+    "note": null,
+    "sources": [
+     "geometry:setback_envelope"
+    ],
+    "status": "provisional",
+    "unit": "ratio",
+    "value": 1.0
+   },
+   "width_ft": 42.0
+  },
+  {
+   "area": {
+    "note": "best break positions by grid + pattern search",
+    "sources": [
+     "geometry:setback_envelope",
+     "strategy:B_steps_3"
+    ],
+    "status": "provisional",
+    "unit": "sq_ft",
+    "value": 3024.0
+   },
+   "depth_ft": 72.0,
+   "polygon": {
+    "coordinates": [
+     [
+      [
+       46.0,
+       15.0
+      ],
+      [
+       46.0,
+       87.0
+      ],
+      [
+       4.0,
+       87.0
+      ],
+      [
+       4.0,
+       15.0
+      ],
+      [
+       46.0,
+       15.0
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   },
+   "steps": 3,
+   "strategy": "B_stepped_footprint",
+   "utilization": {
+    "note": null,
+    "sources": [
+     "geometry:setback_envelope"
+    ],
+    "status": "provisional",
+    "unit": "ratio",
+    "value": 1.0
+   },
+   "width_ft": 42.0
+  },
+  {
+   "area": {
+    "note": "edge cells follow the oblique lot lines; cores govern minimum dimensions",
+    "sources": [
+     "geometry:setback_envelope"
+    ],
+    "status": "provisional",
+    "unit": "sq_ft",
+    "value": 3024.0
+   },
+   "depth_ft": 72.0,
+   "polygon": {
+    "coordinates": [
+     [
+      [
+       4.0,
+       87.0
+      ],
+      [
+       46.0,
+       87.0
+      ],
+      [
+       46.0,
+       15.0
+      ],
+      [
+       4.0,
+       15.0
+      ],
+      [
+       4.0,
+       87.0
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   },
+   "steps": null,
+   "strategy": "B_polygonal_footprint",
+   "utilization": {
+    "note": null,
+    "sources": [
+     "geometry:setback_envelope"
+    ],
+    "status": "provisional",
+    "unit": "ratio",
+    "value": 1.0
+   },
+   "width_ft": 42.0
+  }
+ ],
+ "rule_variants": [
+  {
+   "magnitude": "front_setback",
+   "predicate": "base 15 ft",
+   "quantity": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 15.0
+   },
+   "rule_id": "Z01-FRONT-SETBACK",
+   "variant_id": "base"
+  },
+  {
+   "magnitude": "side_setback",
+   "predicate": "lot_width=50.00 >= 50; reassignment not allowed (width > 50)",
+   "quantity": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D note 2"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 4.0
+   },
+   "rule_id": "Z02-SIDE-SETBACK",
+   "variant_id": "base"
+  },
+  {
+   "magnitude": "street_side_setback",
+   "predicate": "base 5 ft",
+   "quantity": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D note 2"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 5.0
+   },
+   "rule_id": "Z03-STREET-SIDE-SETBACK",
+   "variant_id": "base"
+  },
+  {
+   "magnitude": "rear_setback",
+   "predicate": "100 <= lot_depth=100.00 <= 150",
+   "quantity": {
+    "note": null,
+    "sources": [
+     "SDMC Table 131-04D note 3"
+    ],
+    "status": "verified",
+    "unit": "ft",
+    "value": 13.0
+   },
+   "rule_id": "Z04-REAR-SETBACK",
+   "variant_id": "base"
+  },
+  {
+   "magnitude": "lot_coverage",
+   "predicate": "steep_fraction=0.00 <= 0.5: no coverage limit in RS-1-7",
+   "quantity": {
+    "note": null,
+    "sources": [
+     "SDMC 131.0445(a)"
+    ],
+    "status": "verified",
+    "unit": "ratio",
+    "value": null
+   },
+   "rule_id": "Z08-HILLSIDE-COVERAGE",
+   "variant_id": "base"
+  },
+  {
+   "magnitude": "floor_area_ratio",
+   "predicate": "lot_area=5000.0 in (0, 5000]",
+   "quantity": {
+    "note": null,
+    "sources": [
+     "SDMC 131.0446(a)(1), Table 131-04J"
+    ],
+    "status": "verified",
+    "unit": "ratio",
+    "value": 0.6
+   },
+   "rule_id": "Z07-FAR",
+   "variant_id": "base"
+  },
+  {
+   "magnitude": "structure_height",
+   "predicate": "zone value 24 ft (options [24, 30])",
+   "quantity": {
+    "note": "Table 131-04D note 4 gives 24/30 ft; which value applies (131.0444(b)) and the measuring method (113.0270) are pending. 24 ft is the conservative default.",
+    "sources": [
+     "SDMC Table 131-04D note 4; 131.0444(b)"
+    ],
+    "status": "provisional",
+    "unit": "ft",
+    "value": 24.0
+   },
+   "rule_id": "Z05-HEIGHT-MAX",
+   "variant_id": "base"
+  }
+ ],
+ "scope": {
+  "in_scope": true,
+  "reasons": []
+ },
+ "sensitivity": {
+  "envelope_area_max_sqft": 3024.0,
+  "envelope_area_min_sqft": 3024.0,
+  "rear_setback_varies": false,
+  "rows": [
+   {
+    "depth_method": "front_rear_midpoints",
+    "envelope_area_sqft": 3024.0,
+    "front_setback_ft": 15.0,
+    "lot_depth_ft": 100.0,
+    "lot_width_ft": 50.0,
+    "rear_setback_ft": 13.0,
+    "side_setback_ft": 4.0,
+    "street_side_setback_ft": 5.0,
+    "width_method": "mean_width"
+   },
+   {
+    "depth_method": "max_extent",
+    "envelope_area_sqft": 3024.0,
+    "front_setback_ft": 15.0,
+    "lot_depth_ft": 100.0,
+    "lot_width_ft": 50.0,
+    "rear_setback_ft": 13.0,
+    "side_setback_ft": 4.0,
+    "street_side_setback_ft": 5.0,
+    "width_method": "mean_width"
+   },
+   {
+    "depth_method": "front_rear_midpoints",
+    "envelope_area_sqft": 3024.0,
+    "front_setback_ft": 15.0,
+    "lot_depth_ft": 100.0,
+    "lot_width_ft": 50.0,
+    "rear_setback_ft": 13.0,
+    "side_setback_ft": 4.0,
+    "street_side_setback_ft": 5.0,
+    "width_method": "frontage"
+   },
+   {
+    "depth_method": "max_extent",
+    "envelope_area_sqft": 3024.0,
+    "front_setback_ft": 15.0,
+    "lot_depth_ft": 100.0,
+    "lot_width_ft": 50.0,
+    "rear_setback_ft": 13.0,
+    "side_setback_ft": 4.0,
+    "street_side_setback_ft": 5.0,
+    "width_method": "frontage"
+   },
+   {
+    "depth_method": "front_rear_midpoints",
+    "envelope_area_sqft": 3024.0,
+    "front_setback_ft": 15.0,
+    "lot_depth_ft": 100.0,
+    "lot_width_ft": 50.0,
+    "rear_setback_ft": 13.0,
+    "side_setback_ft": 4.0,
+    "street_side_setback_ft": 5.0,
+    "width_method": "at_front_setback"
+   },
+   {
+    "depth_method": "max_extent",
+    "envelope_area_sqft": 3024.0,
+    "front_setback_ft": 15.0,
+    "lot_depth_ft": 100.0,
+    "lot_width_ft": 50.0,
+    "rear_setback_ft": 13.0,
+    "side_setback_ft": 4.0,
+    "street_side_setback_ft": 5.0,
+    "width_method": "at_front_setback"
+   }
+  ],
+  "side_setback_varies": false,
+  "varies": false
+ },
+ "site_partition": {
+  "frame": {
+   "angle_rad": 0.0,
+   "origin": [
+    0.0,
+    0.0
+   ]
+  },
+  "front_recess_ft": 0.0,
+  "front_yard_area_sqft": 750.0,
+  "limits": {
+   "deck_counts_as_paving": true,
+   "deck_max_height_ft": 15,
+   "deck_max_projection_ft": 6,
+   "deck_min_open_fraction": 0.4,
+   "equipment_min_distance_ft": 4,
+   "max_paving_fraction": 0.6
+  },
+  "options": [
+   {
+    "feasible": false,
+    "floors": 1,
+    "footprint_area_sqft": 3076.25,
+    "option_id": "n1",
+    "preferences_met": false,
+    "reasons": [
+     "required gross 3076 exceeds FAR limit 3000",
+     "footprint 3076 exceeds normative footprint 3024",
+     "footprint depth 73.2 ft exceeds strategy A depth 72.0 ft (realization)"
+    ]
+   },
+   {
+    "feasible": false,
+    "floors": 2,
+    "footprint_area_sqft": 1538.125,
+    "option_id": "n2",
+    "preferences_met": false,
+    "reasons": [
+     "required gross 3076 exceeds FAR limit 3000"
+    ]
+   }
+  ],
+  "orientation": {
+   "boundaries": [
+    {
+     "afternoon_shade": 1.0,
+     "boundary_class": "front",
+     "edge_id": "e0",
+     "morning_light": 0.0,
+     "outward_azimuth_deg": 180.0,
+     "street_exposure": 1.0,
+     "sun": 1.0
+    },
+    {
+     "afternoon_shade": 1.0,
+     "boundary_class": "side",
+     "edge_id": "e1",
+     "morning_light": 1.0,
+     "outward_azimuth_deg": 90.0,
+     "street_exposure": 0.0,
+     "sun": 0.0
+    },
+    {
+     "afternoon_shade": 1.0,
+     "boundary_class": "rear",
+     "edge_id": "e2",
+     "morning_light": 0.0,
+     "outward_azimuth_deg": 0.0,
+     "street_exposure": 0.0,
+     "sun": 0.0
+    },
+    {
+     "afternoon_shade": 0.0,
+     "boundary_class": "side",
+     "edge_id": "e3",
+     "morning_light": 0.0,
+     "outward_azimuth_deg": 270.0,
+     "street_exposure": 0.0,
+     "sun": 0.0
+    }
+   ],
+   "latitude_deg": 32.8,
+   "north_azimuth_deg": 0.0
+  },
+  "primary_street_id": "street_main",
+  "selected_option_id": null,
+  "strategy": "A_inscribed_rectangle",
+  "streets": [
+   {
+    "curb_cut": {
+     "edge_id": "e0",
+     "position": 0.75,
+     "width_ft": 20
+    },
+    "grade_offset_ft": 0.0,
+    "noise_level": 0.3,
+    "role": "primary",
+    "street_id": "street_main",
+    "street_type": "local"
+   }
+  ]
+ },
+ "sized_program": null,
+ "unit": null,
+ "warnings": [
+  "site partition: no option satisfies the normative site checks",
+  "no correction found for n1 (site: required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint depth 73.2 ft exceeds strategy A depth 72.0 ft (realization)) within the evaluated combinations"
+ ],
+ "zoning": {
+  "dwelling_type": "house",
+  "options": [
+   {
+    "floors": 1,
+    "option_id": "n1",
+    "reason": "required gross 3076 exceeds FAR limit 3000; footprint 3076 exceeds normative footprint 3024; footprint depth 73.2 ft exceeds strategy A depth 72.0 ft (realization)",
+    "status": "not_feasible"
+   },
+   {
+    "floors": 2,
+    "option_id": "n2",
+    "reason": "required gross 3076 exceeds FAR limit 3000",
+    "status": "not_feasible"
+   }
+  ],
+  "selection": {
+   "reason": "strategy A uses 100% of the envelope (>= 80%)",
+   "requested": "auto",
+   "strategy": "A_inscribed_rectangle"
+  },
+  "strategy": "A_inscribed_rectangle"
+ }
+}
