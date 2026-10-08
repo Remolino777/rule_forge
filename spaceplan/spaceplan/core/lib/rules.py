@@ -10,9 +10,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from spaceplan.lib_aux.hashing import sha256_of
-from spaceplan.lib_aux.json_io import load_json, load_resource_json
-from spaceplan.lib_aux.quantity import PROVISIONAL, VERIFIED
+from spaceplan.core.lib_aux.hashing import sha256_of
+from spaceplan.core.lib_aux.json_io import load_json, load_resource_json
+from spaceplan.core.lib_aux.quantity import PROVISIONAL, VERIFIED
 
 DEFAULT_RULESET = ("data", "rules", "sdmc_rs_1_7_capacity.json")
 CRC_RULESET = ("data", "rules", "crc_2025_habitability.json")

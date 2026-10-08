@@ -308,7 +308,7 @@ class SectionProfile:
 
 def profile_of_largest(geom) -> SectionProfile:
     """Section profile of the largest polygon part of a shapely geometry."""
-    from spaceplan.lib_aux.geometry import polygon_parts
+    from spaceplan.core.lib_aux.geometry import polygon_parts
 
     parts = polygon_parts(geom)
     if not parts:

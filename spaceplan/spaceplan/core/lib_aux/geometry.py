@@ -18,7 +18,7 @@ from shapely.geometry import LineString, MultiPolygon, Polygon, box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
-from spaceplan.lib_aux.tolerances import (
+from spaceplan.core.lib_aux.tolerances import (
     BISECTION_ITERS,
     BUFFER_QUAD_SEGS,
     COVER_TOL_FT,

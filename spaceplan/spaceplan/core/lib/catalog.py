@@ -1,7 +1,8 @@
 """Zone, scale and typology catalog (layer 2 inputs; spaceplan v1.1 section 8).
 
-Design ranges live in data/catalog/residential_catalog.json with their source; code
-only reads them. Normative minima (CRC) stay in a ruleset, never in the catalog.
+Design ranges live in data/catalog/fragments/*.json (one fragment per owning module, merged in the order
+of fragments/index.json) with their source; code only reads them. Normative minima (CRC) stay in a ruleset,
+never in the catalog. data/catalog/residential_catalog.json is the pre-split reference copy (until tanda 4).
 """
 
 from __future__ import annotations
@@ -12,11 +13,13 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-from spaceplan.lib.schema_validation import load_schema
-from spaceplan.lib_aux.hashing import sha256_of
-from spaceplan.lib_aux.json_io import load_json, load_resource_json
+from spaceplan.core.lib.schema_validation import load_schema
+from spaceplan.core.lib_aux.hashing import sha256_of
+from spaceplan.core.lib_aux.json_io import load_json, load_resource_json
 
-DEFAULT_CATALOG = ("data", "catalog", "residential_catalog.json")
+DEFAULT_CATALOG = ("data", "catalog", "residential_catalog.json")  # reference copy, removed in tanda 4
+FRAGMENTS_DIR = ("data", "catalog", "fragments")
+FRAGMENT_INDEX = "index.json"
 
 
 class CatalogError(ValueError):
@@ -71,11 +74,20 @@ class Catalog:
 
 
 def catalog_errors(data: dict[str, Any]) -> list[str]:
+    """Schema check of the merged catalog, then the semantic checks of each fragment in index order."""
     validator = Draft202012Validator(load_schema("catalog"))
     errors = [f"{'/'.join(map(str, e.absolute_path))}: {e.message}" for e in validator.iter_errors(data)]
     if errors:
         return errors
     types = {t["space_type"]: t for t in data["space_types"]}
+    for check in FRAGMENT_CHECKS.values():
+        errors += check(data, types)
+    return errors
+
+
+def core_fragment_errors(data: dict[str, Any], types: dict[str, Any]) -> list[str]:
+    """Fragment `core`: space types (area order, support hosts)."""
+    errors = []
     for t in data["space_types"]:
         a = t["area"]
         if not a["min"] <= a["target"] <= a["max"]:
@@ -85,6 +97,12 @@ def catalog_errors(data: dict[str, Any]) -> list[str]:
         for host in t.get("host_types", []):
             if host not in types:
                 errors.append(f"space_type {t['space_type']}: unknown host type {host!r}")
+    return errors
+
+
+def household_fragment_errors(data: dict[str, Any], types: dict[str, Any]) -> list[str]:
+    """Fragment `household`: typologies and garage types reference known space types."""
+    errors = []
     for typ in data["typologies"]:
         for entry in typ["spaces"]:
             if entry["space_type"] not in types:
@@ -92,7 +110,17 @@ def catalog_errors(data: dict[str, Any]) -> list[str]:
     for cars, garage in data["garage_by_cars"].items():
         if garage is not None and garage not in types:
             errors.append(f"garage_by_cars[{cars}]: unknown space type {garage!r}")
-    errors += cost_index_errors(data["cost_index"], types)
+    return errors
+
+
+def cost_fragment_errors(data: dict[str, Any], types: dict[str, Any]) -> list[str]:
+    """Fragment `cost`: relative cost index."""
+    return cost_index_errors(data["cost_index"], types)
+
+
+def areas_fragment_errors(data: dict[str, Any], types: dict[str, Any]) -> list[str]:
+    """Fragment `areas`: vertical schemes and area analysis (both optional)."""
+    errors = []
     if "vertical_schemes" in data:
         errors += vertical_scheme_errors(data["vertical_schemes"], types)
     if "area_analysis" in data:
@@ -184,8 +212,52 @@ def cost_index_errors(ci: dict[str, Any], types: dict[str, Any]) -> list[str]:
     return errors
 
 
+# Semantic checks per fragment, run in this order (the original single-file order). Fragments without
+# semantic checks beyond the JSON Schema (site, zoning, profiles, viz) are not listed.
+FRAGMENT_CHECKS = {
+    "core": core_fragment_errors,
+    "household": household_fragment_errors,
+    "cost": cost_fragment_errors,
+    "areas": areas_fragment_errors,
+}
+
+
+def merge_fragments(index: dict[str, Any], fragments: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """Merge catalog fragments (in index order) into one dictionary with the index key order."""
+    merged: dict[str, Any] = {}
+    for name in index["fragments"]:
+        fragment = fragments[name]
+        if fragment.get("fragment") != name:
+            raise CatalogError(f"catalog fragment {name!r} declares fragment {fragment.get('fragment')!r}")
+        for key, value in fragment["entries"].items():
+            if key in merged:
+                raise CatalogError(f"catalog key {key!r} defined by more than one fragment")
+            merged[key] = value
+    order = index["key_order"]
+    if sorted(order) != sorted(merged):
+        raise CatalogError("catalog fragments do not cover exactly the keys of index.key_order")
+    return {key: merged[key] for key in order}
+
+
+def _is_fragment_index(data: Any) -> bool:
+    return isinstance(data, dict) and "fragments" in data and "key_order" in data
+
+
+def load_catalog_data(path: str | Path | None = None) -> dict[str, Any]:
+    """Raw catalog dictionary: packaged fragments by default, or a single file / a fragment index on disk."""
+    if path is None:
+        index = load_resource_json("spaceplan", *FRAGMENTS_DIR, FRAGMENT_INDEX)
+        fragments = {n: load_resource_json("spaceplan", *FRAGMENTS_DIR, f"{n}.json") for n in index["fragments"]}
+        return merge_fragments(index, fragments)
+    data = load_json(path)
+    if _is_fragment_index(data):
+        folder = Path(path).parent
+        return merge_fragments(data, {n: load_json(folder / f"{n}.json") for n in data["fragments"]})
+    return data
+
+
 def load_catalog(path: str | Path | None = None) -> Catalog:
-    data = load_json(path) if path else load_resource_json("spaceplan", *DEFAULT_CATALOG)
+    data = load_catalog_data(path)
     errors = catalog_errors(data)
     if errors:
         raise CatalogError("invalid catalog:\n  - " + "\n  - ".join(errors))

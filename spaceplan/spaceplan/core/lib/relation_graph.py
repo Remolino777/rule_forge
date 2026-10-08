@@ -10,7 +10,7 @@ from collections import defaultdict
 
 import networkx as nx
 
-from spaceplan.lib.enums import NodeKind, RelationType, SiteZone, Zone
+from spaceplan.core.lib.enums import NodeKind, RelationType, SiteZone, Zone
 
 
 def node_namespace(brief: dict) -> dict[str, NodeKind]:

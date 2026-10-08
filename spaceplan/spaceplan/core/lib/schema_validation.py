@@ -6,8 +6,12 @@ from collections import Counter
 
 from jsonschema import Draft202012Validator
 
-from spaceplan.lib.relation_graph import build_relation_graph, node_namespace, relation_conflicts
-from spaceplan.lib_aux.json_io import load_resource_json
+from spaceplan.core.lib.relation_graph import (
+    build_relation_graph,
+    node_namespace,
+    relation_conflicts,
+)
+from spaceplan.core.lib_aux.json_io import load_resource_json
 
 
 class BriefValidationError(ValueError):
@@ -158,3 +162,29 @@ def validate_package(package: dict) -> None:
     errors = _schema_errors(package, "package")
     if errors:
         raise PackageValidationError(errors)
+
+
+# ------------------------------------------------------------------------------------ module contracts
+
+CONTRACTS = ("lot_capacity", "site_plan", "program", "cost_report", "program_portfolio", "zoning_scheme",
+             "area_matrix")
+REFERENCED_SCHEMAS = ("brief", "package")  # contract blocks reference these definitions
+
+
+def load_contract_schema(name: str) -> dict:
+    return load_resource_json("spaceplan", "contracts", "schemas", f"{name}.schema.json")
+
+
+def contract_registry():
+    """Registry that resolves the references of the contract schemas into the brief and package schemas."""
+    from referencing import Registry, Resource
+
+    schemas = [load_schema(n) for n in REFERENCED_SCHEMAS] + [load_contract_schema(n) for n in CONTRACTS]
+    resources = [Resource.from_contents(s) for s in schemas]
+    return Registry().with_resources((r.id(), r) for r in resources)
+
+
+def contract_errors(instance: dict, name: str, registry=None) -> list[str]:
+    validator = Draft202012Validator(load_contract_schema(name), registry=registry or contract_registry())
+    errors = sorted(validator.iter_errors(instance), key=lambda e: list(e.absolute_path))
+    return [f"{'/'.join(map(str, e.absolute_path)) or '<root>'}: {e.message}" for e in errors]
