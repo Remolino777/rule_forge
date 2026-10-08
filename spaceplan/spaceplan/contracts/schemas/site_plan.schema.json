@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/site_plan/0.1.0",
+  "title": "Site plan (layer 1)",
+  "description": "Site partition: options by number of floors, accesses, paving, garden, facade roles and backyard.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "version",
+    "produced_by",
+    "input_sha256",
+    "site_partition"
+  ],
+  "properties": {
+    "contract": {
+      "const": "site_plan"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "produced_by": {
+      "const": "site"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
+    },
+    "consumers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Informative: modules expected to read it (zoning, areas, viz)."
+    },
+    "site_partition": {
+      "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/site_partition"
+    }
+  }
+}

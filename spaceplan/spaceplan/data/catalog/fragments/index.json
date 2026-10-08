@@ -1,0 +1,47 @@
+{
+  "catalog_id": "spaceplan-residential-catalog",
+  "note": "Residential catalog split by owning module (refactor tanda 1). The loader merges the fragments, in this order, into the same dictionary as residential_catalog.json, then restores key_order. residential_catalog.json is kept as the reference until tanda 4. The household catalog (household_catalog.json) is a separate catalog owned by the household module and is not merged.",
+  "fragments": [
+    "core",
+    "household",
+    "site",
+    "zoning",
+    "cost",
+    "profiles",
+    "areas",
+    "viz"
+  ],
+  "key_order": [
+    "catalog_id",
+    "catalog_version",
+    "units",
+    "default_source",
+    "scales",
+    "zones",
+    "profiles",
+    "target_rounding_sqft",
+    "space_types",
+    "site_zone_types",
+    "garage_by_cars",
+    "typologies",
+    "orientation_model",
+    "zoning",
+    "zone_parts",
+    "zoning_profiles",
+    "backyard_policy",
+    "backyard_elements",
+    "circulation",
+    "relation_matrix",
+    "realization",
+    "corrections",
+    "polygonal_extension",
+    "cost_index",
+    "accessibility",
+    "display",
+    "area_analysis",
+    "vertical_schemes"
+  ],
+  "separate_catalogs": {
+    "household": "household_catalog.json"
+  }
+}

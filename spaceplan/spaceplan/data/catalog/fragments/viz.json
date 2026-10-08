@@ -1,0 +1,390 @@
+{
+  "fragment": "viz",
+  "entries": {
+    "display": {
+      "default_lang": "es",
+      "labels": {
+        "es": {
+          "space_types": {
+            "living_dining": "Sala-comedor",
+            "living_room": "Sala",
+            "dining_room": "Comedor",
+            "family_room": "Sala familiar",
+            "study": "Estudio",
+            "kitchen": "Cocina",
+            "breakfast_nook": "Rincón desayuno",
+            "pantry": "Despensa",
+            "primary_suite": "Suite principal",
+            "bedroom": "Dormitorio",
+            "social_bath": "Baño social",
+            "primary_bath": "Baño principal",
+            "bathroom": "Baño",
+            "walk_in_closet": "Vestidor",
+            "closet": "Clóset",
+            "half_bath": "Medio baño",
+            "laundry": "Lavandería",
+            "storage": "Depósito",
+            "mechanical": "Cuarto técnico",
+            "foyer": "Vestíbulo",
+            "hall": "Pasillo",
+            "stair": "Escalera",
+            "garage_1car": "Garaje 1 auto",
+            "garage_2car": "Garaje 2 autos",
+            "garage_2car_tandem": "Garaje tándem",
+            "laundry_closet": "Armario de lavado",
+            "flex_room": "Cuarto flexible",
+            "mudroom": "Cuarto de lodo",
+            "work_kitchen": "Cocina de trabajo"
+          },
+          "household_roles": {
+            "general": "",
+            "primary": "principal",
+            "child": "niños",
+            "teen": "adolescente",
+            "adult": "adulto",
+            "accessible": "accesible",
+            "work": "trabajo",
+            "guest": "huéspedes"
+          },
+          "backyard": {
+            "rear_deck": "Deck",
+            "pool": "Piscina",
+            "spa": "Spa",
+            "bbq": "Asador",
+            "shed": "Bodega",
+            "garden_beds": "Huerta",
+            "covered_terrace": "Terraza cubierta",
+            "outdoor_kitchen": "Cocina ext."
+          },
+          "zones": {
+            "social": "Social",
+            "private": "Privada",
+            "kitchen": "Cocina",
+            "service": "Servicio",
+            "circulation": "Circulación",
+            "garage": "Garaje"
+          },
+          "matrix_roles": {
+            "living": "sala",
+            "dining": "comedor",
+            "kitchen": "cocina",
+            "laundry": "lavandería",
+            "primary_bedroom": "dormitorio principal",
+            "bedroom": "dormitorio"
+          },
+          "moves": {
+            "substitute": {
+              "split_social": "sala y comedor separados",
+              "primary_suite": "suite principal",
+              "laundry_room": "lavandería",
+              "work_study": "estudio"
+            },
+            "size": "tamaño {zone}",
+            "car": "auto {n}"
+          }
+        },
+        "en": {
+          "space_types": {
+            "living_dining": "Living dining",
+            "living_room": "Living room",
+            "dining_room": "Dining room",
+            "family_room": "Family room",
+            "study": "Study",
+            "kitchen": "Kitchen",
+            "breakfast_nook": "Breakfast nook",
+            "pantry": "Pantry",
+            "primary_suite": "Primary suite",
+            "bedroom": "Bedroom",
+            "social_bath": "Social bath",
+            "primary_bath": "Primary bath",
+            "bathroom": "Bathroom",
+            "walk_in_closet": "Walk in closet",
+            "closet": "Closet",
+            "half_bath": "Half bath",
+            "laundry": "Laundry",
+            "storage": "Storage",
+            "mechanical": "Mechanical",
+            "foyer": "Foyer",
+            "hall": "Hall",
+            "stair": "Stair",
+            "garage_1car": "Garage 1car",
+            "garage_2car": "Garage 2car",
+            "garage_2car_tandem": "Garage 2car tandem",
+            "laundry_closet": "Laundry closet",
+            "flex_room": "Flex room",
+            "mudroom": "Mudroom",
+            "work_kitchen": "Work kitchen"
+          },
+          "household_roles": {
+            "general": "",
+            "primary": "primary",
+            "child": "children",
+            "teen": "teen",
+            "adult": "adult",
+            "accessible": "accessible",
+            "work": "work",
+            "guest": "guest"
+          },
+          "backyard": {
+            "rear_deck": "Rear deck",
+            "pool": "Pool",
+            "spa": "Spa",
+            "bbq": "Bbq",
+            "shed": "Shed",
+            "garden_beds": "Garden beds",
+            "covered_terrace": "Covered terrace",
+            "outdoor_kitchen": "Outdoor kitchen"
+          },
+          "zones": {
+            "social": "Social",
+            "private": "Private",
+            "kitchen": "Kitchen",
+            "service": "Service",
+            "circulation": "Circulation",
+            "garage": "Garage"
+          },
+          "matrix_roles": {
+            "living": "living",
+            "dining": "dining",
+            "kitchen": "kitchen",
+            "laundry": "laundry",
+            "primary_bedroom": "primary bedroom",
+            "bedroom": "bedroom"
+          },
+          "moves": {
+            "substitute": {
+              "split_social": "split living/dining",
+              "primary_suite": "primary suite",
+              "laundry_room": "laundry room",
+              "work_study": "study"
+            },
+            "size": "{zone} size",
+            "car": "car {n}"
+          }
+        }
+      },
+      "review_notes": {
+        "es": {
+          "prefix": {
+            "ok": "✔ ",
+            "review": "• ",
+            "issue": "✖ ",
+            "info": "· "
+          },
+          "yes": "cumple",
+          "no": "no cumple",
+          "passed": "{hard_pairs} relaciones duras cumplidas; normativa de sitio {site}; pavimento del antejardín {paving} (límite {paving_limit}).",
+          "weak_patio_link": "{role}–patio se cumple solo a través de otro espacio: {spaces} no tiene puerta propia al patio.",
+          "private_through_social": "{private} abre directamente a {via}: el área privada se alcanza atravesando un espacio social.",
+          "kitchen_no_garden": "La cocina no llega a la fachada del jardín (la ocupa: {blocked_by}); sin vista cocina–jardín.",
+          "suite_no_garden": "La suite principal no tiene fachada al jardín; la toman {taken_by}.",
+          "below_target": "{space}: {achieved} ft² logrados de {target} ft² objetivo.",
+          "below_minimum": "{space}: {achieved} ft² por debajo del mínimo de {minimum} ft².",
+          "circulation_high": "Circulación {fraction} (meta {target}).",
+          "garden_short": "Jardín {area} ft² por debajo de la preferencia de {preference} ft².",
+          "backyard_excluded": "Patio sin {element}: {reason}.",
+          "satellites": "Satélites dentro de su anfitrión (no dibujados): {satellites}.",
+          "patio_door_private": "{space} tiene puerta directa al patio: revisar privacidad y seguridad (puertas al patio desde dormitorios o vestidores)."
+        },
+        "en": {
+          "prefix": {
+            "ok": "OK ",
+            "review": "- ",
+            "issue": "X ",
+            "info": "· "
+          },
+          "yes": "pass",
+          "no": "fail",
+          "passed": "{hard_pairs} hard relations hold; site rules {site}; front paving {paving} (limit {paving_limit}).",
+          "weak_patio_link": "{role}–patio holds only through another space: {spaces} has no own patio door.",
+          "private_through_social": "{private} opens directly onto {via}: the private area is reached through a social room.",
+          "kitchen_no_garden": "The kitchen does not reach the garden facade (taken by {blocked_by}).",
+          "suite_no_garden": "The primary suite has no garden facade; {taken_by} take it.",
+          "below_target": "{space}: {achieved} sq ft achieved of {target} sq ft target.",
+          "below_minimum": "{space}: {achieved} sq ft below the {minimum} sq ft minimum.",
+          "circulation_high": "Circulation {fraction} (target {target}).",
+          "garden_short": "Garden {area} sq ft below the {preference} sq ft preference.",
+          "backyard_excluded": "Backyard without {element}: {reason}.",
+          "satellites": "Satellites inside their host (not drawn): {satellites}.",
+          "patio_door_private": "{space} has a direct patio door: check privacy and security."
+        }
+      },
+      "sheet": {
+        "es": {
+          "title": "Planta de revisión",
+          "street": "CALLE (frente principal)",
+          "rear": "Lindero posterior",
+          "front": "frente",
+          "areas": "Cuadro de áreas (net ft²)",
+          "cols": [
+            "Espacio",
+            "Objetivo",
+            "Mínimo",
+            "Logrado",
+            "Ancho×fondo ft",
+            "Prof."
+          ],
+          "legend": "Leyenda",
+          "doors": {
+            "entry": "Puerta de entrada",
+            "patio": "Puerta al patio",
+            "ensuite": "Puerta en suite",
+            "door": "Puerta interior"
+          },
+          "legend_note": "Gris claro = vestíbulo y pasillos · línea roja discontinua = envolvente de retiros · 'Prof.' = espacios atravesados desde la entrada",
+          "observations": "Observaciones para revisar",
+          "footer": "Generado por spaceplan · esquema protodistributivo, no plano constructivo · valores normativos y culturales provisionales",
+          "portfolio": "Portafolio de programas",
+          "curve_x": "Índice de costo relativo (1 = máximo normativo del lote)",
+          "curve_y": "Calidad del programa (indicador provisional)",
+          "profiles": {
+            "minimum": "Mínimo",
+            "optimum": "Óptimo",
+            "maximum": "Máximo",
+            "staged": "Por etapas",
+            "accessible": "Accesible",
+            "staged_final": "Por etapas (final)"
+          },
+          "feasibility": {
+            "fits_one_floor": "cabe en 1 piso",
+            "needs_two_floors": "requiere 2 pisos (6.7)",
+            "exceeds_normative": "excede la norma",
+            "exceeds_footprint": "excede la huella",
+            "no_lot": "sin lote",
+            "zoned": "planta en 1 piso",
+            "not_zoned": "sin planta en 1 piso"
+          },
+          "governing": {
+            "normative": "techo normativo (FAR)",
+            "budget": "techo presupuestario",
+            "program_complete": "programa completo"
+          },
+          "budget": "Presupuesto",
+          "cost_legend": "Índice relativo comparativo, no es una estimación de costo ni una cotización"
+        },
+        "en": {
+          "title": "Review plan",
+          "street": "STREET (main frontage)",
+          "rear": "Rear lot line",
+          "front": "frontage",
+          "areas": "Area schedule (net sq ft)",
+          "cols": [
+            "Space",
+            "Target",
+            "Minimum",
+            "Achieved",
+            "Width×depth ft",
+            "Depth"
+          ],
+          "legend": "Legend",
+          "doors": {
+            "entry": "Entry door",
+            "patio": "Patio door",
+            "ensuite": "En-suite door",
+            "door": "Interior door"
+          },
+          "legend_note": "Light grey = foyer and halls · dashed red = setback envelope · 'Depth' = rooms crossed from the entry",
+          "observations": "Observations to review",
+          "footer": "Generated by spaceplan · schematic protoplan, not a construction drawing · normative and cultural values provisional",
+          "portfolio": "Program portfolio",
+          "curve_x": "Relative cost index (1 = lot normative maximum)",
+          "curve_y": "Program quality (provisional proxy)",
+          "profiles": {
+            "minimum": "Minimum",
+            "optimum": "Optimum",
+            "maximum": "Maximum",
+            "staged": "Staged",
+            "accessible": "Accessible",
+            "staged_final": "Staged (final)"
+          },
+          "feasibility": {
+            "fits_one_floor": "fits one floor",
+            "needs_two_floors": "needs two floors (6.7)",
+            "exceeds_normative": "exceeds the code",
+            "exceeds_footprint": "exceeds the footprint",
+            "no_lot": "no lot",
+            "zoned": "one-floor plan",
+            "not_zoned": "no one-floor plan"
+          },
+          "governing": {
+            "normative": "normative ceiling (FAR)",
+            "budget": "budget ceiling",
+            "program_complete": "program complete"
+          },
+          "budget": "Budget",
+          "cost_legend": "Comparative relative index, not a cost estimate or quote"
+        }
+      },
+      "area_matrix": {
+        "es": {
+          "statuses": {
+            "fits": "cabe",
+            "fits_small_garden": "cabe, jardín bajo el mínimo",
+            "exceeds_far": "excede el IC (FAR)",
+            "exceeds_coverage": "excede el IO (ladera)",
+            "exceeds_strategy": "excede la huella de la estrategia",
+            "upper_exceeds_ground": "planta alta mayor que la baja",
+            "frontage_short": "frente insuficiente",
+            "site_fails": "sitio no cumple (acceso o pavimento)",
+            "not_applicable": "no aplica"
+          },
+          "metrics": {
+            "stair_independence": "independencia de la escalera",
+            "supervision": "supervisión",
+            "separation": "separación",
+            "upper_efficiency": "eficiencia planta alta",
+            "frontage": "holgura de frente",
+            "cost": "costo",
+            "open_area": "área libre"
+          },
+          "decision_title": "Mapa de decisión por lote",
+          "budget_title": "Presupuesto de áreas por piso",
+          "scheme_title": "Mejor esquema vertical por hogar",
+          "ic": "IC",
+          "io": "IO",
+          "ground": "Planta baja",
+          "upper": "Planta alta",
+          "garden": "Jardín",
+          "paving": "Pavimento y deck",
+          "rest": "Retiros y residuo",
+          "lot": "Lote",
+          "open_area": "Área libre"
+        },
+        "en": {
+          "statuses": {
+            "fits": "fits",
+            "fits_small_garden": "fits, small garden",
+            "exceeds_far": "exceeds IC (FAR)",
+            "exceeds_coverage": "exceeds IO (hillside)",
+            "exceeds_strategy": "exceeds strategy footprint",
+            "upper_exceeds_ground": "upper floor larger than ground",
+            "frontage_short": "frontage too short",
+            "site_fails": "site fails (access or paving)",
+            "not_applicable": "not applicable"
+          },
+          "metrics": {
+            "stair_independence": "stair independence",
+            "supervision": "supervision",
+            "separation": "separation",
+            "upper_efficiency": "upper-floor efficiency",
+            "frontage": "frontage margin",
+            "cost": "cost",
+            "open_area": "open area"
+          },
+          "decision_title": "Decision map per lot",
+          "budget_title": "Area budget per floor",
+          "scheme_title": "Best vertical scheme per household",
+          "ic": "IC",
+          "io": "IO",
+          "ground": "Ground floor",
+          "upper": "Upper floor",
+          "garden": "Garden",
+          "paving": "Paving and deck",
+          "rest": "Setbacks and residue",
+          "lot": "Lot",
+          "open_area": "Open area"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "fragment": "profiles",
+  "entries": {
+    "accessibility": {
+      "note": "Accessible / aging-in-place profile (step 6.5d): ground-floor bedroom and full bath, step-free entry, wider passages, turning space in the bath.",
+      "bedroom_space_types": [
+        "primary_suite",
+        "bedroom"
+      ],
+      "bath_space_type": "bathroom",
+      "bath_area_factor": 1.3,
+      "bedroom_area_factor": 1.1,
+      "passage_width_ft": 4.0,
+      "door_clear_width_in": 34,
+      "turning_diameter_ft": 5.0,
+      "step_free_entry": true,
+      "source": {
+        "kind": "catalog",
+        "citation": "Universal-design guidance as design hypothesis, spaceplan step 6.5d (2026-10); single-family dwellings are not bound by accessibility codes in the pilot; verify against CRC 2025 and local guidance before citing",
+        "status": "provisional"
+      }
+    }
+  }
+}

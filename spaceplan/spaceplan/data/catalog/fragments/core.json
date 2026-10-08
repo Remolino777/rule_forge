@@ -1,0 +1,616 @@
+{
+  "fragment": "core",
+  "entries": {
+    "catalog_id": "spaceplan-residential-catalog",
+    "catalog_version": "0.11.0",
+    "units": "sq_ft",
+    "default_source": {
+      "kind": "catalog",
+      "citation": "Student-defined design ranges v0.1 (spaceplan v1.1, section 8); calibrate with public pre-approved plans before G1",
+      "status": "provisional"
+    },
+    "scales": [
+      {
+        "scale": "large",
+        "area_min": 250,
+        "area_max": 450,
+        "facade": "required",
+        "topology": "node",
+        "placement_order": 1
+      },
+      {
+        "scale": "normal",
+        "area_min": 110,
+        "area_max": 250,
+        "facade": "required_if_habitable",
+        "topology": "node",
+        "placement_order": 2
+      },
+      {
+        "scale": "intermediate",
+        "area_min": 35,
+        "area_max": 110,
+        "facade": "desirable",
+        "topology": "node",
+        "placement_order": 3
+      },
+      {
+        "scale": "support",
+        "area_min": 0,
+        "area_max": 35,
+        "facade": "none",
+        "topology": "satellite",
+        "placement_order": 4
+      },
+      {
+        "scale": "intermediate_exterior",
+        "area_min": 40,
+        "area_max": 120,
+        "facade": "exterior",
+        "topology": "site",
+        "placement_order": null
+      },
+      {
+        "scale": "large_exterior",
+        "area_min": null,
+        "area_max": null,
+        "facade": "exterior",
+        "topology": "site",
+        "placement_order": null
+      }
+    ],
+    "zones": [
+      {
+        "zone": "social",
+        "dominant_scale": "large",
+        "floor_preference": "ground",
+        "floor_rule": "soft",
+        "orientation": {
+          "sun": 1.0,
+          "morning_light": 0.3,
+          "street_privacy": 0.3
+        },
+        "content": "living, dining, open study",
+        "min_width_ft": 12
+      },
+      {
+        "zone": "private",
+        "dominant_scale": "large",
+        "floor_preference": "upper",
+        "floor_rule": "soft",
+        "orientation": {
+          "sun": 0.3,
+          "morning_light": 1.0,
+          "street_privacy": 1.0
+        },
+        "content": "bedrooms and baths; may be split",
+        "min_width_ft": 10
+      },
+      {
+        "zone": "kitchen",
+        "dominant_scale": "normal",
+        "floor_preference": "ground",
+        "floor_rule": "soft",
+        "orientation": {
+          "sun": 0.5,
+          "morning_light": 0.7,
+          "street_privacy": 0.3
+        },
+        "content": "kitchen, pantry, breakfast nook",
+        "min_width_ft": 8
+      },
+      {
+        "zone": "service",
+        "dominant_scale": "intermediate",
+        "floor_preference": "ground",
+        "floor_rule": "soft",
+        "orientation": {
+          "sun": 0.0,
+          "morning_light": 0.0,
+          "street_privacy": 0.0
+        },
+        "content": "laundry, storage, equipment",
+        "min_width_ft": 5
+      },
+      {
+        "zone": "circulation",
+        "dominant_scale": "intermediate",
+        "floor_preference": "any",
+        "floor_rule": "soft",
+        "orientation": {
+          "sun": 0.0,
+          "morning_light": 0.0,
+          "street_privacy": 0.0
+        },
+        "content": "foyer, halls, stair",
+        "min_width_ft": 4
+      },
+      {
+        "zone": "garage",
+        "dominant_scale": "normal",
+        "floor_preference": "ground",
+        "floor_rule": "hard",
+        "orientation": {
+          "sun": 0.0,
+          "morning_light": 0.0,
+          "street_privacy": 0.0
+        },
+        "content": "1- or 2-car garage",
+        "min_width_ft": 10
+      }
+    ],
+    "space_types": [
+      {
+        "space_type": "living_dining",
+        "zone": "social",
+        "scale": "large",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 250,
+          "target": 360,
+          "max": 450
+        },
+        "passable": true,
+        "min_side_ft": 11
+      },
+      {
+        "space_type": "living_room",
+        "zone": "social",
+        "scale": "large",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 200,
+          "target": 280,
+          "max": 400
+        },
+        "scale_range_exception": "living room separated from dining may drop below the large-scale floor",
+        "passable": true,
+        "min_side_ft": 11
+      },
+      {
+        "space_type": "dining_room",
+        "zone": "social",
+        "scale": "normal",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 110,
+          "target": 150,
+          "max": 220
+        },
+        "passable": true,
+        "min_side_ft": 9
+      },
+      {
+        "space_type": "family_room",
+        "zone": "social",
+        "scale": "large",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 220,
+          "target": 300,
+          "max": 420
+        },
+        "scale_range_exception": "secondary living space",
+        "passable": true,
+        "min_side_ft": 11
+      },
+      {
+        "space_type": "study",
+        "zone": "social",
+        "scale": "normal",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 110,
+          "target": 130,
+          "max": 180
+        },
+        "passable": false,
+        "min_side_ft": 8
+      },
+      {
+        "space_type": "kitchen",
+        "zone": "kitchen",
+        "scale": "normal",
+        "habitable": true,
+        "wet": true,
+        "area": {
+          "min": 110,
+          "target": 170,
+          "max": 250
+        },
+        "passable": true,
+        "min_side_ft": 7
+      },
+      {
+        "space_type": "breakfast_nook",
+        "zone": "social",
+        "scale": "intermediate",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 70,
+          "target": 80,
+          "max": 110
+        },
+        "passable": true,
+        "min_side_ft": 7,
+        "note": "Eating area next to the kitchen; social zone (dining part of zone_parts) since catalog 0.10.0"
+      },
+      {
+        "space_type": "pantry",
+        "zone": "kitchen",
+        "scale": "support",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 12,
+          "target": 20,
+          "max": 35
+        },
+        "host_types": [
+          "kitchen"
+        ],
+        "passable": false,
+        "min_side_ft": 3
+      },
+      {
+        "space_type": "primary_suite",
+        "zone": "private",
+        "scale": "large",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 250,
+          "target": 290,
+          "max": 420
+        },
+        "passable": false,
+        "min_side_ft": 11
+      },
+      {
+        "space_type": "bedroom",
+        "zone": "private",
+        "scale": "normal",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 110,
+          "target": 140,
+          "max": 200
+        },
+        "passable": false,
+        "min_side_ft": 9
+      },
+      {
+        "space_type": "social_bath",
+        "zone": "social",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": true,
+        "area": {
+          "min": 35,
+          "target": 40,
+          "max": 60
+        },
+        "passable": false,
+        "min_side_ft": 4
+      },
+      {
+        "space_type": "primary_bath",
+        "zone": "private",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": true,
+        "area": {
+          "min": 60,
+          "target": 80,
+          "max": 110
+        },
+        "passable": false,
+        "min_side_ft": 5
+      },
+      {
+        "space_type": "bathroom",
+        "zone": "private",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": true,
+        "area": {
+          "min": 40,
+          "target": 55,
+          "max": 90
+        },
+        "passable": false,
+        "min_side_ft": 5
+      },
+      {
+        "space_type": "walk_in_closet",
+        "zone": "private",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 35,
+          "target": 50,
+          "max": 80
+        },
+        "passable": false,
+        "min_side_ft": 4
+      },
+      {
+        "space_type": "closet",
+        "zone": "private",
+        "scale": "support",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 6,
+          "target": 12,
+          "max": 30
+        },
+        "host_types": [
+          "bedroom",
+          "primary_suite"
+        ],
+        "passable": false,
+        "min_side_ft": 2
+      },
+      {
+        "space_type": "half_bath",
+        "zone": "circulation",
+        "scale": "support",
+        "habitable": false,
+        "wet": true,
+        "area": {
+          "min": 18,
+          "target": 24,
+          "max": 35
+        },
+        "host_types": [
+          "foyer",
+          "hall"
+        ],
+        "passable": false,
+        "min_side_ft": 3
+      },
+      {
+        "space_type": "laundry",
+        "zone": "service",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": true,
+        "area": {
+          "min": 35,
+          "target": 50,
+          "max": 80
+        },
+        "passable": false,
+        "min_side_ft": 5
+      },
+      {
+        "space_type": "storage",
+        "zone": "service",
+        "scale": "support",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 10,
+          "target": 20,
+          "max": 35
+        },
+        "host_types": [
+          "laundry",
+          "garage_2car",
+          "garage_1car",
+          "hall"
+        ],
+        "passable": false,
+        "min_side_ft": 3
+      },
+      {
+        "space_type": "mechanical",
+        "zone": "service",
+        "scale": "support",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 10,
+          "target": 15,
+          "max": 30
+        },
+        "host_types": [
+          "garage_2car",
+          "garage_1car",
+          "laundry",
+          "hall"
+        ],
+        "passable": false,
+        "min_side_ft": 3
+      },
+      {
+        "space_type": "foyer",
+        "zone": "circulation",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 35,
+          "target": 50,
+          "max": 90
+        },
+        "passable": true,
+        "min_side_ft": 4
+      },
+      {
+        "space_type": "hall",
+        "zone": "circulation",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 40,
+          "target": 90,
+          "max": 180
+        },
+        "scale_range_exception": "halls grow with the number of rooms they serve",
+        "passable": true,
+        "min_side_ft": 3.5
+      },
+      {
+        "space_type": "stair",
+        "zone": "circulation",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 40,
+          "target": 60,
+          "max": 90
+        },
+        "note": "added per floor by the stacking layer (step 7), not by typologies",
+        "passable": true,
+        "min_side_ft": 3.5
+      },
+      {
+        "space_type": "garage_1car",
+        "zone": "garage",
+        "scale": "normal",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 220,
+          "target": 250,
+          "max": 300
+        },
+        "scale_range_exception": "vehicle clearance governs, not room scale",
+        "passable": false,
+        "min_side_ft": 10,
+        "vehicles": 1,
+        "lanes": 1
+      },
+      {
+        "space_type": "garage_2car",
+        "zone": "garage",
+        "scale": "normal",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 380,
+          "target": 420,
+          "max": 500
+        },
+        "scale_range_exception": "vehicle clearance governs, not room scale",
+        "passable": false,
+        "min_side_ft": 19,
+        "vehicles": 2,
+        "lanes": 2
+      },
+      {
+        "space_type": "garage_2car_tandem",
+        "zone": "garage",
+        "scale": "normal",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 400,
+          "target": 440,
+          "max": 520
+        },
+        "scale_range_exception": "vehicle clearance governs, not room scale",
+        "passable": false,
+        "min_side_ft": 10.5,
+        "vehicles": 2,
+        "lanes": 1,
+        "note": "two cars one behind the other (about 11 x 40 ft); one driveway lane; narrow-frontage alternative to garage_2car",
+        "source": {
+          "kind": "catalog",
+          "citation": "Student-defined design range (step 6); calibrate with pre-approved narrow-lot plans",
+          "status": "provisional"
+        }
+      },
+      {
+        "space_type": "laundry_closet",
+        "zone": "service",
+        "scale": "support",
+        "habitable": false,
+        "wet": true,
+        "area": {
+          "min": 12,
+          "target": 20,
+          "max": 35
+        },
+        "host_types": [
+          "hall",
+          "foyer"
+        ],
+        "passable": false,
+        "min_side_ft": 3
+      },
+      {
+        "space_type": "flex_room",
+        "zone": "social",
+        "scale": "normal",
+        "habitable": true,
+        "wet": false,
+        "area": {
+          "min": 110,
+          "target": 120,
+          "max": 160
+        },
+        "passable": false,
+        "min_side_ft": 8,
+        "note": "Convertible room: home office, guest room or caregiver room; near the entry by default",
+        "source": {
+          "kind": "catalog",
+          "citation": "Student-defined design range, household model step 6.5a (2026-10); calibrate with pilot pre-approved plans",
+          "status": "provisional"
+        }
+      },
+      {
+        "space_type": "mudroom",
+        "zone": "service",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": false,
+        "area": {
+          "min": 35,
+          "target": 45,
+          "max": 80
+        },
+        "passable": true,
+        "min_side_ft": 5,
+        "note": "Drop zone between garage or side door and the kitchen (vehicles, pets, outdoor gear)",
+        "source": {
+          "kind": "catalog",
+          "citation": "Student-defined design range, household model step 6.5a (2026-10); calibrate with pilot pre-approved plans",
+          "status": "provisional"
+        }
+      },
+      {
+        "space_type": "work_kitchen",
+        "zone": "kitchen",
+        "scale": "intermediate",
+        "habitable": false,
+        "wet": true,
+        "area": {
+          "min": 45,
+          "target": 65,
+          "max": 110
+        },
+        "passable": false,
+        "min_side_ft": 5,
+        "note": "Work (scullery) kitchen behind the clean kitchen: heavy cooking, smoke and storage; double-kitchen typology",
+        "source": {
+          "kind": "catalog",
+          "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+          "status": "provisional"
+        }
+      }
+    ]
+  }
+}

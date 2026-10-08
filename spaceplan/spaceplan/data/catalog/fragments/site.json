@@ -1,0 +1,227 @@
+{
+  "fragment": "site",
+  "entries": {
+    "site_zone_types": [
+      {
+        "site_zone": "garden",
+        "scale": "large_exterior",
+        "parameters": {
+          "area_from": "brief.preferences.min_garden_area_sqft"
+        }
+      },
+      {
+        "site_zone": "front_green",
+        "scale": "large_exterior",
+        "parameters": {
+          "area_from": "front yard remainder"
+        }
+      },
+      {
+        "site_zone": "walkway",
+        "scale": "support",
+        "parameters": {
+          "width_ft": 4,
+          "max_breaks": 1
+        }
+      },
+      {
+        "site_zone": "entry_deck",
+        "scale": "intermediate_exterior",
+        "parameters": {
+          "area_min": 40,
+          "area_target": 60,
+          "area_max": 120,
+          "afternoon_shade": 1.0
+        },
+        "note": "projection, height and openness limits come from SDMC 131.0461(a)(6) in the ruleset, not from this catalog"
+      },
+      {
+        "site_zone": "driveway",
+        "scale": "large_exterior",
+        "parameters": {
+          "width_per_car_ft": 10,
+          "depth_ft": 20
+        }
+      },
+      {
+        "site_zone": "side_yard",
+        "scale": "support",
+        "parameters": {
+          "equipment_depth_ft": 3
+        }
+      }
+    ],
+    "orientation_model": {
+      "equator_weight_full_at_lat_deg": 30,
+      "morning_azimuth_deg": 90,
+      "afternoon_azimuth_deg": 270,
+      "note": "sun = w*cos(az - equator azimuth)+ + (1-w)*|sin(az)|, w = min(1, |lat|/30): south dominates at 32.7 N, east/west near the equator"
+    },
+    "backyard_policy": {
+      "min_green_fraction": 0.3,
+      "groups": {
+        "water": {
+          "max": 1
+        }
+      },
+      "search_step_ft": 1.0
+    },
+    "backyard_elements": [
+      {
+        "element": "rear_deck",
+        "area": {
+          "min": 80,
+          "target": 150,
+          "max": 300
+        },
+        "min_dim_ft": 8,
+        "aspect": 2.5,
+        "priority": 1,
+        "placement": "attach_rear",
+        "counts_as_green": false,
+        "requires": [],
+        "group": null,
+        "clearances": {}
+      },
+      {
+        "element": "pool",
+        "area": {
+          "min": 200,
+          "target": 300,
+          "max": 450
+        },
+        "min_dim_ft": 10,
+        "aspect": 2.0,
+        "priority": 2,
+        "placement": "visible_center",
+        "counts_as_green": false,
+        "requires": [],
+        "group": "water",
+        "clearances": {
+          "lot_line": {
+            "rule_id": "Z13-POOL-SPA",
+            "param": "pool_min_to_lot_line_ft"
+          },
+          "dwelling": {
+            "rule_id": "Z13-POOL-SPA",
+            "param": "pool_min_to_dwelling_ft"
+          }
+        }
+      },
+      {
+        "element": "spa",
+        "area": {
+          "min": 40,
+          "target": 64,
+          "max": 100
+        },
+        "min_dim_ft": 6,
+        "aspect": 1.0,
+        "priority": 3,
+        "placement": "near_deck",
+        "counts_as_green": false,
+        "requires": [],
+        "group": "water",
+        "clearances": {
+          "lot_line": {
+            "rule_id": "Z13-POOL-SPA",
+            "param": "spa_min_to_lot_line_ft"
+          }
+        }
+      },
+      {
+        "element": "bbq",
+        "area": {
+          "min": 20,
+          "target": 32,
+          "max": 48
+        },
+        "min_dim_ft": 4,
+        "aspect": 2.0,
+        "priority": 4,
+        "placement": "touch_deck",
+        "counts_as_green": false,
+        "requires": [
+          "rear_deck"
+        ],
+        "group": null,
+        "clearances": {}
+      },
+      {
+        "element": "shed",
+        "area": {
+          "min": 30,
+          "target": 64,
+          "max": 120
+        },
+        "min_dim_ft": 5,
+        "aspect": 1.5,
+        "priority": 5,
+        "placement": "rear_corner",
+        "counts_as_green": false,
+        "requires": [],
+        "group": null,
+        "clearances": {
+          "lot_line": {
+            "rule_id": "Z14-ACCESSORY-STRUCTURE",
+            "param": "min_to_lot_line_ft"
+          },
+          "dwelling": {
+            "rule_id": "Z12-BUILDING-SEPARATION",
+            "param": "to_nonhabitable_accessory_ft"
+          }
+        }
+      },
+      {
+        "element": "garden_beds",
+        "area": {
+          "min": 20,
+          "target": 40,
+          "max": 100
+        },
+        "min_dim_ft": 3,
+        "aspect": 4.0,
+        "priority": 6,
+        "placement": "along_side",
+        "counts_as_green": true,
+        "requires": [],
+        "group": null,
+        "clearances": {}
+      },
+      {
+        "element": "covered_terrace",
+        "area": {
+          "min": 120,
+          "target": 200,
+          "max": 320
+        },
+        "min_dim_ft": 10,
+        "aspect": 2.0,
+        "priority": 7,
+        "placement": "attach_rear",
+        "counts_as_green": false,
+        "requires": [],
+        "group": null,
+        "clearances": {}
+      },
+      {
+        "element": "outdoor_kitchen",
+        "area": {
+          "min": 30,
+          "target": 48,
+          "max": 80
+        },
+        "min_dim_ft": 5,
+        "aspect": 2.0,
+        "priority": 8,
+        "placement": "touch_deck",
+        "counts_as_green": false,
+        "requires": [
+          "covered_terrace"
+        ],
+        "group": null,
+        "clearances": {}
+      }
+    ]
+  }
+}

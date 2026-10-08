@@ -26,7 +26,8 @@ spaceplan = "spaceplan.main.cli:main"
 include = ["spaceplan*"]
 
 [tool.setuptools.package-data]
-spaceplan = ["data/schemas/*.json", "data/rules/*.json", "data/briefs/*.json", "data/catalog/*.json"]
+spaceplan = ["data/schemas/*.json", "data/rules/*.json", "data/briefs/*.json", "data/catalog/*.json",
+             "data/catalog/fragments/*.json", "contracts/schemas/*.json", "contracts/README.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

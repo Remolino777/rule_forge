@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/area_matrix/0.1.0",
+  "title": "Area matrix per lot (step 6.6)",
+  "description": "Lot area budget, cells (program x vertical scheme x strategy), ranks, Pareto front and E2 results.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "version",
+    "produced_by",
+    "input_sha256",
+    "meta",
+    "lots",
+    "cells"
+  ],
+  "properties": {
+    "contract": {
+      "const": "area_matrix"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "produced_by": {
+      "const": "areas"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
+    },
+    "consumers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Informative: modules expected to read it (viz)."
+    },
+    "meta": {
+      "type": "object",
+      "required": [
+        "step",
+        "model",
+        "ruleset",
+        "catalog",
+        "households",
+        "lots"
+      ],
+      "properties": {
+        "step": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "ruleset": {
+          "type": "string"
+        },
+        "catalog": {
+          "type": "string"
+        },
+        "households": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "budget",
+          "summary",
+          "e2"
+        ],
+        "properties": {
+          "budget": {
+            "type": "object"
+          },
+          "summary": {
+            "type": "object"
+          },
+          "e2": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "cells": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "lot_id",
+          "floors",
+          "status",
+          "best",
+          "pareto"
+        ]
+      }
+    },
+    "figures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,324 @@
+{
+  "fragment": "household",
+  "entries": {
+    "profiles": {
+      "balanced": {
+        "social": 1.0,
+        "private": 1.0,
+        "kitchen": 1.0,
+        "service": 1.0,
+        "circulation": 1.0,
+        "garage": 1.0
+      },
+      "compact": {
+        "social": 0.85,
+        "private": 0.85,
+        "kitchen": 0.85,
+        "service": 0.85,
+        "circulation": 0.85,
+        "garage": 1.0
+      },
+      "social": {
+        "social": 1.2,
+        "private": 0.95,
+        "kitchen": 1.1,
+        "service": 1.0,
+        "circulation": 1.0,
+        "garage": 1.0
+      },
+      "private": {
+        "social": 0.95,
+        "private": 1.2,
+        "kitchen": 1.0,
+        "service": 1.0,
+        "circulation": 1.0,
+        "garage": 1.0
+      }
+    },
+    "target_rounding_sqft": 5,
+    "garage_by_cars": {
+      "0": null,
+      "1": "garage_1car",
+      "2": "garage_2car"
+    },
+    "typologies": [
+      {
+        "typology_id": "t2_compact",
+        "label": "2 bedrooms, 1 bath",
+        "bedrooms": 2,
+        "gross_factor": 1.15,
+        "spaces": [
+          {
+            "space_type": "living_dining",
+            "count": 1
+          },
+          {
+            "space_type": "kitchen",
+            "count": 1
+          },
+          {
+            "space_type": "primary_suite",
+            "count": 1
+          },
+          {
+            "space_type": "bedroom",
+            "count": 1
+          },
+          {
+            "space_type": "bathroom",
+            "count": 1
+          },
+          {
+            "space_type": "laundry",
+            "count": 1
+          },
+          {
+            "space_type": "foyer",
+            "count": 1
+          },
+          {
+            "space_type": "hall",
+            "count": 1
+          },
+          {
+            "space_type": "closet",
+            "count": 2
+          }
+        ],
+        "dwelling_type": "house"
+      },
+      {
+        "typology_id": "t3_standard",
+        "label": "3 bedrooms, 2 baths",
+        "bedrooms": 3,
+        "gross_factor": 1.15,
+        "spaces": [
+          {
+            "space_type": "living_room",
+            "count": 1
+          },
+          {
+            "space_type": "dining_room",
+            "count": 1
+          },
+          {
+            "space_type": "kitchen",
+            "count": 1
+          },
+          {
+            "space_type": "pantry",
+            "count": 1
+          },
+          {
+            "space_type": "primary_suite",
+            "count": 1
+          },
+          {
+            "space_type": "primary_bath",
+            "count": 1
+          },
+          {
+            "space_type": "walk_in_closet",
+            "count": 1
+          },
+          {
+            "space_type": "bedroom",
+            "count": 2
+          },
+          {
+            "space_type": "bathroom",
+            "count": 1
+          },
+          {
+            "space_type": "laundry",
+            "count": 1
+          },
+          {
+            "space_type": "storage",
+            "count": 1
+          },
+          {
+            "space_type": "foyer",
+            "count": 1
+          },
+          {
+            "space_type": "hall",
+            "count": 1
+          },
+          {
+            "space_type": "closet",
+            "count": 2
+          }
+        ],
+        "dwelling_type": "house"
+      },
+      {
+        "typology_id": "t4_family",
+        "label": "4 bedrooms, 3 baths",
+        "bedrooms": 4,
+        "gross_factor": 1.12,
+        "spaces": [
+          {
+            "space_type": "living_room",
+            "count": 1
+          },
+          {
+            "space_type": "dining_room",
+            "count": 1
+          },
+          {
+            "space_type": "family_room",
+            "count": 1
+          },
+          {
+            "space_type": "kitchen",
+            "count": 1
+          },
+          {
+            "space_type": "pantry",
+            "count": 1
+          },
+          {
+            "space_type": "breakfast_nook",
+            "count": 1
+          },
+          {
+            "space_type": "primary_suite",
+            "count": 1
+          },
+          {
+            "space_type": "primary_bath",
+            "count": 1
+          },
+          {
+            "space_type": "walk_in_closet",
+            "count": 1
+          },
+          {
+            "space_type": "bedroom",
+            "count": 3
+          },
+          {
+            "space_type": "bathroom",
+            "count": 2
+          },
+          {
+            "space_type": "half_bath",
+            "count": 1
+          },
+          {
+            "space_type": "laundry",
+            "count": 1
+          },
+          {
+            "space_type": "storage",
+            "count": 1
+          },
+          {
+            "space_type": "mechanical",
+            "count": 1
+          },
+          {
+            "space_type": "foyer",
+            "count": 1
+          },
+          {
+            "space_type": "hall",
+            "count": 1
+          },
+          {
+            "space_type": "closet",
+            "count": 3
+          }
+        ],
+        "dwelling_type": "house"
+      },
+      {
+        "typology_id": "apt_1br",
+        "label": "apartment, 1 bedroom",
+        "dwelling_type": "apartment",
+        "bedrooms": 1,
+        "gross_factor": 1.08,
+        "spaces": [
+          {
+            "space_type": "living_dining",
+            "count": 1
+          },
+          {
+            "space_type": "kitchen",
+            "count": 1
+          },
+          {
+            "space_type": "primary_suite",
+            "count": 1
+          },
+          {
+            "space_type": "bathroom",
+            "count": 1
+          },
+          {
+            "space_type": "foyer",
+            "count": 1
+          },
+          {
+            "space_type": "laundry_closet",
+            "count": 1
+          },
+          {
+            "space_type": "closet",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "typology_id": "apt_2br",
+        "label": "apartment, 2 bedrooms",
+        "dwelling_type": "apartment",
+        "bedrooms": 2,
+        "gross_factor": 1.08,
+        "spaces": [
+          {
+            "space_type": "living_dining",
+            "count": 1
+          },
+          {
+            "space_type": "kitchen",
+            "count": 1
+          },
+          {
+            "space_type": "primary_suite",
+            "count": 1
+          },
+          {
+            "space_type": "primary_bath",
+            "count": 1
+          },
+          {
+            "space_type": "bedroom",
+            "count": 1
+          },
+          {
+            "space_type": "bathroom",
+            "count": 1
+          },
+          {
+            "space_type": "foyer",
+            "count": 1
+          },
+          {
+            "space_type": "hall",
+            "count": 1
+          },
+          {
+            "space_type": "laundry_closet",
+            "count": 1
+          },
+          {
+            "space_type": "closet",
+            "count": 1
+          }
+        ]
+      }
+    ]
+  }
+}

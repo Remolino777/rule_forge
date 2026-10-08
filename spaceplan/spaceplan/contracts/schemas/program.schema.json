@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/program/0.1.0",
+  "title": "Program of needs",
+  "description": "Program (spaces) as consumed by zoning, needs per tier, rule trace and household block with privacy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "version",
+    "produced_by",
+    "input_sha256",
+    "program",
+    "program_review"
+  ],
+  "properties": {
+    "contract": {
+      "const": "program"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "produced_by": {
+      "const": "household"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
+    },
+    "consumers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Informative: modules expected to read it (profiles, zoning, cost)."
+    },
+    "program": {
+      "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/program"
+    },
+    "household": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/household"
+        }
+      ]
+    },
+    "program_review": {
+      "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/program_review"
+    }
+  }
+}

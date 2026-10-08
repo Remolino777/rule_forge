@@ -1,0 +1,948 @@
+{
+  "fragment": "zoning",
+  "entries": {
+    "zoning": {
+      "min_contact_ft": 3,
+      "max_aspect_ratio": 3,
+      "top_k": 6,
+      "weights": {
+        "relations": 0.4,
+        "orientation": 0.4,
+        "shape": 0.2
+      },
+      "site_facades": {
+        "garden": [
+          "rear"
+        ],
+        "front_green": [
+          "front"
+        ],
+        "walkway": [
+          "front"
+        ],
+        "entry_deck": [
+          "front"
+        ],
+        "driveway": [
+          "front"
+        ],
+        "side_yard": [
+          "left",
+          "right"
+        ]
+      },
+      "note": "Two bands (access side / far side); each band is a row of columns stacking up to max_zones_per_column zones. Zone parts follow their spaces. Widths are catalog design minima. An optional through column (up to max_through_column zones stacked front to rear) runs the full depth at the left or right end, e.g. a living-dining great room from street to garden.",
+      "max_zones_per_column": 2,
+      "space_weights": {
+        "matrix": 0.6,
+        "circulation": 0.25,
+        "shape": 0.15
+      },
+      "level_weights": {
+        "zone": 0.4,
+        "space": 0.6
+      },
+      "max_through_column": 3,
+      "merge_options": {
+        "service": {
+          "into": [
+            "kitchen",
+            "garage"
+          ],
+          "max_area_sqft": 120
+        }
+      },
+      "shoulder_facades": {
+        "front_shoulder": {
+          "roles": [
+            "street_view",
+            "exterior"
+          ],
+          "note": "set-back face of a wider rear step, looking toward the street (strategy B)"
+        },
+        "rear_shoulder": {
+          "roles": [
+            "garden_view",
+            "exterior"
+          ],
+          "note": "face of a wider front step looking toward the rear; not a patio door facade"
+        },
+        "source": {
+          "kind": "client",
+          "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+          "status": "provisional"
+        }
+      },
+      "max_area_shift": 0.15,
+      "note_area_shift": "Strategy B stepped: a column narrower than its minimum (zone minimum, driveway for the garage) is widened inside its band; the zones of that band trade area by at most max_area_shift. Anticipates the area assignment of step 9.",
+      "joint_articulation": true
+    },
+    "zone_parts": {
+      "social": {
+        "schemes": [
+          {
+            "scheme_id": "living_dining",
+            "parts": [
+              {
+                "part": "living",
+                "space_types": [
+                  "living_room",
+                  "living_dining",
+                  "family_room"
+                ],
+                "min_width_ft": 12
+              },
+              {
+                "part": "dining",
+                "space_types": [
+                  "dining_room",
+                  "study",
+                  "breakfast_nook",
+                  "social_bath"
+                ],
+                "min_width_ft": 9
+              }
+            ],
+            "dwelling_types": [
+              "house",
+              "apartment"
+            ]
+          }
+        ]
+      },
+      "private": {
+        "schemes": [
+          {
+            "scheme_id": "by_bedroom",
+            "parts": [
+              {
+                "part": "suite",
+                "space_types": [
+                  "primary_suite",
+                  "primary_bath",
+                  "walk_in_closet"
+                ],
+                "min_width_ft": 11
+              },
+              {
+                "part": "bedrooms",
+                "space_types": [
+                  "bedroom",
+                  "bathroom",
+                  "closet"
+                ],
+                "min_width_ft": 9
+              }
+            ],
+            "dwelling_types": [
+              "house",
+              "apartment"
+            ]
+          },
+          {
+            "scheme_id": "wet_core",
+            "parts": [
+              {
+                "part": "suiteroom",
+                "space_types": [
+                  "primary_suite",
+                  "walk_in_closet"
+                ],
+                "min_width_ft": 11
+              },
+              {
+                "part": "bedroomwing",
+                "space_types": [
+                  "bedroom",
+                  "closet"
+                ],
+                "min_width_ft": 9
+              },
+              {
+                "part": "wetcore",
+                "space_types": [
+                  "primary_bath",
+                  "bathroom"
+                ],
+                "min_width_ft": 5
+              }
+            ],
+            "dwelling_types": [
+              "apartment"
+            ]
+          }
+        ]
+      }
+    },
+    "zoning_profiles": {
+      "house": {
+        "access_role": "main_street",
+        "entry": {
+          "zone": "circulation",
+          "interval": "entry_deck",
+          "min_overlap_ft": 3
+        },
+        "anchors": [
+          {
+            "anchor_id": "living_faces_main_street",
+            "space_types": [
+              "living_room",
+              "living_dining"
+            ],
+            "facade_role": "main_street",
+            "kind": "hard",
+            "min_contact_ft": 8,
+            "weight": 1.0,
+            "source": {
+              "kind": "client",
+              "citation": "Student design brief 2026-10 (house zoning profile)",
+              "status": "verified"
+            },
+            "fallback_role": "street_view",
+            "fallback_penalty": 0.5
+          },
+          {
+            "anchor_id": "kitchen_faces_rear",
+            "space_types": [
+              "kitchen"
+            ],
+            "facade_role": "garden",
+            "kind": "soft",
+            "min_contact_ft": 3,
+            "weight": 1.0,
+            "source": {
+              "kind": "client",
+              "citation": "Student design brief 2026-10 (house zoning profile)",
+              "status": "verified"
+            }
+          }
+        ],
+        "entry_sequence": null
+      },
+      "apartment": {
+        "access_role": "access",
+        "entry": {
+          "zone": "circulation",
+          "interval": "entrance",
+          "min_overlap_ft": 3
+        },
+        "anchors": [
+          {
+            "anchor_id": "living_faces_exterior",
+            "space_types": [
+              "living_room",
+              "living_dining"
+            ],
+            "facade_role": "exterior",
+            "kind": "hard",
+            "min_contact_ft": 8,
+            "weight": 1.0,
+            "source": {
+              "kind": "client",
+              "citation": "Student design brief 2026-10 (apartment zoning profile)",
+              "status": "verified"
+            }
+          },
+          {
+            "anchor_id": "bedrooms_face_exterior",
+            "space_types": [
+              "primary_suite",
+              "bedroom"
+            ],
+            "facade_role": "exterior",
+            "kind": "hard",
+            "min_contact_ft": 4,
+            "weight": 1.0,
+            "source": {
+              "kind": "client",
+              "citation": "Student design brief 2026-10 (apartment zoning profile)",
+              "status": "verified"
+            }
+          },
+          {
+            "anchor_id": "kitchen_faces_exterior",
+            "space_types": [
+              "kitchen"
+            ],
+            "facade_role": "exterior",
+            "kind": "soft",
+            "min_contact_ft": 3,
+            "weight": 0.5,
+            "source": {
+              "kind": "client",
+              "citation": "Student design brief 2026-10 (apartment zoning profile)",
+              "status": "verified"
+            }
+          }
+        ],
+        "entry_sequence": {
+          "anchor_id": "kitchen_via_foyer",
+          "via_zone": "circulation",
+          "target_zone": "kitchen",
+          "kind": "hard",
+          "forbid_entrance_contact": true,
+          "source": {
+            "kind": "client",
+            "citation": "Student design brief 2026-10 (apartment zoning profile)",
+            "status": "verified"
+          }
+        }
+      }
+    },
+    "circulation": {
+      "design_width_ft": 3.5,
+      "normative_width": {
+        "rule_id": "C06-HALLWAY-WIDTH"
+      },
+      "door_contact_ft": 3.0,
+      "derived_space_types": [
+        "hall"
+      ],
+      "target_fraction": 0.15,
+      "warn_fraction": 0.2,
+      "hall_min_terminals": 2,
+      "search": {
+        "zone_schemes": 60,
+        "options_per_hall_side": 3,
+        "options_without_hall": 6,
+        "max_combinations_per_scheme": 300
+      },
+      "note": "Circulation is a network, not a zone: the foyer takes the entry, halls are carved from the cells they serve, and paths through passable rooms consume a strip of the design width from those rooms. Private terminal rooms open only onto circulation (foyer or hall) or en-suite, from the bedroom to its bath or closet.",
+      "private_roles": [
+        "primary_bedroom",
+        "bedroom",
+        "private_bath",
+        "suite_closet"
+      ],
+      "search_retry": {
+        "zone_schemes": 200,
+        "options_per_hall_side": 5,
+        "options_without_hall": 10,
+        "max_combinations_per_scheme": 1500,
+        "note": "Used once, only when the base search finds zone schemes but no space layout (step 6.5d); not used inside the correction search"
+      }
+    },
+    "relation_matrix": {
+      "roles": {
+        "access": [
+          "@entry"
+        ],
+        "living": [
+          "living_room",
+          "living_dining",
+          "family_room"
+        ],
+        "dining": [
+          "dining_room",
+          "living_dining"
+        ],
+        "kitchen": [
+          "kitchen"
+        ],
+        "social_bath": [
+          "social_bath",
+          "half_bath"
+        ],
+        "primary_bedroom": [
+          "primary_suite"
+        ],
+        "bedroom": [
+          "bedroom"
+        ],
+        "private_bath": [
+          "primary_bath",
+          "bathroom"
+        ],
+        "laundry": [
+          "laundry",
+          "laundry_closet"
+        ],
+        "suite_closet": [
+          "walk_in_closet"
+        ],
+        "patio": [
+          "@patio"
+        ],
+        "work_kitchen": [
+          "work_kitchen"
+        ],
+        "mudroom": [
+          "mudroom"
+        ]
+      },
+      "house": [
+        {
+          "a": "access",
+          "b": "living",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "access",
+          "b": "dining",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "access",
+          "b": "social_bath",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "dining",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "kitchen",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "social_bath",
+          "type": "D",
+          "kind": "soft",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "primary_bedroom",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "patio",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "dining",
+          "b": "kitchen",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "dining",
+          "b": "social_bath",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "dining",
+          "b": "laundry",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "dining",
+          "b": "patio",
+          "type": "D",
+          "kind": "soft",
+          "weight": 1.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "kitchen",
+          "b": "social_bath",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "kitchen",
+          "b": "laundry",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "kitchen",
+          "b": "patio",
+          "type": "D",
+          "kind": "soft",
+          "weight": 1.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "primary_bedroom",
+          "b": "private_bath",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "primary_bedroom",
+          "b": "patio",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "bedroom",
+          "b": "private_bath",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "bedroom",
+          "b": "bedroom",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "laundry",
+          "b": "patio",
+          "type": "D",
+          "kind": "soft",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "primary_bedroom",
+          "b": "suite_closet",
+          "type": "D",
+          "kind": "soft",
+          "weight": 1.0,
+          "source": {
+            "kind": "catalog",
+            "citation": "Added by spaceplan (walk-in closet off the suite)",
+            "status": "provisional"
+          }
+        }
+      ],
+      "apartment": [
+        {
+          "a": "access",
+          "b": "living",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "access",
+          "b": "dining",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "access",
+          "b": "social_bath",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "dining",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "kitchen",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "social_bath",
+          "type": "D",
+          "kind": "soft",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "living",
+          "b": "primary_bedroom",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "dining",
+          "b": "kitchen",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "dining",
+          "b": "social_bath",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "dining",
+          "b": "laundry",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "kitchen",
+          "b": "social_bath",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "kitchen",
+          "b": "laundry",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "primary_bedroom",
+          "b": "private_bath",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "bedroom",
+          "b": "private_bath",
+          "type": "D",
+          "kind": "hard",
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "bedroom",
+          "b": "bedroom",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10",
+            "status": "verified"
+          }
+        },
+        {
+          "a": "primary_bedroom",
+          "b": "suite_closet",
+          "type": "D",
+          "kind": "soft",
+          "weight": 1.0,
+          "source": {
+            "kind": "catalog",
+            "citation": "Added by spaceplan (walk-in closet off the suite)",
+            "status": "provisional"
+          }
+        },
+        {
+          "a": "access",
+          "b": "kitchen",
+          "type": "I",
+          "kind": "soft",
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student brief 2026-10 (kitchen via foyer in apartments)",
+            "status": "verified"
+          }
+        }
+      ],
+      "semantics": {
+        "D": "shared door or opening; for pairs with a terminal room or the entry, also both opening onto the same foyer/hall/spine; two open rooms must touch",
+        "I": "no shared door, reachable through exactly one intermediate space",
+        "N": "no constraint",
+        "access": "the entrance door; the foyer is circulation (transparent for D)"
+      },
+      "hard_groups": {
+        "house": [
+          {
+            "group_id": "patio_from_dining_or_kitchen",
+            "pairs": [
+              "D:dining-patio",
+              "D:kitchen-patio"
+            ],
+            "k": 1,
+            "source": {
+              "kind": "client",
+              "citation": "Student relation matrix D/I/N 2026-10 (comedor/cocina - patio)",
+              "status": "verified"
+            }
+          }
+        ],
+        "apartment": []
+      }
+    },
+    "realization": {
+      "default": "auto",
+      "auto_min_utilization_A": 0.8,
+      "auto_fallback": "B_stepped_footprint",
+      "steps_reported": [
+        2,
+        3
+      ],
+      "note": "auto: strategy A when its inscribed rectangle uses at least auto_min_utilization_A of the envelope, otherwise the fallback (fan and trapezoidal lots)",
+      "source": {
+        "kind": "client",
+        "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+        "status": "provisional"
+      }
+    },
+    "corrections": {
+      "max_evaluations": 8,
+      "recess_step_ft": 0.5,
+      "recess_max_ft": 20,
+      "variables": {
+        "strategy": [
+          {
+            "value": "A_inscribed_rectangle",
+            "cost": 0.0
+          },
+          {
+            "value": "B_stepped_footprint",
+            "cost": 0.25
+          },
+          {
+            "value": "B_polygonal_footprint",
+            "cost": 0.75
+          }
+        ],
+        "garage_layout": [
+          {
+            "value": "as_brief",
+            "cost": 0.0
+          },
+          {
+            "value": "tandem",
+            "cost": 1.5
+          },
+          {
+            "value": "one_car",
+            "cost": 3.0
+          }
+        ],
+        "front_recess": {
+          "cost_per_ft": 0.08
+        }
+      },
+      "note": "Costs are design-preference weights (unitless): a change of program (garage) weighs more than a change of geometry (strategy, front recess). The search returns the cheapest combination that zones; ties break by fewer changes.",
+      "source": {
+        "kind": "client",
+        "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+        "status": "provisional"
+      },
+      "pareto_extra_runs": 2
+    },
+    "polygonal_extension": {
+      "tolerant_space_types": [
+        "closet",
+        "walk_in_closet",
+        "pantry",
+        "storage",
+        "laundry",
+        "laundry_closet",
+        "mechanical",
+        "hall",
+        "foyer",
+        "living_room",
+        "dining_room",
+        "living_dining",
+        "family_room",
+        "garage_1car",
+        "garage_2car",
+        "garage_2car_tandem"
+      ],
+      "min_piece_width_ft": 2.0,
+      "habitable_max_extension_fraction": 0.25,
+      "min_corner_angle_deg": 60,
+      "note": "Rooms outside tolerant_space_types (bedrooms, baths, kitchen, study) keep their core rectangle as the governing shape (CRC minimum dimension); they take a sliver only if it adds at most the fraction of the core and no corner sharper than the angle. Thinner slivers and refused pieces become residual for the architectural stage.",
+      "source": {
+        "kind": "client",
+        "citation": "Student design decision 2026-10-06 (CRC-aware polygonal extension); calibrate with built trapezoidal rooms",
+        "status": "provisional"
+      }
+    }
+  }
+}

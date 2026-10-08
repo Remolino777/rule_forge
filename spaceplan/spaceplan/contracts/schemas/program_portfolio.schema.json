@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/program_portfolio/0.1.0",
+  "title": "Program portfolio",
+  "description": "Expansion curve, the five profiles (minimum, optimum, maximum, accessible, staged) and the ceilings.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "version",
+    "produced_by",
+    "input_sha256",
+    "reading",
+    "model",
+    "ceilings",
+    "household",
+    "curve",
+    "profiles"
+  ],
+  "properties": {
+    "contract": {
+      "const": "program_portfolio"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "produced_by": {
+      "const": "profiles"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
+    },
+    "consumers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Informative: modules expected to read it (areas, viz)."
+    },
+    "brief_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reading": {
+      "enum": [
+        "lot",
+        "reference_dwelling"
+      ]
+    },
+    "model": {
+      "enum": [
+        "base",
+        "weighted",
+        "shape"
+      ]
+    },
+    "legend": {
+      "type": "string"
+    },
+    "ceilings": {
+      "type": "object",
+      "required": [
+        "far_sqft",
+        "one_floor_max_sqft",
+        "budget_fraction",
+        "governing"
+      ],
+      "properties": {
+        "far_sqft": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "one_floor_max_sqft": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "budget_fraction": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "budget": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "governing": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "household": {
+      "type": "object",
+      "required": [
+        "archetype_id"
+      ],
+      "properties": {
+        "archetype_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "quality_note": {
+      "type": "string"
+    },
+    "curve": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum",
+        "optimum",
+        "maximum",
+        "accessible",
+        "staged"
+      ],
+      "properties": {
+        "minimum": {
+          "type": "object"
+        },
+        "optimum": {
+          "type": "object"
+        },
+        "maximum": {
+          "type": "object"
+        },
+        "accessible": {
+          "type": "object"
+        },
+        "staged": {
+          "type": "object"
+        }
+      }
+    },
+    "sheets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

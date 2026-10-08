@@ -34,6 +34,46 @@ def test_lib_does_not_import_main(path):
     assert not any(m.startswith("spaceplan.main") for m in _imports(path))
 
 
+# ------------------------------------------------------------------ architecture v2 (refactor tanda 1)
+
+
+def _spaceplan_imports(path: Path) -> set[str]:
+    return {m for m in _imports(path) if m == "spaceplan" or m.startswith("spaceplan.")}
+
+
+@pytest.mark.parametrize("path", _files("core"), ids=lambda p: str(p.relative_to(ROOT)))
+def test_core_imports_only_core(path):
+    """spaceplan.core is shared by every module and imports nothing outside spaceplan.core."""
+    outside = {m for m in _spaceplan_imports(path) if not m.startswith("spaceplan.core")}
+    assert outside == set()
+
+
+@pytest.mark.parametrize("path", _files("core/lib_aux"), ids=lambda p: p.name)
+def test_core_lib_aux_is_leaf(path):
+    assert not {m for m in _spaceplan_imports(path) if not m.startswith("spaceplan.core.lib_aux")}
+
+
+def test_core_has_the_planned_files():
+    names = {p.stem for p in _files("core") if p.stem != "__init__"}
+    assert {"enums", "rules", "catalog", "schema_validation", "relation_graph", "geometry", "quantity", "hashing",
+            "json_io", "tolerances", "section", "predicates", "knee", "weighted", "allocation", "pareto"} <= names
+
+
+@pytest.mark.parametrize("path", [p for p in _files("lib_aux") if p.stem != "__init__"] +
+                         [ROOT / "lib" / f"{m}.py" for m in ("enums", "rules", "catalog", "schema_validation",
+                                                              "relation_graph")], ids=lambda p: p.name)
+def test_bridge_modules_reexport_core(path):
+    """Old paths are bridges (removed in tanda 4): they only re-export the core module, same objects."""
+    import importlib
+
+    layer = path.parent.name
+    old = importlib.import_module(f"spaceplan.{layer}.{path.stem}")
+    new = importlib.import_module(f"spaceplan.core.{layer}.{path.stem}")
+    assert _spaceplan_imports(path) == {f"spaceplan.core.{layer}.{path.stem}"}
+    public = getattr(new, "__all__", [n for n in vars(new) if not n.startswith("_")])
+    assert public and all(getattr(old, n) is getattr(new, n) for n in public)
+
+
 @pytest.mark.parametrize("path", sorted(ROOT.rglob("*.py")), ids=lambda p: p.name)
 def test_no_extractor_imports(path):
     assert not {m.split(".")[0] for m in _imports(path)} & FORBIDDEN_TOP_LEVEL

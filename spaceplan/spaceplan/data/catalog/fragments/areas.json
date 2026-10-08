@@ -1,0 +1,479 @@
+{
+  "fragment": "areas",
+  "entries": {
+    "area_analysis": {
+      "note": "Step 6.6: area matrix per lot (program profile x vertical scheme x strategy). Evaluation stages: E0 area budget per floor, indices and containment; E1 measured site (access, paving, garden) with the simplest strategy that holds the footprint; E2 full zoning for the best one-floor cells only.",
+      "profiles": [
+        "minimum",
+        "optimum",
+        "maximum",
+        "accessible",
+        "staged_final"
+      ],
+      "strategies": [
+        {
+          "strategy_id": "A",
+          "strategy": "A_inscribed_rectangle",
+          "steps": null
+        },
+        {
+          "strategy_id": "B2",
+          "strategy": "B_stepped_footprint",
+          "steps": 2
+        },
+        {
+          "strategy_id": "B3",
+          "strategy": "B_stepped_footprint",
+          "steps": 3
+        },
+        {
+          "strategy_id": "P",
+          "strategy": "B_polygonal_footprint",
+          "steps": null
+        }
+      ],
+      "strategy_equal_tolerance_sqft": 5.0,
+      "garden_min_fraction_of_lot": 0.2,
+      "garden_min_note": "Indicative threshold, not normative in RS-1-7: below it a cell is reported as 'fits with a small garden'.",
+      "frontage": {
+        "hard_elements": [
+          {
+            "match": {
+              "zone": [
+                "garage"
+              ]
+            },
+            "dimension": "min_side_ft"
+          },
+          {
+            "match": {
+              "space_type": [
+                "foyer"
+              ]
+            },
+            "dimension": "min_side_ft"
+          }
+        ],
+        "soft_anchor_id": "living_faces_main_street",
+        "wall_allowance_ft": 1.0,
+        "margin_scale_ft": 10.0,
+        "note": "Street-facing width the ground floor needs: garage lanes and entry are hard; the living-room street anchor is soft (it has a street-view fallback)."
+      },
+      "upper_floor_min_useful_sqft": 300.0,
+      "daily_use": {
+        "space_types": [
+          "kitchen",
+          "living_room",
+          "living_dining",
+          "dining_room",
+          "family_room",
+          "laundry",
+          "laundry_closet"
+        ],
+        "household_roles": [
+          "primary",
+          "accessible"
+        ],
+        "note": "Spaces used every day; their area off the entry floor is the stair dependency."
+      },
+      "e2_top_k_per_lot": 2,
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined area-analysis hypothesis, spaceplan step 6.6 (2026-10); validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    "vertical_schemes": {
+      "note": "Vertical distribution schemes (step 6.6). A scheme assigns groups of spaces to floors; the household weighs the metrics, never excludes a scheme. Hard rules: a space with floor_preference 0 (mobility, garage) stays on the ground floor, and a cohesive group (a suite) moves with its pinned member so it is never split across floors; hosted spaces follow their host; circulation is split in proportion to each floor's net area; a stair is added on every floor of a two-floor scheme.",
+      "groups": [
+        {
+          "group": "accessible",
+          "match": {
+            "household_role": [
+              "accessible"
+            ]
+          }
+        },
+        {
+          "group": "primary",
+          "match": {
+            "household_role": [
+              "primary"
+            ]
+          }
+        },
+        {
+          "group": "child",
+          "match": {
+            "household_role": [
+              "child"
+            ]
+          }
+        },
+        {
+          "group": "teen",
+          "match": {
+            "household_role": [
+              "teen"
+            ]
+          }
+        },
+        {
+          "group": "adult",
+          "match": {
+            "household_role": [
+              "adult"
+            ]
+          }
+        },
+        {
+          "group": "guest",
+          "match": {
+            "household_role": [
+              "guest"
+            ]
+          }
+        },
+        {
+          "group": "work",
+          "match": {
+            "household_role": [
+              "work"
+            ]
+          }
+        },
+        {
+          "group": "laundry",
+          "match": {
+            "space_type": [
+              "laundry",
+              "laundry_closet"
+            ]
+          }
+        },
+        {
+          "group": "garage",
+          "match": {
+            "zone": [
+              "garage"
+            ]
+          }
+        },
+        {
+          "group": "entry",
+          "match": {
+            "space_type": [
+              "foyer",
+              "mudroom",
+              "half_bath"
+            ]
+          }
+        },
+        {
+          "group": "kitchen",
+          "match": {
+            "zone": [
+              "kitchen"
+            ]
+          }
+        },
+        {
+          "group": "social",
+          "match": {
+            "zone": [
+              "social"
+            ]
+          }
+        },
+        {
+          "group": "private_shared",
+          "match": {
+            "zone": [
+              "private"
+            ]
+          }
+        },
+        {
+          "group": "service",
+          "match": {
+            "zone": [
+              "service"
+            ]
+          }
+        },
+        {
+          "group": "circulation",
+          "match": {
+            "zone": [
+              "circulation"
+            ]
+          }
+        }
+      ],
+      "bedroom_groups": [
+        "primary",
+        "child",
+        "teen",
+        "adult",
+        "guest",
+        "accessible"
+      ],
+      "laundry_rule": {
+        "aspect": "laundry_location",
+        "near_bedrooms": "floor_of_most_bedrooms",
+        "otherwise": 0,
+        "note": "Cultural aspect from step 6.5c: laundry near the bedrooms follows them upstairs; service-yard laundry stays with the kitchen."
+      },
+      "schemes": [
+        {
+          "scheme_id": "V0",
+          "floors": 1,
+          "assign": {},
+          "applies": {
+            "always": true
+          },
+          "label": {
+            "es": "Un piso",
+            "en": "Single floor"
+          }
+        },
+        {
+          "scheme_id": "V1",
+          "floors": 2,
+          "assign": {
+            "primary": 1,
+            "child": 1,
+            "teen": 1,
+            "adult": 1,
+            "guest": 1,
+            "work": 1,
+            "private_shared": 1,
+            "laundry": "rule"
+          },
+          "applies": {
+            "fact": "n_bedroom_groups",
+            "op": "ge",
+            "value": 1
+          },
+          "label": {
+            "es": "Privada arriba",
+            "en": "Private upstairs"
+          }
+        },
+        {
+          "scheme_id": "V2",
+          "floors": 2,
+          "assign": {
+            "child": 1,
+            "teen": 1,
+            "adult": 1,
+            "guest": 1,
+            "work": 1,
+            "private_shared": 1,
+            "laundry": "rule"
+          },
+          "applies": {
+            "all": [
+              {
+                "fact": "n_primary",
+                "op": "ge",
+                "value": 1
+              },
+              {
+                "fact": "n_secondary_upper",
+                "op": "ge",
+                "value": 1
+              }
+            ]
+          },
+          "label": {
+            "es": "Suite principal abajo",
+            "en": "Primary suite down"
+          }
+        },
+        {
+          "scheme_id": "V3",
+          "floors": 2,
+          "assign": {
+            "primary": 1,
+            "child": 1,
+            "teen": 1,
+            "adult": 1,
+            "work": 1,
+            "private_shared": 1,
+            "laundry": "rule"
+          },
+          "applies": {
+            "fact": "n_accessible",
+            "op": "ge",
+            "value": 1
+          },
+          "label": {
+            "es": "Dos generaciones por piso",
+            "en": "Generations by floor"
+          }
+        },
+        {
+          "scheme_id": "V4",
+          "floors": 2,
+          "assign": {
+            "guest": 1,
+            "work": 1
+          },
+          "applies": {
+            "fact": "n_occasional",
+            "op": "ge",
+            "value": 1
+          },
+          "label": {
+            "es": "Planta alta parcial",
+            "en": "Partial upper floor"
+          }
+        },
+        {
+          "scheme_id": "V5",
+          "floors": 2,
+          "assign": {
+            "social": 1,
+            "kitchen": 1
+          },
+          "applies": {
+            "all": [
+              {
+                "any": [
+                  {
+                    "fact": "steep_hillside_fraction",
+                    "op": "gt",
+                    "value": 0.5
+                  },
+                  {
+                    "fact": "view_side",
+                    "op": "ne",
+                    "value": "none"
+                  }
+                ]
+              },
+              {
+                "fact": "n_accessible",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          },
+          "label": {
+            "es": "Social arriba (vista)",
+            "en": "Social upstairs (view)"
+          },
+          "note": "Only when the lot has a view or is a hillside lot, and never with a reduced-mobility member (daily life would be upstairs)."
+        }
+      ],
+      "scoring": {
+        "note": "Provisional indicator of a vertical scheme until the common quality score of step 6.8. Metrics in [0, 1]; household facts multiply weights; the trajectory takes the larger multiplier of the current and next stage. Open-area metric = open area (lot - footprint - paving - deck, the complement of the occupancy index) / (reference fraction x lot area), capped at 1; frontage metric = 0.5 + margin / (2 x margin scale), clipped; cost metric = 1 - relative index.",
+        "weights": {
+          "open_area": 1.0,
+          "stair_independence": 0.5,
+          "supervision": 1.0,
+          "separation": 0.5,
+          "upper_efficiency": 0.5,
+          "frontage": 0.5,
+          "cost": 1.0
+        },
+        "multipliers": [
+          {
+            "rule_id": "VS01",
+            "metric": "stair_independence",
+            "factor": 3.0,
+            "when": {
+              "fact": "primary_accessible",
+              "op": "in",
+              "value": [
+                "anticipated",
+                "reduced"
+              ]
+            },
+            "note": "Aging in place or reduced mobility of the primary couple: their daily life on the entry floor. A reduced-mobility relative is covered by the hard ground-floor rule of their suite."
+          },
+          {
+            "rule_id": "VS02",
+            "metric": "supervision",
+            "factor": 2.0,
+            "when": {
+              "fact": "children_0_5",
+              "op": "ge",
+              "value": 1
+            },
+            "note": "Young children sleep on the parents' floor."
+          },
+          {
+            "rule_id": "VS03",
+            "metric": "separation",
+            "factor": 2.0,
+            "when": {
+              "any": [
+                {
+                  "fact": "teens",
+                  "op": "ge",
+                  "value": 1
+                },
+                {
+                  "fact": "unpartnered_adults",
+                  "op": "ge",
+                  "value": 2
+                }
+              ]
+            },
+            "note": "Teenagers or unrelated adults value vertical separation from the primary suite."
+          },
+          {
+            "rule_id": "VS04",
+            "metric": "open_area",
+            "factor": 1.25,
+            "when": {
+              "any": [
+                {
+                  "fact": "children_6_12",
+                  "op": "ge",
+                  "value": 1
+                },
+                {
+                  "fact": "patio_use",
+                  "op": "eq",
+                  "value": "lawn_play"
+                }
+              ]
+            },
+            "note": "Children or a lawn-and-play patio raise the value of open area."
+          },
+          {
+            "rule_id": "VS05",
+            "metric": "stair_independence",
+            "factor": 1.5,
+            "when": {
+              "fact": "guests",
+              "op": "eq",
+              "value": "temporary_residents"
+            },
+            "note": "Temporary residents (often older relatives) need a ground-floor room."
+          }
+        ],
+        "separation_groups": [
+          "teen",
+          "adult"
+        ],
+        "supervision_groups": [
+          "child"
+        ],
+        "open_area_reference_fraction_of_lot": 0.7
+      },
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined area-analysis hypothesis, spaceplan step 6.6 (2026-10); validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      },
+      "cohesive_groups": [
+        "primary",
+        "accessible"
+      ]
+    }
+  }
+}
