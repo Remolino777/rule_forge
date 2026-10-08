@@ -633,7 +633,7 @@ El paso 7 detallado (zonificación por piso con la junta como núcleo) queda par
 
 ### Reestructuración modular (opción A, 8-oct-2026)
 Antes del paso 6.7 se reestructura spaceplan en módulos por etapa con contratos JSON, en 4 tandas programadas sobre
-la rama `spaceplan-modular` del repositorio `Remolino777/rule_forge` (etiquetas `tanda-0` a `tanda-4`). Plan completo:
+la rama `spaceplan-modular` del repositorio `Remolino777/rule_forge` (ramas instantáneas `refactor/tanda-0` a `refactor/tanda-4`). Plan completo:
 `docs/refactor/REFACTOR_PLAN.md`; verificación de que nada cambia: `python tools/golden_check.py check`.
 
 ## 9. Posibilidades de innovación registradas

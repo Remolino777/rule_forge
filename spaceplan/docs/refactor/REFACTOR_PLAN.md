@@ -1,7 +1,7 @@
 # Plan de reestructuración modular de spaceplan (opción A, 4 tandas programadas)
 
 Repositorio: `Remolino777/rule_forge`, rama **`spaceplan-modular`**, carpeta `spaceplan/`.
-Punto de partida: etiqueta **`tanda-0`** (pasos 1–6.6 completos, 620 pruebas, instantánea dorada en `tests/golden/`).
+Punto de partida: rama instantánea **`refactor/tanda-0`** (pasos 1–6.6 completos, 620 pruebas, instantánea dorada en `tests/golden/`).
 Autorización del usuario (8-oct-2026): las tandas 1–4 **programan sin preguntar**, con las salvaguardas de este
 documento. Fuera de estas tandas vuelve a regir la regla "preguntar antes de programar".
 
@@ -25,8 +25,9 @@ documento. Fuera de estas tandas vuelve a regir la regla "preguntar antes de pro
   ≈ 9 min: correrla en tandas de archivos con timeout de 10 min cada una.
 - `python tools/golden_check.py check` imprime `GOLDEN CHECK PASSED` (≈ 2 min).
 - `ruff check` sin errores nuevos en los archivos creados o movidos (el repositorio ya tenía 67 avisos heredados).
-- Si se cumplen: commit, `git push origin spaceplan-modular`, etiqueta `tanda-N` y `git push origin tanda-N`.
-- Si NO se cumplen al final de la sesión: subir el trabajo a la rama `spaceplan-modular-tanda-N-wip` (sin etiqueta),
+- Si se cumplen: commit, `git push origin spaceplan-modular` y rama instantánea
+  `git push origin spaceplan-modular:refs/heads/refactor/tanda-N` (las etiquetas no pasan por el proxy de git).
+- Si NO se cumplen al final de la sesión: subir el trabajo a la rama `spaceplan-modular-tanda-N-wip` (sin rama instantánea),
   dejar `spaceplan-modular` intacta y explicar en el informe qué falta.
 - Siempre: escribir `docs/refactor/log/tanda-N.md` (qué se hizo, archivos movidos, decisiones, tiempos de la suite,
   errores encontrados sin corregir, pendientes para la tanda siguiente) y subirlo en la rama que corresponda.
@@ -35,8 +36,9 @@ documento. Fuera de estas tandas vuelve a regir la regla "preguntar antes de pro
 
 ```bash
 git clone --depth 50 --branch spaceplan-modular https://github.com/Remolino777/rule_forge /home/claude/rule_forge
-cd /home/claude/rule_forge && git fetch --tags --depth 50
-git tag --list "tanda-*"            # debe existir tanda-(N-1); si no existe: DETENERSE e informar
+cd /home/claude/rule_forge
+git ls-remote --heads origin "refactor/tanda-*"   # debe existir refactor/tanda-(N-1) y apuntar al mismo commit
+                                                  # que spaceplan-modular; si no: DETENERSE e informar
 cd spaceplan && pip install -e ".[dev]" --break-system-packages
 python tools/golden_check.py check  # debe pasar ANTES de empezar; si no: DETENERSE e informar
 ```
@@ -136,7 +138,7 @@ Cada contrato lleva `contract`, `version`, `produced_by` y `input_sha256`.
    diccionario fusionado es idéntico al archivo original (que se conserva hasta la tanda 4 como referencia).
    La validación semántica se reparte por fragmento. El catálogo de hogar queda en el módulo `household`.
 4. Prueba de arquitectura v2: `core` no importa nada fuera de `core`.
-5. Aceptación (sección 1), etiqueta `tanda-1`.
+5. Aceptación (sección 1), rama `refactor/tanda-1`.
 
 ### Tanda 2 — paquetes de módulo (hoy 15:00)
 1. Crear `modules/<m>/{main,lib,lib_aux}` y `pipeline/` y mover los archivos según 3.1 con `git mv`, con módulos
@@ -146,7 +148,7 @@ Cada contrato lleva `contract`, `version`, `produced_by` y `input_sha256`.
    permitida. Si una dependencia actual lo viola, anotarla en el informe y resolverla en la tanda 3 (marcarla como
    excepción temporal con fecha).
 4. `pyproject.toml`: incluir los paquetes nuevos y los datos.
-5. Aceptación, etiqueta `tanda-2`.
+5. Aceptación, rama `refactor/tanda-2`.
 
 ### Tanda 3 — puntos calientes (hoy 21:00)
 1. Romper el ciclo `zoning` ↔ `space_layout` (extraer lo compartido a un tercer archivo del módulo).
@@ -156,7 +158,7 @@ Cada contrato lleva `contract`, `version`, `produced_by` y `input_sha256`.
 4. Repartir `visualize.py` en archivos por módulo dentro de `viz/lib/` (lote y sitio, zonificación, portafolio,
    matriz de áreas, láminas de revisión).
 5. Quitar las excepciones temporales de la tanda 2; prueba "sin ciclos" sobre todos los módulos.
-6. Aceptación, etiqueta `tanda-3`.
+6. Aceptación, rama `refactor/tanda-3`.
 
 ### Tanda 4 — contratos ejecutables, pruebas por módulo, cierre (mañana 3:00)
 1. Funciones `to_contract` / `from_contract` por módulo, validadas contra su esquema; el `pipeline` encadena
@@ -170,10 +172,10 @@ Cada contrato lleva `contract`, `version`, `produced_by` y `input_sha256`.
 5. Documentación: `docs/architecture/modules.md` (grafo de módulos generado desde el código, contratos, cómo agregar
    un módulo), README y HANDOFF (nueva sección 4i; estado; tabla de archivos). Medir y anotar el tiempo de la suite
    completa y el de cada módulo.
-6. Aceptación, etiqueta `tanda-4`.
+6. Aceptación, rama `refactor/tanda-4`.
 
 ## 5. Informe final (tanda 4)
 
-Resumen para el usuario en español: estado de las 4 etiquetas, número de pruebas, tiempo de la suite antes y
+Resumen para el usuario en español: estado de las 4 ramas `refactor/tanda-N`, número de pruebas, tiempo de la suite antes y
 después, módulos y contratos creados, errores encontrados sin corregir y siguiente paso sugerido (paso 6.7 como
 módulo nuevo `stacking`).
