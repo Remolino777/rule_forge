@@ -15,10 +15,15 @@ from __future__ import annotations
 import copy
 from pathlib import Path
 
-from spaceplan.modules.cost.lib.budget import resolve_budget
 from spaceplan.core.lib.catalog import load_catalog
-from spaceplan.modules.cost.lib.cost_models import get_cost_model
 from spaceplan.core.lib.enums import HOUSEHOLD_TIERS as TIERS
+from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
+from spaceplan.core.lib_aux.json_io import dump_json
+from spaceplan.modules.cost.lib.budget import resolve_budget
+from spaceplan.modules.cost.lib.cost_models import get_cost_model
+from spaceplan.modules.cost.lib.quantities import build_sheet, reference_sheet
+from spaceplan.modules.household.lib.program_review import review_program
+from spaceplan.modules.household.main.run_household import household_stages, resolve_brief_household
 from spaceplan.modules.lotcap.lib.lot import build_lot
 from spaceplan.modules.profiles.lib.program_profiles import (
     ProfileContext,
@@ -28,13 +33,8 @@ from spaceplan.modules.profiles.lib.program_profiles import (
     public,
     staged_profile,
 )
-from spaceplan.modules.household.lib.program_review import review_program
-from spaceplan.modules.cost.lib.quantities import build_sheet, reference_sheet
 from spaceplan.modules.viz.lib.review_notes import render_observations, scheme_observations
-from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
-from spaceplan.core.lib_aux.json_io import dump_json
 from spaceplan.pipeline.main.run_capacity import run_capacity
-from spaceplan.modules.household.main.run_household import household_stages, resolve_brief_household
 
 PROFILE_ORDER = ("minimum", "optimum", "maximum", "accessible", "staged")
 
@@ -166,7 +166,10 @@ def run_profiles(
                 obs = scheme_observations(pkg, p["program"])
                 p["observations"] = obs
                 if sheets_dir:
-                    from spaceplan.modules.viz.lib.visualize import plot_review_sheet, space_label_fn
+                    from spaceplan.modules.viz.lib.visualize import (
+                        plot_review_sheet,
+                        space_label_fn,
+                    )
 
                     label = space_label_fn(display["labels"][lang], p["program"])
                     notes = render_observations(obs, display["review_notes"][lang], label)

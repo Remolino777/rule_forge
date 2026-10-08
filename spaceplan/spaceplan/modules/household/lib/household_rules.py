@@ -23,9 +23,9 @@ from typing import Any
 
 from spaceplan.core.lib.catalog import Catalog
 from spaceplan.core.lib.enums import HOUSEHOLD_TIERS as TIERS
+from spaceplan.core.lib_aux.predicates import evaluate, evaluate_number
 from spaceplan.modules.household.lib.household import Grouping, Household, bedrooms, household_facts
 from spaceplan.modules.household.lib.household_catalog import HouseholdCatalog
-from spaceplan.core.lib_aux.predicates import evaluate, evaluate_number
 
 BEDROOM_RULE = "BEDROOM-POLICY"
 NO_TYPOLOGY = "none"

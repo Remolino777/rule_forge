@@ -19,8 +19,8 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from spaceplan.core.lib.catalog import Catalog
-from spaceplan.modules.cost.lib.quantities import QuantitySheet
 from spaceplan.core.lib_aux.weighted import product, weighted_sum
+from spaceplan.modules.cost.lib.quantities import QuantitySheet
 
 COEF, FORM = "coef:", "form:"
 FLOOR_FACTORS = {2: "two_floors", 3: "three_floors"}

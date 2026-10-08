@@ -105,10 +105,11 @@ def test_no_normative_number_in_new_code():
     import ast
     from pathlib import Path
 
-    root = Path(__file__).resolve().parents[1] / "spaceplan" / "lib"
+    modules = Path(__file__).resolve().parents[1] / "spaceplan" / "modules"
     allowed = {0, 1, 2, 3, 4, 0.5, 1e-6, 0.01}
-    for name in ("building_indices.py", "vertical_split.py", "area_budget.py", "area_matrix.py", "flag_lot.py"):
-        tree = ast.parse((root / name).read_text())
+    for name in ("areas/lib/building_indices.py", "areas/lib/vertical_split.py", "areas/lib/area_budget.py",
+                 "areas/lib/area_matrix.py", "lotcap/lib/flag_lot.py"):  # moved in refactor tanda 2
+        tree = ast.parse((modules / name).read_text())
         numbers = {n.value for n in ast.walk(tree) if isinstance(n, ast.Constant)
                    and isinstance(n.value, (int, float)) and not isinstance(n.value, bool)}
         assert numbers <= allowed, (name, numbers - allowed)

@@ -5,10 +5,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
 from spaceplan.core.lib.enums import BoundaryClass, DepthMethod, WidthMethod
-from spaceplan.modules.lotcap.lib.lot import Lot, chain_endpoints
 from spaceplan.core.lib_aux.geometry import chord_length_at_y, midpoint
+from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
+from spaceplan.modules.lotcap.lib.lot import Lot, chain_endpoints
 
 
 @dataclass(frozen=True)

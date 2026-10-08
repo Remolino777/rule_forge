@@ -170,7 +170,7 @@ def test_display_covers_every_label_and_note(catalog):
 def test_breakfast_nook_is_social_and_retry_is_off_in_corrections(catalog):
     assert catalog.space_type("breakfast_nook")["zone"] == "social"
     assert catalog.data["circulation"]["search_retry"]["zone_schemes"] > catalog.data["circulation"]["search"]["zone_schemes"]
-    tree = ast.parse((ROOT / "main" / "run_corrections.py").read_text(encoding="utf-8"))
+    tree = ast.parse((ROOT / "modules" / "zoning" / "main" / "run_corrections.py").read_text(encoding="utf-8"))
     calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, "id", "") == "zone_site_options"]
     assert calls and all(any(k.arg == "retry" and k.value.value is False for k in c.keywords) for c in calls)
 

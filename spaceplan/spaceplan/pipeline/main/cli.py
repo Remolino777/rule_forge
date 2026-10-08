@@ -21,13 +21,17 @@ import json
 import sys
 
 from spaceplan.core.lib.catalog import CatalogError
-from spaceplan.modules.household.lib.household import HouseholdError
-from spaceplan.modules.household.lib.household_catalog import HouseholdCatalogError
 from spaceplan.core.lib.schema_validation import BriefValidationError, validate_brief
 from spaceplan.core.lib_aux.json_io import dump_json, load_json
-from spaceplan.pipeline.main.run_capacity import run_capacity_file
-from spaceplan.modules.household.main.run_household import derive_household, load_catalogs, resolve_brief_program
+from spaceplan.modules.household.lib.household import HouseholdError
+from spaceplan.modules.household.lib.household_catalog import HouseholdCatalogError
+from spaceplan.modules.household.main.run_household import (
+    derive_household,
+    load_catalogs,
+    resolve_brief_program,
+)
 from spaceplan.modules.household.main.run_program import build_program, parameter_table
+from spaceplan.pipeline.main.run_capacity import run_capacity_file
 
 
 def _review_lines(review: dict) -> list[str]:

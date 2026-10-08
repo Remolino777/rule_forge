@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import copy
 
+from spaceplan.modules.site.lib.site_partition import build_site_partition
 from spaceplan.modules.zoning.lib.corrections import (
     candidate_combos,
     driveway_width,
@@ -22,7 +23,6 @@ from spaceplan.modules.zoning.lib.corrections import (
     garage_zone_min_width,
 )
 from spaceplan.modules.zoning.lib.realization import get_strategy
-from spaceplan.modules.site.lib.site_partition import build_site_partition
 from spaceplan.modules.zoning.lib.zoning import frontage_diagnostics, zone_site_options
 
 ONE_FLOOR = "n1"

@@ -8,9 +8,9 @@ choice on its own. Rows are sorted by swing: the top rows are what to validate f
 
 from __future__ import annotations
 
+from spaceplan.core.lib_aux.weighted import one_at_a_time
 from spaceplan.modules.cost.lib.cost_models import CostModel, relative_index
 from spaceplan.modules.cost.lib.quantities import QuantitySheet
-from spaceplan.core.lib_aux.weighted import one_at_a_time
 
 
 def tornado(model: CostModel, cost_index: dict, reference: QuantitySheet, sheet_a: QuantitySheet,

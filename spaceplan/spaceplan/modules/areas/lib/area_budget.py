@@ -17,12 +17,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from spaceplan.modules.areas.lib.building_indices import IndexLimits, indices_all_variants
 from spaceplan.core.lib.catalog import Catalog
 from spaceplan.core.lib.enums import Strategy
 from spaceplan.core.lib.rules import RuleSet
-from spaceplan.modules.site.lib.site_partition import measure_footprint, site_context
+from spaceplan.modules.areas.lib.building_indices import IndexLimits, indices_all_variants
 from spaceplan.modules.areas.lib.vertical_split import FloorSplit
+from spaceplan.modules.site.lib.site_partition import measure_footprint, site_context
 
 STATUS_ORDER = ("exceeds_far", "exceeds_coverage", "upper_exceeds_ground", "exceeds_strategy", "frontage_short",
                 "site_fails")
@@ -85,7 +85,7 @@ def _front_width_b(profile) -> float:
 
 
 def lot_budget(catalog: Catalog, rs: RuleSet, brief: dict, setup, flag: dict | None = None) -> LotBudget:
-    """Lot-level limits from the layer-0 objects (`setup` is main.run_capacity.LotSetup)."""
+    """Lot-level limits from the layer-0 objects (`setup` is modules.lotcap.main.run_lotcap.LotSetup)."""
     aa = catalog.data["area_analysis"]
     cap = setup.capacity.capacity
     lot_area = setup.lot.polygon.area

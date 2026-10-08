@@ -17,6 +17,12 @@ from dataclasses import dataclass
 from shapely.geometry import LineString, box
 
 from spaceplan.core.lib.catalog import Catalog
+from spaceplan.core.lib.rules import RuleSet
+from spaceplan.core.lib_aux.allocation import (  # noqa: F401  (fit_lengths re-exported)
+    fit_lengths,
+    ranked_product,
+)
+from spaceplan.core.lib_aux.quantity import worst_status
 from spaceplan.modules.zoning.lib.circulation import (
     DoorRules,
     Node,
@@ -26,11 +32,8 @@ from spaceplan.modules.zoning.lib.circulation import (
     shared_edge,
     through_strips,
 )
-from spaceplan.modules.zoning.lib.realization import Rect, RealizedZones
+from spaceplan.modules.zoning.lib.realization import RealizedZones, Rect
 from spaceplan.modules.zoning.lib.relation_matrix import ENTRY, PATIO, RelationMatrix
-from spaceplan.core.lib.rules import RuleSet
-from spaceplan.core.lib_aux.allocation import fit_lengths, ranked_product  # noqa: F401  (fit_lengths re-exported)
-from spaceplan.core.lib_aux.quantity import worst_status
 
 CIRCULATION_TYPES = ("foyer", "hall")
 MAX_STACK = 3  # spaces stacked in one column inside a cell (guillotine depth 3)

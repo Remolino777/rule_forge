@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import math
 
-from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
 from spaceplan.core.lib.catalog import Catalog
 from spaceplan.core.lib.enums import BoundaryClass
-from spaceplan.modules.lotcap.lib.lot import Lot
 from spaceplan.core.lib_aux.geometry import Frame
+from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
+from spaceplan.modules.lotcap.lib.lot import Lot
 
 STREET_CLASSES = (BoundaryClass.FRONT.value, BoundaryClass.STREET_SIDE.value)
 ZONE_WEIGHT_KEYS = ("sun", "morning_light", "street_privacy")

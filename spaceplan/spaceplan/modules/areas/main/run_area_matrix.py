@@ -20,19 +20,25 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from spaceplan.modules.areas.lib.area_budget import SiteMeasurer, lot_budget
-from spaceplan.modules.areas.lib.area_matrix import compact, household_cells, pareto_cells, profile_program
 from spaceplan.core.lib.catalog import load_catalog
-from spaceplan.modules.cost.lib.cost_models import get_cost_model
-from spaceplan.modules.lotcap.lib.flag_lot import resolve_flag_lot
-from spaceplan.modules.household.lib.household_catalog import load_household_catalog
-from spaceplan.modules.cost.lib.quantities import reference_sheet
 from spaceplan.core.lib.rules import load_ruleset
 from spaceplan.core.lib.schema_validation import validate_brief
 from spaceplan.core.lib_aux.json_io import dump_json, load_json, load_resource_json
-from spaceplan.pipeline.main.run_capacity import prepare_lot, run_capacity
+from spaceplan.modules.areas.lib.area_budget import SiteMeasurer, lot_budget
+from spaceplan.modules.areas.lib.area_matrix import (
+    compact,
+    household_cells,
+    pareto_cells,
+    profile_program,
+)
+from spaceplan.modules.cost.lib.cost_models import get_cost_model
+from spaceplan.modules.cost.lib.quantities import reference_sheet
+from spaceplan.modules.household.lib.household_catalog import load_household_catalog
 from spaceplan.modules.household.main.run_household import household_stages, resolve_brief_household
+from spaceplan.modules.lotcap.lib.flag_lot import resolve_flag_lot
+from spaceplan.modules.lotcap.main.run_lotcap import prepare_lot
 from spaceplan.modules.profiles.main.run_profiles import profile_programs
+from spaceplan.pipeline.main.run_capacity import run_capacity
 
 PILOT_LOTS = (
     "interior_50x100", "corner_55x100", "shallow_50x95", "narrow_40x125", "hillside_50x100",
@@ -96,7 +102,10 @@ def _e2(catalog_path, body: dict, cells: list[dict], profiles_by_h: dict, k: int
                "seconds": round(time.time() - t0, 1)}
         c["e2"] = {k2: rec[k2] for k2 in ("status", "valid", "space_level_valid")}
         if sheets_dir and option["status"] == "zoned":
-            from spaceplan.modules.viz.lib.review_notes import render_observations, scheme_observations
+            from spaceplan.modules.viz.lib.review_notes import (
+                render_observations,
+                scheme_observations,
+            )
             from spaceplan.modules.viz.lib.visualize import plot_review_sheet, space_label_fn
 
             obs = scheme_observations(pkg, program)

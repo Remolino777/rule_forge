@@ -5,10 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from spaceplan.core.lib.catalog import load_catalog
-from spaceplan.pipeline.lib.catalog_table import render_cost_table, render_parameter_table
+from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
 from spaceplan.modules.household.lib.program_builder import expand_typology
 from spaceplan.modules.household.lib.program_review import review_program
-from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
+from spaceplan.pipeline.lib.catalog_table import render_cost_table, render_parameter_table
 
 
 def build_program(

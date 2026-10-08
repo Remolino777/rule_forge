@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from spaceplan.core.lib_aux.geometry import polygon_parts
 from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
 from spaceplan.modules.lotcap.lib.lot import Lot
-from spaceplan.core.lib_aux.geometry import polygon_parts
 
 CLASS_COLORS = {"front": "#d1495b", "side": "#00798c", "street_side": "#edae49", "rear": "#30638e"}
 

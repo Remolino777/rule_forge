@@ -18,6 +18,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from spaceplan.core.lib.catalog import Catalog
+from spaceplan.core.lib.rules import RuleSet
+from spaceplan.core.lib_aux.pareto import pareto_front
 from spaceplan.modules.areas.lib.area_budget import (
     FITS,
     FITS_SMALL_GARDEN,
@@ -25,10 +28,6 @@ from spaceplan.modules.areas.lib.area_budget import (
     SiteMeasurer,
     evaluate_split,
 )
-from spaceplan.core.lib.catalog import Catalog
-from spaceplan.modules.cost.lib.cost_models import CostModel, mode_point, relative_index
-from spaceplan.modules.cost.lib.quantities import QuantitySheet, build_sheet
-from spaceplan.core.lib.rules import RuleSet
 from spaceplan.modules.areas.lib.vertical_split import (
     applicable_schemes,
     dedupe_splits,
@@ -39,7 +38,8 @@ from spaceplan.modules.areas.lib.vertical_split import (
     vertical_metrics,
     weighted_score,
 )
-from spaceplan.core.lib_aux.pareto import pareto_front
+from spaceplan.modules.cost.lib.cost_models import CostModel, mode_point, relative_index
+from spaceplan.modules.cost.lib.quantities import QuantitySheet, build_sheet
 
 FEASIBLE = (FITS, FITS_SMALL_GARDEN)
 

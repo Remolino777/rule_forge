@@ -25,13 +25,18 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from spaceplan.core.lib.catalog import Catalog
-from spaceplan.modules.cost.lib.cost_models import CostModel, get_cost_model, mode_point, relative_index
 from spaceplan.core.lib.enums import HOUSEHOLD_TIERS as TIERS
+from spaceplan.core.lib_aux.knee import greedy_ratio_path, knee_index
+from spaceplan.modules.cost.lib.cost_models import (
+    CostModel,
+    get_cost_model,
+    mode_point,
+    relative_index,
+)
+from spaceplan.modules.cost.lib.quantities import QuantitySheet, build_sheet
 from spaceplan.modules.household.lib.household_catalog import HouseholdCatalog
 from spaceplan.modules.household.lib.household_rules import Derivation
 from spaceplan.modules.household.lib.program_builder import program_from_needs
-from spaceplan.modules.cost.lib.quantities import QuantitySheet, build_sheet
-from spaceplan.core.lib_aux.knee import greedy_ratio_path, knee_index
 
 NORMATIVE, BUDGET, COMPLETE = "normative", "budget", "program_complete"
 REQUIRED, PREFERRED, DESIRABLE = TIERS

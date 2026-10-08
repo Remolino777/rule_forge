@@ -14,10 +14,20 @@ import copy
 from pathlib import Path
 
 from spaceplan.core.lib.catalog import Catalog, load_catalog
-from spaceplan.modules.household.lib.culture import merge_culture_into_brief
 from spaceplan.core.lib.enums import HOUSEHOLD_TIERS as TIERS
-from spaceplan.modules.household.lib.household import Household, advance, composition, load_household
-from spaceplan.modules.household.lib.household_catalog import HouseholdCatalog, load_household_catalog
+from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
+from spaceplan.modules.cost.main.run_cost import household_cost
+from spaceplan.modules.household.lib.culture import merge_culture_into_brief
+from spaceplan.modules.household.lib.household import (
+    Household,
+    advance,
+    composition,
+    load_household,
+)
+from spaceplan.modules.household.lib.household_catalog import (
+    HouseholdCatalog,
+    load_household_catalog,
+)
 from spaceplan.modules.household.lib.household_rules import (
     Derivation,
     active_anchor_overrides,
@@ -29,8 +39,6 @@ from spaceplan.modules.household.lib.household_rules import (
 )
 from spaceplan.modules.household.lib.program_builder import program_from_needs
 from spaceplan.modules.household.lib.program_review import review_program
-from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
-from spaceplan.modules.cost.main.run_cost import household_cost
 
 PRIVACY_NOTE = ("Composition by age band only; member list and cultural profile are copied only when "
                 "household.include_household is true. Bedroom grouping is design guidance, not an occupancy limit.")

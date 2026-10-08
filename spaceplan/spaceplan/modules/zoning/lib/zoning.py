@@ -27,9 +27,9 @@ from spaceplan.core.lib_aux.allocation import fit_lengths
 from spaceplan.modules.zoning.lib.realization import (
     SHOULDER_FACADES,
     FootprintDomain,
-    Rect,
     RealizationStrategy,
     RealizedZones,
+    Rect,
     StrategyB,
     ZoneTopology,
     polygonal_cuts,
@@ -1247,9 +1247,15 @@ def _space_level(catalog: Catalog, brief: dict, result: dict, frame, search: dic
     """
     from shapely.geometry import box
 
-    from spaceplan.modules.zoning.lib.circulation import DoorRules
     from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
-    from spaceplan.modules.zoning.lib.space_layout import LayoutContext, layout_candidates, layout_params, space_scheme, space_specs
+    from spaceplan.modules.zoning.lib.circulation import DoorRules
+    from spaceplan.modules.zoning.lib.space_layout import (
+        LayoutContext,
+        layout_candidates,
+        layout_params,
+        space_scheme,
+        space_specs,
+    )
 
     crc = load_ruleset_resource(*CRC_RULESET)
     params = layout_params(catalog, crc)
@@ -1442,7 +1448,11 @@ def zone_site_options(catalog: Catalog, brief: dict, frame, site_partition: dict
 
 def zone_unit(catalog: Catalog, brief: dict, unit, strategy: RealizationStrategy) -> dict:
     """Apartment: zone the unit rectangle with the apartment profile."""
-    from spaceplan.modules.site.lib.orientation import exposure, facade_affinity, local_normal_azimuth
+    from spaceplan.modules.site.lib.orientation import (
+        exposure,
+        facade_affinity,
+        local_normal_azimuth,
+    )
 
     model = catalog.data["orientation_model"]
     north, lat = brief["orientation"]["north_azimuth_deg"], brief["orientation"]["latitude_deg"]

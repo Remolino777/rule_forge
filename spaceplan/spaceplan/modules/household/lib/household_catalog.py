@@ -16,7 +16,12 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from spaceplan.core.lib.catalog import Catalog
-from spaceplan.core.lib.enums import CULTURE_ASPECTS, CULTURE_FACTS, HOUSEHOLD_FACTS, HOUSEHOLD_TIERS
+from spaceplan.core.lib.enums import (
+    CULTURE_ASPECTS,
+    CULTURE_FACTS,
+    HOUSEHOLD_FACTS,
+    HOUSEHOLD_TIERS,
+)
 from spaceplan.core.lib.schema_validation import load_schema
 from spaceplan.core.lib_aux.hashing import sha256_of
 from spaceplan.core.lib_aux.json_io import load_json, load_resource_json

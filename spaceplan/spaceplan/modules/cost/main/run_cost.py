@@ -10,11 +10,11 @@ The index is comparative, never a quote: no model knows money.
 
 from __future__ import annotations
 
-from spaceplan.modules.cost.lib.budget import assess_budget, resolve_budget
 from spaceplan.core.lib.catalog import Catalog
+from spaceplan.core.lib.enums import HOUSEHOLD_TIERS as TIERS
+from spaceplan.modules.cost.lib.budget import assess_budget, resolve_budget
 from spaceplan.modules.cost.lib.cost_models import evaluate_all, get_cost_model
 from spaceplan.modules.cost.lib.cost_sensitivity import tornado
-from spaceplan.core.lib.enums import HOUSEHOLD_TIERS as TIERS
 from spaceplan.modules.cost.lib.quantities import build_sheet, reference_sheet
 
 LOT, REFERENCE_DWELLING = "lot", "reference_dwelling"

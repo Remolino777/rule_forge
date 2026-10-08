@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from spaceplan.core.lib.catalog import Catalog
-from spaceplan.modules.household.lib.program_builder import expand_typology
 from spaceplan.core.lib.rules import RuleSet
+from spaceplan.modules.household.lib.program_builder import expand_typology
 
 
 def _fmt(value) -> str:

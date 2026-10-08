@@ -11,7 +11,6 @@ deck projection (131.0461(a)(6)), footprint inside the setback envelope.
 from __future__ import annotations
 
 import math
-
 from dataclasses import dataclass, replace
 from typing import Any
 
@@ -19,18 +18,23 @@ from shapely.geometry import LineString, Point, box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
+from spaceplan.core.lib.catalog import Catalog, site_parameters
+from spaceplan.core.lib.enums import BoundaryClass, Strategy
+from spaceplan.core.lib.rules import RuleSet
+from spaceplan.core.lib_aux.geometry import Frame, clip_y, polygon_parts
+from spaceplan.core.lib_aux.quantity import PROVISIONAL, VERIFIED, worst_status
+from spaceplan.core.lib_aux.section import SectionProfile, profile_of_largest
+from spaceplan.core.lib_aux.tolerances import AREA_TIE_TOL_SQFT, COVER_TOL_FT
 from spaceplan.modules.lotcap.lib import rule_variants as rv
 from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
 from spaceplan.modules.lotcap.lib.capacity import CapacityResult, SetbackEvaluation
-from spaceplan.core.lib.catalog import Catalog, site_parameters
-from spaceplan.core.lib.enums import BoundaryClass, Strategy
 from spaceplan.modules.lotcap.lib.lot import Lot, chain_endpoints
-from spaceplan.modules.site.lib.orientation import boundary_exposures, exposure, facade_affinity, local_normal_azimuth
-from spaceplan.core.lib.rules import RuleSet
-from spaceplan.core.lib_aux.geometry import Frame, clip_y, polygon_parts
-from spaceplan.core.lib_aux.section import SectionProfile, profile_of_largest
-from spaceplan.core.lib_aux.quantity import PROVISIONAL, VERIFIED, worst_status
-from spaceplan.core.lib_aux.tolerances import AREA_TIE_TOL_SQFT, COVER_TOL_FT
+from spaceplan.modules.site.lib.orientation import (
+    boundary_exposures,
+    exposure,
+    facade_affinity,
+    local_normal_azimuth,
+)
 
 WALKWAY_VARIANTS = ("independent", "from_driveway")
 DECK_POSITIONS = ("centered", "offset")

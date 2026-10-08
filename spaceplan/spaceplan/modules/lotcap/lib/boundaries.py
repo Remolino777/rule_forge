@@ -6,10 +6,10 @@ import math
 from dataclasses import dataclass
 
 from spaceplan.core.lib.enums import BoundaryClass, StreetRole
-from spaceplan.modules.lotcap.lib.lot import Lot, LotGeometryError, front_frame
 from spaceplan.core.lib_aux.geometry import Frame
 from spaceplan.core.lib_aux.quantity import PROVISIONAL, VERIFIED
 from spaceplan.core.lib_aux.tolerances import REAR_CLEAR_TOL_DEG, REAR_PARALLEL_TOL_DEG
+from spaceplan.modules.lotcap.lib.lot import Lot, LotGeometryError, front_frame
 
 
 @dataclass(frozen=True)

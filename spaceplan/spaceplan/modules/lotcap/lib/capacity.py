@@ -12,8 +12,6 @@ from dataclasses import dataclass
 
 from shapely.geometry.base import BaseGeometry
 
-from spaceplan.modules.lotcap.lib import rule_variants as rv
-from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
 from spaceplan.core.lib.enums import (
     DEFAULT_FLOOR_TO_FLOOR_FT,
     DEFAULT_GROSS_FACTOR,
@@ -22,8 +20,6 @@ from spaceplan.core.lib.enums import (
     FeasibilityLevel,
     Strategy,
 )
-from spaceplan.modules.lotcap.lib.lot import Lot
-from spaceplan.modules.lotcap.lib.lot_metrics import LotMetrics, measure_lot
 from spaceplan.core.lib.rules import RuleSet
 from spaceplan.core.lib_aux.geometry import (
     clip_y,
@@ -38,6 +34,10 @@ from spaceplan.core.lib_aux.tolerances import (
     SEMANTICS_AREA_TOL_SQFT,
     SENSITIVITY_AREA_TOL_SQFT,
 )
+from spaceplan.modules.lotcap.lib import rule_variants as rv
+from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
+from spaceplan.modules.lotcap.lib.lot import Lot
+from spaceplan.modules.lotcap.lib.lot_metrics import LotMetrics, measure_lot
 
 MEASUREMENT_NOTE = "variant depends on the lot width/depth measurement method (SDMC Ch. 11 pending)"
 UTILIZATION_WARNING_BELOW = 0.80

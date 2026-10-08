@@ -9,16 +9,16 @@ from shapely.geometry import mapping
 from shapely.geometry.base import BaseGeometry
 
 from spaceplan import __version__
-from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
-from spaceplan.modules.lotcap.lib.capacity import CapacityResult, SetbackEvaluation
 from spaceplan.core.lib.enums import PACKAGE_SCHEMA_VERSION, Strategy
-from spaceplan.modules.lotcap.lib.lot import Lot
 from spaceplan.core.lib.rules import RuleSet
-from spaceplan.modules.lotcap.lib.scope import ScopeResult
 from spaceplan.core.lib_aux.hashing import sha256_of, sha256_text
 from spaceplan.core.lib_aux.json_io import round_floats, to_json_compatible
 from spaceplan.core.lib_aux.quantity import Quantity
 from spaceplan.core.lib_aux.tolerances import ROUND_DECIMALS
+from spaceplan.modules.lotcap.lib.boundaries import BoundaryModel
+from spaceplan.modules.lotcap.lib.capacity import CapacityResult, SetbackEvaluation
+from spaceplan.modules.lotcap.lib.lot import Lot
+from spaceplan.modules.lotcap.lib.scope import ScopeResult
 
 GENERATOR_NAME = "spaceplan"
 RESERVED_BLOCKS = ("graphs", "sized_program", "geometric_scheme", "metrics")

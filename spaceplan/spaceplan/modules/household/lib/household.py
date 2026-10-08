@@ -19,8 +19,8 @@ from jsonschema import Draft202012Validator
 
 from spaceplan.core.lib.enums import CULTURE_ASPECTS, UNSPECIFIED
 from spaceplan.core.lib.enums import HOUSEHOLD_DIMENSIONS as DIMENSIONS
-from spaceplan.modules.household.lib.household_catalog import HouseholdCatalog
 from spaceplan.core.lib.schema_validation import load_schema
+from spaceplan.modules.household.lib.household_catalog import HouseholdCatalog
 
 ACCESS_RANK = {"full": 0, "none": 0, "anticipated": 1, "reduced": 2}
 ACCESS_LEVEL = {0: "none", 1: "anticipated", 2: "reduced"}
