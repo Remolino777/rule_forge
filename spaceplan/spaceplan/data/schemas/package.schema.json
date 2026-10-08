@@ -1,0 +1,3863 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/package/0.6",
+  "title": "spaceplan schematic design package",
+  "description": "Output of spaceplan. Steps 1-5 (revised) fill meta, scope, lot metrics, boundaries, rule variants, conformity, capacity, realizable capacity sensitivity the program review the site partition and the zoning (houses and apartments), the unit and the backyard; the remaining blocks are reserved for steps 4-10.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "meta",
+    "scope",
+    "lot_metrics",
+    "boundaries",
+    "rule_variants",
+    "lot_conformity",
+    "capacity",
+    "realizable_capacity",
+    "sensitivity",
+    "zoning",
+    "unit",
+    "program_review",
+    "warnings",
+    "site_partition",
+    "graphs",
+    "sized_program",
+    "geometric_scheme",
+    "metrics",
+    "corrections"
+  ],
+  "$defs": {
+    "status": {
+      "enum": [
+        "verified",
+        "provisional",
+        "undeterminable"
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "status",
+        "sources",
+        "note"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/status"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "quantity_or_null": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/quantity"
+        }
+      ]
+    },
+    "geometry": {
+      "type": "object",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "Polygon",
+            "MultiPolygon"
+          ]
+        },
+        "coordinates": {
+          "type": "array"
+        }
+      }
+    },
+    "constraint": {
+      "enum": [
+        "far",
+        "envelope",
+        "occupancy_hillside",
+        "garden_preference",
+        "realization"
+      ]
+    },
+    "active_constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "constraint",
+        "value"
+      ],
+      "properties": {
+        "constraint": {
+          "$ref": "#/$defs/constraint"
+        },
+        "value": {
+          "$ref": "#/$defs/quantity"
+        }
+      }
+    },
+    "feasibility_level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "footprint",
+        "floors_min",
+        "floors_cap",
+        "feasible",
+        "reasons",
+        "status"
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "normative",
+            "normative_with_preferences",
+            "strategy_A_with_preferences"
+          ]
+        },
+        "footprint": {
+          "$ref": "#/$defs/quantity"
+        },
+        "floors_min": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "floors_cap": {
+          "type": "integer"
+        },
+        "feasible": {
+          "type": "boolean"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "$ref": "#/$defs/status"
+        }
+      }
+    },
+    "reserved": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "correction_combo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "strategy",
+        "garage_layout",
+        "front_recess_ft",
+        "cost",
+        "changes",
+        "labels"
+      ],
+      "properties": {
+        "strategy": {
+          "enum": [
+            "A_inscribed_rectangle",
+            "B_stepped_footprint",
+            "B_polygonal_footprint"
+          ]
+        },
+        "garage_layout": {
+          "enum": [
+            "as_brief",
+            "tandem",
+            "one_car"
+          ]
+        },
+        "front_recess_ft": {
+          "type": "number",
+          "minimum": 0
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0
+        },
+        "changes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outcome": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "schema_version",
+        "brief_id",
+        "brief_sha256",
+        "ruleset_id",
+        "ruleset_version",
+        "ruleset_sha256",
+        "code_edition",
+        "seed",
+        "generator",
+        "realization_strategy",
+        "dwelling_type"
+      ],
+      "properties": {
+        "package_id": {
+          "type": "string",
+          "pattern": "^pkg-[0-9a-f]{16}$"
+        },
+        "schema_version": {
+          "const": "0.9"
+        },
+        "brief_id": {
+          "type": "string"
+        },
+        "brief_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "ruleset_id": {
+          "type": "string"
+        },
+        "ruleset_version": {
+          "type": "string"
+        },
+        "ruleset_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "code_edition": {
+          "type": "string"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "generator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          }
+        },
+        "realization_strategy": {
+          "enum": [
+            "A_inscribed_rectangle",
+            "B_stepped_footprint",
+            "B_polygonal_footprint"
+          ]
+        },
+        "dwelling_type": {
+          "enum": [
+            "house",
+            "apartment"
+          ]
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "in_scope",
+        "reasons"
+      ],
+      "properties": {
+        "in_scope": {
+          "type": "boolean"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lot_metrics": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "area_sqft",
+            "frontage_ft",
+            "front_chord_ft",
+            "front_curve_radius_ft",
+            "is_convex",
+            "is_corner",
+            "widths_ft",
+            "depths_ft",
+            "width_method",
+            "depth_method",
+            "frame"
+          ],
+          "properties": {
+            "area_sqft": {
+              "type": "number"
+            },
+            "frontage_ft": {
+              "type": "number"
+            },
+            "front_chord_ft": {
+              "type": "number"
+            },
+            "front_curve_radius_ft": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "is_convex": {
+              "type": "boolean"
+            },
+            "is_corner": {
+              "type": "boolean"
+            },
+            "widths_ft": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "depths_ft": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "width_method": {
+              "enum": [
+                "mean_width",
+                "frontage",
+                "at_front_setback"
+              ]
+            },
+            "depth_method": {
+              "enum": [
+                "front_rear_midpoints",
+                "max_extent"
+              ]
+            },
+            "frame": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "origin",
+                "angle_deg"
+              ],
+              "properties": {
+                "origin": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "angle_deg": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "boundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "edge_id",
+          "boundary_class",
+          "inferred",
+          "status",
+          "note",
+          "street_id",
+          "length_ft",
+          "setback_ft",
+          "outward_azimuth_deg"
+        ],
+        "properties": {
+          "edge_id": {
+            "type": "string"
+          },
+          "boundary_class": {
+            "enum": [
+              "front",
+              "side",
+              "street_side",
+              "rear"
+            ]
+          },
+          "inferred": {
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/$defs/status"
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "street_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "length_ft": {
+            "type": "number"
+          },
+          "setback_ft": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "outward_azimuth_deg": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "rule_variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule_id",
+          "magnitude",
+          "variant_id",
+          "quantity",
+          "predicate"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string"
+          },
+          "magnitude": {
+            "type": "string"
+          },
+          "variant_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "$ref": "#/$defs/quantity"
+          },
+          "predicate": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lot_conformity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "rule_id",
+          "value",
+          "required",
+          "unit",
+          "passes",
+          "status",
+          "source"
+        ],
+        "properties": {
+          "check_id": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "required": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "passes": {
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/$defs/status"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "capacity": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "setbacks",
+            "envelope",
+            "coverage_max",
+            "footprint_max_normative",
+            "far_ratio",
+            "far_base_area",
+            "gross_area_max",
+            "height_max",
+            "floors_max_height",
+            "third_floor",
+            "envelope_plane",
+            "garden_footprint_limit",
+            "required_gross_area",
+            "active_constraint_normative",
+            "active_constraint_effective",
+            "feasibility"
+          ],
+          "properties": {
+            "setbacks": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "front",
+                "side",
+                "street_side",
+                "rear"
+              ],
+              "properties": {
+                "front": {
+                  "$ref": "#/$defs/quantity"
+                },
+                "side": {
+                  "$ref": "#/$defs/quantity"
+                },
+                "street_side": {
+                  "$ref": "#/$defs/quantity"
+                },
+                "rear": {
+                  "$ref": "#/$defs/quantity"
+                }
+              }
+            },
+            "envelope": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "area",
+                "polygon",
+                "distance_semantics"
+              ],
+              "properties": {
+                "area": {
+                  "$ref": "#/$defs/quantity"
+                },
+                "polygon": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/$defs/geometry"
+                    }
+                  ]
+                },
+                "distance_semantics": {
+                  "type": "string"
+                }
+              }
+            },
+            "coverage_max": {
+              "$ref": "#/$defs/quantity"
+            },
+            "footprint_max_normative": {
+              "$ref": "#/$defs/quantity"
+            },
+            "far_ratio": {
+              "$ref": "#/$defs/quantity"
+            },
+            "far_base_area": {
+              "$ref": "#/$defs/quantity"
+            },
+            "gross_area_max": {
+              "$ref": "#/$defs/quantity"
+            },
+            "height_max": {
+              "$ref": "#/$defs/quantity"
+            },
+            "floors_max_height": {
+              "$ref": "#/$defs/quantity"
+            },
+            "third_floor": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "applicable",
+                "max_width",
+                "max_depth"
+              ],
+              "properties": {
+                "applicable": {
+                  "type": "boolean"
+                },
+                "max_width": {
+                  "$ref": "#/$defs/quantity"
+                },
+                "max_depth": {
+                  "$ref": "#/$defs/quantity"
+                }
+              }
+            },
+            "envelope_plane": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "angle_deg",
+                "front_trigger_height_ft",
+                "applied",
+                "status",
+                "source",
+                "note"
+              ],
+              "properties": {
+                "angle_deg": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "front_trigger_height_ft": {
+                  "type": "number"
+                },
+                "applied": {
+                  "type": "boolean"
+                },
+                "status": {
+                  "$ref": "#/$defs/status"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                }
+              }
+            },
+            "garden_footprint_limit": {
+              "$ref": "#/$defs/quantity_or_null"
+            },
+            "required_gross_area": {
+              "$ref": "#/$defs/quantity"
+            },
+            "active_constraint_normative": {
+              "$ref": "#/$defs/active_constraint"
+            },
+            "active_constraint_effective": {
+              "$ref": "#/$defs/active_constraint"
+            },
+            "feasibility": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "levels",
+                "false_infeasible_risk"
+              ],
+              "properties": {
+                "levels": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "$ref": "#/$defs/feasibility_level"
+                  }
+                },
+                "false_infeasible_risk": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "realizable_capacity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "strategy",
+          "area",
+          "utilization",
+          "width_ft",
+          "depth_ft",
+          "polygon"
+        ],
+        "properties": {
+          "strategy": {
+            "enum": [
+              "A_inscribed_rectangle",
+              "B_stepped_footprint",
+              "B_polygonal_footprint"
+            ]
+          },
+          "area": {
+            "$ref": "#/$defs/quantity"
+          },
+          "utilization": {
+            "$ref": "#/$defs/quantity"
+          },
+          "width_ft": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "depth_ft": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "polygon": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/$defs/geometry"
+              }
+            ]
+          },
+          "steps": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "sensitivity": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rows",
+            "envelope_area_min_sqft",
+            "envelope_area_max_sqft",
+            "varies",
+            "side_setback_varies",
+            "rear_setback_varies"
+          ],
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "width_method",
+                  "depth_method",
+                  "lot_width_ft",
+                  "lot_depth_ft",
+                  "front_setback_ft",
+                  "side_setback_ft",
+                  "street_side_setback_ft",
+                  "rear_setback_ft",
+                  "envelope_area_sqft"
+                ],
+                "properties": {
+                  "width_method": {
+                    "type": "string"
+                  },
+                  "depth_method": {
+                    "type": "string"
+                  },
+                  "lot_width_ft": {
+                    "type": "number"
+                  },
+                  "lot_depth_ft": {
+                    "type": "number"
+                  },
+                  "front_setback_ft": {
+                    "type": "number"
+                  },
+                  "side_setback_ft": {
+                    "type": "number"
+                  },
+                  "street_side_setback_ft": {
+                    "type": "number"
+                  },
+                  "rear_setback_ft": {
+                    "type": "number"
+                  },
+                  "envelope_area_sqft": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "envelope_area_min_sqft": {
+              "type": "number"
+            },
+            "envelope_area_max_sqft": {
+              "type": "number"
+            },
+            "varies": {
+              "type": "boolean"
+            },
+            "side_setback_varies": {
+              "type": "boolean"
+            },
+            "rear_setback_varies": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "site_partition": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "frame",
+            "streets",
+            "front_yard_area_sqft",
+            "orientation",
+            "limits",
+            "options",
+            "selected_option_id",
+            "primary_street_id"
+          ],
+          "properties": {
+            "frame": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "origin",
+                "angle_rad"
+              ],
+              "properties": {
+                "origin": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "angle_rad": {
+                  "type": "number"
+                }
+              }
+            },
+            "streets": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "front_yard_area_sqft": {
+              "type": "number"
+            },
+            "orientation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "latitude_deg",
+                "north_azimuth_deg",
+                "boundaries"
+              ],
+              "properties": {
+                "latitude_deg": {
+                  "type": "number"
+                },
+                "north_azimuth_deg": {
+                  "type": "number"
+                },
+                "boundaries": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "edge_id",
+                      "boundary_class",
+                      "outward_azimuth_deg",
+                      "sun",
+                      "morning_light",
+                      "afternoon_shade",
+                      "street_exposure"
+                    ],
+                    "properties": {
+                      "edge_id": {
+                        "type": "string"
+                      },
+                      "boundary_class": {
+                        "enum": [
+                          "front",
+                          "side",
+                          "street_side",
+                          "rear"
+                        ]
+                      },
+                      "outward_azimuth_deg": {
+                        "type": "number"
+                      },
+                      "sun": {
+                        "type": "number"
+                      },
+                      "morning_light": {
+                        "type": "number"
+                      },
+                      "afternoon_shade": {
+                        "type": "number"
+                      },
+                      "street_exposure": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "max_paving_fraction",
+                "deck_counts_as_paving",
+                "deck_max_projection_ft",
+                "deck_max_height_ft",
+                "deck_min_open_fraction",
+                "equipment_min_distance_ft"
+              ],
+              "properties": {
+                "max_paving_fraction": {
+                  "type": "number"
+                },
+                "deck_counts_as_paving": {
+                  "type": "boolean"
+                },
+                "deck_max_projection_ft": {
+                  "type": "number"
+                },
+                "deck_max_height_ft": {
+                  "type": "number"
+                },
+                "deck_min_open_fraction": {
+                  "type": "number"
+                },
+                "equipment_min_distance_ft": {
+                  "type": "number"
+                }
+              }
+            },
+            "options": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "option_id",
+                  "floors",
+                  "footprint_area_sqft",
+                  "feasible",
+                  "preferences_met",
+                  "reasons"
+                ],
+                "properties": {
+                  "option_id": {
+                    "type": "string",
+                    "pattern": "^n[0-9]+$"
+                  },
+                  "floors": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "footprint_area_sqft": {
+                    "type": "number"
+                  },
+                  "feasible": {
+                    "type": "boolean"
+                  },
+                  "preferences_met": {
+                    "type": "boolean"
+                  },
+                  "reasons": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "variants_evaluated": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "walkway_variant",
+                        "deck_position",
+                        "paving_fraction",
+                        "normative_ok",
+                        "error"
+                      ],
+                      "properties": {
+                        "walkway_variant": {
+                          "enum": [
+                            "independent",
+                            "from_driveway"
+                          ]
+                        },
+                        "deck_position": {
+                          "enum": [
+                            "centered",
+                            "offset"
+                          ]
+                        },
+                        "paving_fraction": {
+                          "type": [
+                            "number",
+                            "null"
+                          ]
+                        },
+                        "normative_ok": {
+                          "type": "boolean"
+                        },
+                        "error": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "corrections": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "footprint_width_ft": {
+                    "type": "number"
+                  },
+                  "footprint_depth_ft": {
+                    "type": "number"
+                  },
+                  "coverage_ratio": {
+                    "type": "number"
+                  },
+                  "front_yard_area_sqft": {
+                    "type": "number"
+                  },
+                  "zones": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "footprint",
+                      "garden",
+                      "side_yards",
+                      "front_green",
+                      "driveway",
+                      "walkway",
+                      "entry_deck"
+                    ],
+                    "properties": {
+                      "footprint": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "area_sqft",
+                          "polygon"
+                        ],
+                        "properties": {
+                          "area_sqft": {
+                            "type": "number"
+                          },
+                          "polygon": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/$defs/geometry"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "garden": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "area_sqft",
+                          "polygon",
+                          "depth_ft"
+                        ],
+                        "properties": {
+                          "area_sqft": {
+                            "type": "number"
+                          },
+                          "polygon": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/$defs/geometry"
+                              }
+                            ]
+                          },
+                          "depth_ft": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "side_yards": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "area_sqft",
+                          "polygon",
+                          "clearance_ft"
+                        ],
+                        "properties": {
+                          "area_sqft": {
+                            "type": "number"
+                          },
+                          "polygon": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/$defs/geometry"
+                              }
+                            ]
+                          },
+                          "clearance_ft": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "front_green": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "area_sqft",
+                          "polygon",
+                          "parts"
+                        ],
+                        "properties": {
+                          "area_sqft": {
+                            "type": "number"
+                          },
+                          "polygon": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/$defs/geometry"
+                              }
+                            ]
+                          },
+                          "parts": {
+                            "type": "integer"
+                          }
+                        }
+                      },
+                      "driveway": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "area_sqft",
+                          "polygon"
+                        ],
+                        "properties": {
+                          "area_sqft": {
+                            "type": "number"
+                          },
+                          "polygon": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/$defs/geometry"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "walkway": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "area_sqft",
+                          "polygon"
+                        ],
+                        "properties": {
+                          "area_sqft": {
+                            "type": "number"
+                          },
+                          "polygon": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/$defs/geometry"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "entry_deck": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "area_sqft",
+                          "polygon"
+                        ],
+                        "properties": {
+                          "area_sqft": {
+                            "type": "number"
+                          },
+                          "polygon": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "$ref": "#/$defs/geometry"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "access": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "walkway_variant",
+                      "deck_position",
+                      "walkway_breaks",
+                      "deck_width_ft",
+                      "deck_depth_ft",
+                      "deck_visible_from_street",
+                      "deck_afternoon_shade",
+                      "driveway_interval_ft",
+                      "driveway_shift_ft",
+                      "garage_face_constraint",
+                      "deck_interval_ft"
+                    ],
+                    "properties": {
+                      "walkway_variant": {
+                        "enum": [
+                          "independent",
+                          "from_driveway"
+                        ]
+                      },
+                      "deck_position": {
+                        "enum": [
+                          "centered",
+                          "offset"
+                        ]
+                      },
+                      "walkway_breaks": {
+                        "type": "integer"
+                      },
+                      "deck_width_ft": {
+                        "type": "number"
+                      },
+                      "deck_depth_ft": {
+                        "type": "number"
+                      },
+                      "deck_visible_from_street": {
+                        "type": "boolean"
+                      },
+                      "deck_afternoon_shade": {
+                        "type": "number"
+                      },
+                      "driveway_interval_ft": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        ]
+                      },
+                      "driveway_shift_ft": {
+                        "type": "number"
+                      },
+                      "garage_face_constraint": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "deck_interval_ft": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "checks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "check_id",
+                        "kind",
+                        "value",
+                        "limit",
+                        "passes",
+                        "status",
+                        "source",
+                        "note"
+                      ],
+                      "properties": {
+                        "check_id": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "enum": [
+                            "normative",
+                            "preference",
+                            "design",
+                            "deferred",
+                            "info"
+                          ]
+                        },
+                        "value": {
+                          "type": [
+                            "number",
+                            "null"
+                          ]
+                        },
+                        "limit": {
+                          "type": [
+                            "number",
+                            "null"
+                          ]
+                        },
+                        "passes": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "status": {
+                          "$ref": "#/$defs/status"
+                        },
+                        "source": {
+                          "type": "string"
+                        },
+                        "note": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "facades": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 6,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "facade_id",
+                        "length_ft",
+                        "azimuth_deg",
+                        "faces",
+                        "sun",
+                        "morning_light",
+                        "afternoon_shade",
+                        "street_exposure",
+                        "garden"
+                      ],
+                      "properties": {
+                        "facade_id": {
+                          "enum": [
+                            "front",
+                            "right",
+                            "rear",
+                            "left",
+                            "front_shoulder",
+                            "rear_shoulder"
+                          ]
+                        },
+                        "length_ft": {
+                          "type": "number"
+                        },
+                        "azimuth_deg": {
+                          "type": "number"
+                        },
+                        "faces": {
+                          "enum": [
+                            "front_yard",
+                            "garden",
+                            "side_yard",
+                            "street_side_yard",
+                            "front_shoulder",
+                            "rear_shoulder"
+                          ]
+                        },
+                        "sun": {
+                          "type": "number"
+                        },
+                        "morning_light": {
+                          "type": "number"
+                        },
+                        "afternoon_shade": {
+                          "type": "number"
+                        },
+                        "street_exposure": {
+                          "type": "number"
+                        },
+                        "garden": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "zone_facade_affinity": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "footprint_variant": {
+                    "type": "string",
+                    "pattern": "^(full_width|equipment_room_(left|right)|(stepped|polygonal)/recess_[0-9.]+)$"
+                  },
+                  "footprint_candidates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "footprint_variant",
+                        "rect_local",
+                        "normative_ok",
+                        "preferences_met",
+                        "intervals"
+                      ],
+                      "properties": {
+                        "footprint_variant": {
+                          "type": "string",
+                          "pattern": "^(full_width|equipment_room_(left|right)|(stepped|polygonal)/recess_[0-9.]+)$"
+                        },
+                        "rect_local": {
+                          "type": "array",
+                          "minItems": 4,
+                          "maxItems": 4,
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "normative_ok": {
+                          "type": "boolean"
+                        },
+                        "preferences_met": {
+                          "type": "boolean"
+                        },
+                        "intervals": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "array",
+                                "minItems": 2,
+                                "maxItems": 2,
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "access_options": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "deck_position",
+                              "deck_interval_ft",
+                              "driveway_interval_ft",
+                              "paving_fraction",
+                              "walkway_variant"
+                            ],
+                            "properties": {
+                              "deck_position": {
+                                "enum": [
+                                  "centered",
+                                  "offset"
+                                ]
+                              },
+                              "deck_interval_ft": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "driveway_interval_ft": {
+                                "oneOf": [
+                                  {
+                                    "type": "null"
+                                  },
+                                  {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "number"
+                                    }
+                                  }
+                                ]
+                              },
+                              "paving_fraction": {
+                                "type": "number"
+                              },
+                              "walkway_variant": {
+                                "enum": [
+                                  "independent",
+                                  "from_driveway"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "realization": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "strategy",
+                            "y_front",
+                            "recess_ft",
+                            "front_width_ft"
+                          ],
+                          "properties": {
+                            "strategy": {
+                              "enum": [
+                                "B_stepped_footprint",
+                                "B_polygonal_footprint"
+                              ]
+                            },
+                            "y_front": {
+                              "type": "number"
+                            },
+                            "recess_ft": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "front_width_ft": {
+                              "type": "number"
+                            },
+                            "nominal": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "backyard": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "source",
+                      "yard_area_sqft",
+                      "min_green_fraction",
+                      "budget_sqft",
+                      "used_sqft",
+                      "green_area_sqft",
+                      "green_fraction",
+                      "status",
+                      "elements",
+                      "checks",
+                      "yard_polygon"
+                    ],
+                    "properties": {
+                      "source": {
+                        "type": "string"
+                      },
+                      "yard_area_sqft": {
+                        "type": "number"
+                      },
+                      "min_green_fraction": {
+                        "type": "number"
+                      },
+                      "budget_sqft": {
+                        "type": "number"
+                      },
+                      "used_sqft": {
+                        "type": "number"
+                      },
+                      "green_area_sqft": {
+                        "type": "number"
+                      },
+                      "green_fraction": {
+                        "type": "number"
+                      },
+                      "status": {
+                        "$ref": "#/$defs/status"
+                      },
+                      "elements": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "element",
+                            "priority",
+                            "status",
+                            "area_sqft",
+                            "reason",
+                            "polygon",
+                            "clearances",
+                            "dims_ft"
+                          ],
+                          "properties": {
+                            "element": {
+                              "enum": [
+                                "rear_deck",
+                                "pool",
+                                "spa",
+                                "bbq",
+                                "shed",
+                                "garden_beds",
+                                "covered_terrace",
+                                "outdoor_kitchen"
+                              ]
+                            },
+                            "priority": {
+                              "type": "integer"
+                            },
+                            "status": {
+                              "enum": [
+                                "placed",
+                                "excluded"
+                              ]
+                            },
+                            "area_sqft": {
+                              "type": "number"
+                            },
+                            "reason": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "polygon": {
+                              "oneOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "$ref": "#/$defs/geometry"
+                                }
+                              ]
+                            },
+                            "clearances": {
+                              "type": "object",
+                              "propertyNames": {
+                                "enum": [
+                                  "lot_line",
+                                  "dwelling"
+                                ]
+                              },
+                              "additionalProperties": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "ft",
+                                  "status",
+                                  "source"
+                                ],
+                                "properties": {
+                                  "ft": {
+                                    "type": "number"
+                                  },
+                                  "status": {
+                                    "$ref": "#/$defs/status"
+                                  },
+                                  "source": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "dims_ft": {
+                              "oneOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "array",
+                                  "minItems": 2,
+                                  "maxItems": 2,
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "checks": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "check_id",
+                            "kind",
+                            "value",
+                            "limit",
+                            "passes",
+                            "status",
+                            "source",
+                            "note"
+                          ],
+                          "properties": {
+                            "check_id": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "enum": [
+                                "normative",
+                                "preference",
+                                "design",
+                                "deferred",
+                                "info"
+                              ]
+                            },
+                            "value": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "limit": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "passes": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ]
+                            },
+                            "status": {
+                              "$ref": "#/$defs/status"
+                            },
+                            "source": {
+                              "type": "string"
+                            },
+                            "note": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "yard_polygon": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "$ref": "#/$defs/geometry"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "dependentRequired": {
+                  "zones": [
+                    "access",
+                    "checks",
+                    "facades",
+                    "zone_facade_affinity",
+                    "corrections",
+                    "variants_evaluated",
+                    "footprint_variant",
+                    "footprint_candidates"
+                  ]
+                }
+              }
+            },
+            "selected_option_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "primary_street_id": {
+              "type": "string"
+            },
+            "strategy": {
+              "enum": [
+                "A_inscribed_rectangle",
+                "B_stepped_footprint",
+                "B_polygonal_footprint"
+              ]
+            },
+            "front_recess_ft": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      ]
+    },
+    "graphs": {
+      "$ref": "#/$defs/reserved"
+    },
+    "sized_program": {
+      "$ref": "#/$defs/reserved"
+    },
+    "geometric_scheme": {
+      "$ref": "#/$defs/reserved"
+    },
+    "metrics": {
+      "$ref": "#/$defs/reserved"
+    },
+    "program_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog_id",
+        "catalog_version",
+        "catalog_sha256",
+        "crc_ruleset_id",
+        "crc_ruleset_sha256",
+        "summary",
+        "counts",
+        "buildable_as_stated",
+        "findings"
+      ],
+      "properties": {
+        "catalog_id": {
+          "type": "string"
+        },
+        "catalog_version": {
+          "type": "string"
+        },
+        "catalog_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "crc_ruleset_id": {
+          "type": "string"
+        },
+        "crc_ruleset_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "net_area_sqft",
+            "gross_factor",
+            "gross_estimate_sqft",
+            "declared_gross_sqft",
+            "by_zone",
+            "habitable_spaces",
+            "exterior_edge_required",
+            "min_side_ft",
+            "satellites",
+            "placement_order"
+          ],
+          "properties": {
+            "net_area_sqft": {
+              "type": "number"
+            },
+            "gross_factor": {
+              "type": "number"
+            },
+            "gross_estimate_sqft": {
+              "type": "number"
+            },
+            "declared_gross_sqft": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "by_zone": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "net_target_sqft",
+                  "budget_min_sqft",
+                  "budget_max_sqft",
+                  "within_budget"
+                ],
+                "properties": {
+                  "net_target_sqft": {
+                    "type": "number"
+                  },
+                  "budget_min_sqft": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "budget_max_sqft": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "within_budget": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "habitable_spaces": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "exterior_edge_required": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "space_id",
+                  "reason",
+                  "status"
+                ],
+                "properties": {
+                  "space_id": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "$ref": "#/$defs/status"
+                  }
+                }
+              }
+            },
+            "min_side_ft": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "satellites": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "placement_order": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "error",
+            "warning",
+            "info"
+          ],
+          "properties": {
+            "error": {
+              "type": "integer"
+            },
+            "warning": {
+              "type": "integer"
+            },
+            "info": {
+              "type": "integer"
+            }
+          }
+        },
+        "buildable_as_stated": {
+          "type": "boolean"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "check_id",
+              "severity",
+              "subject",
+              "message",
+              "status",
+              "source"
+            ],
+            "properties": {
+              "check_id": {
+                "type": "string"
+              },
+              "severity": {
+                "enum": [
+                  "error",
+                  "warning",
+                  "info"
+                ]
+              },
+              "subject": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "status": {
+                "$ref": "#/$defs/status"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "zoning": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "strategy",
+            "dwelling_type",
+            "options"
+          ],
+          "properties": {
+            "strategy": {
+              "enum": [
+                "A_inscribed_rectangle",
+                "B_stepped_footprint",
+                "B_polygonal_footprint"
+              ]
+            },
+            "dwelling_type": {
+              "enum": [
+                "house",
+                "apartment"
+              ]
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "option_id",
+                  "floors",
+                  "status",
+                  "reason"
+                ],
+                "properties": {
+                  "option_id": {
+                    "type": "string"
+                  },
+                  "floors": {
+                    "type": "integer"
+                  },
+                  "status": {
+                    "enum": [
+                      "zoned",
+                      "no_valid_space_layout",
+                      "no_valid_scheme",
+                      "deferred_to_stacking",
+                      "not_feasible"
+                    ]
+                  },
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "profile": {
+                    "enum": [
+                      "house",
+                      "apartment"
+                    ]
+                  },
+                  "facade_roles": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "footprint_candidates": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "zone_areas_sqft": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "number"
+                    }
+                  },
+                  "constraints": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "adjacency_required",
+                          "adjacency_forbidden",
+                          "no_door",
+                          "groups",
+                          "facade_required",
+                          "desired",
+                          "profile_anchors",
+                          "skipped"
+                        ],
+                        "properties": {
+                          "adjacency_required": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "adjacency_forbidden": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "no_door": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "groups": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "facade_required": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "desired": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "profile_anchors": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "skipped": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "strategy": {
+                    "type": "string"
+                  },
+                  "variants_searched": {
+                    "type": "integer"
+                  },
+                  "enumerated": {
+                    "type": "integer"
+                  },
+                  "valid": {
+                    "type": "integer"
+                  },
+                  "failures_by_first_violation": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer"
+                    }
+                  },
+                  "schemes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "rank",
+                        "footprint_variant",
+                        "footprint_local",
+                        "topology",
+                        "front_depth_ft",
+                        "rear_depth_ft",
+                        "cells",
+                        "adjacency",
+                        "split_zones",
+                        "anchors",
+                        "entry_sequence",
+                        "scores",
+                        "spine_local",
+                        "spaces",
+                        "halls",
+                        "satellites",
+                        "doors",
+                        "matrix",
+                        "circulation",
+                        "space_scores",
+                        "realization"
+                      ],
+                      "properties": {
+                        "rank": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "footprint_variant": {
+                          "type": "string"
+                        },
+                        "footprint_local": {
+                          "type": "array",
+                          "minItems": 4,
+                          "maxItems": 4,
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "topology": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "front",
+                            "rear",
+                            "key",
+                            "through",
+                            "through_side"
+                          ],
+                          "properties": {
+                            "front": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "rear": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "key": {
+                              "type": "string"
+                            },
+                            "through": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "through_side": {
+                              "enum": [
+                                "left",
+                                "right",
+                                null
+                              ]
+                            }
+                          }
+                        },
+                        "front_depth_ft": {
+                          "type": "number"
+                        },
+                        "rear_depth_ft": {
+                          "type": "number"
+                        },
+                        "cells": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "zone",
+                              "spaces",
+                              "rect_local",
+                              "area_sqft",
+                              "facades",
+                              "polygon"
+                            ],
+                            "properties": {
+                              "zone": {
+                                "enum": [
+                                  "social",
+                                  "private",
+                                  "kitchen",
+                                  "service",
+                                  "circulation",
+                                  "garage"
+                                ]
+                              },
+                              "spaces": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "rect_local": {
+                                "type": "array",
+                                "minItems": 4,
+                                "maxItems": 4,
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "area_sqft": {
+                                "type": "number"
+                              },
+                              "facades": {
+                                "type": "object",
+                                "propertyNames": {
+                                  "enum": [
+                                    "front",
+                                    "rear",
+                                    "left",
+                                    "right",
+                                    "front_shoulder",
+                                    "rear_shoulder"
+                                  ]
+                                },
+                                "additionalProperties": {
+                                  "type": "number"
+                                }
+                              },
+                              "polygon": {
+                                "oneOf": [
+                                  {
+                                    "type": "null"
+                                  },
+                                  {
+                                    "$ref": "#/$defs/geometry"
+                                  }
+                                ]
+                              },
+                              "polygon_local": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "minItems": 2,
+                                  "maxItems": 2,
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "adjacency": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "a",
+                              "b",
+                              "contact_ft",
+                              "door_allowed"
+                            ],
+                            "properties": {
+                              "a": {
+                                "type": "string"
+                              },
+                              "b": {
+                                "type": "string"
+                              },
+                              "contact_ft": {
+                                "type": "number"
+                              },
+                              "door_allowed": {
+                                "type": "boolean"
+                              }
+                            }
+                          }
+                        },
+                        "split_zones": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "anchors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "anchor_id",
+                              "kind",
+                              "applicable",
+                              "satisfied",
+                              "cells"
+                            ],
+                            "properties": {
+                              "anchor_id": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "enum": [
+                                  "hard",
+                                  "soft"
+                                ]
+                              },
+                              "applicable": {
+                                "type": "boolean"
+                              },
+                              "satisfied": {
+                                "type": "boolean"
+                              },
+                              "cells": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "via_role": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "entry_sequence": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "anchor_id",
+                                "kind",
+                                "applicable",
+                                "satisfied"
+                              ],
+                              "properties": {
+                                "anchor_id": {
+                                  "type": "string"
+                                },
+                                "kind": {
+                                  "enum": [
+                                    "hard",
+                                    "soft"
+                                  ]
+                                },
+                                "applicable": {
+                                  "type": "boolean"
+                                },
+                                "satisfied": {
+                                  "type": "boolean"
+                                },
+                                "via_contact": {
+                                  "type": "boolean"
+                                },
+                                "on_entrance": {
+                                  "type": "boolean"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "scores": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "total",
+                            "relations",
+                            "orientation",
+                            "orientation_raw",
+                            "shape",
+                            "satisfied_relations",
+                            "zone_total"
+                          ],
+                          "properties": {
+                            "total": {
+                              "type": "number"
+                            },
+                            "relations": {
+                              "type": "number"
+                            },
+                            "orientation": {
+                              "type": "number"
+                            },
+                            "orientation_raw": {
+                              "type": "number"
+                            },
+                            "shape": {
+                              "type": "number"
+                            },
+                            "satisfied_relations": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "zone_total": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "spine_local": {
+                          "oneOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "array",
+                              "minItems": 4,
+                              "maxItems": 4,
+                              "items": {
+                                "type": "number"
+                              }
+                            }
+                          ]
+                        },
+                        "spaces": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "space_type",
+                              "zone",
+                              "cell",
+                              "rect_local",
+                              "area_sqft",
+                              "through_strip_sqft",
+                              "net_area_sqft",
+                              "passable",
+                              "depth_from_entry",
+                              "roles",
+                              "polygon"
+                            ],
+                            "properties": {
+                              "space_type": {
+                                "type": "string"
+                              },
+                              "zone": {
+                                "type": "string"
+                              },
+                              "cell": {
+                                "type": "string"
+                              },
+                              "rect_local": {
+                                "type": "array",
+                                "minItems": 4,
+                                "maxItems": 4,
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "area_sqft": {
+                                "type": "number"
+                              },
+                              "through_strip_sqft": {
+                                "type": "number"
+                              },
+                              "net_area_sqft": {
+                                "type": "number"
+                              },
+                              "passable": {
+                                "type": "boolean"
+                              },
+                              "depth_from_entry": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ]
+                              },
+                              "roles": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "polygon": {
+                                "oneOf": [
+                                  {
+                                    "type": "null"
+                                  },
+                                  {
+                                    "$ref": "#/$defs/geometry"
+                                  }
+                                ]
+                              },
+                              "extension_sqft": {
+                                "type": "number"
+                              },
+                              "core_area_sqft": {
+                                "type": "number"
+                              },
+                              "polygon_local": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "minItems": 2,
+                                  "maxItems": 2,
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "halls": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "hall_id",
+                              "cell",
+                              "side",
+                              "rect_local",
+                              "area_sqft",
+                              "width_ft",
+                              "depth_from_entry",
+                              "polygon"
+                            ],
+                            "properties": {
+                              "hall_id": {
+                                "type": "string"
+                              },
+                              "cell": {
+                                "type": "string"
+                              },
+                              "side": {
+                                "enum": [
+                                  "front",
+                                  "rear",
+                                  "left",
+                                  "right",
+                                  "spine"
+                                ]
+                              },
+                              "rect_local": {
+                                "type": "array",
+                                "minItems": 4,
+                                "maxItems": 4,
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "area_sqft": {
+                                "type": "number"
+                              },
+                              "width_ft": {
+                                "type": "number"
+                              },
+                              "depth_from_entry": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ]
+                              },
+                              "polygon": {
+                                "oneOf": [
+                                  {
+                                    "type": "null"
+                                  },
+                                  {
+                                    "$ref": "#/$defs/geometry"
+                                  }
+                                ]
+                              },
+                              "extension_sqft": {
+                                "type": "number"
+                              },
+                              "polygon_local": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "minItems": 2,
+                                  "maxItems": 2,
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "satellites": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "doors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "a",
+                              "b",
+                              "kind",
+                              "segment_local",
+                              "segment"
+                            ],
+                            "properties": {
+                              "a": {
+                                "type": "string"
+                              },
+                              "b": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "enum": [
+                                  "open",
+                                  "door",
+                                  "ensuite",
+                                  "entry",
+                                  "patio"
+                                ]
+                              },
+                              "segment_local": {
+                                "oneOf": [
+                                  {
+                                    "type": "null"
+                                  },
+                                  {
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                    "items": {
+                                      "type": "array",
+                                      "minItems": 2,
+                                      "maxItems": 2,
+                                      "items": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "segment": {
+                                "oneOf": [
+                                  {
+                                    "type": "null"
+                                  },
+                                  {
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                    "items": {
+                                      "type": "array",
+                                      "minItems": 2,
+                                      "maxItems": 2,
+                                      "items": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "matrix": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "pair",
+                              "type",
+                              "kind",
+                              "weight",
+                              "applicable",
+                              "satisfied",
+                              "detail"
+                            ],
+                            "properties": {
+                              "pair": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "enum": [
+                                  "D",
+                                  "I"
+                                ]
+                              },
+                              "kind": {
+                                "enum": [
+                                  "hard",
+                                  "soft"
+                                ]
+                              },
+                              "weight": {
+                                "type": "number"
+                              },
+                              "applicable": {
+                                "type": "boolean"
+                              },
+                              "satisfied": {
+                                "type": "boolean"
+                              },
+                              "detail": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "circulation": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "foyer_sqft",
+                            "halls_sqft",
+                            "strips_sqft",
+                            "total_sqft",
+                            "fraction",
+                            "design_width_ft",
+                            "normative_min_ft",
+                            "width_ok",
+                            "normative_status",
+                            "normative_source",
+                            "target_fraction",
+                            "warn"
+                          ],
+                          "properties": {
+                            "foyer_sqft": {
+                              "type": "number"
+                            },
+                            "halls_sqft": {
+                              "type": "number"
+                            },
+                            "strips_sqft": {
+                              "type": "number"
+                            },
+                            "total_sqft": {
+                              "type": "number"
+                            },
+                            "fraction": {
+                              "type": "number"
+                            },
+                            "design_width_ft": {
+                              "type": "number"
+                            },
+                            "normative_min_ft": {
+                              "type": "number"
+                            },
+                            "width_ok": {
+                              "type": "boolean"
+                            },
+                            "normative_status": {
+                              "$ref": "#/$defs/status"
+                            },
+                            "normative_source": {
+                              "type": "string"
+                            },
+                            "target_fraction": {
+                              "type": "number"
+                            },
+                            "warn": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "space_scores": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "total",
+                            "matrix",
+                            "circulation",
+                            "shape"
+                          ],
+                          "properties": {
+                            "total": {
+                              "type": "number"
+                            },
+                            "matrix": {
+                              "type": "number"
+                            },
+                            "circulation": {
+                              "type": "number"
+                            },
+                            "shape": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "realization": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "mode",
+                            "footprint_area_sqft",
+                            "footprint_bbox_local",
+                            "steps_local",
+                            "shoulders",
+                            "wedges",
+                            "wedge_area_sqft",
+                            "y_front",
+                            "envelope_use",
+                            "area_shift",
+                            "joint"
+                          ],
+                          "properties": {
+                            "mode": {
+                              "enum": [
+                                "rectangle",
+                                "polygonal"
+                              ]
+                            },
+                            "footprint_area_sqft": {
+                              "type": "number"
+                            },
+                            "footprint_bbox_local": {
+                              "type": "array",
+                              "minItems": 4,
+                              "maxItems": 4,
+                              "items": {
+                                "type": "number"
+                              }
+                            },
+                            "steps_local": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "minItems": 4,
+                                "maxItems": 4,
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            "shoulders": {
+                              "type": "object",
+                              "propertyNames": {
+                                "enum": [
+                                  "front_shoulder",
+                                  "rear_shoulder"
+                                ]
+                              },
+                              "additionalProperties": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            "wedges": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "band",
+                                  "side",
+                                  "y_range",
+                                  "area_sqft",
+                                  "adjacent_cells"
+                                ],
+                                "properties": {
+                                  "band": {
+                                    "enum": [
+                                      "front",
+                                      "rear"
+                                    ]
+                                  },
+                                  "side": {
+                                    "enum": [
+                                      "left",
+                                      "right"
+                                    ]
+                                  },
+                                  "y_range": {
+                                    "type": "array",
+                                    "minItems": 2,
+                                    "maxItems": 2,
+                                    "items": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "area_sqft": {
+                                    "type": "number"
+                                  },
+                                  "adjacent_cells": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "polygon": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "$ref": "#/$defs/geometry"
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "wedge_area_sqft": {
+                              "type": "number"
+                            },
+                            "y_front": {
+                              "type": "number"
+                            },
+                            "envelope_use": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "area_shift": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "number"
+                              }
+                            },
+                            "joint": {
+                              "enum": [
+                                null,
+                                "left",
+                                "right"
+                              ]
+                            },
+                            "polygonal_extension": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "residual",
+                                "decisions",
+                                "residual_area_sqft",
+                                "trapezoid_spaces"
+                              ],
+                              "properties": {
+                                "residual": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                      "cell",
+                                      "near",
+                                      "area_sqft",
+                                      "reason",
+                                      "polygon"
+                                    ],
+                                    "properties": {
+                                      "cell": {
+                                        "type": "string"
+                                      },
+                                      "near": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "area_sqft": {
+                                        "type": "number"
+                                      },
+                                      "reason": {
+                                        "type": "string"
+                                      },
+                                      "polygon": {
+                                        "oneOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "$ref": "#/$defs/geometry"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "decisions": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": [
+                                      "cell",
+                                      "space",
+                                      "area_sqft",
+                                      "mean_depth_ft",
+                                      "decision",
+                                      "assigned_to"
+                                    ],
+                                    "properties": {
+                                      "cell": {
+                                        "type": "string"
+                                      },
+                                      "space": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "area_sqft": {
+                                        "type": "number"
+                                      },
+                                      "mean_depth_ft": {
+                                        "type": "number"
+                                      },
+                                      "decision": {
+                                        "type": "string"
+                                      },
+                                      "assigned_to": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "residual_area_sqft": {
+                                  "type": "number"
+                                },
+                                "trapezoid_spaces": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "diagnostics": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "footprint_variant",
+                        "split",
+                        "front_width_ft",
+                        "front_min_demand_ft",
+                        "demand_by_cell",
+                        "front_fits"
+                      ],
+                      "properties": {
+                        "footprint_variant": {
+                          "type": "string"
+                        },
+                        "split": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "front_width_ft": {
+                          "type": "number"
+                        },
+                        "front_min_demand_ft": {
+                          "type": "number"
+                        },
+                        "demand_by_cell": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        },
+                        "front_fits": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  },
+                  "zone_level_best": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "space_level": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "zone_schemes_considered",
+                      "combinations_evaluated",
+                      "valid",
+                      "failures_by_first_violation"
+                    ],
+                    "properties": {
+                      "zone_schemes_considered": {
+                        "type": "integer"
+                      },
+                      "combinations_evaluated": {
+                        "type": "integer"
+                      },
+                      "valid": {
+                        "type": "integer"
+                      },
+                      "failures_by_first_violation": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "integer"
+                        }
+                      },
+                      "retry": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "dependentRequired": {
+                  "schemes": [
+                    "profile",
+                    "facade_roles",
+                    "footprint_candidates",
+                    "zone_areas_sqft",
+                    "constraints",
+                    "strategy",
+                    "variants_searched",
+                    "enumerated",
+                    "valid",
+                    "failures_by_first_violation",
+                    "diagnostics",
+                    "zone_level_best",
+                    "space_level"
+                  ]
+                }
+              }
+            },
+            "selection": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requested",
+                "strategy",
+                "reason"
+              ],
+              "properties": {
+                "requested": {
+                  "type": "string"
+                },
+                "strategy": {
+                  "enum": [
+                    "A_inscribed_rectangle",
+                    "B_stepped_footprint",
+                    "B_polygonal_footprint"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "unit": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "area_sqft",
+            "rect_area_sqft",
+            "polygon",
+            "edges",
+            "entrance_interval_ft",
+            "facade_roles",
+            "program_fill_ratio"
+          ],
+          "properties": {
+            "area_sqft": {
+              "type": "number"
+            },
+            "rect_area_sqft": {
+              "type": "number"
+            },
+            "polygon": {
+              "$ref": "#/$defs/geometry"
+            },
+            "edges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "edge_id",
+                  "role"
+                ],
+                "properties": {
+                  "edge_id": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "enum": [
+                      "access",
+                      "exterior",
+                      "party_wall"
+                    ]
+                  }
+                }
+              }
+            },
+            "entrance_interval_ft": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "number"
+              }
+            },
+            "facade_roles": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "program_fill_ratio": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "corrections": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "triggered_by",
+            "baseline",
+            "candidates",
+            "full_runs",
+            "evaluated",
+            "applied",
+            "status",
+            "cost_model_source",
+            "pareto"
+          ],
+          "properties": {
+            "triggered_by": {
+              "type": "string"
+            },
+            "baseline": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "strategy",
+                "garage_layout",
+                "front_recess_ft"
+              ],
+              "properties": {
+                "strategy": {
+                  "enum": [
+                    "A_inscribed_rectangle",
+                    "B_stepped_footprint",
+                    "B_polygonal_footprint"
+                  ]
+                },
+                "garage_layout": {
+                  "type": "string"
+                },
+                "front_recess_ft": {
+                  "type": "number"
+                }
+              }
+            },
+            "candidates": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "full_runs": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "evaluated": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/correction_combo"
+              }
+            },
+            "applied": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "combo",
+                    "site_option",
+                    "zoning_option",
+                    "program_garage"
+                  ],
+                  "properties": {
+                    "combo": {
+                      "$ref": "#/$defs/correction_combo"
+                    },
+                    "site_option": {
+                      "$ref": "#/properties/site_partition/oneOf/1/properties/options/items"
+                    },
+                    "zoning_option": {
+                      "$ref": "#/properties/zoning/oneOf/1/properties/options/items"
+                    },
+                    "program_garage": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "status": {
+              "enum": [
+                "corrected",
+                "no_correction_found"
+              ]
+            },
+            "cost_model_source": {
+              "type": "object"
+            },
+            "pareto": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "strategy",
+                  "garage_layout",
+                  "front_recess_ft",
+                  "cost",
+                  "changes",
+                  "labels",
+                  "score",
+                  "circulation_fraction",
+                  "envelope_use",
+                  "topology",
+                  "on_frontier"
+                ],
+                "properties": {
+                  "strategy": {
+                    "enum": [
+                      "A_inscribed_rectangle",
+                      "B_stepped_footprint",
+                      "B_polygonal_footprint"
+                    ]
+                  },
+                  "garage_layout": {
+                    "enum": [
+                      "as_brief",
+                      "tandem",
+                      "one_car"
+                    ]
+                  },
+                  "front_recess_ft": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "cost": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "changes": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "outcome": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "detail": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "score": {
+                    "type": "number"
+                  },
+                  "circulation_fraction": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "envelope_use": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "topology": {
+                    "type": "string"
+                  },
+                  "on_frontier": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "household": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "household_catalog_id",
+        "household_catalog_version",
+        "household_catalog_sha256",
+        "archetype_id",
+        "program_tier",
+        "program_source",
+        "composition",
+        "needs",
+        "garage_cars",
+        "driveway_vehicles",
+        "relation_hints",
+        "quality_weights",
+        "rule_trace",
+        "privacy"
+      ],
+      "properties": {
+        "household_catalog_id": {
+          "type": "string"
+        },
+        "household_catalog_version": {
+          "type": "string"
+        },
+        "household_catalog_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "archetype_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "program_tier": {
+          "enum": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        "program_source": {
+          "enum": [
+            "derived",
+            "brief"
+          ]
+        },
+        "composition": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "members": {
+          "type": "array"
+        },
+        "needs": {
+          "type": "array"
+        },
+        "garage_cars": {
+          "type": "object"
+        },
+        "driveway_vehicles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "relation_hints": {
+          "type": "array"
+        },
+        "quality_weights": {
+          "type": "object"
+        },
+        "rule_trace": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rule_id",
+              "status"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "verified",
+                  "provisional"
+                ]
+              }
+            }
+          }
+        },
+        "program_comparison": {
+          "type": "object"
+        },
+        "privacy": {
+          "type": "string"
+        },
+        "culture": {
+          "type": "object"
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "required": [
+        "legend",
+        "model",
+        "reading",
+        "reference",
+        "budget",
+        "options",
+        "tornado",
+        "sources"
+      ],
+      "properties": {
+        "legend": {
+          "type": "string"
+        },
+        "model": {
+          "enum": [
+            "base",
+            "weighted",
+            "shape"
+          ]
+        },
+        "reading": {
+          "enum": [
+            "lot",
+            "reference_dwelling"
+          ]
+        },
+        "reference": {
+          "type": "object"
+        },
+        "budget": {
+          "type": "object"
+        },
+        "options": {
+          "type": "array"
+        },
+        "tornado": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "sources": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

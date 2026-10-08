@@ -1,0 +1,223 @@
+household   young_couple  (adult 2)  [mpi-household-model 0.2.0]
+now
+  required   net  1115  gross  1282 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, bathroom, closet, foyer, hall, laundry_closet, flex_room_work, garage_1car
+  preferred  net  2015  gross  2317 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, study_work, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, foyer, hall, laundry_closet, flex_room_guest, mudroom, garage_2car
+  desirable  net  2030  gross  2334 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, study_work, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, mechanical, foyer, hall, laundry_closet, flex_room_guest, mudroom, garage_2car
+in 5 years (child_expected@2y)
+  required   net  1245  gross  1432 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, bedroom_child, bedroom_primary, bathroom, closet_1, closet_2, foyer, hall, laundry_closet, flex_room_work, garage_1car
+  preferred  net  2195  gross  2524 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, study_work, kitchen, pantry, primary_suite, bedroom_child, primary_bath, bathroom, walk_in_closet_primary, closet, half_bath, laundry, storage, foyer, hall, flex_room_guest, mudroom, garage_2car
+  desirable  net  2290  gross  2634 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, study_work, kitchen, breakfast_nook, pantry, primary_suite, bedroom_child, primary_bath, bathroom, walk_in_closet_primary, closet, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+growth      gross +207 sq ft (preferred)
+  required   bedroom:child 0 -> 1
+  required   closet:general 1 -> 2
+  preferred  bedroom:child 0 -> 1
+  preferred  closet:general 0 -> 1
+  preferred  laundry:general 0 -> 1
+  preferred  laundry_closet:general 1 -> 0
+  note: 1 bedroom(s) needed next; 2 flex room(s)/study now can be built as convertible bedrooms (closet and egress window) to absorb the change
+  note: some spaces become indispensable next: the minimum program of today should leave room for them
+culture     none (no profile or aspects chosen)
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.641   [base 0.641  weighted 0.656  shape 0.656]  quantities estimated
+  preferred      1.159   [base 1.159  weighted 1.185  shape 1.185]  quantities estimated
+  desirable      1.167   [base 1.167  weighted 1.193  shape 1.193]  quantities estimated
+  tornado (shape, required, base +0.6556):
+    coef:wet                   +0.6432 .. +0.6707  swing 0.0275
+    coef:garage                +0.6516 .. +0.6594  swing 0.0078
+    coef:service               +0.6583 .. +0.6530  swing 0.0053
+    coef:circulation           +0.6542 .. +0.6570  swing 0.0028
+rules       21 fired, 29 not fired
+
+household   early_childhood  (child_0_5 2, adult 2)  [mpi-household-model 0.2.0]
+now
+  required   net  1135  gross  1305 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, bedroom_child, bedroom_primary, bathroom, closet_1, closet_2, foyer, hall, laundry_closet, garage_1car
+  preferred  net  1900  gross  2185 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, primary_suite, bedroom_child, primary_bath, bathroom, walk_in_closet_primary, closet, half_bath, laundry, storage, foyer, hall, garage_2car
+  desirable  net  2460  gross  2829 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_child, primary_bath, bathroom, walk_in_closet_primary, closet, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+in 5 years (aging only)
+  required   net  1135  gross  1305 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, bedroom_child, bedroom_primary, bathroom, closet_1, closet_2, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2050  gross  2358 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, primary_suite, bedroom_child_1, bedroom_child_2, primary_bath, bathroom, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, foyer, hall, garage_2car
+  desirable  net  2610  gross  3001 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_child_1, bedroom_child_2, primary_bath, bathroom, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+growth      gross +172 sq ft (preferred)
+  preferred  bedroom:child 1 -> 2
+  preferred  closet:general 1 -> 2
+culture     none (no profile or aspects chosen)
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.653   [base 0.653  weighted 0.667  shape 0.667]  quantities estimated
+  preferred      1.093   [base 1.093  weighted 1.131  shape 1.131]  quantities estimated
+  desirable      1.415   [base 1.415  weighted 1.454  shape 1.454]  quantities estimated
+  tornado (shape, required, base +0.6672):
+    coef:wet                   +0.6553 .. +0.6818  swing 0.0265
+    coef:garage                +0.6635 .. +0.6707  swing 0.0072
+    coef:service               +0.6700 .. +0.6645  swing 0.0054
+    coef:circulation           +0.6659 .. +0.6685  swing 0.0026
+rules       21 fired, 29 not fired
+
+household   teens_family  (teen_13_18 2, adult 2)  [mpi-household-model 0.2.0]
+now
+  required   net  1265  gross  1455 sq ft  garage 1  driveway 2  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, bedroom_teen_1, bedroom_teen_2, bathroom, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2500  gross  2875 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, pantry, primary_suite, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, foyer, hall, mudroom, garage_2car
+  desirable  net  2735  gross  3145 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+in 5 years (member_leaves@3y)
+  required   net  1135  gross  1305 sq ft  garage 1  driveway 2  errors 0 warnings 0
+             living_dining, kitchen, bedroom_adult, bedroom_primary, bathroom, closet_1, closet_2, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2350  gross  2702 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, pantry, primary_suite, bedroom_adult, primary_bath, bathroom, walk_in_closet_primary, closet, half_bath, laundry, storage, foyer, hall, mudroom, garage_2car
+  desirable  net  2585  gross  2973 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_adult, primary_bath, bathroom, walk_in_closet_primary, closet, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+growth      gross -172 sq ft (preferred)
+  required   bedroom:adult 0 -> 1
+  required   bedroom:teen 2 -> 0
+  required   closet:general 3 -> 2
+  preferred  bedroom:adult 0 -> 1
+  preferred  bedroom:teen 2 -> 0
+  preferred  closet:general 2 -> 1
+  note: some spaces become indispensable next: the minimum program of today should leave room for them
+culture     none (no profile or aspects chosen)
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.727   [base 0.727  weighted 0.743  shape 0.743]  quantities estimated
+  preferred      1.438   [base 1.438  weighted 1.478  shape 1.478]  quantities estimated
+  desirable      1.573   [base 1.573  weighted 1.614  shape 1.614]  quantities estimated
+  tornado (shape, required, base +0.7429):
+    coef:wet                   +0.7339 .. +0.7540  swing 0.0201
+    coef:service               +0.7459 .. +0.7399  swing 0.0060
+    coef:garage                +0.7413 .. +0.7444  swing 0.0031
+    coef:circulation           +0.7422 .. +0.7436  swing 0.0014
+rules       24 fired, 26 not fired
+
+household   multigenerational  (child_6_12 2, adult 2, senior 1)  [mpi-household-model 0.2.0]
+now
+  required   net  1325  gross  1524 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, pantry, bedroom_accessible, bedroom_child, bedroom_primary, bathroom_accessible, bathroom, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2675  gross  3076 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, pantry, primary_suite, bedroom_accessible, bedroom_child_1, bedroom_child_2, primary_bath, bathroom_accessible, bathroom, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, foyer, hall, garage_2car
+  desirable  net  2965  gross  3410 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_accessible, bedroom_child_1, bedroom_child_2, primary_bath, bathroom_accessible, bathroom, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+in 5 years (aging only)
+  required   net  1455  gross  1673 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, pantry, bedroom_accessible, bedroom_primary, bedroom_teen_1, bedroom_teen_2, bathroom_accessible, bathroom, closet_1, closet_2, closet_3, closet_4, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2675  gross  3076 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, pantry, primary_suite, bedroom_accessible, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom_accessible, bathroom, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, foyer, hall, garage_2car
+  desirable  net  2965  gross  3410 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_accessible, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom_accessible, bathroom, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+growth      gross +0 sq ft (preferred)
+  required   bedroom:child 1 -> 0
+  required   bedroom:teen 0 -> 2
+  required   closet:general 3 -> 4
+  preferred  bedroom:child 2 -> 0
+  preferred  bedroom:teen 0 -> 2
+  note: some spaces become indispensable next: the minimum program of today should leave room for them
+culture     none (no profile or aspects chosen)
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.762   [base 0.762  weighted 0.793  shape 0.793]  quantities estimated
+  preferred      1.538   [base 1.538  weighted 1.607  shape 1.607]  quantities estimated
+  desirable      1.705   [base 1.705  weighted 1.772  shape 1.772]  quantities estimated
+  tornado (shape, required, base +0.7935):
+    coef:wet                   +0.7782 .. +0.8123  swing 0.0340
+    coef:service               +0.7968 .. +0.7903  swing 0.0064
+    coef:circulation           +0.7933 .. +0.7938  swing 0.0005
+    coef:garage                +0.7934 .. +0.7937  swing 0.0003
+rules       24 fired, 26 not fired
+
+household   empty_nest  (adult 1, senior 1)  [mpi-household-model 0.2.0]
+now
+  required   net  1005  gross  1156 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, bathroom, closet, foyer, hall, laundry_closet, garage_1car
+  preferred  net  1840  gross  2116 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, foyer, hall, laundry_closet, flex_room_guest, garage_2car
+  desirable  net  1855  gross  2133 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, mechanical, foyer, hall, laundry_closet, flex_room_guest, garage_2car
+in 5 years (mobility_change@5y)
+  required   net  1075  gross  1236 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, primary_bath, bathroom, closet, foyer, hall, laundry_closet, garage_1car
+  preferred  net  1840  gross  2116 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, foyer, hall, laundry_closet, flex_room_guest, garage_2car
+  desirable  net  1855  gross  2133 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, mechanical, foyer, hall, laundry_closet, flex_room_guest, garage_2car
+growth      gross +0 sq ft (preferred)
+  required   bedroom:primary 1 -> 1 (ground 0 -> 1)
+  required   primary_bath:primary 0 -> 1 (ground 0 -> 1)
+  note: more spaces must be on the ground floor next (mobility): reserve them in the ground floor now
+  note: some spaces become indispensable next: the minimum program of today should leave room for them
+culture     none (no profile or aspects chosen)
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.578   [base 0.578  weighted 0.592  shape 0.592]  quantities estimated
+  preferred      1.058   [base 1.058  weighted 1.086  shape 1.086]  quantities estimated
+  desirable      1.067   [base 1.067  weighted 1.094  shape 1.094]  quantities estimated
+  tornado (shape, required, base +0.5916):
+    coef:wet                   +0.5768 .. +0.6097  swing 0.0329
+    coef:garage                +0.5858 .. +0.5971  swing 0.0113
+    coef:service               +0.5940 .. +0.5892  swing 0.0048
+    coef:circulation           +0.5897 .. +0.5935  swing 0.0038
+rules       18 fired, 32 not fired
+
+household   remote_work  (adult 2)  [mpi-household-model 0.2.0]
+now
+  required   net  1115  gross  1282 sq ft  garage 1  driveway 0  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, bathroom, closet, foyer, hall, laundry_closet, flex_room_work, garage_1car
+  preferred  net  1760  gross  2024 sq ft  garage 1  driveway 0  errors 0 warnings 0
+             living_dining, study_work_1, study_work_2, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, storage, foyer, hall, laundry_closet, mudroom, garage_1car
+  desirable  net  1920  gross  2208 sq ft  garage 1  driveway 0  errors 0 warnings 0
+             living_dining, study_work_1, study_work_2, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, mechanical, foyer, hall, laundry_closet, flex_room_guest, mudroom, garage_1car
+in 5 years (aging only)
+  required   net  1115  gross  1282 sq ft  garage 1  driveway 0  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, bathroom, closet, foyer, hall, laundry_closet, flex_room_work, garage_1car
+  preferred  net  1760  gross  2024 sq ft  garage 1  driveway 0  errors 0 warnings 0
+             living_dining, study_work_1, study_work_2, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, storage, foyer, hall, laundry_closet, mudroom, garage_1car
+  desirable  net  1920  gross  2208 sq ft  garage 1  driveway 0  errors 0 warnings 0
+             living_dining, study_work_1, study_work_2, kitchen, pantry, primary_suite, primary_bath, bathroom, walk_in_closet_primary, half_bath, storage, mechanical, foyer, hall, laundry_closet, flex_room_guest, mudroom, garage_1car
+growth      gross +0 sq ft (preferred)
+culture     none (no profile or aspects chosen)
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.641   [base 0.641  weighted 0.656  shape 0.656]  quantities estimated
+  preferred      1.012   [base 1.012  weighted 1.068  shape 1.068]  quantities estimated
+  desirable      1.104   [base 1.104  weighted 1.169  shape 1.169]  quantities estimated
+  tornado (shape, required, base +0.6556):
+    coef:wet                   +0.6432 .. +0.6707  swing 0.0275
+    coef:garage                +0.6516 .. +0.6594  swing 0.0078
+    coef:service               +0.6583 .. +0.6530  swing 0.0053
+    coef:circulation           +0.6542 .. +0.6570  swing 0.0028
+rules       20 fired, 30 not fired
+
+household   shared_adults  (adult 3)  [mpi-household-model 0.2.0]
+now
+  required   net  1310  gross  1506 sq ft  garage 1  driveway 2  errors 0 warnings 0
+             living_dining, kitchen, bedroom_adult_1, bedroom_adult_2, bedroom_adult_3, bathroom_1, bathroom_2, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  1890  gross  2174 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, bedroom_adult_1, bedroom_adult_2, bedroom_adult_3, bathroom_1, bathroom_2, bathroom_3, closet_1, closet_2, closet_3, half_bath, laundry, storage, foyer, hall, garage_2car
+  desirable  net  2105  gross  2421 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, kitchen, breakfast_nook, pantry, bedroom_adult_1, bedroom_adult_2, bedroom_adult_3, bathroom_1, bathroom_2, bathroom_3, closet_1, closet_2, closet_3, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, garage_2car
+in 5 years (aging only)
+  required   net  1310  gross  1506 sq ft  garage 1  driveway 2  errors 0 warnings 0
+             living_dining, kitchen, bedroom_adult_1, bedroom_adult_2, bedroom_adult_3, bathroom_1, bathroom_2, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  1890  gross  2174 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, kitchen, pantry, bedroom_adult_1, bedroom_adult_2, bedroom_adult_3, bathroom_1, bathroom_2, bathroom_3, closet_1, closet_2, closet_3, half_bath, laundry, storage, foyer, hall, garage_2car
+  desirable  net  2105  gross  2421 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, kitchen, breakfast_nook, pantry, bedroom_adult_1, bedroom_adult_2, bedroom_adult_3, bathroom_1, bathroom_2, bathroom_3, closet_1, closet_2, closet_3, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, garage_2car
+growth      gross +0 sq ft (preferred)
+culture     none (no profile or aspects chosen)
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.753   [base 0.753  weighted 0.785  shape 0.785]  quantities estimated
+  preferred      1.087   [base 1.087  weighted 1.136  shape 1.136]  quantities estimated
+  desirable      1.210   [base 1.210  weighted 1.260  shape 1.260]  quantities estimated
+  tornado (shape, required, base +0.7848):
+    coef:wet                   +0.7692 .. +0.8040  swing 0.0348
+    coef:service               +0.7880 .. +0.7816  swing 0.0063
+    coef:garage                +0.7844 .. +0.7852  swing 0.0008
+    coef:circulation           +0.7845 .. +0.7851  swing 0.0007
+rules       18 fired, 32 not fired
+

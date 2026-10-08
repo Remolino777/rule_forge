@@ -1,0 +1,466 @@
+{
+  "meta": {
+    "brief_id": "fan-cul-de-sac-35-80x100",
+    "schema_version": "0.2",
+    "jurisdiction_id": "us-ca-san-diego",
+    "zone": "RS-1-7",
+    "code_edition": "SDMC-Ch13-2026-07",
+    "units": "ft",
+    "seed": 103,
+    "description": "Same fan lot fronting a cul-de-sac (front setback reduction 131.0443(a)(1))."
+  },
+  "dwelling_type": "house",
+  "lot": {
+    "vertices": [
+      [
+        -17.5,
+        0
+      ],
+      [
+        17.5,
+        0
+      ],
+      [
+        40,
+        100
+      ],
+      [
+        -40,
+        100
+      ]
+    ],
+    "edges": [
+      {
+        "edge_id": "e0",
+        "kind": "segment",
+        "boundary_class": "front",
+        "street_id": "street_main",
+        "alley_width_ft": 0
+      },
+      {
+        "edge_id": "e1",
+        "kind": "segment",
+        "boundary_class": null,
+        "street_id": null,
+        "alley_width_ft": 0
+      },
+      {
+        "edge_id": "e2",
+        "kind": "segment",
+        "boundary_class": null,
+        "street_id": null,
+        "alley_width_ft": 0
+      },
+      {
+        "edge_id": "e3",
+        "kind": "segment",
+        "boundary_class": null,
+        "street_id": null,
+        "alley_width_ft": 0
+      }
+    ]
+  },
+  "terrain": {
+    "front_steep_fraction": 0.0,
+    "steep_hillside_fraction": 0.0,
+    "mean_slope": 0.03,
+    "aspect_deg": 180
+  },
+  "streets": [
+    {
+      "street_id": "street_main",
+      "role": "primary",
+      "frontage_edge_ids": [
+        "e0"
+      ],
+      "street_type": "cul_de_sac",
+      "curve_radius_ft": 45,
+      "noise_level": 0.3,
+      "curb_cut": {
+        "edge_id": "e0",
+        "position": 0.75,
+        "width_ft": 20
+      },
+      "sidewalk_width_ft": 5,
+      "grade_offset_ft": 0.0
+    }
+  ],
+  "orientation": {
+    "north_azimuth_deg": 0.0,
+    "latitude_deg": 32.8
+  },
+  "overlays": {
+    "height_map_limit_ft": null,
+    "cpioz": false,
+    "coastal": false,
+    "vhfhsz": false,
+    "historic": false,
+    "alucp": false
+  },
+  "program": {
+    "spaces": [
+      {
+        "space_id": "living_room",
+        "zone": "social",
+        "scale": "large",
+        "wet": false,
+        "min_area_sqft": 200,
+        "target_area_sqft": 220,
+        "floor_preference": 0,
+        "space_type": "living_room",
+        "host_space_id": null
+      },
+      {
+        "space_id": "dining_room",
+        "zone": "social",
+        "scale": "normal",
+        "wet": false,
+        "min_area_sqft": 110,
+        "target_area_sqft": 140,
+        "floor_preference": 0,
+        "space_type": "dining_room",
+        "host_space_id": null
+      },
+      {
+        "space_id": "kitchen_space",
+        "zone": "kitchen",
+        "scale": "normal",
+        "wet": true,
+        "min_area_sqft": 120,
+        "target_area_sqft": 180,
+        "floor_preference": 0,
+        "space_type": "kitchen",
+        "host_space_id": null
+      },
+      {
+        "space_id": "primary_suite",
+        "zone": "private",
+        "scale": "large",
+        "wet": false,
+        "min_area_sqft": 200,
+        "target_area_sqft": 280,
+        "floor_preference": null,
+        "space_type": "primary_suite",
+        "host_space_id": null
+      },
+      {
+        "space_id": "bedroom_1",
+        "zone": "private",
+        "scale": "normal",
+        "wet": false,
+        "min_area_sqft": 110,
+        "target_area_sqft": 150,
+        "floor_preference": null,
+        "space_type": "bedroom",
+        "host_space_id": null
+      },
+      {
+        "space_id": "bedroom_2",
+        "zone": "private",
+        "scale": "normal",
+        "wet": false,
+        "min_area_sqft": 110,
+        "target_area_sqft": 150,
+        "floor_preference": null,
+        "space_type": "bedroom",
+        "host_space_id": null
+      },
+      {
+        "space_id": "bath_1",
+        "zone": "private",
+        "scale": "intermediate",
+        "wet": true,
+        "min_area_sqft": 40,
+        "target_area_sqft": 50,
+        "floor_preference": null,
+        "space_type": "bathroom",
+        "host_space_id": null
+      },
+      {
+        "space_id": "bath_2",
+        "zone": "private",
+        "scale": "intermediate",
+        "wet": true,
+        "min_area_sqft": 45,
+        "target_area_sqft": 60,
+        "floor_preference": null,
+        "space_type": "primary_bath",
+        "host_space_id": null
+      },
+      {
+        "space_id": "laundry",
+        "zone": "service",
+        "scale": "intermediate",
+        "wet": true,
+        "min_area_sqft": 35,
+        "target_area_sqft": 50,
+        "floor_preference": 0,
+        "space_type": "laundry",
+        "host_space_id": null
+      },
+      {
+        "space_id": "hall",
+        "zone": "circulation",
+        "scale": "intermediate",
+        "wet": false,
+        "min_area_sqft": 80,
+        "target_area_sqft": 120,
+        "floor_preference": null,
+        "space_type": "hall",
+        "host_space_id": null
+      },
+      {
+        "space_id": "garage_2car",
+        "zone": "garage",
+        "scale": "normal",
+        "wet": false,
+        "min_area_sqft": 380,
+        "target_area_sqft": 400,
+        "floor_preference": 0,
+        "space_type": "garage_2car",
+        "host_space_id": null
+      }
+    ],
+    "zone_budgets": {
+      "social": {
+        "min_sqft": 300,
+        "max_sqft": 500
+      },
+      "private": {
+        "min_sqft": 600,
+        "max_sqft": 1000
+      },
+      "kitchen": {
+        "min_sqft": 150,
+        "max_sqft": 250
+      },
+      "service": {
+        "min_sqft": 40,
+        "max_sqft": 120
+      },
+      "circulation": {
+        "min_sqft": 100,
+        "max_sqft": 250
+      },
+      "garage": {
+        "min_sqft": 200,
+        "max_sqft": 450
+      }
+    },
+    "garage_cars": 2,
+    "required_gross_area_sqft": 2212,
+    "gross_factor": 1.15
+  },
+  "relations": [
+    {
+      "relation_id": "r01",
+      "type": "mandatory",
+      "a": "street_main",
+      "b": "walkway",
+      "weight": 1.0,
+      "requires_door": false,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r02",
+      "type": "mandatory",
+      "a": "walkway",
+      "b": "entry_deck",
+      "weight": 1.0,
+      "requires_door": false,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r03",
+      "type": "mandatory",
+      "a": "entry_deck",
+      "b": "circulation",
+      "weight": 1.0,
+      "requires_door": true,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r04",
+      "type": "mandatory",
+      "a": "street_main",
+      "b": "driveway",
+      "weight": 1.0,
+      "requires_door": false,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r05",
+      "type": "mandatory",
+      "a": "driveway",
+      "b": "garage",
+      "weight": 1.0,
+      "requires_door": true,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r06",
+      "type": "desired",
+      "a": "social",
+      "b": "garden",
+      "weight": 1.0,
+      "source": {
+        "kind": "catalog",
+        "citation": "superseded by the D/I/N matrix group 'dining or kitchen to patio' (2026-10)",
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r07",
+      "type": "desired",
+      "a": "social",
+      "b": "kitchen",
+      "weight": 1.0,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r08",
+      "type": "desired",
+      "a": "kitchen",
+      "b": "garden",
+      "weight": 0.5,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r09",
+      "type": "visual",
+      "a": "entry_deck",
+      "b": "street_main",
+      "weight": 1.0,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r10",
+      "type": "visual",
+      "a": "private",
+      "b": "garden",
+      "weight": 0.5,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r11",
+      "type": "context",
+      "a": "front_green",
+      "b": "street_main",
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r12",
+      "type": "forbidden",
+      "a": "garage",
+      "b": "private",
+      "applies_to": "opening",
+      "source": {
+        "kind": "code",
+        "citation": "CRC 2025 garage-dwelling separation (R302.5.1 in prior editions; verify)",
+        "status": "provisional"
+      }
+    },
+    {
+      "relation_id": "r13",
+      "type": "forbidden",
+      "a": "service",
+      "b": "social",
+      "applies_to": "adjacency",
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    },
+    {
+      "relation_id": "r14",
+      "type": "desired",
+      "a": "service",
+      "b": "side_yard",
+      "weight": 0.3,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    }
+  ],
+  "relation_groups": [
+    {
+      "group_id": "g01_garage_link",
+      "type": "alternative",
+      "semantics": "at_least",
+      "k": 1,
+      "members": [
+        {
+          "a": "garage",
+          "b": "kitchen"
+        },
+        {
+          "a": "garage",
+          "b": "service"
+        }
+      ],
+      "requires_door": true,
+      "source": {
+        "kind": "catalog",
+        "citation": null,
+        "status": "verified"
+      }
+    }
+  ],
+  "preferences": {
+    "min_garden_area_sqft": null,
+    "min_garden_depth_ft": null,
+    "max_floors": null,
+    "profile": "balanced",
+    "deck_position": "auto"
+  },
+  "massing_assumptions": {
+    "floor_to_floor_ft": 10.0
+  },
+  "measurement": {
+    "width_method": null,
+    "depth_method": null
+  }
+}

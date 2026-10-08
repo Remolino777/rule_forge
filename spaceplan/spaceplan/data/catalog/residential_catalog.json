@@ -1,0 +1,3099 @@
+{
+  "catalog_id": "spaceplan-residential-catalog",
+  "catalog_version": "0.11.0",
+  "units": "sq_ft",
+  "default_source": {
+    "kind": "catalog",
+    "citation": "Student-defined design ranges v0.1 (spaceplan v1.1, section 8); calibrate with public pre-approved plans before G1",
+    "status": "provisional"
+  },
+  "scales": [
+    {
+      "scale": "large",
+      "area_min": 250,
+      "area_max": 450,
+      "facade": "required",
+      "topology": "node",
+      "placement_order": 1
+    },
+    {
+      "scale": "normal",
+      "area_min": 110,
+      "area_max": 250,
+      "facade": "required_if_habitable",
+      "topology": "node",
+      "placement_order": 2
+    },
+    {
+      "scale": "intermediate",
+      "area_min": 35,
+      "area_max": 110,
+      "facade": "desirable",
+      "topology": "node",
+      "placement_order": 3
+    },
+    {
+      "scale": "support",
+      "area_min": 0,
+      "area_max": 35,
+      "facade": "none",
+      "topology": "satellite",
+      "placement_order": 4
+    },
+    {
+      "scale": "intermediate_exterior",
+      "area_min": 40,
+      "area_max": 120,
+      "facade": "exterior",
+      "topology": "site",
+      "placement_order": null
+    },
+    {
+      "scale": "large_exterior",
+      "area_min": null,
+      "area_max": null,
+      "facade": "exterior",
+      "topology": "site",
+      "placement_order": null
+    }
+  ],
+  "zones": [
+    {
+      "zone": "social",
+      "dominant_scale": "large",
+      "floor_preference": "ground",
+      "floor_rule": "soft",
+      "orientation": {
+        "sun": 1.0,
+        "morning_light": 0.3,
+        "street_privacy": 0.3
+      },
+      "content": "living, dining, open study",
+      "min_width_ft": 12
+    },
+    {
+      "zone": "private",
+      "dominant_scale": "large",
+      "floor_preference": "upper",
+      "floor_rule": "soft",
+      "orientation": {
+        "sun": 0.3,
+        "morning_light": 1.0,
+        "street_privacy": 1.0
+      },
+      "content": "bedrooms and baths; may be split",
+      "min_width_ft": 10
+    },
+    {
+      "zone": "kitchen",
+      "dominant_scale": "normal",
+      "floor_preference": "ground",
+      "floor_rule": "soft",
+      "orientation": {
+        "sun": 0.5,
+        "morning_light": 0.7,
+        "street_privacy": 0.3
+      },
+      "content": "kitchen, pantry, breakfast nook",
+      "min_width_ft": 8
+    },
+    {
+      "zone": "service",
+      "dominant_scale": "intermediate",
+      "floor_preference": "ground",
+      "floor_rule": "soft",
+      "orientation": {
+        "sun": 0.0,
+        "morning_light": 0.0,
+        "street_privacy": 0.0
+      },
+      "content": "laundry, storage, equipment",
+      "min_width_ft": 5
+    },
+    {
+      "zone": "circulation",
+      "dominant_scale": "intermediate",
+      "floor_preference": "any",
+      "floor_rule": "soft",
+      "orientation": {
+        "sun": 0.0,
+        "morning_light": 0.0,
+        "street_privacy": 0.0
+      },
+      "content": "foyer, halls, stair",
+      "min_width_ft": 4
+    },
+    {
+      "zone": "garage",
+      "dominant_scale": "normal",
+      "floor_preference": "ground",
+      "floor_rule": "hard",
+      "orientation": {
+        "sun": 0.0,
+        "morning_light": 0.0,
+        "street_privacy": 0.0
+      },
+      "content": "1- or 2-car garage",
+      "min_width_ft": 10
+    }
+  ],
+  "profiles": {
+    "balanced": {
+      "social": 1.0,
+      "private": 1.0,
+      "kitchen": 1.0,
+      "service": 1.0,
+      "circulation": 1.0,
+      "garage": 1.0
+    },
+    "compact": {
+      "social": 0.85,
+      "private": 0.85,
+      "kitchen": 0.85,
+      "service": 0.85,
+      "circulation": 0.85,
+      "garage": 1.0
+    },
+    "social": {
+      "social": 1.2,
+      "private": 0.95,
+      "kitchen": 1.1,
+      "service": 1.0,
+      "circulation": 1.0,
+      "garage": 1.0
+    },
+    "private": {
+      "social": 0.95,
+      "private": 1.2,
+      "kitchen": 1.0,
+      "service": 1.0,
+      "circulation": 1.0,
+      "garage": 1.0
+    }
+  },
+  "target_rounding_sqft": 5,
+  "space_types": [
+    {
+      "space_type": "living_dining",
+      "zone": "social",
+      "scale": "large",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 250,
+        "target": 360,
+        "max": 450
+      },
+      "passable": true,
+      "min_side_ft": 11
+    },
+    {
+      "space_type": "living_room",
+      "zone": "social",
+      "scale": "large",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 200,
+        "target": 280,
+        "max": 400
+      },
+      "scale_range_exception": "living room separated from dining may drop below the large-scale floor",
+      "passable": true,
+      "min_side_ft": 11
+    },
+    {
+      "space_type": "dining_room",
+      "zone": "social",
+      "scale": "normal",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 110,
+        "target": 150,
+        "max": 220
+      },
+      "passable": true,
+      "min_side_ft": 9
+    },
+    {
+      "space_type": "family_room",
+      "zone": "social",
+      "scale": "large",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 220,
+        "target": 300,
+        "max": 420
+      },
+      "scale_range_exception": "secondary living space",
+      "passable": true,
+      "min_side_ft": 11
+    },
+    {
+      "space_type": "study",
+      "zone": "social",
+      "scale": "normal",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 110,
+        "target": 130,
+        "max": 180
+      },
+      "passable": false,
+      "min_side_ft": 8
+    },
+    {
+      "space_type": "kitchen",
+      "zone": "kitchen",
+      "scale": "normal",
+      "habitable": true,
+      "wet": true,
+      "area": {
+        "min": 110,
+        "target": 170,
+        "max": 250
+      },
+      "passable": true,
+      "min_side_ft": 7
+    },
+    {
+      "space_type": "breakfast_nook",
+      "zone": "social",
+      "scale": "intermediate",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 70,
+        "target": 80,
+        "max": 110
+      },
+      "passable": true,
+      "min_side_ft": 7,
+      "note": "Eating area next to the kitchen; social zone (dining part of zone_parts) since catalog 0.10.0"
+    },
+    {
+      "space_type": "pantry",
+      "zone": "kitchen",
+      "scale": "support",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 12,
+        "target": 20,
+        "max": 35
+      },
+      "host_types": [
+        "kitchen"
+      ],
+      "passable": false,
+      "min_side_ft": 3
+    },
+    {
+      "space_type": "primary_suite",
+      "zone": "private",
+      "scale": "large",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 250,
+        "target": 290,
+        "max": 420
+      },
+      "passable": false,
+      "min_side_ft": 11
+    },
+    {
+      "space_type": "bedroom",
+      "zone": "private",
+      "scale": "normal",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 110,
+        "target": 140,
+        "max": 200
+      },
+      "passable": false,
+      "min_side_ft": 9
+    },
+    {
+      "space_type": "social_bath",
+      "zone": "social",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": true,
+      "area": {
+        "min": 35,
+        "target": 40,
+        "max": 60
+      },
+      "passable": false,
+      "min_side_ft": 4
+    },
+    {
+      "space_type": "primary_bath",
+      "zone": "private",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": true,
+      "area": {
+        "min": 60,
+        "target": 80,
+        "max": 110
+      },
+      "passable": false,
+      "min_side_ft": 5
+    },
+    {
+      "space_type": "bathroom",
+      "zone": "private",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": true,
+      "area": {
+        "min": 40,
+        "target": 55,
+        "max": 90
+      },
+      "passable": false,
+      "min_side_ft": 5
+    },
+    {
+      "space_type": "walk_in_closet",
+      "zone": "private",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 35,
+        "target": 50,
+        "max": 80
+      },
+      "passable": false,
+      "min_side_ft": 4
+    },
+    {
+      "space_type": "closet",
+      "zone": "private",
+      "scale": "support",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 6,
+        "target": 12,
+        "max": 30
+      },
+      "host_types": [
+        "bedroom",
+        "primary_suite"
+      ],
+      "passable": false,
+      "min_side_ft": 2
+    },
+    {
+      "space_type": "half_bath",
+      "zone": "circulation",
+      "scale": "support",
+      "habitable": false,
+      "wet": true,
+      "area": {
+        "min": 18,
+        "target": 24,
+        "max": 35
+      },
+      "host_types": [
+        "foyer",
+        "hall"
+      ],
+      "passable": false,
+      "min_side_ft": 3
+    },
+    {
+      "space_type": "laundry",
+      "zone": "service",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": true,
+      "area": {
+        "min": 35,
+        "target": 50,
+        "max": 80
+      },
+      "passable": false,
+      "min_side_ft": 5
+    },
+    {
+      "space_type": "storage",
+      "zone": "service",
+      "scale": "support",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 10,
+        "target": 20,
+        "max": 35
+      },
+      "host_types": [
+        "laundry",
+        "garage_2car",
+        "garage_1car",
+        "hall"
+      ],
+      "passable": false,
+      "min_side_ft": 3
+    },
+    {
+      "space_type": "mechanical",
+      "zone": "service",
+      "scale": "support",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 10,
+        "target": 15,
+        "max": 30
+      },
+      "host_types": [
+        "garage_2car",
+        "garage_1car",
+        "laundry",
+        "hall"
+      ],
+      "passable": false,
+      "min_side_ft": 3
+    },
+    {
+      "space_type": "foyer",
+      "zone": "circulation",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 35,
+        "target": 50,
+        "max": 90
+      },
+      "passable": true,
+      "min_side_ft": 4
+    },
+    {
+      "space_type": "hall",
+      "zone": "circulation",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 40,
+        "target": 90,
+        "max": 180
+      },
+      "scale_range_exception": "halls grow with the number of rooms they serve",
+      "passable": true,
+      "min_side_ft": 3.5
+    },
+    {
+      "space_type": "stair",
+      "zone": "circulation",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 40,
+        "target": 60,
+        "max": 90
+      },
+      "note": "added per floor by the stacking layer (step 7), not by typologies",
+      "passable": true,
+      "min_side_ft": 3.5
+    },
+    {
+      "space_type": "garage_1car",
+      "zone": "garage",
+      "scale": "normal",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 220,
+        "target": 250,
+        "max": 300
+      },
+      "scale_range_exception": "vehicle clearance governs, not room scale",
+      "passable": false,
+      "min_side_ft": 10,
+      "vehicles": 1,
+      "lanes": 1
+    },
+    {
+      "space_type": "garage_2car",
+      "zone": "garage",
+      "scale": "normal",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 380,
+        "target": 420,
+        "max": 500
+      },
+      "scale_range_exception": "vehicle clearance governs, not room scale",
+      "passable": false,
+      "min_side_ft": 19,
+      "vehicles": 2,
+      "lanes": 2
+    },
+    {
+      "space_type": "garage_2car_tandem",
+      "zone": "garage",
+      "scale": "normal",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 400,
+        "target": 440,
+        "max": 520
+      },
+      "scale_range_exception": "vehicle clearance governs, not room scale",
+      "passable": false,
+      "min_side_ft": 10.5,
+      "vehicles": 2,
+      "lanes": 1,
+      "note": "two cars one behind the other (about 11 x 40 ft); one driveway lane; narrow-frontage alternative to garage_2car",
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined design range (step 6); calibrate with pre-approved narrow-lot plans",
+        "status": "provisional"
+      }
+    },
+    {
+      "space_type": "laundry_closet",
+      "zone": "service",
+      "scale": "support",
+      "habitable": false,
+      "wet": true,
+      "area": {
+        "min": 12,
+        "target": 20,
+        "max": 35
+      },
+      "host_types": [
+        "hall",
+        "foyer"
+      ],
+      "passable": false,
+      "min_side_ft": 3
+    },
+    {
+      "space_type": "flex_room",
+      "zone": "social",
+      "scale": "normal",
+      "habitable": true,
+      "wet": false,
+      "area": {
+        "min": 110,
+        "target": 120,
+        "max": 160
+      },
+      "passable": false,
+      "min_side_ft": 8,
+      "note": "Convertible room: home office, guest room or caregiver room; near the entry by default",
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined design range, household model step 6.5a (2026-10); calibrate with pilot pre-approved plans",
+        "status": "provisional"
+      }
+    },
+    {
+      "space_type": "mudroom",
+      "zone": "service",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": false,
+      "area": {
+        "min": 35,
+        "target": 45,
+        "max": 80
+      },
+      "passable": true,
+      "min_side_ft": 5,
+      "note": "Drop zone between garage or side door and the kitchen (vehicles, pets, outdoor gear)",
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined design range, household model step 6.5a (2026-10); calibrate with pilot pre-approved plans",
+        "status": "provisional"
+      }
+    },
+    {
+      "space_type": "work_kitchen",
+      "zone": "kitchen",
+      "scale": "intermediate",
+      "habitable": false,
+      "wet": true,
+      "area": {
+        "min": 45,
+        "target": 65,
+        "max": 110
+      },
+      "passable": false,
+      "min_side_ft": 5,
+      "note": "Work (scullery) kitchen behind the clean kitchen: heavy cooking, smoke and storage; double-kitchen typology",
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    }
+  ],
+  "site_zone_types": [
+    {
+      "site_zone": "garden",
+      "scale": "large_exterior",
+      "parameters": {
+        "area_from": "brief.preferences.min_garden_area_sqft"
+      }
+    },
+    {
+      "site_zone": "front_green",
+      "scale": "large_exterior",
+      "parameters": {
+        "area_from": "front yard remainder"
+      }
+    },
+    {
+      "site_zone": "walkway",
+      "scale": "support",
+      "parameters": {
+        "width_ft": 4,
+        "max_breaks": 1
+      }
+    },
+    {
+      "site_zone": "entry_deck",
+      "scale": "intermediate_exterior",
+      "parameters": {
+        "area_min": 40,
+        "area_target": 60,
+        "area_max": 120,
+        "afternoon_shade": 1.0
+      },
+      "note": "projection, height and openness limits come from SDMC 131.0461(a)(6) in the ruleset, not from this catalog"
+    },
+    {
+      "site_zone": "driveway",
+      "scale": "large_exterior",
+      "parameters": {
+        "width_per_car_ft": 10,
+        "depth_ft": 20
+      }
+    },
+    {
+      "site_zone": "side_yard",
+      "scale": "support",
+      "parameters": {
+        "equipment_depth_ft": 3
+      }
+    }
+  ],
+  "garage_by_cars": {
+    "0": null,
+    "1": "garage_1car",
+    "2": "garage_2car"
+  },
+  "typologies": [
+    {
+      "typology_id": "t2_compact",
+      "label": "2 bedrooms, 1 bath",
+      "bedrooms": 2,
+      "gross_factor": 1.15,
+      "spaces": [
+        {
+          "space_type": "living_dining",
+          "count": 1
+        },
+        {
+          "space_type": "kitchen",
+          "count": 1
+        },
+        {
+          "space_type": "primary_suite",
+          "count": 1
+        },
+        {
+          "space_type": "bedroom",
+          "count": 1
+        },
+        {
+          "space_type": "bathroom",
+          "count": 1
+        },
+        {
+          "space_type": "laundry",
+          "count": 1
+        },
+        {
+          "space_type": "foyer",
+          "count": 1
+        },
+        {
+          "space_type": "hall",
+          "count": 1
+        },
+        {
+          "space_type": "closet",
+          "count": 2
+        }
+      ],
+      "dwelling_type": "house"
+    },
+    {
+      "typology_id": "t3_standard",
+      "label": "3 bedrooms, 2 baths",
+      "bedrooms": 3,
+      "gross_factor": 1.15,
+      "spaces": [
+        {
+          "space_type": "living_room",
+          "count": 1
+        },
+        {
+          "space_type": "dining_room",
+          "count": 1
+        },
+        {
+          "space_type": "kitchen",
+          "count": 1
+        },
+        {
+          "space_type": "pantry",
+          "count": 1
+        },
+        {
+          "space_type": "primary_suite",
+          "count": 1
+        },
+        {
+          "space_type": "primary_bath",
+          "count": 1
+        },
+        {
+          "space_type": "walk_in_closet",
+          "count": 1
+        },
+        {
+          "space_type": "bedroom",
+          "count": 2
+        },
+        {
+          "space_type": "bathroom",
+          "count": 1
+        },
+        {
+          "space_type": "laundry",
+          "count": 1
+        },
+        {
+          "space_type": "storage",
+          "count": 1
+        },
+        {
+          "space_type": "foyer",
+          "count": 1
+        },
+        {
+          "space_type": "hall",
+          "count": 1
+        },
+        {
+          "space_type": "closet",
+          "count": 2
+        }
+      ],
+      "dwelling_type": "house"
+    },
+    {
+      "typology_id": "t4_family",
+      "label": "4 bedrooms, 3 baths",
+      "bedrooms": 4,
+      "gross_factor": 1.12,
+      "spaces": [
+        {
+          "space_type": "living_room",
+          "count": 1
+        },
+        {
+          "space_type": "dining_room",
+          "count": 1
+        },
+        {
+          "space_type": "family_room",
+          "count": 1
+        },
+        {
+          "space_type": "kitchen",
+          "count": 1
+        },
+        {
+          "space_type": "pantry",
+          "count": 1
+        },
+        {
+          "space_type": "breakfast_nook",
+          "count": 1
+        },
+        {
+          "space_type": "primary_suite",
+          "count": 1
+        },
+        {
+          "space_type": "primary_bath",
+          "count": 1
+        },
+        {
+          "space_type": "walk_in_closet",
+          "count": 1
+        },
+        {
+          "space_type": "bedroom",
+          "count": 3
+        },
+        {
+          "space_type": "bathroom",
+          "count": 2
+        },
+        {
+          "space_type": "half_bath",
+          "count": 1
+        },
+        {
+          "space_type": "laundry",
+          "count": 1
+        },
+        {
+          "space_type": "storage",
+          "count": 1
+        },
+        {
+          "space_type": "mechanical",
+          "count": 1
+        },
+        {
+          "space_type": "foyer",
+          "count": 1
+        },
+        {
+          "space_type": "hall",
+          "count": 1
+        },
+        {
+          "space_type": "closet",
+          "count": 3
+        }
+      ],
+      "dwelling_type": "house"
+    },
+    {
+      "typology_id": "apt_1br",
+      "label": "apartment, 1 bedroom",
+      "dwelling_type": "apartment",
+      "bedrooms": 1,
+      "gross_factor": 1.08,
+      "spaces": [
+        {
+          "space_type": "living_dining",
+          "count": 1
+        },
+        {
+          "space_type": "kitchen",
+          "count": 1
+        },
+        {
+          "space_type": "primary_suite",
+          "count": 1
+        },
+        {
+          "space_type": "bathroom",
+          "count": 1
+        },
+        {
+          "space_type": "foyer",
+          "count": 1
+        },
+        {
+          "space_type": "laundry_closet",
+          "count": 1
+        },
+        {
+          "space_type": "closet",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "typology_id": "apt_2br",
+      "label": "apartment, 2 bedrooms",
+      "dwelling_type": "apartment",
+      "bedrooms": 2,
+      "gross_factor": 1.08,
+      "spaces": [
+        {
+          "space_type": "living_dining",
+          "count": 1
+        },
+        {
+          "space_type": "kitchen",
+          "count": 1
+        },
+        {
+          "space_type": "primary_suite",
+          "count": 1
+        },
+        {
+          "space_type": "primary_bath",
+          "count": 1
+        },
+        {
+          "space_type": "bedroom",
+          "count": 1
+        },
+        {
+          "space_type": "bathroom",
+          "count": 1
+        },
+        {
+          "space_type": "foyer",
+          "count": 1
+        },
+        {
+          "space_type": "hall",
+          "count": 1
+        },
+        {
+          "space_type": "laundry_closet",
+          "count": 1
+        },
+        {
+          "space_type": "closet",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "orientation_model": {
+    "equator_weight_full_at_lat_deg": 30,
+    "morning_azimuth_deg": 90,
+    "afternoon_azimuth_deg": 270,
+    "note": "sun = w*cos(az - equator azimuth)+ + (1-w)*|sin(az)|, w = min(1, |lat|/30): south dominates at 32.7 N, east/west near the equator"
+  },
+  "zoning": {
+    "min_contact_ft": 3,
+    "max_aspect_ratio": 3,
+    "top_k": 6,
+    "weights": {
+      "relations": 0.4,
+      "orientation": 0.4,
+      "shape": 0.2
+    },
+    "site_facades": {
+      "garden": [
+        "rear"
+      ],
+      "front_green": [
+        "front"
+      ],
+      "walkway": [
+        "front"
+      ],
+      "entry_deck": [
+        "front"
+      ],
+      "driveway": [
+        "front"
+      ],
+      "side_yard": [
+        "left",
+        "right"
+      ]
+    },
+    "note": "Two bands (access side / far side); each band is a row of columns stacking up to max_zones_per_column zones. Zone parts follow their spaces. Widths are catalog design minima. An optional through column (up to max_through_column zones stacked front to rear) runs the full depth at the left or right end, e.g. a living-dining great room from street to garden.",
+    "max_zones_per_column": 2,
+    "space_weights": {
+      "matrix": 0.6,
+      "circulation": 0.25,
+      "shape": 0.15
+    },
+    "level_weights": {
+      "zone": 0.4,
+      "space": 0.6
+    },
+    "max_through_column": 3,
+    "merge_options": {
+      "service": {
+        "into": [
+          "kitchen",
+          "garage"
+        ],
+        "max_area_sqft": 120
+      }
+    },
+    "shoulder_facades": {
+      "front_shoulder": {
+        "roles": [
+          "street_view",
+          "exterior"
+        ],
+        "note": "set-back face of a wider rear step, looking toward the street (strategy B)"
+      },
+      "rear_shoulder": {
+        "roles": [
+          "garden_view",
+          "exterior"
+        ],
+        "note": "face of a wider front step looking toward the rear; not a patio door facade"
+      },
+      "source": {
+        "kind": "client",
+        "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+        "status": "provisional"
+      }
+    },
+    "max_area_shift": 0.15,
+    "note_area_shift": "Strategy B stepped: a column narrower than its minimum (zone minimum, driveway for the garage) is widened inside its band; the zones of that band trade area by at most max_area_shift. Anticipates the area assignment of step 9.",
+    "joint_articulation": true
+  },
+  "zone_parts": {
+    "social": {
+      "schemes": [
+        {
+          "scheme_id": "living_dining",
+          "parts": [
+            {
+              "part": "living",
+              "space_types": [
+                "living_room",
+                "living_dining",
+                "family_room"
+              ],
+              "min_width_ft": 12
+            },
+            {
+              "part": "dining",
+              "space_types": [
+                "dining_room",
+                "study",
+                "breakfast_nook",
+                "social_bath"
+              ],
+              "min_width_ft": 9
+            }
+          ],
+          "dwelling_types": [
+            "house",
+            "apartment"
+          ]
+        }
+      ]
+    },
+    "private": {
+      "schemes": [
+        {
+          "scheme_id": "by_bedroom",
+          "parts": [
+            {
+              "part": "suite",
+              "space_types": [
+                "primary_suite",
+                "primary_bath",
+                "walk_in_closet"
+              ],
+              "min_width_ft": 11
+            },
+            {
+              "part": "bedrooms",
+              "space_types": [
+                "bedroom",
+                "bathroom",
+                "closet"
+              ],
+              "min_width_ft": 9
+            }
+          ],
+          "dwelling_types": [
+            "house",
+            "apartment"
+          ]
+        },
+        {
+          "scheme_id": "wet_core",
+          "parts": [
+            {
+              "part": "suiteroom",
+              "space_types": [
+                "primary_suite",
+                "walk_in_closet"
+              ],
+              "min_width_ft": 11
+            },
+            {
+              "part": "bedroomwing",
+              "space_types": [
+                "bedroom",
+                "closet"
+              ],
+              "min_width_ft": 9
+            },
+            {
+              "part": "wetcore",
+              "space_types": [
+                "primary_bath",
+                "bathroom"
+              ],
+              "min_width_ft": 5
+            }
+          ],
+          "dwelling_types": [
+            "apartment"
+          ]
+        }
+      ]
+    }
+  },
+  "zoning_profiles": {
+    "house": {
+      "access_role": "main_street",
+      "entry": {
+        "zone": "circulation",
+        "interval": "entry_deck",
+        "min_overlap_ft": 3
+      },
+      "anchors": [
+        {
+          "anchor_id": "living_faces_main_street",
+          "space_types": [
+            "living_room",
+            "living_dining"
+          ],
+          "facade_role": "main_street",
+          "kind": "hard",
+          "min_contact_ft": 8,
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student design brief 2026-10 (house zoning profile)",
+            "status": "verified"
+          },
+          "fallback_role": "street_view",
+          "fallback_penalty": 0.5
+        },
+        {
+          "anchor_id": "kitchen_faces_rear",
+          "space_types": [
+            "kitchen"
+          ],
+          "facade_role": "garden",
+          "kind": "soft",
+          "min_contact_ft": 3,
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student design brief 2026-10 (house zoning profile)",
+            "status": "verified"
+          }
+        }
+      ],
+      "entry_sequence": null
+    },
+    "apartment": {
+      "access_role": "access",
+      "entry": {
+        "zone": "circulation",
+        "interval": "entrance",
+        "min_overlap_ft": 3
+      },
+      "anchors": [
+        {
+          "anchor_id": "living_faces_exterior",
+          "space_types": [
+            "living_room",
+            "living_dining"
+          ],
+          "facade_role": "exterior",
+          "kind": "hard",
+          "min_contact_ft": 8,
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student design brief 2026-10 (apartment zoning profile)",
+            "status": "verified"
+          }
+        },
+        {
+          "anchor_id": "bedrooms_face_exterior",
+          "space_types": [
+            "primary_suite",
+            "bedroom"
+          ],
+          "facade_role": "exterior",
+          "kind": "hard",
+          "min_contact_ft": 4,
+          "weight": 1.0,
+          "source": {
+            "kind": "client",
+            "citation": "Student design brief 2026-10 (apartment zoning profile)",
+            "status": "verified"
+          }
+        },
+        {
+          "anchor_id": "kitchen_faces_exterior",
+          "space_types": [
+            "kitchen"
+          ],
+          "facade_role": "exterior",
+          "kind": "soft",
+          "min_contact_ft": 3,
+          "weight": 0.5,
+          "source": {
+            "kind": "client",
+            "citation": "Student design brief 2026-10 (apartment zoning profile)",
+            "status": "verified"
+          }
+        }
+      ],
+      "entry_sequence": {
+        "anchor_id": "kitchen_via_foyer",
+        "via_zone": "circulation",
+        "target_zone": "kitchen",
+        "kind": "hard",
+        "forbid_entrance_contact": true,
+        "source": {
+          "kind": "client",
+          "citation": "Student design brief 2026-10 (apartment zoning profile)",
+          "status": "verified"
+        }
+      }
+    }
+  },
+  "backyard_policy": {
+    "min_green_fraction": 0.3,
+    "groups": {
+      "water": {
+        "max": 1
+      }
+    },
+    "search_step_ft": 1.0
+  },
+  "backyard_elements": [
+    {
+      "element": "rear_deck",
+      "area": {
+        "min": 80,
+        "target": 150,
+        "max": 300
+      },
+      "min_dim_ft": 8,
+      "aspect": 2.5,
+      "priority": 1,
+      "placement": "attach_rear",
+      "counts_as_green": false,
+      "requires": [],
+      "group": null,
+      "clearances": {}
+    },
+    {
+      "element": "pool",
+      "area": {
+        "min": 200,
+        "target": 300,
+        "max": 450
+      },
+      "min_dim_ft": 10,
+      "aspect": 2.0,
+      "priority": 2,
+      "placement": "visible_center",
+      "counts_as_green": false,
+      "requires": [],
+      "group": "water",
+      "clearances": {
+        "lot_line": {
+          "rule_id": "Z13-POOL-SPA",
+          "param": "pool_min_to_lot_line_ft"
+        },
+        "dwelling": {
+          "rule_id": "Z13-POOL-SPA",
+          "param": "pool_min_to_dwelling_ft"
+        }
+      }
+    },
+    {
+      "element": "spa",
+      "area": {
+        "min": 40,
+        "target": 64,
+        "max": 100
+      },
+      "min_dim_ft": 6,
+      "aspect": 1.0,
+      "priority": 3,
+      "placement": "near_deck",
+      "counts_as_green": false,
+      "requires": [],
+      "group": "water",
+      "clearances": {
+        "lot_line": {
+          "rule_id": "Z13-POOL-SPA",
+          "param": "spa_min_to_lot_line_ft"
+        }
+      }
+    },
+    {
+      "element": "bbq",
+      "area": {
+        "min": 20,
+        "target": 32,
+        "max": 48
+      },
+      "min_dim_ft": 4,
+      "aspect": 2.0,
+      "priority": 4,
+      "placement": "touch_deck",
+      "counts_as_green": false,
+      "requires": [
+        "rear_deck"
+      ],
+      "group": null,
+      "clearances": {}
+    },
+    {
+      "element": "shed",
+      "area": {
+        "min": 30,
+        "target": 64,
+        "max": 120
+      },
+      "min_dim_ft": 5,
+      "aspect": 1.5,
+      "priority": 5,
+      "placement": "rear_corner",
+      "counts_as_green": false,
+      "requires": [],
+      "group": null,
+      "clearances": {
+        "lot_line": {
+          "rule_id": "Z14-ACCESSORY-STRUCTURE",
+          "param": "min_to_lot_line_ft"
+        },
+        "dwelling": {
+          "rule_id": "Z12-BUILDING-SEPARATION",
+          "param": "to_nonhabitable_accessory_ft"
+        }
+      }
+    },
+    {
+      "element": "garden_beds",
+      "area": {
+        "min": 20,
+        "target": 40,
+        "max": 100
+      },
+      "min_dim_ft": 3,
+      "aspect": 4.0,
+      "priority": 6,
+      "placement": "along_side",
+      "counts_as_green": true,
+      "requires": [],
+      "group": null,
+      "clearances": {}
+    },
+    {
+      "element": "covered_terrace",
+      "area": {
+        "min": 120,
+        "target": 200,
+        "max": 320
+      },
+      "min_dim_ft": 10,
+      "aspect": 2.0,
+      "priority": 7,
+      "placement": "attach_rear",
+      "counts_as_green": false,
+      "requires": [],
+      "group": null,
+      "clearances": {}
+    },
+    {
+      "element": "outdoor_kitchen",
+      "area": {
+        "min": 30,
+        "target": 48,
+        "max": 80
+      },
+      "min_dim_ft": 5,
+      "aspect": 2.0,
+      "priority": 8,
+      "placement": "touch_deck",
+      "counts_as_green": false,
+      "requires": [
+        "covered_terrace"
+      ],
+      "group": null,
+      "clearances": {}
+    }
+  ],
+  "circulation": {
+    "design_width_ft": 3.5,
+    "normative_width": {
+      "rule_id": "C06-HALLWAY-WIDTH"
+    },
+    "door_contact_ft": 3.0,
+    "derived_space_types": [
+      "hall"
+    ],
+    "target_fraction": 0.15,
+    "warn_fraction": 0.2,
+    "hall_min_terminals": 2,
+    "search": {
+      "zone_schemes": 60,
+      "options_per_hall_side": 3,
+      "options_without_hall": 6,
+      "max_combinations_per_scheme": 300
+    },
+    "note": "Circulation is a network, not a zone: the foyer takes the entry, halls are carved from the cells they serve, and paths through passable rooms consume a strip of the design width from those rooms. Private terminal rooms open only onto circulation (foyer or hall) or en-suite, from the bedroom to its bath or closet.",
+    "private_roles": [
+      "primary_bedroom",
+      "bedroom",
+      "private_bath",
+      "suite_closet"
+    ],
+    "search_retry": {
+      "zone_schemes": 200,
+      "options_per_hall_side": 5,
+      "options_without_hall": 10,
+      "max_combinations_per_scheme": 1500,
+      "note": "Used once, only when the base search finds zone schemes but no space layout (step 6.5d); not used inside the correction search"
+    }
+  },
+  "relation_matrix": {
+    "roles": {
+      "access": [
+        "@entry"
+      ],
+      "living": [
+        "living_room",
+        "living_dining",
+        "family_room"
+      ],
+      "dining": [
+        "dining_room",
+        "living_dining"
+      ],
+      "kitchen": [
+        "kitchen"
+      ],
+      "social_bath": [
+        "social_bath",
+        "half_bath"
+      ],
+      "primary_bedroom": [
+        "primary_suite"
+      ],
+      "bedroom": [
+        "bedroom"
+      ],
+      "private_bath": [
+        "primary_bath",
+        "bathroom"
+      ],
+      "laundry": [
+        "laundry",
+        "laundry_closet"
+      ],
+      "suite_closet": [
+        "walk_in_closet"
+      ],
+      "patio": [
+        "@patio"
+      ],
+      "work_kitchen": [
+        "work_kitchen"
+      ],
+      "mudroom": [
+        "mudroom"
+      ]
+    },
+    "house": [
+      {
+        "a": "access",
+        "b": "living",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "access",
+        "b": "dining",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "access",
+        "b": "social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "dining",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "kitchen",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "social_bath",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "primary_bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "patio",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "dining",
+        "b": "kitchen",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "dining",
+        "b": "social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "dining",
+        "b": "laundry",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "dining",
+        "b": "patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "kitchen",
+        "b": "social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "kitchen",
+        "b": "laundry",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "kitchen",
+        "b": "patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "primary_bedroom",
+        "b": "private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "primary_bedroom",
+        "b": "patio",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "bedroom",
+        "b": "private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "bedroom",
+        "b": "bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "laundry",
+        "b": "patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "primary_bedroom",
+        "b": "suite_closet",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "source": {
+          "kind": "catalog",
+          "citation": "Added by spaceplan (walk-in closet off the suite)",
+          "status": "provisional"
+        }
+      }
+    ],
+    "apartment": [
+      {
+        "a": "access",
+        "b": "living",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "access",
+        "b": "dining",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "access",
+        "b": "social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "dining",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "kitchen",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "social_bath",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "living",
+        "b": "primary_bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "dining",
+        "b": "kitchen",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "dining",
+        "b": "social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "dining",
+        "b": "laundry",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "kitchen",
+        "b": "social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "kitchen",
+        "b": "laundry",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "primary_bedroom",
+        "b": "private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "bedroom",
+        "b": "private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "bedroom",
+        "b": "bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student relation matrix D/I/N 2026-10",
+          "status": "verified"
+        }
+      },
+      {
+        "a": "primary_bedroom",
+        "b": "suite_closet",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "source": {
+          "kind": "catalog",
+          "citation": "Added by spaceplan (walk-in closet off the suite)",
+          "status": "provisional"
+        }
+      },
+      {
+        "a": "access",
+        "b": "kitchen",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "source": {
+          "kind": "client",
+          "citation": "Student brief 2026-10 (kitchen via foyer in apartments)",
+          "status": "verified"
+        }
+      }
+    ],
+    "semantics": {
+      "D": "shared door or opening; for pairs with a terminal room or the entry, also both opening onto the same foyer/hall/spine; two open rooms must touch",
+      "I": "no shared door, reachable through exactly one intermediate space",
+      "N": "no constraint",
+      "access": "the entrance door; the foyer is circulation (transparent for D)"
+    },
+    "hard_groups": {
+      "house": [
+        {
+          "group_id": "patio_from_dining_or_kitchen",
+          "pairs": [
+            "D:dining-patio",
+            "D:kitchen-patio"
+          ],
+          "k": 1,
+          "source": {
+            "kind": "client",
+            "citation": "Student relation matrix D/I/N 2026-10 (comedor/cocina - patio)",
+            "status": "verified"
+          }
+        }
+      ],
+      "apartment": []
+    }
+  },
+  "realization": {
+    "default": "auto",
+    "auto_min_utilization_A": 0.8,
+    "auto_fallback": "B_stepped_footprint",
+    "steps_reported": [
+      2,
+      3
+    ],
+    "note": "auto: strategy A when its inscribed rectangle uses at least auto_min_utilization_A of the envelope, otherwise the fallback (fan and trapezoidal lots)",
+    "source": {
+      "kind": "client",
+      "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+      "status": "provisional"
+    }
+  },
+  "corrections": {
+    "max_evaluations": 8,
+    "recess_step_ft": 0.5,
+    "recess_max_ft": 20,
+    "variables": {
+      "strategy": [
+        {
+          "value": "A_inscribed_rectangle",
+          "cost": 0.0
+        },
+        {
+          "value": "B_stepped_footprint",
+          "cost": 0.25
+        },
+        {
+          "value": "B_polygonal_footprint",
+          "cost": 0.75
+        }
+      ],
+      "garage_layout": [
+        {
+          "value": "as_brief",
+          "cost": 0.0
+        },
+        {
+          "value": "tandem",
+          "cost": 1.5
+        },
+        {
+          "value": "one_car",
+          "cost": 3.0
+        }
+      ],
+      "front_recess": {
+        "cost_per_ft": 0.08
+      }
+    },
+    "note": "Costs are design-preference weights (unitless): a change of program (garage) weighs more than a change of geometry (strategy, front recess). The search returns the cheapest combination that zones; ties break by fewer changes.",
+    "source": {
+      "kind": "client",
+      "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+      "status": "provisional"
+    },
+    "pareto_extra_runs": 2
+  },
+  "polygonal_extension": {
+    "tolerant_space_types": [
+      "closet",
+      "walk_in_closet",
+      "pantry",
+      "storage",
+      "laundry",
+      "laundry_closet",
+      "mechanical",
+      "hall",
+      "foyer",
+      "living_room",
+      "dining_room",
+      "living_dining",
+      "family_room",
+      "garage_1car",
+      "garage_2car",
+      "garage_2car_tandem"
+    ],
+    "min_piece_width_ft": 2.0,
+    "habitable_max_extension_fraction": 0.25,
+    "min_corner_angle_deg": 60,
+    "note": "Rooms outside tolerant_space_types (bedrooms, baths, kitchen, study) keep their core rectangle as the governing shape (CRC minimum dimension); they take a sliver only if it adds at most the fraction of the core and no corner sharper than the angle. Thinner slivers and refused pieces become residual for the architectural stage.",
+    "source": {
+      "kind": "client",
+      "citation": "Student design decision 2026-10-06 (CRC-aware polygonal extension); calibrate with built trapezoidal rooms",
+      "status": "provisional"
+    }
+  },
+  "cost_index": {
+    "note": "Relative, dimensionless index. 1 = building 100% of the lot's normative maximum gross area with the reference mix and form. Comparative, never a quote.",
+    "legend": "Comparative relative index, not a cost estimate or quote",
+    "default_model": "base",
+    "models": [
+      "base",
+      "weighted",
+      "shape"
+    ],
+    "area_classes": {
+      "wet_class": "wet",
+      "zone_class": {
+        "social": "habitable_dry",
+        "private": "habitable_dry",
+        "kitchen": "habitable_dry",
+        "service": "service",
+        "circulation": "circulation",
+        "garage": "garage"
+      },
+      "anchor_class": "habitable_dry",
+      "exterior_classes": [
+        "paving",
+        "deck",
+        "backyard"
+      ]
+    },
+    "coefficients": {
+      "habitable_dry": {
+        "min": 1.0,
+        "mode": 1.0,
+        "max": 1.0
+      },
+      "wet": {
+        "min": 1.3,
+        "mode": 1.6,
+        "max": 2.0
+      },
+      "service": {
+        "min": 0.8,
+        "mode": 0.9,
+        "max": 1.0
+      },
+      "circulation": {
+        "min": 0.8,
+        "mode": 0.9,
+        "max": 1.0
+      },
+      "garage": {
+        "min": 0.45,
+        "mode": 0.6,
+        "max": 0.75
+      },
+      "paving": {
+        "min": 0.05,
+        "mode": 0.1,
+        "max": 0.15
+      },
+      "deck": {
+        "min": 0.2,
+        "mode": 0.3,
+        "max": 0.45
+      },
+      "backyard": {
+        "min": 0.25,
+        "mode": 0.4,
+        "max": 0.6
+      }
+    },
+    "form_factors": {
+      "stepped_footprint": {
+        "min": 1.01,
+        "mode": 1.04,
+        "max": 1.08
+      },
+      "polygonal_footprint": {
+        "min": 1.03,
+        "mode": 1.08,
+        "max": 1.15
+      },
+      "two_floors": {
+        "min": 0.9,
+        "mode": 0.95,
+        "max": 1.02
+      },
+      "three_floors": {
+        "min": 0.92,
+        "mode": 0.97,
+        "max": 1.05
+      },
+      "hillside": {
+        "min": 1.05,
+        "mode": 1.12,
+        "max": 1.25
+      }
+    },
+    "hillside_mean_slope_threshold": 0.25,
+    "estimates": {
+      "footprint_aspect_ratio": 1.5,
+      "stair_space_type": "stair"
+    },
+    "reference_mix": {
+      "habitable_dry": 0.58,
+      "wet": 0.12,
+      "service": 0.04,
+      "circulation": 0.08,
+      "garage": 0.18
+    },
+    "reference_dwelling_gross_sqft": 2000,
+    "budget_levels": {
+      "tight": 0.45,
+      "medium": 0.65,
+      "ample": 0.85
+    },
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined relative cost hypothesis, spaceplan step 6.5b (2026-10); dimensionless, never a price; validate ratios with local builders and public data before use",
+      "status": "provisional"
+    },
+    "later_works_factor": {
+      "min": 1.1,
+      "mode": 1.2,
+      "max": 1.35
+    }
+  },
+  "accessibility": {
+    "note": "Accessible / aging-in-place profile (step 6.5d): ground-floor bedroom and full bath, step-free entry, wider passages, turning space in the bath.",
+    "bedroom_space_types": [
+      "primary_suite",
+      "bedroom"
+    ],
+    "bath_space_type": "bathroom",
+    "bath_area_factor": 1.3,
+    "bedroom_area_factor": 1.1,
+    "passage_width_ft": 4.0,
+    "door_clear_width_in": 34,
+    "turning_diameter_ft": 5.0,
+    "step_free_entry": true,
+    "source": {
+      "kind": "catalog",
+      "citation": "Universal-design guidance as design hypothesis, spaceplan step 6.5d (2026-10); single-family dwellings are not bound by accessibility codes in the pilot; verify against CRC 2025 and local guidance before citing",
+      "status": "provisional"
+    }
+  },
+  "display": {
+    "default_lang": "es",
+    "labels": {
+      "es": {
+        "space_types": {
+          "living_dining": "Sala-comedor",
+          "living_room": "Sala",
+          "dining_room": "Comedor",
+          "family_room": "Sala familiar",
+          "study": "Estudio",
+          "kitchen": "Cocina",
+          "breakfast_nook": "Rincón desayuno",
+          "pantry": "Despensa",
+          "primary_suite": "Suite principal",
+          "bedroom": "Dormitorio",
+          "social_bath": "Baño social",
+          "primary_bath": "Baño principal",
+          "bathroom": "Baño",
+          "walk_in_closet": "Vestidor",
+          "closet": "Clóset",
+          "half_bath": "Medio baño",
+          "laundry": "Lavandería",
+          "storage": "Depósito",
+          "mechanical": "Cuarto técnico",
+          "foyer": "Vestíbulo",
+          "hall": "Pasillo",
+          "stair": "Escalera",
+          "garage_1car": "Garaje 1 auto",
+          "garage_2car": "Garaje 2 autos",
+          "garage_2car_tandem": "Garaje tándem",
+          "laundry_closet": "Armario de lavado",
+          "flex_room": "Cuarto flexible",
+          "mudroom": "Cuarto de lodo",
+          "work_kitchen": "Cocina de trabajo"
+        },
+        "household_roles": {
+          "general": "",
+          "primary": "principal",
+          "child": "niños",
+          "teen": "adolescente",
+          "adult": "adulto",
+          "accessible": "accesible",
+          "work": "trabajo",
+          "guest": "huéspedes"
+        },
+        "backyard": {
+          "rear_deck": "Deck",
+          "pool": "Piscina",
+          "spa": "Spa",
+          "bbq": "Asador",
+          "shed": "Bodega",
+          "garden_beds": "Huerta",
+          "covered_terrace": "Terraza cubierta",
+          "outdoor_kitchen": "Cocina ext."
+        },
+        "zones": {
+          "social": "Social",
+          "private": "Privada",
+          "kitchen": "Cocina",
+          "service": "Servicio",
+          "circulation": "Circulación",
+          "garage": "Garaje"
+        },
+        "matrix_roles": {
+          "living": "sala",
+          "dining": "comedor",
+          "kitchen": "cocina",
+          "laundry": "lavandería",
+          "primary_bedroom": "dormitorio principal",
+          "bedroom": "dormitorio"
+        },
+        "moves": {
+          "substitute": {
+            "split_social": "sala y comedor separados",
+            "primary_suite": "suite principal",
+            "laundry_room": "lavandería",
+            "work_study": "estudio"
+          },
+          "size": "tamaño {zone}",
+          "car": "auto {n}"
+        }
+      },
+      "en": {
+        "space_types": {
+          "living_dining": "Living dining",
+          "living_room": "Living room",
+          "dining_room": "Dining room",
+          "family_room": "Family room",
+          "study": "Study",
+          "kitchen": "Kitchen",
+          "breakfast_nook": "Breakfast nook",
+          "pantry": "Pantry",
+          "primary_suite": "Primary suite",
+          "bedroom": "Bedroom",
+          "social_bath": "Social bath",
+          "primary_bath": "Primary bath",
+          "bathroom": "Bathroom",
+          "walk_in_closet": "Walk in closet",
+          "closet": "Closet",
+          "half_bath": "Half bath",
+          "laundry": "Laundry",
+          "storage": "Storage",
+          "mechanical": "Mechanical",
+          "foyer": "Foyer",
+          "hall": "Hall",
+          "stair": "Stair",
+          "garage_1car": "Garage 1car",
+          "garage_2car": "Garage 2car",
+          "garage_2car_tandem": "Garage 2car tandem",
+          "laundry_closet": "Laundry closet",
+          "flex_room": "Flex room",
+          "mudroom": "Mudroom",
+          "work_kitchen": "Work kitchen"
+        },
+        "household_roles": {
+          "general": "",
+          "primary": "primary",
+          "child": "children",
+          "teen": "teen",
+          "adult": "adult",
+          "accessible": "accessible",
+          "work": "work",
+          "guest": "guest"
+        },
+        "backyard": {
+          "rear_deck": "Rear deck",
+          "pool": "Pool",
+          "spa": "Spa",
+          "bbq": "Bbq",
+          "shed": "Shed",
+          "garden_beds": "Garden beds",
+          "covered_terrace": "Covered terrace",
+          "outdoor_kitchen": "Outdoor kitchen"
+        },
+        "zones": {
+          "social": "Social",
+          "private": "Private",
+          "kitchen": "Kitchen",
+          "service": "Service",
+          "circulation": "Circulation",
+          "garage": "Garage"
+        },
+        "matrix_roles": {
+          "living": "living",
+          "dining": "dining",
+          "kitchen": "kitchen",
+          "laundry": "laundry",
+          "primary_bedroom": "primary bedroom",
+          "bedroom": "bedroom"
+        },
+        "moves": {
+          "substitute": {
+            "split_social": "split living/dining",
+            "primary_suite": "primary suite",
+            "laundry_room": "laundry room",
+            "work_study": "study"
+          },
+          "size": "{zone} size",
+          "car": "car {n}"
+        }
+      }
+    },
+    "review_notes": {
+      "es": {
+        "prefix": {
+          "ok": "✔ ",
+          "review": "• ",
+          "issue": "✖ ",
+          "info": "· "
+        },
+        "yes": "cumple",
+        "no": "no cumple",
+        "passed": "{hard_pairs} relaciones duras cumplidas; normativa de sitio {site}; pavimento del antejardín {paving} (límite {paving_limit}).",
+        "weak_patio_link": "{role}–patio se cumple solo a través de otro espacio: {spaces} no tiene puerta propia al patio.",
+        "private_through_social": "{private} abre directamente a {via}: el área privada se alcanza atravesando un espacio social.",
+        "kitchen_no_garden": "La cocina no llega a la fachada del jardín (la ocupa: {blocked_by}); sin vista cocina–jardín.",
+        "suite_no_garden": "La suite principal no tiene fachada al jardín; la toman {taken_by}.",
+        "below_target": "{space}: {achieved} ft² logrados de {target} ft² objetivo.",
+        "below_minimum": "{space}: {achieved} ft² por debajo del mínimo de {minimum} ft².",
+        "circulation_high": "Circulación {fraction} (meta {target}).",
+        "garden_short": "Jardín {area} ft² por debajo de la preferencia de {preference} ft².",
+        "backyard_excluded": "Patio sin {element}: {reason}.",
+        "satellites": "Satélites dentro de su anfitrión (no dibujados): {satellites}.",
+        "patio_door_private": "{space} tiene puerta directa al patio: revisar privacidad y seguridad (puertas al patio desde dormitorios o vestidores)."
+      },
+      "en": {
+        "prefix": {
+          "ok": "OK ",
+          "review": "- ",
+          "issue": "X ",
+          "info": "· "
+        },
+        "yes": "pass",
+        "no": "fail",
+        "passed": "{hard_pairs} hard relations hold; site rules {site}; front paving {paving} (limit {paving_limit}).",
+        "weak_patio_link": "{role}–patio holds only through another space: {spaces} has no own patio door.",
+        "private_through_social": "{private} opens directly onto {via}: the private area is reached through a social room.",
+        "kitchen_no_garden": "The kitchen does not reach the garden facade (taken by {blocked_by}).",
+        "suite_no_garden": "The primary suite has no garden facade; {taken_by} take it.",
+        "below_target": "{space}: {achieved} sq ft achieved of {target} sq ft target.",
+        "below_minimum": "{space}: {achieved} sq ft below the {minimum} sq ft minimum.",
+        "circulation_high": "Circulation {fraction} (target {target}).",
+        "garden_short": "Garden {area} sq ft below the {preference} sq ft preference.",
+        "backyard_excluded": "Backyard without {element}: {reason}.",
+        "satellites": "Satellites inside their host (not drawn): {satellites}.",
+        "patio_door_private": "{space} has a direct patio door: check privacy and security."
+      }
+    },
+    "sheet": {
+      "es": {
+        "title": "Planta de revisión",
+        "street": "CALLE (frente principal)",
+        "rear": "Lindero posterior",
+        "front": "frente",
+        "areas": "Cuadro de áreas (net ft²)",
+        "cols": [
+          "Espacio",
+          "Objetivo",
+          "Mínimo",
+          "Logrado",
+          "Ancho×fondo ft",
+          "Prof."
+        ],
+        "legend": "Leyenda",
+        "doors": {
+          "entry": "Puerta de entrada",
+          "patio": "Puerta al patio",
+          "ensuite": "Puerta en suite",
+          "door": "Puerta interior"
+        },
+        "legend_note": "Gris claro = vestíbulo y pasillos · línea roja discontinua = envolvente de retiros · 'Prof.' = espacios atravesados desde la entrada",
+        "observations": "Observaciones para revisar",
+        "footer": "Generado por spaceplan · esquema protodistributivo, no plano constructivo · valores normativos y culturales provisionales",
+        "portfolio": "Portafolio de programas",
+        "curve_x": "Índice de costo relativo (1 = máximo normativo del lote)",
+        "curve_y": "Calidad del programa (indicador provisional)",
+        "profiles": {
+          "minimum": "Mínimo",
+          "optimum": "Óptimo",
+          "maximum": "Máximo",
+          "staged": "Por etapas",
+          "accessible": "Accesible",
+          "staged_final": "Por etapas (final)"
+        },
+        "feasibility": {
+          "fits_one_floor": "cabe en 1 piso",
+          "needs_two_floors": "requiere 2 pisos (6.7)",
+          "exceeds_normative": "excede la norma",
+          "exceeds_footprint": "excede la huella",
+          "no_lot": "sin lote",
+          "zoned": "planta en 1 piso",
+          "not_zoned": "sin planta en 1 piso"
+        },
+        "governing": {
+          "normative": "techo normativo (FAR)",
+          "budget": "techo presupuestario",
+          "program_complete": "programa completo"
+        },
+        "budget": "Presupuesto",
+        "cost_legend": "Índice relativo comparativo, no es una estimación de costo ni una cotización"
+      },
+      "en": {
+        "title": "Review plan",
+        "street": "STREET (main frontage)",
+        "rear": "Rear lot line",
+        "front": "frontage",
+        "areas": "Area schedule (net sq ft)",
+        "cols": [
+          "Space",
+          "Target",
+          "Minimum",
+          "Achieved",
+          "Width×depth ft",
+          "Depth"
+        ],
+        "legend": "Legend",
+        "doors": {
+          "entry": "Entry door",
+          "patio": "Patio door",
+          "ensuite": "En-suite door",
+          "door": "Interior door"
+        },
+        "legend_note": "Light grey = foyer and halls · dashed red = setback envelope · 'Depth' = rooms crossed from the entry",
+        "observations": "Observations to review",
+        "footer": "Generated by spaceplan · schematic protoplan, not a construction drawing · normative and cultural values provisional",
+        "portfolio": "Program portfolio",
+        "curve_x": "Relative cost index (1 = lot normative maximum)",
+        "curve_y": "Program quality (provisional proxy)",
+        "profiles": {
+          "minimum": "Minimum",
+          "optimum": "Optimum",
+          "maximum": "Maximum",
+          "staged": "Staged",
+          "accessible": "Accessible",
+          "staged_final": "Staged (final)"
+        },
+        "feasibility": {
+          "fits_one_floor": "fits one floor",
+          "needs_two_floors": "needs two floors (6.7)",
+          "exceeds_normative": "exceeds the code",
+          "exceeds_footprint": "exceeds the footprint",
+          "no_lot": "no lot",
+          "zoned": "one-floor plan",
+          "not_zoned": "no one-floor plan"
+        },
+        "governing": {
+          "normative": "normative ceiling (FAR)",
+          "budget": "budget ceiling",
+          "program_complete": "program complete"
+        },
+        "budget": "Budget",
+        "cost_legend": "Comparative relative index, not a cost estimate or quote"
+      }
+    },
+    "area_matrix": {
+      "es": {
+        "statuses": {
+          "fits": "cabe",
+          "fits_small_garden": "cabe, jardín bajo el mínimo",
+          "exceeds_far": "excede el IC (FAR)",
+          "exceeds_coverage": "excede el IO (ladera)",
+          "exceeds_strategy": "excede la huella de la estrategia",
+          "upper_exceeds_ground": "planta alta mayor que la baja",
+          "frontage_short": "frente insuficiente",
+          "site_fails": "sitio no cumple (acceso o pavimento)",
+          "not_applicable": "no aplica"
+        },
+        "metrics": {
+          "stair_independence": "independencia de la escalera",
+          "supervision": "supervisión",
+          "separation": "separación",
+          "upper_efficiency": "eficiencia planta alta",
+          "frontage": "holgura de frente",
+          "cost": "costo",
+          "open_area": "área libre"
+        },
+        "decision_title": "Mapa de decisión por lote",
+        "budget_title": "Presupuesto de áreas por piso",
+        "scheme_title": "Mejor esquema vertical por hogar",
+        "ic": "IC",
+        "io": "IO",
+        "ground": "Planta baja",
+        "upper": "Planta alta",
+        "garden": "Jardín",
+        "paving": "Pavimento y deck",
+        "rest": "Retiros y residuo",
+        "lot": "Lote",
+        "open_area": "Área libre"
+      },
+      "en": {
+        "statuses": {
+          "fits": "fits",
+          "fits_small_garden": "fits, small garden",
+          "exceeds_far": "exceeds IC (FAR)",
+          "exceeds_coverage": "exceeds IO (hillside)",
+          "exceeds_strategy": "exceeds strategy footprint",
+          "upper_exceeds_ground": "upper floor larger than ground",
+          "frontage_short": "frontage too short",
+          "site_fails": "site fails (access or paving)",
+          "not_applicable": "not applicable"
+        },
+        "metrics": {
+          "stair_independence": "stair independence",
+          "supervision": "supervision",
+          "separation": "separation",
+          "upper_efficiency": "upper-floor efficiency",
+          "frontage": "frontage margin",
+          "cost": "cost",
+          "open_area": "open area"
+        },
+        "decision_title": "Decision map per lot",
+        "budget_title": "Area budget per floor",
+        "scheme_title": "Best vertical scheme per household",
+        "ic": "IC",
+        "io": "IO",
+        "ground": "Ground floor",
+        "upper": "Upper floor",
+        "garden": "Garden",
+        "paving": "Paving and deck",
+        "rest": "Setbacks and residue",
+        "lot": "Lot",
+        "open_area": "Open area"
+      }
+    }
+  },
+  "area_analysis": {
+    "note": "Step 6.6: area matrix per lot (program profile x vertical scheme x strategy). Evaluation stages: E0 area budget per floor, indices and containment; E1 measured site (access, paving, garden) with the simplest strategy that holds the footprint; E2 full zoning for the best one-floor cells only.",
+    "profiles": [
+      "minimum",
+      "optimum",
+      "maximum",
+      "accessible",
+      "staged_final"
+    ],
+    "strategies": [
+      {
+        "strategy_id": "A",
+        "strategy": "A_inscribed_rectangle",
+        "steps": null
+      },
+      {
+        "strategy_id": "B2",
+        "strategy": "B_stepped_footprint",
+        "steps": 2
+      },
+      {
+        "strategy_id": "B3",
+        "strategy": "B_stepped_footprint",
+        "steps": 3
+      },
+      {
+        "strategy_id": "P",
+        "strategy": "B_polygonal_footprint",
+        "steps": null
+      }
+    ],
+    "strategy_equal_tolerance_sqft": 5.0,
+    "garden_min_fraction_of_lot": 0.2,
+    "garden_min_note": "Indicative threshold, not normative in RS-1-7: below it a cell is reported as 'fits with a small garden'.",
+    "frontage": {
+      "hard_elements": [
+        {
+          "match": {
+            "zone": [
+              "garage"
+            ]
+          },
+          "dimension": "min_side_ft"
+        },
+        {
+          "match": {
+            "space_type": [
+              "foyer"
+            ]
+          },
+          "dimension": "min_side_ft"
+        }
+      ],
+      "soft_anchor_id": "living_faces_main_street",
+      "wall_allowance_ft": 1.0,
+      "margin_scale_ft": 10.0,
+      "note": "Street-facing width the ground floor needs: garage lanes and entry are hard; the living-room street anchor is soft (it has a street-view fallback)."
+    },
+    "upper_floor_min_useful_sqft": 300.0,
+    "daily_use": {
+      "space_types": [
+        "kitchen",
+        "living_room",
+        "living_dining",
+        "dining_room",
+        "family_room",
+        "laundry",
+        "laundry_closet"
+      ],
+      "household_roles": [
+        "primary",
+        "accessible"
+      ],
+      "note": "Spaces used every day; their area off the entry floor is the stair dependency."
+    },
+    "e2_top_k_per_lot": 2,
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined area-analysis hypothesis, spaceplan step 6.6 (2026-10); validate with pilot pre-approved plans and local practitioners",
+      "status": "provisional"
+    }
+  },
+  "vertical_schemes": {
+    "note": "Vertical distribution schemes (step 6.6). A scheme assigns groups of spaces to floors; the household weighs the metrics, never excludes a scheme. Hard rules: a space with floor_preference 0 (mobility, garage) stays on the ground floor, and a cohesive group (a suite) moves with its pinned member so it is never split across floors; hosted spaces follow their host; circulation is split in proportion to each floor's net area; a stair is added on every floor of a two-floor scheme.",
+    "groups": [
+      {
+        "group": "accessible",
+        "match": {
+          "household_role": [
+            "accessible"
+          ]
+        }
+      },
+      {
+        "group": "primary",
+        "match": {
+          "household_role": [
+            "primary"
+          ]
+        }
+      },
+      {
+        "group": "child",
+        "match": {
+          "household_role": [
+            "child"
+          ]
+        }
+      },
+      {
+        "group": "teen",
+        "match": {
+          "household_role": [
+            "teen"
+          ]
+        }
+      },
+      {
+        "group": "adult",
+        "match": {
+          "household_role": [
+            "adult"
+          ]
+        }
+      },
+      {
+        "group": "guest",
+        "match": {
+          "household_role": [
+            "guest"
+          ]
+        }
+      },
+      {
+        "group": "work",
+        "match": {
+          "household_role": [
+            "work"
+          ]
+        }
+      },
+      {
+        "group": "laundry",
+        "match": {
+          "space_type": [
+            "laundry",
+            "laundry_closet"
+          ]
+        }
+      },
+      {
+        "group": "garage",
+        "match": {
+          "zone": [
+            "garage"
+          ]
+        }
+      },
+      {
+        "group": "entry",
+        "match": {
+          "space_type": [
+            "foyer",
+            "mudroom",
+            "half_bath"
+          ]
+        }
+      },
+      {
+        "group": "kitchen",
+        "match": {
+          "zone": [
+            "kitchen"
+          ]
+        }
+      },
+      {
+        "group": "social",
+        "match": {
+          "zone": [
+            "social"
+          ]
+        }
+      },
+      {
+        "group": "private_shared",
+        "match": {
+          "zone": [
+            "private"
+          ]
+        }
+      },
+      {
+        "group": "service",
+        "match": {
+          "zone": [
+            "service"
+          ]
+        }
+      },
+      {
+        "group": "circulation",
+        "match": {
+          "zone": [
+            "circulation"
+          ]
+        }
+      }
+    ],
+    "bedroom_groups": [
+      "primary",
+      "child",
+      "teen",
+      "adult",
+      "guest",
+      "accessible"
+    ],
+    "laundry_rule": {
+      "aspect": "laundry_location",
+      "near_bedrooms": "floor_of_most_bedrooms",
+      "otherwise": 0,
+      "note": "Cultural aspect from step 6.5c: laundry near the bedrooms follows them upstairs; service-yard laundry stays with the kitchen."
+    },
+    "schemes": [
+      {
+        "scheme_id": "V0",
+        "floors": 1,
+        "assign": {},
+        "applies": {
+          "always": true
+        },
+        "label": {
+          "es": "Un piso",
+          "en": "Single floor"
+        }
+      },
+      {
+        "scheme_id": "V1",
+        "floors": 2,
+        "assign": {
+          "primary": 1,
+          "child": 1,
+          "teen": 1,
+          "adult": 1,
+          "guest": 1,
+          "work": 1,
+          "private_shared": 1,
+          "laundry": "rule"
+        },
+        "applies": {
+          "fact": "n_bedroom_groups",
+          "op": "ge",
+          "value": 1
+        },
+        "label": {
+          "es": "Privada arriba",
+          "en": "Private upstairs"
+        }
+      },
+      {
+        "scheme_id": "V2",
+        "floors": 2,
+        "assign": {
+          "child": 1,
+          "teen": 1,
+          "adult": 1,
+          "guest": 1,
+          "work": 1,
+          "private_shared": 1,
+          "laundry": "rule"
+        },
+        "applies": {
+          "all": [
+            {
+              "fact": "n_primary",
+              "op": "ge",
+              "value": 1
+            },
+            {
+              "fact": "n_secondary_upper",
+              "op": "ge",
+              "value": 1
+            }
+          ]
+        },
+        "label": {
+          "es": "Suite principal abajo",
+          "en": "Primary suite down"
+        }
+      },
+      {
+        "scheme_id": "V3",
+        "floors": 2,
+        "assign": {
+          "primary": 1,
+          "child": 1,
+          "teen": 1,
+          "adult": 1,
+          "work": 1,
+          "private_shared": 1,
+          "laundry": "rule"
+        },
+        "applies": {
+          "fact": "n_accessible",
+          "op": "ge",
+          "value": 1
+        },
+        "label": {
+          "es": "Dos generaciones por piso",
+          "en": "Generations by floor"
+        }
+      },
+      {
+        "scheme_id": "V4",
+        "floors": 2,
+        "assign": {
+          "guest": 1,
+          "work": 1
+        },
+        "applies": {
+          "fact": "n_occasional",
+          "op": "ge",
+          "value": 1
+        },
+        "label": {
+          "es": "Planta alta parcial",
+          "en": "Partial upper floor"
+        }
+      },
+      {
+        "scheme_id": "V5",
+        "floors": 2,
+        "assign": {
+          "social": 1,
+          "kitchen": 1
+        },
+        "applies": {
+          "all": [
+            {
+              "any": [
+                {
+                  "fact": "steep_hillside_fraction",
+                  "op": "gt",
+                  "value": 0.5
+                },
+                {
+                  "fact": "view_side",
+                  "op": "ne",
+                  "value": "none"
+                }
+              ]
+            },
+            {
+              "fact": "n_accessible",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        },
+        "label": {
+          "es": "Social arriba (vista)",
+          "en": "Social upstairs (view)"
+        },
+        "note": "Only when the lot has a view or is a hillside lot, and never with a reduced-mobility member (daily life would be upstairs)."
+      }
+    ],
+    "scoring": {
+      "note": "Provisional indicator of a vertical scheme until the common quality score of step 6.8. Metrics in [0, 1]; household facts multiply weights; the trajectory takes the larger multiplier of the current and next stage. Open-area metric = open area (lot - footprint - paving - deck, the complement of the occupancy index) / (reference fraction x lot area), capped at 1; frontage metric = 0.5 + margin / (2 x margin scale), clipped; cost metric = 1 - relative index.",
+      "weights": {
+        "open_area": 1.0,
+        "stair_independence": 0.5,
+        "supervision": 1.0,
+        "separation": 0.5,
+        "upper_efficiency": 0.5,
+        "frontage": 0.5,
+        "cost": 1.0
+      },
+      "multipliers": [
+        {
+          "rule_id": "VS01",
+          "metric": "stair_independence",
+          "factor": 3.0,
+          "when": {
+            "fact": "primary_accessible",
+            "op": "in",
+            "value": [
+              "anticipated",
+              "reduced"
+            ]
+          },
+          "note": "Aging in place or reduced mobility of the primary couple: their daily life on the entry floor. A reduced-mobility relative is covered by the hard ground-floor rule of their suite."
+        },
+        {
+          "rule_id": "VS02",
+          "metric": "supervision",
+          "factor": 2.0,
+          "when": {
+            "fact": "children_0_5",
+            "op": "ge",
+            "value": 1
+          },
+          "note": "Young children sleep on the parents' floor."
+        },
+        {
+          "rule_id": "VS03",
+          "metric": "separation",
+          "factor": 2.0,
+          "when": {
+            "any": [
+              {
+                "fact": "teens",
+                "op": "ge",
+                "value": 1
+              },
+              {
+                "fact": "unpartnered_adults",
+                "op": "ge",
+                "value": 2
+              }
+            ]
+          },
+          "note": "Teenagers or unrelated adults value vertical separation from the primary suite."
+        },
+        {
+          "rule_id": "VS04",
+          "metric": "open_area",
+          "factor": 1.25,
+          "when": {
+            "any": [
+              {
+                "fact": "children_6_12",
+                "op": "ge",
+                "value": 1
+              },
+              {
+                "fact": "patio_use",
+                "op": "eq",
+                "value": "lawn_play"
+              }
+            ]
+          },
+          "note": "Children or a lawn-and-play patio raise the value of open area."
+        },
+        {
+          "rule_id": "VS05",
+          "metric": "stair_independence",
+          "factor": 1.5,
+          "when": {
+            "fact": "guests",
+            "op": "eq",
+            "value": "temporary_residents"
+          },
+          "note": "Temporary residents (often older relatives) need a ground-floor room."
+        }
+      ],
+      "separation_groups": [
+        "teen",
+        "adult"
+      ],
+      "supervision_groups": [
+        "child"
+      ],
+      "open_area_reference_fraction_of_lot": 0.7
+    },
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined area-analysis hypothesis, spaceplan step 6.6 (2026-10); validate with pilot pre-approved plans and local practitioners",
+      "status": "provisional"
+    },
+    "cohesive_groups": [
+      "primary",
+      "accessible"
+    ]
+  }
+}

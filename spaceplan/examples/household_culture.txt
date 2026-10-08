@@ -1,0 +1,92 @@
+household   multigenerational  (child_6_12 2, adult 2, senior 1)  [mpi-household-model 0.2.0]
+now
+  required   net  1325  gross  1524 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, pantry, bedroom_accessible, bedroom_child, bedroom_primary, bathroom_accessible, bathroom, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2745  gross  3157 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, pantry, primary_suite, bedroom_accessible, bedroom_child_1, bedroom_child_2, primary_bath, bathroom_accessible, bathroom, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, foyer, hall, garage_2car
+  desirable  net  3035  gross  3490 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_accessible, bedroom_child_1, bedroom_child_2, primary_bath, bathroom_accessible, bathroom, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+culture     kitchen semi_open_separable; rules KT-SEMI-OPEN-SEPARABLE, C01-DINING-EXTENDED, C02-RECEIVING-ROOM, C04-VENTILATION, C05-INTENSIVE-WORK-AREA, C06-SERVICE-YARD, C10-OUTDOOR-GATHERING, C12-PATIO-GATHERING
+  aspects   bath_per_bedroom=shared_ok, dining_capacity=extended_family, entry_sequence=front, kitchen_living_relation=separable, laundry_location=service_yard, outdoor_cooking=gathering, patio_use=gathering, social_center=dining_table, ventilation_priority=high
+  relations (preferred) dining-patio D soft, kitchen-laundry D hard, laundry-patio D soft, living-kitchen I soft
+  backyard  covered_terrace #1, outdoor_kitchen #2, pool #6, rear_deck #6
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.762   [base 0.762  weighted 0.793  shape 0.793]  quantities estimated
+  preferred      1.578   [base 1.578  weighted 1.655  shape 1.655]  quantities estimated
+  desirable      1.745   [base 1.745  weighted 1.820  shape 1.820]  quantities estimated
+  tornado (shape, required, base +0.7935):
+    coef:wet                   +0.7782 .. +0.8123  swing 0.0340
+    coef:service               +0.7968 .. +0.7903  swing 0.0064
+    coef:circulation           +0.7933 .. +0.7938  swing 0.0005
+    coef:garage                +0.7934 .. +0.7937  swing 0.0003
+rules       32 fired, 19 not fired
+
+household   teens_family  (teen_13_18 2, adult 2)  [mpi-household-model 0.2.0]
+now
+  required   net  1265  gross  1455 sq ft  garage 1  driveway 2  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, bedroom_teen_1, bedroom_teen_2, bathroom, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2550  gross  2932 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, pantry, primary_suite, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, foyer, hall, mudroom, garage_2car
+  desirable  net  2785  gross  3203 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+culture     kitchen semi_open_separable; rules KT-SEMI-OPEN-SEPARABLE, C01-DINING-EXTENDED, C02-RECEIVING-ROOM, C04-VENTILATION, C06-SERVICE-YARD, C10-OUTDOOR-GATHERING, C12-PATIO-GATHERING
+  aspects   bath_per_bedroom=shared_ok, dining_capacity=extended_family, entry_sequence=front, kitchen_living_relation=separable, laundry_location=service_yard, outdoor_cooking=gathering, patio_use=gathering, social_center=dining_table, ventilation_priority=high
+  relations (preferred) dining-patio D soft, kitchen-laundry D hard, laundry-patio D soft, living-kitchen I soft
+  backyard  covered_terrace #1, outdoor_kitchen #2, pool #6, rear_deck #6
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.727   [base 0.727  weighted 0.743  shape 0.743]  quantities estimated
+  preferred      1.466   [base 1.466  weighted 1.507  shape 1.507]  quantities estimated
+  desirable      1.601   [base 1.601  weighted 1.643  shape 1.643]  quantities estimated
+  tornado (shape, required, base +0.7429):
+    coef:wet                   +0.7339 .. +0.7540  swing 0.0201
+    coef:service               +0.7459 .. +0.7399  swing 0.0060
+    coef:garage                +0.7413 .. +0.7444  swing 0.0031
+    coef:circulation           +0.7422 .. +0.7436  swing 0.0014
+rules       31 fired, 20 not fired
+
+household   multigenerational  (child_6_12 2, adult 2, senior 1)  [mpi-household-model 0.2.0]
+now
+  required   net  1325  gross  1524 sq ft  garage 1  driveway 1  errors 0 warnings 0
+             living_dining, kitchen, pantry, bedroom_accessible, bedroom_child, bedroom_primary, bathroom_accessible, bathroom, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2865  gross  3295 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_accessible, bedroom_child_1, bedroom_child_2, primary_bath, bathroom_accessible, bathroom, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, foyer, hall, mudroom, work_kitchen, garage_2car
+  desirable  net  3075  gross  3536 sq ft  garage 2  driveway 0  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_accessible, bedroom_child_1, bedroom_child_2, primary_bath, bathroom_accessible, bathroom_1, bathroom_2, walk_in_closet_primary, closet_1, closet_2, closet_3, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, work_kitchen, garage_2car
+culture     kitchen double_kitchen; rules KT-DOUBLE-KITCHEN, C03-ISLAND-CENTER, C07-LAUNDRY-BEDROOMS, C08-EN-SUITE, C09-MUDROOM-SEQUENCE, C11-OUTDOOR-AMENITY, C13-PATIO-LAWN
+  aspects   bath_per_bedroom=en_suite_preferred, dining_capacity=household, entry_sequence=garage_mudroom_kitchen, kitchen_living_relation=open, laundry_location=near_bedrooms, outdoor_cooking=amenity, patio_use=lawn_play, social_center=kitchen_island, ventilation_priority=normal
+  relations (preferred) dining-laundry N, kitchen-laundry I soft, kitchen-work_kitchen D hard, living-kitchen D soft, mudroom-kitchen D soft, work_kitchen-laundry D soft
+  backyard  bbq #3, garden_beds #7, pool #2, rear_deck #1; green >= 50%
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.762   [base 0.762  weighted 0.793  shape 0.793]  quantities estimated
+  preferred      1.647   [base 1.647  weighted 1.739  shape 1.739]  quantities estimated
+  desirable      1.768   [base 1.768  weighted 1.880  shape 1.880]  quantities estimated
+  tornado (shape, required, base +0.7935):
+    coef:wet                   +0.7782 .. +0.8123  swing 0.0340
+    coef:service               +0.7968 .. +0.7903  swing 0.0064
+    coef:circulation           +0.7933 .. +0.7938  swing 0.0005
+    coef:garage                +0.7934 .. +0.7937  swing 0.0003
+rules       31 fired, 20 not fired
+
+household   teens_family  (teen_13_18 2, adult 2)  [mpi-household-model 0.2.0]
+now
+  required   net  1265  gross  1455 sq ft  garage 1  driveway 2  errors 0 warnings 0
+             living_dining, kitchen, bedroom_primary, bedroom_teen_1, bedroom_teen_2, bathroom, closet_1, closet_2, closet_3, foyer, hall, laundry_closet, garage_1car
+  preferred  net  2590  gross  2978 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, foyer, hall, mudroom, garage_2car
+  desirable  net  2800  gross  3220 sq ft  garage 2  driveway 1  errors 0 warnings 0
+             living_room, dining_room, family_room, kitchen, breakfast_nook, pantry, primary_suite, bedroom_teen_1, bedroom_teen_2, primary_bath, bathroom_1, bathroom_2, walk_in_closet_primary, closet_1, closet_2, half_bath, laundry, storage, mechanical, foyer, hall, flex_room_guest, mudroom, garage_2car
+culture     kitchen open_island; rules KT-OPEN-ISLAND, C03-ISLAND-CENTER, C07-LAUNDRY-BEDROOMS, C08-EN-SUITE, C09-MUDROOM-SEQUENCE, C11-OUTDOOR-AMENITY, C13-PATIO-LAWN
+  aspects   bath_per_bedroom=en_suite_preferred, dining_capacity=household, entry_sequence=garage_mudroom_kitchen, kitchen_living_relation=open, laundry_location=near_bedrooms, outdoor_cooking=amenity, patio_use=lawn_play, social_center=kitchen_island, ventilation_priority=normal
+  relations (preferred) dining-laundry N, kitchen-laundry I soft, living-kitchen D soft, mudroom-kitchen D soft
+  backyard  bbq #3, garden_beds #7, pool #2, rear_deck #1; green >= 50%
+cost        model base, reading reference_dwelling (1 = 2000 sq ft reference_dwelling); Comparative relative index, not a cost estimate or quote
+  required       0.727   [base 0.727  weighted 0.743  shape 0.743]  quantities estimated
+  preferred      1.489   [base 1.489  weighted 1.536  shape 1.536]  quantities estimated
+  desirable      1.610   [base 1.610  weighted 1.676  shape 1.676]  quantities estimated
+  tornado (shape, required, base +0.7429):
+    coef:wet                   +0.7339 .. +0.7540  swing 0.0201
+    coef:service               +0.7459 .. +0.7399  swing 0.0060
+    coef:garage                +0.7413 .. +0.7444  swing 0.0031
+    coef:circulation           +0.7422 .. +0.7436  swing 0.0014
+rules       31 fired, 20 not fired
+

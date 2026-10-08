@@ -1,0 +1,2529 @@
+{
+  "household_catalog_id": "mpi-household-model",
+  "household_catalog_version": "0.3.0",
+  "default_source": {
+    "kind": "catalog",
+    "citation": "Student-defined household model, spaceplan step 6.5a (2026-10); design hypothesis to validate with pilot pre-approved plans and local practitioners",
+    "status": "provisional"
+  },
+  "notes": [
+    "Household rules are design guidance, never occupancy limits (fair housing): any household produces a program.",
+    "The cultural profile is chosen and edited by the client; household-layer rules never read it.",
+    "Counts are per tier; tiers are cumulative programs: required (minimum), preferred (expected), desirable (with slack).",
+    "Cultural layer: a profile is only a preset of explicit aspects that the client sees and edits; culture rules read aspects, never the profile label. Without a profile and without aspects no culture rule fires. Culture may add spaces or raise tiers but never removes a space required by the household."
+  ],
+  "age_bands": [
+    {
+      "band": "child_0_5",
+      "min_years": 0,
+      "max_years": 5,
+      "room_role": "child",
+      "grown": false
+    },
+    {
+      "band": "child_6_12",
+      "min_years": 6,
+      "max_years": 12,
+      "room_role": "child",
+      "grown": false
+    },
+    {
+      "band": "teen_13_18",
+      "min_years": 13,
+      "max_years": 18,
+      "room_role": "teen",
+      "grown": false
+    },
+    {
+      "band": "adult",
+      "min_years": 19,
+      "max_years": 64,
+      "room_role": "adult",
+      "grown": true
+    },
+    {
+      "band": "senior",
+      "min_years": 65,
+      "max_years": null,
+      "room_role": "adult",
+      "grown": true
+    }
+  ],
+  "dimensions": [
+    {
+      "dimension": "social_life",
+      "values": [
+        "intimate",
+        "frequent",
+        "large_gatherings"
+      ],
+      "default": "frequent",
+      "effect": "Dining and living split, powder room, family room, social-zone area"
+    },
+    {
+      "dimension": "guests",
+      "values": [
+        "rare",
+        "frequent",
+        "temporary_residents"
+      ],
+      "default": "rare",
+      "effect": "Convertible guest room or guest bedroom"
+    },
+    {
+      "dimension": "cooking",
+      "values": [
+        "light",
+        "daily",
+        "intensive"
+      ],
+      "default": "daily",
+      "effect": "Pantry, breakfast nook, kitchen-zone area; kitchen typology comes from the cultural layer (6.5c)"
+    },
+    {
+      "dimension": "vehicles",
+      "values": null,
+      "default": 1,
+      "effect": "Garage cars up to the cap; the rest is driveway demand"
+    },
+    {
+      "dimension": "pets",
+      "values": null,
+      "default": 0,
+      "effect": "Mudroom, garden access weight"
+    },
+    {
+      "dimension": "shared_rooms_ok",
+      "values": [
+        true,
+        false
+      ],
+      "default": true,
+      "effect": "Whether young children sharing a room is acceptable in the preferred program"
+    },
+    {
+      "dimension": "cultural_profile",
+      "values": [
+        "latino",
+        "anglo",
+        "mixed",
+        "custom",
+        null
+      ],
+      "default": null,
+      "effect": "Chosen by the client; read only by the cultural layer (6.5c)"
+    }
+  ],
+  "member_defaults": {
+    "mobility": "full",
+    "works_from_home": false,
+    "partner_id": null
+  },
+  "bedroom_policy": {
+    "own_room_bands": [
+      "teen_13_18",
+      "adult",
+      "senior"
+    ],
+    "max_per_shared_room": 2,
+    "required_share_groups": [
+      [
+        "child_0_5",
+        "child_6_12"
+      ]
+    ],
+    "preferred_share_groups": [
+      [
+        "child_0_5"
+      ]
+    ],
+    "partners_share": true,
+    "room_space_types": {
+      "primary": {
+        "required": "bedroom",
+        "preferred": "primary_suite",
+        "desirable": "primary_suite"
+      },
+      "default": {
+        "required": "bedroom",
+        "preferred": "bedroom",
+        "desirable": "bedroom"
+      }
+    },
+    "accessible_ground_floor_tiers": {
+      "reduced": [
+        "required",
+        "preferred",
+        "desirable"
+      ],
+      "anticipated": [
+        "preferred",
+        "desirable"
+      ]
+    },
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined household model, spaceplan step 6.5a (2026-10); design hypothesis to validate with pilot pre-approved plans and local practitioners",
+      "status": "provisional"
+    }
+  },
+  "tiers": [
+    {
+      "tier": "required",
+      "area_profile": "compact",
+      "meaning": "Minimum buildable for this household"
+    },
+    {
+      "tier": "preferred",
+      "area_profile": "balanced",
+      "meaning": "What the household expects; basis of the optimum (6.5d)"
+    },
+    {
+      "tier": "desirable",
+      "area_profile": "balanced",
+      "meaning": "Additions when FAR and budget leave slack"
+    }
+  ],
+  "program_defaults": {
+    "gross_factor": 1.15,
+    "default_program_tier": "preferred",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined household model, spaceplan step 6.5a (2026-10); design hypothesis to validate with pilot pre-approved plans and local practitioners",
+      "status": "provisional"
+    }
+  },
+  "trajectory": {
+    "default_horizon_years": 5,
+    "design_life_years": 20,
+    "joining_defaults": {
+      "elder_joins": {
+        "age_years": 75,
+        "mobility": "reduced"
+      },
+      "adult_joins": {
+        "age_years": 30,
+        "mobility": "full"
+      },
+      "child_expected": {
+        "age_years": 0,
+        "mobility": "full"
+      }
+    },
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined household model, spaceplan step 6.5a (2026-10); design hypothesis to validate with pilot pre-approved plans and local practitioners",
+      "status": "provisional"
+    },
+    "convertible_space_types": [
+      "flex_room",
+      "study"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "H01-KITCHEN",
+      "layer": "household",
+      "description": "Every dwelling has a kitchen",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "kitchen",
+          "household_role": "general",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H02-SOCIAL-COMBINED",
+      "layer": "household",
+      "description": "Minimum program: combined living-dining",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "living_dining",
+          "household_role": "general",
+          "tiers": [
+            "required"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H03-SOCIAL-SMALL",
+      "layer": "household",
+      "description": "Small households with intimate social life keep the combined room",
+      "when": {
+        "all": [
+          {
+            "fact": "members",
+            "op": "le",
+            "value": 3
+          },
+          {
+            "fact": "social_life",
+            "op": "eq",
+            "value": "intimate"
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "living_dining",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H04-SOCIAL-SPLIT",
+      "layer": "household",
+      "description": "Larger or more social households split living and dining",
+      "when": {
+        "not": {
+          "all": [
+            {
+              "fact": "members",
+              "op": "le",
+              "value": 3
+            },
+            {
+              "fact": "social_life",
+              "op": "eq",
+              "value": "intimate"
+            }
+          ]
+        }
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "living_room",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "space",
+          "space_type": "dining_room",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H05-FAMILY-ROOM",
+      "layer": "household",
+      "description": "Households with minors and four or more members gain a family room",
+      "when": {
+        "all": [
+          {
+            "fact": "minors",
+            "op": "ge",
+            "value": 1
+          },
+          {
+            "fact": "members",
+            "op": "ge",
+            "value": 4
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "family_room",
+          "household_role": "general",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H06-FAMILY-ROOM-GATHERINGS",
+      "layer": "household",
+      "description": "Large gatherings make the family room preferred",
+      "when": {
+        "fact": "social_life",
+        "op": "eq",
+        "value": "large_gatherings"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "family_room",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "area_factor",
+          "zone": "social",
+          "factor": 1.15,
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H07-PANTRY",
+      "layer": "household",
+      "description": "Pantry beside the kitchen",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "pantry",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H08-PANTRY-INTENSIVE",
+      "layer": "household",
+      "description": "Intensive cooking makes the pantry required and enlarges the kitchen zone",
+      "when": {
+        "fact": "cooking",
+        "op": "eq",
+        "value": "intensive"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "pantry",
+          "household_role": "general",
+          "tiers": [
+            "required"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "area_factor",
+          "zone": "kitchen",
+          "factor": 1.1,
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H09-BREAKFAST-NOOK",
+      "layer": "household",
+      "description": "Daily or intensive cooking for three or more people adds a breakfast nook",
+      "when": {
+        "all": [
+          {
+            "fact": "cooking",
+            "op": "in",
+            "value": [
+              "daily",
+              "intensive"
+            ]
+          },
+          {
+            "fact": "members",
+            "op": "ge",
+            "value": 3
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "breakfast_nook",
+          "household_role": "general",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H10-ENTRY",
+      "layer": "household",
+      "description": "Entry foyer and hall (the hall is replaced later by the circulation network)",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "foyer",
+          "household_role": "general",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "space",
+          "space_type": "hall",
+          "household_role": "general",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H11-BATH-MINIMUM",
+      "layer": "household",
+      "description": "At least one full bathroom",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "general",
+          "tiers": [
+            "required"
+          ],
+          "count": 1
+        }
+      ],
+      "source": {
+        "kind": "code",
+        "citation": "CRC 2025 sanitation (one water closet, lavatory and bathtub or shower per dwelling; R306 in previous editions; verify 2025 numbering)",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "H12-BATH-SHARED",
+      "layer": "household",
+      "description": "One shared bathroom per two secondary bedrooms (at least one)",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": {
+            "fact": "secondary_bedrooms_preferred",
+            "divide_by": 2,
+            "round": "ceil",
+            "min": 1
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "H13-BATH-SHARED-ADULTS",
+      "layer": "household",
+      "description": "Three or more unpartnered adults: one bathroom per two rooms even in the minimum, one per room preferred",
+      "when": {
+        "fact": "unpartnered_adults",
+        "op": "ge",
+        "value": 3
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "general",
+          "tiers": [
+            "required"
+          ],
+          "count": {
+            "fact": "secondary_bedrooms_required",
+            "divide_by": 2,
+            "round": "ceil",
+            "min": 1
+          }
+        },
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": {
+            "fact": "secondary_bedrooms_preferred",
+            "min": 1
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "H14-PRIMARY-BATH",
+      "layer": "household",
+      "description": "The primary room gets its own bath and walk-in closet",
+      "when": {
+        "fact": "primary_rooms",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "primary_bath",
+          "household_role": "primary",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "space",
+          "space_type": "walk_in_closet",
+          "household_role": "primary",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H15-PRIMARY-ACCESSIBLE-REDUCED",
+      "layer": "household",
+      "description": "Reduced mobility in the primary room: its bath is required and on the ground floor",
+      "when": {
+        "fact": "primary_accessible",
+        "op": "eq",
+        "value": "reduced"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "primary_bath",
+          "household_role": "primary",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "count": 1,
+          "ground_floor": true
+        }
+      ]
+    },
+    {
+      "rule_id": "H16-PRIMARY-ACCESSIBLE-ANTICIPATED",
+      "layer": "household",
+      "description": "Anticipated mobility in the primary room: bath on the ground floor when built",
+      "when": {
+        "fact": "primary_accessible",
+        "op": "eq",
+        "value": "anticipated"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "primary_bath",
+          "household_role": "primary",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1,
+          "ground_floor": true
+        }
+      ]
+    },
+    {
+      "rule_id": "H17-ACCESSIBLE-BATH-REDUCED",
+      "layer": "household",
+      "description": "Each accessible room for reduced mobility has an adjoining ground-floor bath",
+      "when": {
+        "fact": "accessible_rooms_reduced",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "accessible",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "count": {
+            "fact": "accessible_rooms_reduced"
+          },
+          "ground_floor": true
+        },
+        {
+          "effect": "relation_hint",
+          "a": "bedroom:accessible",
+          "b": "bathroom:accessible",
+          "relation": "en_suite",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H18-ACCESSIBLE-BATH-ANTICIPATED",
+      "layer": "household",
+      "description": "Anticipated mobility: the adjoining ground-floor bath is preferred",
+      "when": {
+        "fact": "accessible_rooms_any",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "accessible",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": {
+            "fact": "accessible_rooms_any"
+          },
+          "ground_floor": true
+        },
+        {
+          "effect": "relation_hint",
+          "a": "bedroom:accessible",
+          "b": "bathroom:accessible",
+          "relation": "en_suite",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H19-HALF-BATH-SOCIAL",
+      "layer": "household",
+      "description": "Frequent visitors: powder room preferred",
+      "when": {
+        "fact": "social_life",
+        "op": "in",
+        "value": [
+          "frequent",
+          "large_gatherings"
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "half_bath",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H20-HALF-BATH",
+      "layer": "household",
+      "description": "Powder room desirable",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "half_bath",
+          "household_role": "general",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H21-WORK-MINIMUM",
+      "layer": "household",
+      "description": "Someone works from home: one convertible room in the minimum",
+      "when": {
+        "fact": "wfh_count",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "flex_room",
+          "household_role": "work",
+          "tiers": [
+            "required"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "relation_hint",
+          "a": "flex_room:work",
+          "b": "@entry",
+          "relation": "near",
+          "tiers": [
+            "required"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H22-WORK-STUDY",
+      "layer": "household",
+      "description": "One study per person working from home, near the entry",
+      "when": {
+        "fact": "wfh_count",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "study",
+          "household_role": "work",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": {
+            "fact": "wfh_count"
+          }
+        },
+        {
+          "effect": "relation_hint",
+          "a": "study:work",
+          "b": "@entry",
+          "relation": "near",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H23-GUESTS-RARE",
+      "layer": "household",
+      "description": "Occasional guests: convertible guest room desirable",
+      "when": {
+        "fact": "guests",
+        "op": "eq",
+        "value": "rare"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "flex_room",
+          "household_role": "guest",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H24-GUESTS-FREQUENT",
+      "layer": "household",
+      "description": "Frequent guests: convertible guest room preferred",
+      "when": {
+        "fact": "guests",
+        "op": "eq",
+        "value": "frequent"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "flex_room",
+          "household_role": "guest",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H25-GUESTS-RESIDENT",
+      "layer": "household",
+      "description": "Temporary residents: a guest bedroom preferred, its own bath desirable",
+      "when": {
+        "fact": "guests",
+        "op": "eq",
+        "value": "temporary_residents"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "bedroom",
+          "household_role": "guest",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "guest",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H26-LAUNDRY-MINIMUM",
+      "layer": "household",
+      "description": "Laundry closet in the minimum program",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "laundry_closet",
+          "household_role": "general",
+          "tiers": [
+            "required"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H27-LAUNDRY-ROOM",
+      "layer": "household",
+      "description": "Three or more members or minors: laundry room",
+      "when": {
+        "any": [
+          {
+            "fact": "members",
+            "op": "ge",
+            "value": 3
+          },
+          {
+            "fact": "minors",
+            "op": "ge",
+            "value": 1
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "laundry",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H28-LAUNDRY-CLOSET",
+      "layer": "household",
+      "description": "Small adult households keep the laundry closet",
+      "when": {
+        "not": {
+          "any": [
+            {
+              "fact": "members",
+              "op": "ge",
+              "value": 3
+            },
+            {
+              "fact": "minors",
+              "op": "ge",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "laundry_closet",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H29-STORAGE",
+      "layer": "household",
+      "description": "Storage preferred, mechanical room desirable",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "storage",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "space",
+          "space_type": "mechanical",
+          "household_role": "general",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H30-MUDROOM-PETS",
+      "layer": "household",
+      "description": "Pets and a car: mudroom preferred",
+      "when": {
+        "all": [
+          {
+            "fact": "pets",
+            "op": "ge",
+            "value": 1
+          },
+          {
+            "fact": "vehicles",
+            "op": "ge",
+            "value": 1
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "mudroom",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H31-MUDROOM-CHILDREN",
+      "layer": "household",
+      "description": "Two or more minors and a car: mudroom desirable",
+      "when": {
+        "all": [
+          {
+            "fact": "minors",
+            "op": "ge",
+            "value": 2
+          },
+          {
+            "fact": "vehicles",
+            "op": "ge",
+            "value": 1
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "mudroom",
+          "household_role": "general",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ]
+    },
+    {
+      "rule_id": "H32-CLOSETS",
+      "layer": "household",
+      "description": "One closet per bedroom without a walk-in closet",
+      "when": {
+        "always": true
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "closet",
+          "household_role": "general",
+          "tiers": [
+            "required"
+          ],
+          "count": {
+            "fact": "bedrooms_required"
+          }
+        },
+        {
+          "effect": "space",
+          "space_type": "closet",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": {
+            "fact": "non_primary_bedrooms_preferred"
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "H33-GARAGE",
+      "layer": "household",
+      "description": "Garage for the household vehicles up to the catalog cap; one car in the minimum",
+      "when": {
+        "fact": "vehicles",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "garage_cars",
+          "tiers": [
+            "required"
+          ],
+          "count": {
+            "fact": "vehicles",
+            "max": 1
+          }
+        },
+        {
+          "effect": "garage_cars",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": {
+            "fact": "vehicles",
+            "max": 2
+          }
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Design default; off-street parking requirement for single dwelling units to verify (SDMC Ch. 14, Art. 2, Div. 5)",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "H34-OUTDOOR-PETS",
+      "layer": "household",
+      "description": "Pets: quality weight on garden access",
+      "when": {
+        "fact": "pets",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "quality_weight",
+          "criterion": "garden_access",
+          "weight": 1.2,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H35-PRIVACY-TEENS",
+      "layer": "household",
+      "description": "Teenagers: quality weight on bedroom privacy (depth from the entry, separation from social)",
+      "when": {
+        "fact": "teens",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "quality_weight",
+          "criterion": "private_depth",
+          "weight": 1.2,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "H36-SUPERVISION",
+      "layer": "household",
+      "description": "Young children: quality weight on visual supervision from kitchen to garden",
+      "when": {
+        "fact": "children_0_5",
+        "op": "ge",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "quality_weight",
+          "criterion": "kitchen_garden_view",
+          "weight": 1.3,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "C01-DINING-EXTENDED",
+      "layer": "culture",
+      "description": "Extended-family dining: dining room preferred, larger, strongly tied to the patio",
+      "when": {
+        "fact": "dining_capacity",
+        "op": "eq",
+        "value": "extended_family"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "dining_room",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "type_area_factor",
+          "space_type": "dining_room",
+          "factor": 1.3,
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "relation_override",
+          "a": "dining",
+          "b": "patio",
+          "type": "D",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 2.0
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C02-RECEIVING-ROOM",
+      "layer": "culture",
+      "description": "Dining table as social center in households of four or more: a family room besides the receiving living room",
+      "when": {
+        "all": [
+          {
+            "fact": "social_center",
+            "op": "eq",
+            "value": "dining_table"
+          },
+          {
+            "fact": "members",
+            "op": "ge",
+            "value": 4
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "family_room",
+          "household_role": "general",
+          "tiers": [
+            "desirable"
+          ],
+          "count": 1
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C03-ISLAND-CENTER",
+      "layer": "culture",
+      "description": "Kitchen island as social center: breakfast nook preferred, formal dining smaller",
+      "when": {
+        "fact": "social_center",
+        "op": "eq",
+        "value": "kitchen_island"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "breakfast_nook",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "type_area_factor",
+          "space_type": "dining_room",
+          "factor": 0.9,
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C04-VENTILATION",
+      "layer": "culture",
+      "description": "High ventilation priority: kitchen ventilation weighs more in the quality score",
+      "when": {
+        "fact": "ventilation_priority",
+        "op": "eq",
+        "value": "high"
+      },
+      "effects": [
+        {
+          "effect": "quality_weight",
+          "criterion": "kitchen_ventilation",
+          "weight": 1.3,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C05-INTENSIVE-WORK-AREA",
+      "layer": "culture",
+      "description": "Intensive cooking with high ventilation priority: larger kitchen work area",
+      "when": {
+        "all": [
+          {
+            "fact": "cooking",
+            "op": "eq",
+            "value": "intensive"
+          },
+          {
+            "fact": "ventilation_priority",
+            "op": "eq",
+            "value": "high"
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "type_area_factor",
+          "space_type": "kitchen",
+          "factor": 1.1,
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C06-SERVICE-YARD",
+      "layer": "culture",
+      "description": "Laundry with the kitchen and open to a service yard",
+      "when": {
+        "fact": "laundry_location",
+        "op": "eq",
+        "value": "service_yard"
+      },
+      "effects": [
+        {
+          "effect": "relation_override",
+          "a": "kitchen",
+          "b": "laundry",
+          "type": "D",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "hard",
+          "weight": 1.0
+        },
+        {
+          "effect": "relation_override",
+          "a": "laundry",
+          "b": "patio",
+          "type": "D",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 1.5
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C07-LAUNDRY-BEDROOMS",
+      "layer": "culture",
+      "description": "Laundry near the bedrooms instead of the kitchen",
+      "when": {
+        "fact": "laundry_location",
+        "op": "eq",
+        "value": "near_bedrooms"
+      },
+      "effects": [
+        {
+          "effect": "relation_override",
+          "a": "kitchen",
+          "b": "laundry",
+          "type": "I",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 0.5
+        },
+        {
+          "effect": "relation_override",
+          "a": "dining",
+          "b": "laundry",
+          "type": "N",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "relation_hint",
+          "a": "laundry",
+          "b": "bedroom",
+          "relation": "near",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C08-EN-SUITE",
+      "layer": "culture",
+      "description": "One bath per secondary bedroom as desirable",
+      "when": {
+        "fact": "bath_per_bedroom",
+        "op": "eq",
+        "value": "en_suite_preferred"
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "bathroom",
+          "household_role": "general",
+          "tiers": [
+            "desirable"
+          ],
+          "count": {
+            "fact": "secondary_bedrooms_preferred",
+            "min": 1
+          }
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C09-MUDROOM-SEQUENCE",
+      "layer": "culture",
+      "description": "Garage -> mudroom -> kitchen entry sequence",
+      "when": {
+        "all": [
+          {
+            "fact": "entry_sequence",
+            "op": "eq",
+            "value": "garage_mudroom_kitchen"
+          },
+          {
+            "fact": "vehicles",
+            "op": "ge",
+            "value": 1
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "mudroom",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "relation_override",
+          "a": "mudroom",
+          "b": "kitchen",
+          "type": "D",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 1.0
+        },
+        {
+          "effect": "relation_hint",
+          "a": "garage",
+          "b": "mudroom",
+          "relation": "adjacent",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "quality_weight",
+          "criterion": "entry_sequence",
+          "weight": 1.2,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C10-OUTDOOR-GATHERING",
+      "layer": "culture",
+      "description": "Outdoor cooking for gatherings: covered terrace and outdoor kitchen first",
+      "when": {
+        "fact": "outdoor_cooking",
+        "op": "eq",
+        "value": "gathering"
+      },
+      "effects": [
+        {
+          "effect": "backyard_element",
+          "element": "covered_terrace",
+          "priority": 1,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "add": true
+        },
+        {
+          "effect": "backyard_element",
+          "element": "outdoor_kitchen",
+          "priority": 2,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "add": true
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C11-OUTDOOR-AMENITY",
+      "layer": "culture",
+      "description": "Outdoor cooking as an amenity: barbecue on the deck",
+      "when": {
+        "fact": "outdoor_cooking",
+        "op": "eq",
+        "value": "amenity"
+      },
+      "effects": [
+        {
+          "effect": "backyard_element",
+          "element": "rear_deck",
+          "priority": 1,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "backyard_element",
+          "element": "bbq",
+          "priority": 3,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C12-PATIO-GATHERING",
+      "layer": "culture",
+      "description": "Patio for gatherings: shaded covered terrace before the open deck and the pool",
+      "when": {
+        "fact": "patio_use",
+        "op": "eq",
+        "value": "gathering"
+      },
+      "effects": [
+        {
+          "effect": "backyard_element",
+          "element": "covered_terrace",
+          "priority": 1,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "add": true
+        },
+        {
+          "effect": "backyard_element",
+          "element": "pool",
+          "priority": 6,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "backyard_element",
+          "element": "rear_deck",
+          "priority": 6,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "rule_id": "C13-PATIO-LAWN",
+      "layer": "culture",
+      "description": "Patio for lawn and play: larger green reserve, pool before beds",
+      "when": {
+        "fact": "patio_use",
+        "op": "eq",
+        "value": "lawn_play"
+      },
+      "effects": [
+        {
+          "effect": "backyard_green",
+          "min_green_fraction": 0.5,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "backyard_element",
+          "element": "pool",
+          "priority": 2,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "backyard_element",
+          "element": "garden_beds",
+          "priority": 7,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    }
+  ],
+  "archetypes": [
+    {
+      "archetype_id": "young_couple",
+      "label": "Young couple",
+      "description": "Two adults, one works from home, a child expected; the house must grow",
+      "household": {
+        "members": [
+          {
+            "member_id": "a1",
+            "age_years": 30,
+            "mobility": "full",
+            "works_from_home": true,
+            "partner_id": "a2"
+          },
+          {
+            "member_id": "a2",
+            "age_years": 31,
+            "mobility": "full",
+            "works_from_home": false,
+            "partner_id": "a1"
+          }
+        ],
+        "social_life": "frequent",
+        "guests": "frequent",
+        "cooking": "daily",
+        "vehicles": 2,
+        "pets": 1,
+        "shared_rooms_ok": true,
+        "trajectory": {
+          "events": [
+            {
+              "event": "child_expected",
+              "in_years": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "archetype_id": "early_childhood",
+      "label": "Early childhood",
+      "description": "Two adults and two children under 6 who may share a room",
+      "household": {
+        "members": [
+          {
+            "member_id": "a1",
+            "age_years": 34,
+            "mobility": "full",
+            "works_from_home": false,
+            "partner_id": "a2"
+          },
+          {
+            "member_id": "a2",
+            "age_years": 35,
+            "mobility": "full",
+            "works_from_home": false,
+            "partner_id": "a1"
+          },
+          {
+            "member_id": "c1",
+            "age_years": 2,
+            "mobility": "full",
+            "works_from_home": false
+          },
+          {
+            "member_id": "c2",
+            "age_years": 4,
+            "mobility": "full",
+            "works_from_home": false
+          }
+        ],
+        "social_life": "frequent",
+        "guests": "rare",
+        "cooking": "daily",
+        "vehicles": 2,
+        "pets": 0,
+        "shared_rooms_ok": true,
+        "trajectory": {
+          "events": []
+        }
+      }
+    },
+    {
+      "archetype_id": "teens_family",
+      "label": "Family with teenagers",
+      "description": "Two adults and two teenagers; the older one leaves in three years",
+      "household": {
+        "members": [
+          {
+            "member_id": "a1",
+            "age_years": 45,
+            "mobility": "full",
+            "works_from_home": false,
+            "partner_id": "a2"
+          },
+          {
+            "member_id": "a2",
+            "age_years": 47,
+            "mobility": "full",
+            "works_from_home": false,
+            "partner_id": "a1"
+          },
+          {
+            "member_id": "t1",
+            "age_years": 14,
+            "mobility": "full",
+            "works_from_home": false
+          },
+          {
+            "member_id": "t2",
+            "age_years": 16,
+            "mobility": "full",
+            "works_from_home": false
+          }
+        ],
+        "social_life": "large_gatherings",
+        "guests": "rare",
+        "cooking": "daily",
+        "vehicles": 3,
+        "pets": 1,
+        "shared_rooms_ok": false,
+        "trajectory": {
+          "events": [
+            {
+              "event": "member_leaves",
+              "in_years": 3,
+              "member_id": "t2"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "archetype_id": "multigenerational",
+      "label": "Multigenerational",
+      "description": "Two adults, two school-age children and a grandparent with reduced mobility",
+      "household": {
+        "members": [
+          {
+            "member_id": "a1",
+            "age_years": 40,
+            "mobility": "full",
+            "works_from_home": false,
+            "partner_id": "a2"
+          },
+          {
+            "member_id": "a2",
+            "age_years": 42,
+            "mobility": "full",
+            "works_from_home": false,
+            "partner_id": "a1"
+          },
+          {
+            "member_id": "c1",
+            "age_years": 8,
+            "mobility": "full",
+            "works_from_home": false
+          },
+          {
+            "member_id": "c2",
+            "age_years": 11,
+            "mobility": "full",
+            "works_from_home": false
+          },
+          {
+            "member_id": "s1",
+            "age_years": 74,
+            "mobility": "reduced",
+            "works_from_home": false
+          }
+        ],
+        "social_life": "large_gatherings",
+        "guests": "rare",
+        "cooking": "intensive",
+        "vehicles": 2,
+        "pets": 0,
+        "shared_rooms_ok": false,
+        "trajectory": {
+          "events": []
+        }
+      }
+    },
+    {
+      "archetype_id": "empty_nest",
+      "label": "Empty nest / retirement",
+      "description": "Two older adults, frequent visits from grandchildren, mobility expected to decline",
+      "household": {
+        "members": [
+          {
+            "member_id": "s1",
+            "age_years": 63,
+            "mobility": "anticipated",
+            "works_from_home": false,
+            "partner_id": "s2"
+          },
+          {
+            "member_id": "s2",
+            "age_years": 66,
+            "mobility": "anticipated",
+            "works_from_home": false,
+            "partner_id": "s1"
+          }
+        ],
+        "social_life": "frequent",
+        "guests": "frequent",
+        "cooking": "daily",
+        "vehicles": 2,
+        "pets": 0,
+        "shared_rooms_ok": true,
+        "trajectory": {
+          "events": [
+            {
+              "event": "mobility_change",
+              "in_years": 5,
+              "member_id": "s2",
+              "mobility": "reduced"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "archetype_id": "remote_work",
+      "label": "Remote work",
+      "description": "Two adults who both work from home",
+      "household": {
+        "members": [
+          {
+            "member_id": "a1",
+            "age_years": 38,
+            "mobility": "full",
+            "works_from_home": true,
+            "partner_id": "a2"
+          },
+          {
+            "member_id": "a2",
+            "age_years": 36,
+            "mobility": "full",
+            "works_from_home": true,
+            "partner_id": "a1"
+          }
+        ],
+        "social_life": "intimate",
+        "guests": "rare",
+        "cooking": "light",
+        "vehicles": 1,
+        "pets": 1,
+        "shared_rooms_ok": true,
+        "trajectory": {
+          "events": []
+        }
+      }
+    },
+    {
+      "archetype_id": "shared_adults",
+      "label": "Adults sharing",
+      "description": "Three unrelated adults, each with an own room",
+      "household": {
+        "members": [
+          {
+            "member_id": "a1",
+            "age_years": 27,
+            "mobility": "full",
+            "works_from_home": false
+          },
+          {
+            "member_id": "a2",
+            "age_years": 29,
+            "mobility": "full",
+            "works_from_home": false
+          },
+          {
+            "member_id": "a3",
+            "age_years": 31,
+            "mobility": "full",
+            "works_from_home": false
+          }
+        ],
+        "social_life": "frequent",
+        "guests": "rare",
+        "cooking": "daily",
+        "vehicles": 3,
+        "pets": 0,
+        "shared_rooms_ok": false,
+        "trajectory": {
+          "events": []
+        }
+      }
+    }
+  ],
+  "culture_aspects": [
+    {
+      "aspect": "kitchen_living_relation",
+      "values": [
+        "open",
+        "separable",
+        "closed"
+      ],
+      "effect": "Kitchen typology and kitchen-living relation"
+    },
+    {
+      "aspect": "social_center",
+      "values": [
+        "dining_table",
+        "kitchen_island",
+        "living"
+      ],
+      "effect": "Dining or breakfast nook weight; receiving room"
+    },
+    {
+      "aspect": "ventilation_priority",
+      "values": [
+        "normal",
+        "high"
+      ],
+      "effect": "Kitchen ventilation weight, larger work area"
+    },
+    {
+      "aspect": "dining_capacity",
+      "values": [
+        "household",
+        "extended_family"
+      ],
+      "effect": "Dining room size and relation to the patio"
+    },
+    {
+      "aspect": "outdoor_cooking",
+      "values": [
+        "none",
+        "amenity",
+        "gathering"
+      ],
+      "effect": "Covered terrace, outdoor kitchen or barbecue priority"
+    },
+    {
+      "aspect": "entry_sequence",
+      "values": [
+        "front",
+        "garage_mudroom_kitchen"
+      ],
+      "effect": "Mudroom between garage and kitchen"
+    },
+    {
+      "aspect": "laundry_location",
+      "values": [
+        "service_yard",
+        "near_bedrooms"
+      ],
+      "effect": "Laundry with kitchen and service yard, or near bedrooms"
+    },
+    {
+      "aspect": "bath_per_bedroom",
+      "values": [
+        "shared_ok",
+        "en_suite_preferred"
+      ],
+      "effect": "One bath per bedroom as desirable"
+    },
+    {
+      "aspect": "patio_use",
+      "values": [
+        "gathering",
+        "lawn_play"
+      ],
+      "effect": "Backyard element priorities and green reserve"
+    }
+  ],
+  "culture_presets": [
+    {
+      "profile": "latino",
+      "label": "Latino (tendency)",
+      "aspects": {
+        "kitchen_living_relation": "separable",
+        "social_center": "dining_table",
+        "ventilation_priority": "high",
+        "dining_capacity": "extended_family",
+        "outdoor_cooking": "gathering",
+        "entry_sequence": "front",
+        "laundry_location": "service_yard",
+        "bath_per_bedroom": "shared_ok",
+        "patio_use": "gathering"
+      },
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "profile": "anglo",
+      "label": "Anglo suburban (tendency)",
+      "aspects": {
+        "kitchen_living_relation": "open",
+        "social_center": "kitchen_island",
+        "ventilation_priority": "normal",
+        "dining_capacity": "household",
+        "outdoor_cooking": "amenity",
+        "entry_sequence": "garage_mudroom_kitchen",
+        "laundry_location": "near_bedrooms",
+        "bath_per_bedroom": "en_suite_preferred",
+        "patio_use": "lawn_play"
+      },
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "profile": "mixed",
+      "label": "Mixed (client sets each aspect)",
+      "aspects": {},
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    },
+    {
+      "profile": "custom",
+      "label": "Custom (client sets each aspect)",
+      "aspects": {},
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined cultural-layer hypothesis, spaceplan step 6.5c (2026-10); tendency used as an editable starting point, not a characterization of any group; validate with pilot pre-approved plans and local practitioners",
+        "status": "provisional"
+      }
+    }
+  ],
+  "kitchen_typologies": [
+    {
+      "typology_id": "open_island",
+      "label": "Open kitchen with island",
+      "effects": [
+        {
+          "effect": "area_factor",
+          "zone": "kitchen",
+          "factor": 1.1,
+          "tiers": [
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "relation_override",
+          "a": "living",
+          "b": "kitchen",
+          "type": "D",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 1.0
+        },
+        {
+          "effect": "quality_weight",
+          "criterion": "kitchen_garden_view",
+          "weight": 1.2,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "typology_id": "semi_open_separable",
+      "label": "Semi-open, separable kitchen",
+      "effects": [
+        {
+          "effect": "relation_override",
+          "a": "living",
+          "b": "kitchen",
+          "type": "I",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 1.0
+        },
+        {
+          "effect": "quality_weight",
+          "criterion": "kitchen_ventilation",
+          "weight": 1.2,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "typology_id": "closed_ventilated",
+      "label": "Closed kitchen with cross ventilation",
+      "effects": [
+        {
+          "effect": "relation_override",
+          "a": "living",
+          "b": "kitchen",
+          "type": "I",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 1.5
+        },
+        {
+          "effect": "anchor_override",
+          "anchor_id": "kitchen_faces_rear",
+          "mode": "hard",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        {
+          "effect": "quality_weight",
+          "criterion": "kitchen_ventilation",
+          "weight": 1.5,
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        }
+      ]
+    },
+    {
+      "typology_id": "double_kitchen",
+      "label": "Double kitchen: clean (open) + work (closed)",
+      "effects": [
+        {
+          "effect": "space",
+          "space_type": "work_kitchen",
+          "household_role": "general",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "count": 1
+        },
+        {
+          "effect": "relation_override",
+          "a": "kitchen",
+          "b": "work_kitchen",
+          "type": "D",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "kind": "hard",
+          "weight": 1.0
+        },
+        {
+          "effect": "relation_override",
+          "a": "work_kitchen",
+          "b": "laundry",
+          "type": "D",
+          "tiers": [
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 1.0
+        },
+        {
+          "effect": "relation_override",
+          "a": "living",
+          "b": "kitchen",
+          "type": "D",
+          "tiers": [
+            "required",
+            "preferred",
+            "desirable"
+          ],
+          "kind": "soft",
+          "weight": 1.0
+        }
+      ]
+    }
+  ],
+  "kitchen_typology_selection": [
+    {
+      "when": {
+        "fact": "kitchen_living_relation",
+        "op": "eq",
+        "value": "closed"
+      },
+      "typology": "closed_ventilated"
+    },
+    {
+      "when": {
+        "all": [
+          {
+            "fact": "kitchen_living_relation",
+            "op": "eq",
+            "value": "open"
+          },
+          {
+            "fact": "cooking",
+            "op": "eq",
+            "value": "intensive"
+          }
+        ]
+      },
+      "typology": "double_kitchen"
+    },
+    {
+      "when": {
+        "any": [
+          {
+            "fact": "kitchen_living_relation",
+            "op": "eq",
+            "value": "open"
+          },
+          {
+            "fact": "social_center",
+            "op": "eq",
+            "value": "kitchen_island"
+          }
+        ]
+      },
+      "typology": "open_island"
+    },
+    {
+      "when": {
+        "any": [
+          {
+            "fact": "kitchen_living_relation",
+            "op": "eq",
+            "value": "separable"
+          },
+          {
+            "fact": "ventilation_priority",
+            "op": "eq",
+            "value": "high"
+          }
+        ]
+      },
+      "typology": "semi_open_separable"
+    }
+  ],
+  "program_quality": {
+    "note": "Program-level quality proxy in [0, 1] (step 6.5d): value of each upgrade over the minimum program. Geometry-aware quality comes in step 6.8.",
+    "weights": {
+      "preferred_instance": 1.0,
+      "desirable_instance": 0.4,
+      "zone_size_upgrade": 0.8,
+      "garage_car": 0.5,
+      "next_stage_coverage": 3.0
+    },
+    "culture_multiplier": 1.25,
+    "knee_min_gain": 0.05,
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined program-quality proxy, spaceplan step 6.5d (2026-10); placeholder until the common quality score of step 6.8; validate weights with practitioners",
+      "status": "provisional"
+    }
+  },
+  "program_substitutions": [
+    {
+      "substitution_id": "split_social",
+      "from": {
+        "space_type": "living_dining",
+        "household_role": "general"
+      },
+      "to": [
+        {
+          "space_type": "living_room",
+          "household_role": "general"
+        },
+        {
+          "space_type": "dining_room",
+          "household_role": "general"
+        }
+      ],
+      "also_remove": [],
+      "description": "Combined living-dining replaced by separate living and dining rooms"
+    },
+    {
+      "substitution_id": "primary_suite",
+      "from": {
+        "space_type": "bedroom",
+        "household_role": "primary"
+      },
+      "to": [
+        {
+          "space_type": "primary_suite",
+          "household_role": "primary"
+        }
+      ],
+      "also_remove": [
+        {
+          "space_type": "closet",
+          "household_role": "general"
+        }
+      ],
+      "description": "Primary bedroom upgraded to a suite (its closet becomes the walk-in)"
+    },
+    {
+      "substitution_id": "laundry_room",
+      "from": {
+        "space_type": "laundry_closet",
+        "household_role": "general"
+      },
+      "to": [
+        {
+          "space_type": "laundry",
+          "household_role": "general"
+        }
+      ],
+      "also_remove": [],
+      "description": "Laundry closet replaced by a laundry room"
+    },
+    {
+      "substitution_id": "work_study",
+      "from": {
+        "space_type": "flex_room",
+        "household_role": "work"
+      },
+      "to": [
+        {
+          "space_type": "study",
+          "household_role": "work"
+        }
+      ],
+      "also_remove": [],
+      "description": "Convertible work room replaced by dedicated studies"
+    }
+  ]
+}

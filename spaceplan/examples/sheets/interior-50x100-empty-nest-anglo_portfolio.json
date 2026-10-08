@@ -1,0 +1,1931 @@
+{
+  "brief_id": "interior-50x100-empty-nest-anglo",
+  "reading": "lot",
+  "model": "base",
+  "legend": "Comparative relative index, not a cost estimate or quote",
+  "ceilings": {
+    "far_sqft": 3000.0,
+    "one_floor_max_sqft": 3024.0,
+    "budget_fraction": null,
+    "budget": null,
+    "governing": "program_complete"
+  },
+  "household": {
+    "archetype_id": "empty_nest",
+    "kitchen_typology": "open_island",
+    "culture_applied": true
+  },
+  "quality_note": "Program-level quality proxy in [0, 1] (step 6.5d): value of each upgrade over the minimum program. Geometry-aware quality comes in step 6.8.",
+  "curve": [
+    {
+      "step": 0,
+      "move": null,
+      "index": 0.3852,
+      "quality": 0.0585,
+      "gross_area_sqft": 1155.8
+    },
+    {
+      "step": 1,
+      "move": "add:pantry:general",
+      "index": 0.391,
+      "quality": 0.1326,
+      "gross_area_sqft": 1173.0
+    },
+    {
+      "step": 2,
+      "move": "add:storage:general",
+      "index": 0.3967,
+      "quality": 0.2066,
+      "gross_area_sqft": 1190.2
+    },
+    {
+      "step": 3,
+      "move": "add:half_bath:general",
+      "index": 0.4044,
+      "quality": 0.2807,
+      "gross_area_sqft": 1213.2
+    },
+    {
+      "step": 4,
+      "move": "substitute:split_social",
+      "index": 0.4293,
+      "quality": 0.4289,
+      "gross_area_sqft": 1288.0
+    },
+    {
+      "step": 5,
+      "move": "add:mudroom:general",
+      "index": 0.4447,
+      "quality": 0.5185,
+      "gross_area_sqft": 1334.0
+    },
+    {
+      "step": 6,
+      "move": "add:walk_in_closet:primary",
+      "index": 0.46,
+      "quality": 0.5926,
+      "gross_area_sqft": 1380.0
+    },
+    {
+      "step": 7,
+      "move": "add:mechanical:general",
+      "index": 0.4657,
+      "quality": 0.6176,
+      "gross_area_sqft": 1397.2
+    },
+    {
+      "step": 8,
+      "move": "add:breakfast_nook:general",
+      "index": 0.4926,
+      "quality": 0.7073,
+      "gross_area_sqft": 1477.8
+    },
+    {
+      "step": 9,
+      "move": "add:primary_bath:primary",
+      "index": 0.5194,
+      "quality": 0.7813,
+      "gross_area_sqft": 1558.2
+    },
+    {
+      "step": 10,
+      "move": "add:flex_room:guest",
+      "index": 0.5616,
+      "quality": 0.8554,
+      "gross_area_sqft": 1684.8
+    },
+    {
+      "step": 11,
+      "move": "substitute:primary_suite",
+      "index": 0.6076,
+      "quality": 0.9295,
+      "gross_area_sqft": 1822.8
+    },
+    {
+      "step": 12,
+      "move": "size:social",
+      "index": 0.6325,
+      "quality": 0.945,
+      "gross_area_sqft": 1897.5
+    },
+    {
+      "step": 13,
+      "move": "car:2",
+      "index": 0.6977,
+      "quality": 0.9762,
+      "gross_area_sqft": 2093.0
+    },
+    {
+      "step": 14,
+      "move": "size:private",
+      "index": 0.7245,
+      "quality": 0.9882,
+      "gross_area_sqft": 2173.5
+    },
+    {
+      "step": 15,
+      "move": "size:service",
+      "index": 0.7302,
+      "quality": 0.9907,
+      "gross_area_sqft": 2190.8
+    },
+    {
+      "step": 16,
+      "move": "size:circulation",
+      "index": 0.7418,
+      "quality": 0.9948,
+      "gross_area_sqft": 2225.2
+    },
+    {
+      "step": 17,
+      "move": "size:kitchen",
+      "index": 0.759,
+      "quality": 1.0,
+      "gross_area_sqft": 2277.0
+    }
+  ],
+  "profiles": {
+    "minimum": {
+      "profile": "minimum",
+      "gross_area_sqft": 1155.8,
+      "index": 0.3852,
+      "quality": 0.0585,
+      "next_stage_coverage": 0.3125,
+      "within_ceilings": true,
+      "blocked_by": null,
+      "garage_cars": 1,
+      "upgraded_zones": [],
+      "substitutions": [],
+      "program": {
+        "spaces": [
+          {
+            "space_id": "living_dining",
+            "space_type": "living_dining",
+            "zone": "social",
+            "scale": "large",
+            "wet": false,
+            "min_area_sqft": 250.0,
+            "target_area_sqft": 305.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "kitchen",
+            "space_type": "kitchen",
+            "zone": "kitchen",
+            "scale": "normal",
+            "wet": true,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 145.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "bedroom_primary",
+            "space_type": "bedroom",
+            "zone": "private",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 120.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "bathroom",
+            "space_type": "bathroom",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": true,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 45.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "closet",
+            "space_type": "closet",
+            "zone": "private",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 6.0,
+            "target_area_sqft": 10.0,
+            "floor_preference": null,
+            "host_space_id": "bedroom_primary",
+            "household_role": "general"
+          },
+          {
+            "space_id": "foyer",
+            "space_type": "foyer",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 40.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "hall",
+            "space_type": "hall",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 75.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "laundry_closet",
+            "space_type": "laundry_closet",
+            "zone": "service",
+            "scale": "support",
+            "wet": true,
+            "min_area_sqft": 12.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "hall",
+            "household_role": "general"
+          },
+          {
+            "space_id": "garage_1car",
+            "space_type": "garage_1car",
+            "zone": "garage",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 220.0,
+            "target_area_sqft": 250.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "general"
+          }
+        ],
+        "zone_budgets": {
+          "social": {
+            "min_sqft": 250.0,
+            "max_sqft": 450.0
+          },
+          "private": {
+            "min_sqft": 156.0,
+            "max_sqft": 320.0
+          },
+          "kitchen": {
+            "min_sqft": 110.0,
+            "max_sqft": 250.0
+          },
+          "service": {
+            "min_sqft": 12.0,
+            "max_sqft": 35.0
+          },
+          "circulation": {
+            "min_sqft": 75.0,
+            "max_sqft": 270.0
+          },
+          "garage": {
+            "min_sqft": 220.0,
+            "max_sqft": 300.0
+          }
+        },
+        "garage_cars": 1,
+        "required_gross_area_sqft": null,
+        "gross_factor": 1.15
+      },
+      "note": null,
+      "feasibility": "fits_one_floor",
+      "review": {
+        "buildable_as_stated": true,
+        "counts": {
+          "error": 0,
+          "warning": 0,
+          "info": 0
+        },
+        "findings": []
+      },
+      "zoning": {
+        "status": "no_valid_scheme",
+        "status_key": "not_zoned",
+        "valid": 0,
+        "space_level_valid": 0,
+        "best_score": null
+      },
+      "zoning_status": "not_zoned"
+    },
+    "optimum": {
+      "profile": "optimum",
+      "gross_area_sqft": 1558.2,
+      "index": 0.5194,
+      "quality": 0.7813,
+      "next_stage_coverage": 0.875,
+      "within_ceilings": true,
+      "blocked_by": null,
+      "garage_cars": 1,
+      "upgraded_zones": [],
+      "substitutions": [
+        "split_social"
+      ],
+      "program": {
+        "spaces": [
+          {
+            "space_id": "living_room",
+            "space_type": "living_room",
+            "zone": "social",
+            "scale": "large",
+            "wet": false,
+            "min_area_sqft": 200.0,
+            "target_area_sqft": 240.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "dining_room",
+            "space_type": "dining_room",
+            "zone": "social",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 130.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "kitchen",
+            "space_type": "kitchen",
+            "zone": "kitchen",
+            "scale": "normal",
+            "wet": true,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 145.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "breakfast_nook",
+            "space_type": "breakfast_nook",
+            "zone": "social",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 70.0,
+            "target_area_sqft": 70.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "pantry",
+            "space_type": "pantry",
+            "zone": "kitchen",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 12.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "kitchen",
+            "household_role": "general"
+          },
+          {
+            "space_id": "bedroom_primary",
+            "space_type": "bedroom",
+            "zone": "private",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 120.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "primary_bath",
+            "space_type": "primary_bath",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": true,
+            "min_area_sqft": 60.0,
+            "target_area_sqft": 70.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "bathroom",
+            "space_type": "bathroom",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": true,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 45.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "walk_in_closet_primary",
+            "space_type": "walk_in_closet",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 40.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "closet",
+            "space_type": "closet",
+            "zone": "private",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 6.0,
+            "target_area_sqft": 10.0,
+            "floor_preference": null,
+            "host_space_id": "bedroom_primary",
+            "household_role": "general"
+          },
+          {
+            "space_id": "half_bath",
+            "space_type": "half_bath",
+            "zone": "circulation",
+            "scale": "support",
+            "wet": true,
+            "min_area_sqft": 18.0,
+            "target_area_sqft": 20.0,
+            "floor_preference": null,
+            "host_space_id": "foyer",
+            "household_role": "general"
+          },
+          {
+            "space_id": "storage",
+            "space_type": "storage",
+            "zone": "service",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 10.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "garage_1car",
+            "household_role": "general"
+          },
+          {
+            "space_id": "mechanical",
+            "space_type": "mechanical",
+            "zone": "service",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 10.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "hall",
+            "household_role": "general"
+          },
+          {
+            "space_id": "foyer",
+            "space_type": "foyer",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 40.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "hall",
+            "space_type": "hall",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 75.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "laundry_closet",
+            "space_type": "laundry_closet",
+            "zone": "service",
+            "scale": "support",
+            "wet": true,
+            "min_area_sqft": 12.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "hall",
+            "household_role": "general"
+          },
+          {
+            "space_id": "mudroom",
+            "space_type": "mudroom",
+            "zone": "service",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 40.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "garage_1car",
+            "space_type": "garage_1car",
+            "zone": "garage",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 220.0,
+            "target_area_sqft": 250.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "general"
+          }
+        ],
+        "zone_budgets": {
+          "social": {
+            "min_sqft": 380.0,
+            "max_sqft": 730.0
+          },
+          "private": {
+            "min_sqft": 251.0,
+            "max_sqft": 510.0
+          },
+          "kitchen": {
+            "min_sqft": 122.0,
+            "max_sqft": 285.0
+          },
+          "service": {
+            "min_sqft": 67.0,
+            "max_sqft": 180.0
+          },
+          "circulation": {
+            "min_sqft": 93.0,
+            "max_sqft": 305.0
+          },
+          "garage": {
+            "min_sqft": 220.0,
+            "max_sqft": 300.0
+          }
+        },
+        "garage_cars": 1,
+        "required_gross_area_sqft": null,
+        "gross_factor": 1.15
+      },
+      "curve_step": 9,
+      "feasibility": "fits_one_floor",
+      "review": {
+        "buildable_as_stated": true,
+        "counts": {
+          "error": 0,
+          "warning": 0,
+          "info": 0
+        },
+        "findings": []
+      },
+      "zoning": {
+        "status": "zoned",
+        "status_key": "zoned",
+        "valid": 85,
+        "space_level_valid": 17,
+        "best_score": 0.5975
+      },
+      "zoning_status": "zoned",
+      "observations": [
+        {
+          "code": "passed",
+          "severity": "ok",
+          "hard_pairs": 4,
+          "site_normative_ok": true,
+          "paving": 0.28,
+          "paving_limit": 0.6
+        },
+        {
+          "code": "weak_patio_link",
+          "severity": "review",
+          "role": "kitchen",
+          "spaces": [
+            "kitchen"
+          ],
+          "weight": 1.5
+        },
+        {
+          "code": "private_through_social",
+          "severity": "review",
+          "via": "kitchen",
+          "private": "hall_private"
+        },
+        {
+          "code": "below_target",
+          "severity": "review",
+          "space": "bathroom",
+          "achieved": 40.1124,
+          "target": 45.0
+        },
+        {
+          "code": "below_target",
+          "severity": "review",
+          "space": "primary_bath",
+          "achieved": 62.0932,
+          "target": 70.0
+        },
+        {
+          "code": "below_target",
+          "severity": "review",
+          "space": "walk_in_closet_primary",
+          "achieved": 35.2865,
+          "target": 40.0
+        },
+        {
+          "code": "circulation_high",
+          "severity": "review",
+          "fraction": 0.2101,
+          "target": 0.15
+        },
+        {
+          "code": "backyard_excluded",
+          "severity": "info",
+          "element": "spa",
+          "reason": "group 'water' already has 1 element(s)"
+        },
+        {
+          "code": "satellites",
+          "severity": "info",
+          "satellites": {
+            "closet": "bedroom_primary",
+            "half_bath": "foyer",
+            "laundry_closet": "foyer",
+            "mechanical": "foyer",
+            "pantry": "kitchen",
+            "storage": "garage_1car"
+          }
+        }
+      ]
+    },
+    "maximum": {
+      "profile": "maximum",
+      "gross_area_sqft": 2277.0,
+      "index": 0.759,
+      "quality": 1.0,
+      "next_stage_coverage": 1.0,
+      "within_ceilings": true,
+      "blocked_by": null,
+      "garage_cars": 2,
+      "upgraded_zones": [
+        "circulation",
+        "kitchen",
+        "private",
+        "service",
+        "social"
+      ],
+      "substitutions": [
+        "primary_suite",
+        "split_social"
+      ],
+      "program": {
+        "spaces": [
+          {
+            "space_id": "living_room",
+            "space_type": "living_room",
+            "zone": "social",
+            "scale": "large",
+            "wet": false,
+            "min_area_sqft": 200.0,
+            "target_area_sqft": 280.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "dining_room",
+            "space_type": "dining_room",
+            "zone": "social",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 135.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "kitchen",
+            "space_type": "kitchen",
+            "zone": "kitchen",
+            "scale": "normal",
+            "wet": true,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 185.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "breakfast_nook",
+            "space_type": "breakfast_nook",
+            "zone": "social",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 70.0,
+            "target_area_sqft": 80.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "pantry",
+            "space_type": "pantry",
+            "zone": "kitchen",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 12.0,
+            "target_area_sqft": 20.0,
+            "floor_preference": null,
+            "host_space_id": "kitchen",
+            "household_role": "general"
+          },
+          {
+            "space_id": "primary_suite",
+            "space_type": "primary_suite",
+            "zone": "private",
+            "scale": "large",
+            "wet": false,
+            "min_area_sqft": 250.0,
+            "target_area_sqft": 290.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "primary_bath",
+            "space_type": "primary_bath",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": true,
+            "min_area_sqft": 60.0,
+            "target_area_sqft": 80.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "bathroom",
+            "space_type": "bathroom",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": true,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 55.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "walk_in_closet_primary",
+            "space_type": "walk_in_closet",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 50.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "half_bath",
+            "space_type": "half_bath",
+            "zone": "circulation",
+            "scale": "support",
+            "wet": true,
+            "min_area_sqft": 18.0,
+            "target_area_sqft": 25.0,
+            "floor_preference": null,
+            "host_space_id": "foyer",
+            "household_role": "general"
+          },
+          {
+            "space_id": "storage",
+            "space_type": "storage",
+            "zone": "service",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 10.0,
+            "target_area_sqft": 20.0,
+            "floor_preference": null,
+            "host_space_id": "garage_2car",
+            "household_role": "general"
+          },
+          {
+            "space_id": "mechanical",
+            "space_type": "mechanical",
+            "zone": "service",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 10.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "hall",
+            "household_role": "general"
+          },
+          {
+            "space_id": "foyer",
+            "space_type": "foyer",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 50.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "hall",
+            "space_type": "hall",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 90.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "laundry_closet",
+            "space_type": "laundry_closet",
+            "zone": "service",
+            "scale": "support",
+            "wet": true,
+            "min_area_sqft": 12.0,
+            "target_area_sqft": 20.0,
+            "floor_preference": null,
+            "host_space_id": "hall",
+            "household_role": "general"
+          },
+          {
+            "space_id": "flex_room_guest",
+            "space_type": "flex_room",
+            "zone": "social",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 120.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "guest"
+          },
+          {
+            "space_id": "mudroom",
+            "space_type": "mudroom",
+            "zone": "service",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 45.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "garage_2car",
+            "space_type": "garage_2car",
+            "zone": "garage",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 380.0,
+            "target_area_sqft": 420.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "general"
+          }
+        ],
+        "zone_budgets": {
+          "social": {
+            "min_sqft": 490.0,
+            "max_sqft": 890.0
+          },
+          "private": {
+            "min_sqft": 385.0,
+            "max_sqft": 700.0
+          },
+          "kitchen": {
+            "min_sqft": 122.0,
+            "max_sqft": 285.0
+          },
+          "service": {
+            "min_sqft": 67.0,
+            "max_sqft": 180.0
+          },
+          "circulation": {
+            "min_sqft": 93.0,
+            "max_sqft": 305.0
+          },
+          "garage": {
+            "min_sqft": 380.0,
+            "max_sqft": 500.0
+          }
+        },
+        "garage_cars": 2,
+        "required_gross_area_sqft": null,
+        "gross_factor": 1.15
+      },
+      "governing": "program_complete",
+      "feasibility": "fits_one_floor",
+      "review": {
+        "buildable_as_stated": true,
+        "counts": {
+          "error": 0,
+          "warning": 0,
+          "info": 0
+        },
+        "findings": []
+      },
+      "zoning": {
+        "status": "zoned",
+        "status_key": "zoned",
+        "valid": 56,
+        "space_level_valid": 70,
+        "best_score": 0.7492
+      },
+      "zoning_status": "zoned",
+      "observations": [
+        {
+          "code": "passed",
+          "severity": "ok",
+          "hard_pairs": 4,
+          "site_normative_ok": true,
+          "paving": 0.48,
+          "paving_limit": 0.6
+        },
+        {
+          "code": "weak_patio_link",
+          "severity": "review",
+          "role": "kitchen",
+          "spaces": [
+            "kitchen"
+          ],
+          "weight": 1.5
+        },
+        {
+          "code": "private_through_social",
+          "severity": "review",
+          "via": "kitchen",
+          "private": "hall_private"
+        },
+        {
+          "code": "below_target",
+          "severity": "review",
+          "space": "dining_room",
+          "achieved": 117.9,
+          "target": 135.0
+        },
+        {
+          "code": "below_target",
+          "severity": "review",
+          "space": "kitchen",
+          "achieved": 131.172,
+          "target": 185.0
+        },
+        {
+          "code": "circulation_high",
+          "severity": "review",
+          "fraction": 0.1591,
+          "target": 0.15
+        },
+        {
+          "code": "garden_short",
+          "severity": "review",
+          "area": 1330.7692,
+          "preference": 2000
+        },
+        {
+          "code": "backyard_excluded",
+          "severity": "info",
+          "element": "spa",
+          "reason": "group 'water' already has 1 element(s)"
+        },
+        {
+          "code": "satellites",
+          "severity": "info",
+          "satellites": {
+            "half_bath": "foyer",
+            "laundry_closet": "foyer",
+            "mechanical": "foyer",
+            "pantry": "kitchen",
+            "storage": "garage_2car"
+          }
+        }
+      ]
+    },
+    "accessible": {
+      "profile": "accessible",
+      "gross_area_sqft": 1588.1,
+      "index": 0.5294,
+      "quality": 0.7813,
+      "next_stage_coverage": 0.875,
+      "within_ceilings": true,
+      "blocked_by": null,
+      "garage_cars": 1,
+      "upgraded_zones": [],
+      "substitutions": [
+        "split_social"
+      ],
+      "program": {
+        "spaces": [
+          {
+            "space_id": "living_room",
+            "space_type": "living_room",
+            "zone": "social",
+            "scale": "large",
+            "wet": false,
+            "min_area_sqft": 200.0,
+            "target_area_sqft": 240.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "dining_room",
+            "space_type": "dining_room",
+            "zone": "social",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 130.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "kitchen",
+            "space_type": "kitchen",
+            "zone": "kitchen",
+            "scale": "normal",
+            "wet": true,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 145.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "breakfast_nook",
+            "space_type": "breakfast_nook",
+            "zone": "social",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 70.0,
+            "target_area_sqft": 70.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "pantry",
+            "space_type": "pantry",
+            "zone": "kitchen",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 12.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "kitchen",
+            "household_role": "general"
+          },
+          {
+            "space_id": "bedroom_primary",
+            "space_type": "bedroom",
+            "zone": "private",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 110.0,
+            "target_area_sqft": 132.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "primary_bath",
+            "space_type": "primary_bath",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": true,
+            "min_area_sqft": 60.0,
+            "target_area_sqft": 70.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "bathroom",
+            "space_type": "bathroom",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": true,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 59.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "walk_in_closet_primary",
+            "space_type": "walk_in_closet",
+            "zone": "private",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 40.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "primary"
+          },
+          {
+            "space_id": "closet",
+            "space_type": "closet",
+            "zone": "private",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 6.0,
+            "target_area_sqft": 10.0,
+            "floor_preference": null,
+            "host_space_id": "bedroom_primary",
+            "household_role": "general"
+          },
+          {
+            "space_id": "half_bath",
+            "space_type": "half_bath",
+            "zone": "circulation",
+            "scale": "support",
+            "wet": true,
+            "min_area_sqft": 18.0,
+            "target_area_sqft": 20.0,
+            "floor_preference": null,
+            "host_space_id": "foyer",
+            "household_role": "general"
+          },
+          {
+            "space_id": "storage",
+            "space_type": "storage",
+            "zone": "service",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 10.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "garage_1car",
+            "household_role": "general"
+          },
+          {
+            "space_id": "mechanical",
+            "space_type": "mechanical",
+            "zone": "service",
+            "scale": "support",
+            "wet": false,
+            "min_area_sqft": 10.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "hall",
+            "household_role": "general"
+          },
+          {
+            "space_id": "foyer",
+            "space_type": "foyer",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 40.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "hall",
+            "space_type": "hall",
+            "zone": "circulation",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 40.0,
+            "target_area_sqft": 75.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "laundry_closet",
+            "space_type": "laundry_closet",
+            "zone": "service",
+            "scale": "support",
+            "wet": true,
+            "min_area_sqft": 12.0,
+            "target_area_sqft": 15.0,
+            "floor_preference": null,
+            "host_space_id": "hall",
+            "household_role": "general"
+          },
+          {
+            "space_id": "mudroom",
+            "space_type": "mudroom",
+            "zone": "service",
+            "scale": "intermediate",
+            "wet": false,
+            "min_area_sqft": 35.0,
+            "target_area_sqft": 40.0,
+            "floor_preference": null,
+            "host_space_id": null,
+            "household_role": "general"
+          },
+          {
+            "space_id": "garage_1car",
+            "space_type": "garage_1car",
+            "zone": "garage",
+            "scale": "normal",
+            "wet": false,
+            "min_area_sqft": 220.0,
+            "target_area_sqft": 250.0,
+            "floor_preference": 0,
+            "host_space_id": null,
+            "household_role": "general"
+          }
+        ],
+        "zone_budgets": {
+          "social": {
+            "min_sqft": 380.0,
+            "max_sqft": 730.0
+          },
+          "private": {
+            "min_sqft": 251.0,
+            "max_sqft": 510.0
+          },
+          "kitchen": {
+            "min_sqft": 122.0,
+            "max_sqft": 285.0
+          },
+          "service": {
+            "min_sqft": 67.0,
+            "max_sqft": 180.0
+          },
+          "circulation": {
+            "min_sqft": 93.0,
+            "max_sqft": 305.0
+          },
+          "garage": {
+            "min_sqft": 220.0,
+            "max_sqft": 300.0
+          }
+        },
+        "garage_cars": 1,
+        "required_gross_area_sqft": null,
+        "gross_factor": 1.15
+      },
+      "accessibility": {
+        "ground_floor_bedroom": "bedroom_primary",
+        "ground_floor_full_bath": "bathroom",
+        "step_free_entry": true,
+        "passage_width_ft": 4.0,
+        "door_clear_width_in": 34,
+        "turning_diameter_ft": 5.0,
+        "changes": [
+          {
+            "space_id": "bedroom_primary",
+            "change": "ground_floor"
+          },
+          {
+            "space_id": "bedroom_primary",
+            "change": "area",
+            "from": 120.0,
+            "to": 132
+          },
+          {
+            "space_id": "bathroom",
+            "change": "ground_floor"
+          },
+          {
+            "space_id": "bathroom",
+            "change": "area",
+            "from": 45.0,
+            "to": 59
+          }
+        ],
+        "status": "provisional"
+      },
+      "feasibility": "fits_one_floor",
+      "review": {
+        "buildable_as_stated": true,
+        "counts": {
+          "error": 0,
+          "warning": 0,
+          "info": 0
+        },
+        "findings": []
+      },
+      "zoning": {
+        "status": "zoned",
+        "status_key": "zoned",
+        "valid": 97,
+        "space_level_valid": 24,
+        "best_score": 0.5987
+      },
+      "zoning_status": "zoned",
+      "observations": [
+        {
+          "code": "passed",
+          "severity": "ok",
+          "hard_pairs": 4,
+          "site_normative_ok": true,
+          "paving": 0.28,
+          "paving_limit": 0.6
+        },
+        {
+          "code": "weak_patio_link",
+          "severity": "review",
+          "role": "kitchen",
+          "spaces": [
+            "kitchen"
+          ],
+          "weight": 1.5
+        },
+        {
+          "code": "private_through_social",
+          "severity": "review",
+          "via": "kitchen",
+          "private": "hall_private"
+        },
+        {
+          "code": "below_target",
+          "severity": "review",
+          "space": "living_room",
+          "achieved": 214.6537,
+          "target": 240.0
+        },
+        {
+          "code": "below_target",
+          "severity": "review",
+          "space": "primary_bath",
+          "achieved": 62.2201,
+          "target": 70.0
+        },
+        {
+          "code": "circulation_high",
+          "severity": "review",
+          "fraction": 0.2095,
+          "target": 0.15
+        },
+        {
+          "code": "backyard_excluded",
+          "severity": "info",
+          "element": "spa",
+          "reason": "group 'water' already has 1 element(s)"
+        },
+        {
+          "code": "satellites",
+          "severity": "info",
+          "satellites": {
+            "closet": "bedroom_primary",
+            "half_bath": "foyer",
+            "laundry_closet": "foyer",
+            "mechanical": "foyer",
+            "pantry": "kitchen",
+            "storage": "garage_1car"
+          }
+        }
+      ]
+    },
+    "staged": {
+      "profile": "staged",
+      "today": {
+        "profile": "staged_today",
+        "gross_area_sqft": 1155.8,
+        "index": 0.3852,
+        "quality": 0.0585,
+        "next_stage_coverage": 0.3125,
+        "within_ceilings": true,
+        "blocked_by": null,
+        "garage_cars": 1,
+        "upgraded_zones": [],
+        "substitutions": [],
+        "program": {
+          "spaces": [
+            {
+              "space_id": "living_dining",
+              "space_type": "living_dining",
+              "zone": "social",
+              "scale": "large",
+              "wet": false,
+              "min_area_sqft": 250.0,
+              "target_area_sqft": 305.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "kitchen",
+              "space_type": "kitchen",
+              "zone": "kitchen",
+              "scale": "normal",
+              "wet": true,
+              "min_area_sqft": 110.0,
+              "target_area_sqft": 145.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "bedroom_primary",
+              "space_type": "bedroom",
+              "zone": "private",
+              "scale": "normal",
+              "wet": false,
+              "min_area_sqft": 110.0,
+              "target_area_sqft": 120.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "primary"
+            },
+            {
+              "space_id": "bathroom",
+              "space_type": "bathroom",
+              "zone": "private",
+              "scale": "intermediate",
+              "wet": true,
+              "min_area_sqft": 40.0,
+              "target_area_sqft": 45.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "closet",
+              "space_type": "closet",
+              "zone": "private",
+              "scale": "support",
+              "wet": false,
+              "min_area_sqft": 6.0,
+              "target_area_sqft": 10.0,
+              "floor_preference": null,
+              "host_space_id": "bedroom_primary",
+              "household_role": "general"
+            },
+            {
+              "space_id": "foyer",
+              "space_type": "foyer",
+              "zone": "circulation",
+              "scale": "intermediate",
+              "wet": false,
+              "min_area_sqft": 35.0,
+              "target_area_sqft": 40.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "hall",
+              "space_type": "hall",
+              "zone": "circulation",
+              "scale": "intermediate",
+              "wet": false,
+              "min_area_sqft": 40.0,
+              "target_area_sqft": 75.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "laundry_closet",
+              "space_type": "laundry_closet",
+              "zone": "service",
+              "scale": "support",
+              "wet": true,
+              "min_area_sqft": 12.0,
+              "target_area_sqft": 15.0,
+              "floor_preference": null,
+              "host_space_id": "hall",
+              "household_role": "general"
+            },
+            {
+              "space_id": "garage_1car",
+              "space_type": "garage_1car",
+              "zone": "garage",
+              "scale": "normal",
+              "wet": false,
+              "min_area_sqft": 220.0,
+              "target_area_sqft": 250.0,
+              "floor_preference": 0,
+              "host_space_id": null,
+              "household_role": "general"
+            }
+          ],
+          "zone_budgets": {
+            "social": {
+              "min_sqft": 250.0,
+              "max_sqft": 450.0
+            },
+            "private": {
+              "min_sqft": 156.0,
+              "max_sqft": 320.0
+            },
+            "kitchen": {
+              "min_sqft": 110.0,
+              "max_sqft": 250.0
+            },
+            "service": {
+              "min_sqft": 12.0,
+              "max_sqft": 35.0
+            },
+            "circulation": {
+              "min_sqft": 75.0,
+              "max_sqft": 270.0
+            },
+            "garage": {
+              "min_sqft": 220.0,
+              "max_sqft": 300.0
+            }
+          },
+          "garage_cars": 1,
+          "required_gross_area_sqft": null,
+          "gross_factor": 1.15
+        },
+        "feasibility": "fits_one_floor"
+      },
+      "final": {
+        "profile": "staged_final",
+        "gross_area_sqft": 1558.2,
+        "index": 0.5194,
+        "quality": 0.7398,
+        "next_stage_coverage": null,
+        "within_ceilings": true,
+        "blocked_by": null,
+        "garage_cars": 1,
+        "upgraded_zones": [],
+        "substitutions": [
+          "split_social"
+        ],
+        "program": {
+          "spaces": [
+            {
+              "space_id": "living_room",
+              "space_type": "living_room",
+              "zone": "social",
+              "scale": "large",
+              "wet": false,
+              "min_area_sqft": 200.0,
+              "target_area_sqft": 240.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "dining_room",
+              "space_type": "dining_room",
+              "zone": "social",
+              "scale": "normal",
+              "wet": false,
+              "min_area_sqft": 110.0,
+              "target_area_sqft": 130.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "kitchen",
+              "space_type": "kitchen",
+              "zone": "kitchen",
+              "scale": "normal",
+              "wet": true,
+              "min_area_sqft": 110.0,
+              "target_area_sqft": 145.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "breakfast_nook",
+              "space_type": "breakfast_nook",
+              "zone": "social",
+              "scale": "intermediate",
+              "wet": false,
+              "min_area_sqft": 70.0,
+              "target_area_sqft": 70.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "pantry",
+              "space_type": "pantry",
+              "zone": "kitchen",
+              "scale": "support",
+              "wet": false,
+              "min_area_sqft": 12.0,
+              "target_area_sqft": 15.0,
+              "floor_preference": null,
+              "host_space_id": "kitchen",
+              "household_role": "general"
+            },
+            {
+              "space_id": "bedroom_primary",
+              "space_type": "bedroom",
+              "zone": "private",
+              "scale": "normal",
+              "wet": false,
+              "min_area_sqft": 110.0,
+              "target_area_sqft": 120.0,
+              "floor_preference": 0,
+              "host_space_id": null,
+              "household_role": "primary"
+            },
+            {
+              "space_id": "primary_bath",
+              "space_type": "primary_bath",
+              "zone": "private",
+              "scale": "intermediate",
+              "wet": true,
+              "min_area_sqft": 60.0,
+              "target_area_sqft": 70.0,
+              "floor_preference": 0,
+              "host_space_id": null,
+              "household_role": "primary"
+            },
+            {
+              "space_id": "bathroom",
+              "space_type": "bathroom",
+              "zone": "private",
+              "scale": "intermediate",
+              "wet": true,
+              "min_area_sqft": 40.0,
+              "target_area_sqft": 45.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "walk_in_closet_primary",
+              "space_type": "walk_in_closet",
+              "zone": "private",
+              "scale": "intermediate",
+              "wet": false,
+              "min_area_sqft": 35.0,
+              "target_area_sqft": 40.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "primary"
+            },
+            {
+              "space_id": "closet",
+              "space_type": "closet",
+              "zone": "private",
+              "scale": "support",
+              "wet": false,
+              "min_area_sqft": 6.0,
+              "target_area_sqft": 10.0,
+              "floor_preference": null,
+              "host_space_id": "bedroom_primary",
+              "household_role": "general"
+            },
+            {
+              "space_id": "half_bath",
+              "space_type": "half_bath",
+              "zone": "circulation",
+              "scale": "support",
+              "wet": true,
+              "min_area_sqft": 18.0,
+              "target_area_sqft": 20.0,
+              "floor_preference": null,
+              "host_space_id": "foyer",
+              "household_role": "general"
+            },
+            {
+              "space_id": "storage",
+              "space_type": "storage",
+              "zone": "service",
+              "scale": "support",
+              "wet": false,
+              "min_area_sqft": 10.0,
+              "target_area_sqft": 15.0,
+              "floor_preference": null,
+              "host_space_id": "garage_1car",
+              "household_role": "general"
+            },
+            {
+              "space_id": "mechanical",
+              "space_type": "mechanical",
+              "zone": "service",
+              "scale": "support",
+              "wet": false,
+              "min_area_sqft": 10.0,
+              "target_area_sqft": 15.0,
+              "floor_preference": null,
+              "host_space_id": "hall",
+              "household_role": "general"
+            },
+            {
+              "space_id": "foyer",
+              "space_type": "foyer",
+              "zone": "circulation",
+              "scale": "intermediate",
+              "wet": false,
+              "min_area_sqft": 35.0,
+              "target_area_sqft": 40.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "hall",
+              "space_type": "hall",
+              "zone": "circulation",
+              "scale": "intermediate",
+              "wet": false,
+              "min_area_sqft": 40.0,
+              "target_area_sqft": 75.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "laundry_closet",
+              "space_type": "laundry_closet",
+              "zone": "service",
+              "scale": "support",
+              "wet": true,
+              "min_area_sqft": 12.0,
+              "target_area_sqft": 15.0,
+              "floor_preference": null,
+              "host_space_id": "hall",
+              "household_role": "general"
+            },
+            {
+              "space_id": "mudroom",
+              "space_type": "mudroom",
+              "zone": "service",
+              "scale": "intermediate",
+              "wet": false,
+              "min_area_sqft": 35.0,
+              "target_area_sqft": 40.0,
+              "floor_preference": null,
+              "host_space_id": null,
+              "household_role": "general"
+            },
+            {
+              "space_id": "garage_1car",
+              "space_type": "garage_1car",
+              "zone": "garage",
+              "scale": "normal",
+              "wet": false,
+              "min_area_sqft": 220.0,
+              "target_area_sqft": 250.0,
+              "floor_preference": 0,
+              "host_space_id": null,
+              "household_role": "general"
+            }
+          ],
+          "zone_budgets": {
+            "social": {
+              "min_sqft": 380.0,
+              "max_sqft": 730.0
+            },
+            "private": {
+              "min_sqft": 251.0,
+              "max_sqft": 510.0
+            },
+            "kitchen": {
+              "min_sqft": 122.0,
+              "max_sqft": 285.0
+            },
+            "service": {
+              "min_sqft": 67.0,
+              "max_sqft": 180.0
+            },
+            "circulation": {
+              "min_sqft": 93.0,
+              "max_sqft": 305.0
+            },
+            "garage": {
+              "min_sqft": 220.0,
+              "max_sqft": 300.0
+            }
+          },
+          "garage_cars": 1,
+          "required_gross_area_sqft": null,
+          "gross_factor": 1.15
+        },
+        "within_normative": true,
+        "feasibility": "fits_one_floor"
+      },
+      "expansion": [
+        {
+          "space_type": "breakfast_nook",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "dining_room",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "half_bath",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "living_dining",
+          "household_role": "general",
+          "now": 1,
+          "later": 0,
+          "change": -1
+        },
+        {
+          "space_type": "living_room",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "mechanical",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "mudroom",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "pantry",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "primary_bath",
+          "household_role": "primary",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "storage",
+          "household_role": "general",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        },
+        {
+          "space_type": "walk_in_closet",
+          "household_role": "primary",
+          "now": 0,
+          "later": 1,
+          "change": 1
+        }
+      ],
+      "expansion_gross_sqft": 402.5,
+      "convertible_now": [],
+      "index_today": 0.3852,
+      "index_later": 0.161,
+      "index_total": 0.5462,
+      "index_build_final_now": 0.5194,
+      "later_works_factor": 1.2,
+      "staging_premium": 0.0268,
+      "target_stage": "next"
+    }
+  },
+  "sheets": [
+    "examples/sheets/interior-50x100-empty-nest-anglo_optimum.png",
+    "examples/sheets/interior-50x100-empty-nest-anglo_maximum.png",
+    "examples/sheets/interior-50x100-empty-nest-anglo_accessible.png",
+    "examples/sheets/interior-50x100-empty-nest-anglo_portfolio.png"
+  ],
+  "title": "interior-50x100-empty-nest-anglo",
+  "subtitle": "Hogar empty_nest · 2 personas · perfil cultural anglo · cocina open_island · programa completo",
+  "staged_lines": [
+    "Hoy: índice 0.385 · después: 0.161 · total 0.546",
+    "Construir el final de una vez: 0.519 · prima por etapas +0.027",
+    "Ampliación 402 ft²; convertibles hoy: -"
+  ],
+  "notes": [
+    "Índice relativo comparativo, no es una estimación de costo ni una cotización"
+  ]
+}

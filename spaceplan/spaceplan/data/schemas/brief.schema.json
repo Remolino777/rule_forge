@@ -1,0 +1,1051 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/brief/0.2",
+  "title": "spaceplan design brief",
+  "description": "Input to spaceplan: lot, street context, orientation, overlays, program, typed relations and preferences. Units: feet / square feet.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "meta",
+    "dwelling_type",
+    "orientation",
+    "relations",
+    "relation_groups",
+    "preferences"
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "fraction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "status"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "catalog",
+            "client",
+            "code"
+          ]
+        },
+        "citation": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "provisional"
+          ]
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge_id",
+        "kind",
+        "boundary_class",
+        "street_id",
+        "alley_width_ft"
+      ],
+      "properties": {
+        "edge_id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "segment",
+            "arc"
+          ]
+        },
+        "arc": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "radius_ft",
+            "bulge"
+          ],
+          "properties": {
+            "radius_ft": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "bulge": {
+              "enum": [
+                "inward",
+                "outward"
+              ]
+            }
+          }
+        },
+        "boundary_class": {
+          "enum": [
+            "front",
+            "side",
+            "street_side",
+            "rear",
+            null
+          ]
+        },
+        "street_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "alley_width_ft": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "arc"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "arc"
+            ]
+          }
+        }
+      ]
+    },
+    "street": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "street_id",
+        "role",
+        "frontage_edge_ids",
+        "street_type",
+        "curve_radius_ft",
+        "noise_level",
+        "curb_cut",
+        "sidewalk_width_ft",
+        "grade_offset_ft"
+      ],
+      "properties": {
+        "street_id": {
+          "$ref": "#/$defs/id"
+        },
+        "role": {
+          "enum": [
+            "primary",
+            "secondary"
+          ]
+        },
+        "frontage_edge_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "street_type": {
+          "enum": [
+            "local",
+            "cul_de_sac",
+            "collector"
+          ]
+        },
+        "curve_radius_ft": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "noise_level": {
+          "$ref": "#/$defs/fraction"
+        },
+        "curb_cut": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "edge_id",
+                "position",
+                "width_ft"
+              ],
+              "properties": {
+                "edge_id": {
+                  "$ref": "#/$defs/id"
+                },
+                "position": {
+                  "$ref": "#/$defs/fraction"
+                },
+                "width_ft": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          ]
+        },
+        "sidewalk_width_ft": {
+          "type": "number",
+          "minimum": 0
+        },
+        "grade_offset_ft": {
+          "type": "number"
+        }
+      }
+    },
+    "space": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "space_id",
+        "zone",
+        "scale",
+        "wet",
+        "min_area_sqft",
+        "target_area_sqft"
+      ],
+      "properties": {
+        "space_id": {
+          "$ref": "#/$defs/id"
+        },
+        "zone": {
+          "enum": [
+            "social",
+            "private",
+            "kitchen",
+            "service",
+            "circulation",
+            "garage"
+          ]
+        },
+        "scale": {
+          "enum": [
+            "large",
+            "normal",
+            "intermediate",
+            "support"
+          ]
+        },
+        "wet": {
+          "type": "boolean"
+        },
+        "min_area_sqft": {
+          "type": "number",
+          "minimum": 0
+        },
+        "target_area_sqft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "floor_preference": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "space_type": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "host_space_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "household_role": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$",
+          "description": "Who or what the space serves in the household model (primary, child, accessible, work, guest, general)"
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relation_id",
+        "type",
+        "a",
+        "b",
+        "source"
+      ],
+      "properties": {
+        "relation_id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "enum": [
+            "mandatory",
+            "desired",
+            "forbidden",
+            "visual",
+            "context",
+            "vertical"
+          ]
+        },
+        "a": {
+          "$ref": "#/$defs/id"
+        },
+        "b": {
+          "$ref": "#/$defs/id"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1.0
+        },
+        "requires_door": {
+          "type": "boolean",
+          "default": false
+        },
+        "applies_to": {
+          "enum": [
+            "adjacency",
+            "opening"
+          ],
+          "default": "adjacency"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      }
+    },
+    "relation_group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "group_id",
+        "type",
+        "semantics",
+        "k",
+        "members",
+        "source"
+      ],
+      "properties": {
+        "group_id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "const": "alternative"
+        },
+        "semantics": {
+          "const": "at_least"
+        },
+        "k": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "members": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/id"
+              },
+              "b": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        "requires_door": {
+          "type": "boolean",
+          "default": false
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      }
+    },
+    "unit_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge_id",
+        "role"
+      ],
+      "properties": {
+        "edge_id": {
+          "$ref": "#/$defs/id"
+        },
+        "role": {
+          "enum": [
+            "access",
+            "exterior",
+            "party_wall"
+          ]
+        }
+      }
+    }
+  },
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "brief_id",
+        "schema_version",
+        "jurisdiction_id",
+        "zone",
+        "code_edition",
+        "units",
+        "seed"
+      ],
+      "properties": {
+        "brief_id": {
+          "$ref": "#/$defs/id"
+        },
+        "schema_version": {
+          "enum": [
+            "0.2",
+            "0.3",
+            "0.4",
+            "0.5"
+          ]
+        },
+        "jurisdiction_id": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "string"
+        },
+        "code_edition": {
+          "type": "string"
+        },
+        "units": {
+          "enum": [
+            "ft"
+          ]
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "lot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vertices",
+        "edges"
+      ],
+      "properties": {
+        "vertices": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "#/$defs/edge"
+          }
+        },
+        "flag": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "body_vertices",
+            "body_front_edge_index",
+            "access_strip_vertices"
+          ],
+          "description": "Flag lot (step 6.6, PROVISIONAL reading): the dwelling is planned on the body; its edge nearest the street acts as the front lot line; the access strip is a driveway outside the buildable area. SDMC flag-lot definitions pending verification.",
+          "properties": {
+            "body_vertices": {
+              "type": "array",
+              "minItems": 3,
+              "items": {
+                "$ref": "#/$defs/point"
+              }
+            },
+            "body_front_edge_index": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "access_strip_vertices": {
+              "type": "array",
+              "minItems": 3,
+              "items": {
+                "$ref": "#/$defs/point"
+              }
+            },
+            "far_area_basis": {
+              "enum": [
+                "body",
+                "full_lot"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "terrain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "front_steep_fraction",
+        "steep_hillside_fraction"
+      ],
+      "properties": {
+        "front_steep_fraction": {
+          "$ref": "#/$defs/fraction"
+        },
+        "steep_hillside_fraction": {
+          "$ref": "#/$defs/fraction"
+        },
+        "mean_slope": {
+          "type": "number",
+          "minimum": 0
+        },
+        "aspect_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 360
+        },
+        "view_side": {
+          "enum": [
+            "none",
+            "front",
+            "rear"
+          ],
+          "description": "Side with a protected view (canyon, bay); enables the social-floor-up vertical scheme (step 6.6)."
+        }
+      }
+    },
+    "streets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/street"
+      }
+    },
+    "orientation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "north_azimuth_deg",
+        "latitude_deg"
+      ],
+      "properties": {
+        "north_azimuth_deg": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 360
+        },
+        "latitude_deg": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        }
+      }
+    },
+    "overlays": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "height_map_limit_ft",
+        "cpioz",
+        "coastal",
+        "vhfhsz",
+        "historic",
+        "alucp"
+      ],
+      "properties": {
+        "height_map_limit_ft": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "cpioz": {
+          "type": "boolean"
+        },
+        "coastal": {
+          "type": "boolean"
+        },
+        "vhfhsz": {
+          "type": "boolean"
+        },
+        "historic": {
+          "type": "boolean"
+        },
+        "alucp": {
+          "type": "boolean"
+        }
+      }
+    },
+    "program": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "spaces",
+        "zone_budgets",
+        "garage_cars"
+      ],
+      "properties": {
+        "spaces": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/space"
+          }
+        },
+        "zone_budgets": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "social",
+              "private",
+              "kitchen",
+              "service",
+              "circulation",
+              "garage"
+            ]
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "min_sqft",
+              "max_sqft"
+            ],
+            "properties": {
+              "min_sqft": {
+                "type": "number",
+                "minimum": 0
+              },
+              "max_sqft": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "garage_cars": {
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "required_gross_area_sqft": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "gross_factor": {
+          "type": "number",
+          "minimum": 1
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relation"
+      }
+    },
+    "relation_groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relation_group"
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_garden_area_sqft",
+        "max_floors",
+        "profile"
+      ],
+      "properties": {
+        "min_garden_area_sqft": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "min_garden_depth_ft": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "max_floors": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "profile": {
+          "enum": [
+            "compact",
+            "social",
+            "private",
+            "balanced"
+          ]
+        },
+        "deck_position": {
+          "enum": [
+            "centered",
+            "offset",
+            "auto"
+          ]
+        }
+      }
+    },
+    "massing_assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "floor_to_floor_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 10.0
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width_method": {
+          "enum": [
+            "mean_width",
+            "frontage",
+            "at_front_setback",
+            null
+          ]
+        },
+        "depth_method": {
+          "enum": [
+            "front_rear_midpoints",
+            "max_extent",
+            null
+          ]
+        }
+      }
+    },
+    "dwelling_type": {
+      "enum": [
+        "house",
+        "apartment"
+      ]
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vertices",
+        "edges",
+        "entrance",
+        "level"
+      ],
+      "properties": {
+        "vertices": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "#/$defs/unit_edge"
+          }
+        },
+        "entrance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "edge_id",
+            "position",
+            "width_ft"
+          ],
+          "properties": {
+            "edge_id": {
+              "$ref": "#/$defs/id"
+            },
+            "position": {
+              "$ref": "#/$defs/fraction"
+            },
+            "width_ft": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "level": {
+          "type": "integer"
+        }
+      }
+    },
+    "backyard_program": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_green_fraction",
+        "elements"
+      ],
+      "properties": {
+        "min_green_fraction": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "element"
+            ],
+            "properties": {
+              "element": {
+                "enum": [
+                  "rear_deck",
+                  "pool",
+                  "spa",
+                  "bbq",
+                  "shed",
+                  "garden_beds",
+                  "covered_terrace",
+                  "outdoor_kitchen"
+                ]
+              },
+              "priority": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "zoning_overrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "anchors"
+      ],
+      "properties": {
+        "anchors": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "hard",
+              "soft",
+              "off"
+            ]
+          }
+        }
+      }
+    },
+    "relation_overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "a",
+          "b",
+          "type"
+        ],
+        "properties": {
+          "a": {
+            "type": "string"
+          },
+          "b": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "D",
+              "I",
+              "N"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "hard",
+              "soft"
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "household": {
+      "type": "object",
+      "description": "Household block (step 6.5a), validated against household.schema.json; when present without 'program', the program is derived from it"
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Relative budget (step 6.5b): a level or a fraction of the lot's normative maximum; never money",
+      "oneOf": [
+        {
+          "required": [
+            "level"
+          ]
+        },
+        {
+          "required": [
+            "fraction_of_max"
+          ]
+        }
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "tight",
+            "medium",
+            "ample"
+          ]
+        },
+        "fraction_of_max": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1.5
+        },
+        "cost_model": {
+          "enum": [
+            "base",
+            "weighted",
+            "shape"
+          ]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "dwelling_type": {
+            "const": "house"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "lot",
+          "terrain",
+          "streets",
+          "overlays"
+        ],
+        "not": {
+          "required": [
+            "unit"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "dwelling_type": {
+            "const": "apartment"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "unit"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "lot"
+              ]
+            },
+            {
+              "required": [
+                "streets"
+              ]
+            },
+            {
+              "required": [
+                "backyard_program"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

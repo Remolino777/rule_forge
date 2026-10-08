@@ -1,0 +1,617 @@
+{
+  "ruleset_id": "sdmc-rs-1-7-capacity",
+  "ruleset_version": "0.4.0",
+  "jurisdiction_id": "us-ca-san-diego",
+  "zone": "RS-1-7",
+  "code_edition": "SDMC-Ch13-2026-07",
+  "transcribed_from": "01_Zona_Piloto_Clairemont_Navajo_RS-1-7 v1.0 (2026-09-23)",
+  "verification_note": "verified=true means the value was transcribed with its section citation from the pilot-zone document. Every value must be re-checked against the official SDMC text before the golden rules are frozen at gate G0.",
+  "scope": {
+    "excluded_overlays": [
+      "coastal",
+      "cpioz",
+      "vhfhsz",
+      "historic",
+      "alucp"
+    ],
+    "source": {
+      "document": "Pilot zone v1.0",
+      "section": "3. Inclusion and exclusion criteria"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [
+      "mean_width",
+      "frontage",
+      "at_front_setback"
+    ],
+    "depth_methods": [
+      "front_rear_midpoints",
+      "max_extent"
+    ],
+    "default_width_method": "mean_width",
+    "default_depth_method": "front_rear_midpoints",
+    "setback_distance_semantics": "euclidean_to_boundary",
+    "verified": false,
+    "source": {
+      "document": "SDMC Ch. 11",
+      "section": "lot width / lot depth definitions (pending)"
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "Z00-LOT-AREA-MIN",
+      "magnitude": "lot_area",
+      "operator": ">=",
+      "value": 5000,
+      "unit": "sq_ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "Z00-LOT-WIDTH-MIN",
+      "magnitude": "lot_width",
+      "operator": ">=",
+      "value": 50,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "corner_lot",
+          "parameters": {
+            "lot_width_min_ft": 55
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "Table 131-04D"
+          },
+          "verified": true
+        }
+      ]
+    },
+    {
+      "rule_id": "Z00-LOT-DEPTH-MIN",
+      "magnitude": "lot_depth",
+      "operator": ">=",
+      "value": 95,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "Z00-FRONTAGE-MIN",
+      "magnitude": "street_frontage",
+      "operator": ">=",
+      "value": 50,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "curved_street",
+          "parameters": {
+            "radius_below_ft": 100,
+            "fraction_of_minimum": 0.6
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0442(a)"
+          },
+          "verified": true
+        }
+      ]
+    },
+    {
+      "rule_id": "Z01-FRONT-SETBACK",
+      "magnitude": "front_setback",
+      "operator": ">=",
+      "value": 15,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "cul_de_sac",
+          "parameters": {
+            "reduction_ft": 5,
+            "min_ft": 5
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0443(a)(1)"
+          },
+          "verified": true
+        },
+        {
+          "variant_id": "front_slope",
+          "parameters": {
+            "front_steep_fraction_at_least": 0.5,
+            "reduced_to_ft": 6
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "Table 131-04D note 1"
+          },
+          "verified": true
+        }
+      ]
+    },
+    {
+      "rule_id": "Z02-SIDE-SETBACK",
+      "magnitude": "side_setback",
+      "operator": ">=",
+      "value": 4,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D note 2"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "narrow_lot",
+          "parameters": {
+            "fraction_of_width": 0.08
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0443(a)(4)(A)"
+          },
+          "verified": true
+        },
+        {
+          "variant_id": "reassignment",
+          "parameters": {
+            "width_above_ft": 50,
+            "side_min_ft": 4,
+            "street_side_min_ft": 10
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0443(a)(4)(B)"
+          },
+          "verified": true
+        }
+      ]
+    },
+    {
+      "rule_id": "Z03-STREET-SIDE-SETBACK",
+      "magnitude": "street_side_setback",
+      "operator": ">=",
+      "value": 5,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D note 2"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "Z04-REAR-SETBACK",
+      "magnitude": "rear_setback",
+      "operator": ">=",
+      "value": 13,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D note 3"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "shallow_lot",
+          "parameters": {
+            "depth_below_ft": 100,
+            "fraction_of_depth": 0.1,
+            "min_ft": 5
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0443(a)(2)"
+          },
+          "verified": true
+        },
+        {
+          "variant_id": "deep_lot",
+          "parameters": {
+            "depth_above_ft": 150,
+            "fraction_of_depth": 0.1
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0443(a)(2)"
+          },
+          "verified": true
+        },
+        {
+          "variant_id": "alley",
+          "parameters": {
+            "alley_fraction": 0.5,
+            "credit_max_ft": 10,
+            "min_inside_ft": 5
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0443(a)(2)(B)"
+          },
+          "verified": true
+        }
+      ]
+    },
+    {
+      "rule_id": "Z05-HEIGHT-MAX",
+      "magnitude": "structure_height",
+      "operator": "<=",
+      "value": 24,
+      "unit": "ft",
+      "value_options_ft": [
+        24,
+        30
+      ],
+      "note": "Table 131-04D note 4 gives 24/30 ft; which value applies (131.0444(b)) and the measuring method (113.0270) are pending. 24 ft is the conservative default.",
+      "source": {
+        "document": "SDMC",
+        "section": "Table 131-04D note 4; 131.0444(b)"
+      },
+      "verified": false,
+      "variants": [
+        {
+          "variant_id": "height_limit_overlay_map",
+          "parameters": {},
+          "source": {
+            "document": "SDMC Ch13 Art2 Div13 (O-22049)",
+            "section": "Map C-1041"
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "rule_id": "Z06-ANGLED-PLANE",
+      "magnitude": "angled_building_envelope",
+      "operator": "within",
+      "value": null,
+      "unit": "deg",
+      "parameters": {
+        "narrow_width_below_ft": 75,
+        "narrow_angle_deg": 45,
+        "wide_width_max_ft": 150,
+        "wide_angle_deg": 30,
+        "front_trigger_height_ft": 27
+      },
+      "note": "Exact plane geometry per Diagram 131-04L is pending; reported, not applied geometrically in step 2.",
+      "source": {
+        "document": "SDMC",
+        "section": "131.0444(b)(c)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "Z07-FAR",
+      "magnitude": "floor_area_ratio",
+      "operator": "<=",
+      "value": null,
+      "unit": "ratio",
+      "table": [
+        {
+          "max_lot_area_sqft": 5000,
+          "far": 0.6
+        },
+        {
+          "max_lot_area_sqft": 6000,
+          "far": 0.59
+        },
+        {
+          "max_lot_area_sqft": 7000,
+          "far": 0.58
+        },
+        {
+          "max_lot_area_sqft": 8000,
+          "far": 0.57
+        },
+        {
+          "max_lot_area_sqft": 9000,
+          "far": 0.56
+        },
+        {
+          "max_lot_area_sqft": 10000,
+          "far": 0.55
+        },
+        {
+          "max_lot_area_sqft": 11000,
+          "far": 0.54
+        },
+        {
+          "max_lot_area_sqft": 12000,
+          "far": 0.53
+        },
+        {
+          "max_lot_area_sqft": 13000,
+          "far": 0.52
+        },
+        {
+          "max_lot_area_sqft": 14000,
+          "far": 0.51
+        },
+        {
+          "max_lot_area_sqft": 15000,
+          "far": 0.5
+        },
+        {
+          "max_lot_area_sqft": 16000,
+          "far": 0.49
+        },
+        {
+          "max_lot_area_sqft": 17000,
+          "far": 0.48
+        },
+        {
+          "max_lot_area_sqft": 18000,
+          "far": 0.47
+        },
+        {
+          "max_lot_area_sqft": 19000,
+          "far": 0.46
+        },
+        {
+          "max_lot_area_sqft": null,
+          "far": 0.45
+        }
+      ],
+      "source": {
+        "document": "SDMC",
+        "section": "131.0446(a)(1), Table 131-04J"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "hillside",
+          "parameters": {
+            "steep_fraction_above": 0.5,
+            "remainder_fraction": 0.25
+          },
+          "note": "FAR row taken from the full lot area (interpretation pending).",
+          "source": {
+            "document": "SDMC",
+            "section": "131.0446(a)(2)"
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "rule_id": "Z08-HILLSIDE-COVERAGE",
+      "magnitude": "lot_coverage",
+      "operator": "<=",
+      "value": 0.5,
+      "unit": "ratio",
+      "parameters": {
+        "steep_fraction_above": 0.5
+      },
+      "source": {
+        "document": "SDMC",
+        "section": "131.0445(a)"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "Z09-THIRD-FLOOR",
+      "magnitude": "third_floor_dimensions",
+      "operator": "<=",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "width_fraction_of_lot_width": 0.7,
+        "depth_fraction_of_lot_depth": 0.5,
+        "depth_fraction_of_third_floor_width": 1.0
+      },
+      "note": "'100% of its maximum width' read as the third floor's maximum width (interpretation pending).",
+      "source": {
+        "document": "SDMC",
+        "section": "131.0460"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "Z10-FRONT-PAVEMENT",
+      "magnitude": "front_yard_paving_fraction",
+      "operator": "<=",
+      "value": 0.6,
+      "unit": "ratio",
+      "parameters": {
+        "vehicle_limit": 4,
+        "vehicle_limit_lot_area_below_sqft": 10000
+      },
+      "source": {
+        "document": "SDMC",
+        "section": "131.0447"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "deck_counts_as_paving",
+          "parameters": {
+            "counts": true
+          },
+          "note": "Whether an entry deck/porch inside the front yard counts as paving is pending; counted by default (conservative).",
+          "source": {
+            "document": "SDMC",
+            "section": "131.0447 (deck treatment pending)"
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "rule_id": "Z11-PROJECTIONS",
+      "magnitude": "setback_projection",
+      "operator": "<=",
+      "value": null,
+      "unit": "ft",
+      "source": {
+        "document": "SDMC",
+        "section": "131.0461(a)"
+      },
+      "verified": true,
+      "variants": [
+        {
+          "variant_id": "porch_entry",
+          "parameters": {
+            "max_projection_ft": 6,
+            "max_fraction_of_setback": 0.5,
+            "max_height_ft": 15,
+            "min_open_fraction": 0.4
+          },
+          "source": {
+            "document": "SDMC",
+            "section": "131.0461(a)(6)"
+          },
+          "verified": true
+        },
+        {
+          "variant_id": "mechanical_equipment",
+          "parameters": {
+            "min_distance_to_line_ft": 4
+          },
+          "note": "Exception for sound-attenuated air conditioning not modelled.",
+          "source": {
+            "document": "SDMC",
+            "section": "131.0461(a)(5)"
+          },
+          "verified": true
+        }
+      ]
+    },
+    {
+      "rule_id": "Z12-BUILDING-SEPARATION",
+      "magnitude": "building_separation",
+      "operator": ">=",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "between_dwellings_ft": 6,
+        "to_nonhabitable_accessory_ft": 3
+      },
+      "source": {
+        "document": "SDMC",
+        "section": "131.0450"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "Z13-POOL-SPA",
+      "magnitude": "pool_spa_clearances",
+      "operator": ">=",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "pool_min_to_lot_line_ft": 5,
+        "spa_min_to_lot_line_ft": 3,
+        "pool_min_to_dwelling_ft": 5,
+        "safety_barrier_required": true
+      },
+      "note": "PLACEHOLDER values pending verification (SDMC accessory-use regulations; CA Health & Safety Code pool safety barrier).",
+      "source": {
+        "document": "SDMC / CA H&SC",
+        "section": "pool and spa regulations (pending)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "Z14-ACCESSORY-STRUCTURE",
+      "magnitude": "accessory_structure_clearance",
+      "operator": ">=",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "min_to_lot_line_ft": 3
+      },
+      "note": "PLACEHOLDER: setbacks for accessory structures in RS zones pending verification; whether a shed counts toward FAR is also pending.",
+      "source": {
+        "document": "SDMC",
+        "section": "accessory structures in RS zones (pending)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "Z15-BUILDING-INDICES",
+      "magnitude": "building_indices",
+      "operator": "report",
+      "value": null,
+      "unit": "ratio",
+      "parameters": {
+        "indices": [
+          {
+            "index_id": "construction_index",
+            "symbol": "IC",
+            "numerator": "gross_floor_area",
+            "denominator": "lot_area",
+            "limit_rule_id": "Z07-FAR",
+            "limit_kind": "gross_area_max",
+            "note": "Construction index (built area / lot area). In the SDMC it is the FAR of Table 131-04J applied to the FAR base area."
+          },
+          {
+            "index_id": "occupancy_index",
+            "symbol": "IO",
+            "numerator": "ground_footprint",
+            "denominator": "lot_area",
+            "limit_rule_id": "Z08-HILLSIDE-COVERAGE",
+            "limit_kind": "coverage_max",
+            "note": "Occupancy index (ground footprint / lot area). In RS-1-7 a ratio limit exists only on hillside lots (131.0445(a)); on flat lots occupancy is bounded by setbacks and FAR."
+          }
+        ],
+        "default_variant": "garage_included"
+      },
+      "note": "Ratio-rule family (step 6.6): each index names its numerator, denominator and the rule that limits it, so another jurisdiction (e.g. a Colombian POT with its own IO and IC) is declared here without code. Whether garage area counts as gross floor area is pending: both readings are evaluated and the decision is checked against the alternative.",
+      "source": {
+        "document": "SDMC",
+        "section": "113.0234 gross floor area; 131.0446(a) (pending)"
+      },
+      "verified": false,
+      "variants": [
+        {
+          "variant_id": "garage_included",
+          "parameters": {
+            "excluded_zones": []
+          },
+          "note": "Conservative default: garage area counts as gross floor area.",
+          "source": {
+            "document": "SDMC",
+            "section": "113.0234 gross floor area; 131.0446(a) (pending)"
+          },
+          "verified": false
+        },
+        {
+          "variant_id": "garage_excluded",
+          "parameters": {
+            "excluded_zones": [
+              "garage"
+            ]
+          },
+          "note": "Alternative reading: garage area excluded from gross floor area (sensitivity).",
+          "source": {
+            "document": "SDMC",
+            "section": "113.0234 gross floor area; 131.0446(a) (pending)"
+          },
+          "verified": false
+        }
+      ]
+    }
+  ]
+}

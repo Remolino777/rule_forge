@@ -1,0 +1,121 @@
+{
+  "ruleset_id": "crc-2025-habitability",
+  "ruleset_version": "0.2.0",
+  "jurisdiction_id": "us-ca",
+  "zone": "*",
+  "code_edition": "CRC-2025",
+  "transcribed_from": "01_Zona_Piloto_Clairemont_Navajo_RS-1-7 v1.0, section 7 (CRC 2025 values)",
+  "verification_note": "The pilot-zone document flags these values as base-code text still to verify; the 2025 cycle renumbered sections. All entries stay provisional until checked.",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "CRC 2025",
+      "section": "n/a"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [],
+    "depth_methods": [],
+    "default_width_method": null,
+    "default_depth_method": null,
+    "setback_distance_semantics": null,
+    "verified": false,
+    "source": {
+      "document": "CRC 2025",
+      "section": "n/a"
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "C01-HABITABLE-AREA",
+      "magnitude": "habitable_room_area",
+      "operator": ">=",
+      "value": 70,
+      "unit": "sq_ft",
+      "source": {
+        "document": "CRC 2025",
+        "section": "habitable room area (R304 in prior editions; verify)"
+      },
+      "verified": false,
+      "variants": [
+        {
+          "variant_id": "kitchen_exempt",
+          "parameters": {
+            "exempt_space_types": [
+              "kitchen"
+            ]
+          },
+          "source": {
+            "document": "CRC 2025",
+            "section": "kitchen exception (verify)"
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "rule_id": "C01-HABITABLE-DIMENSION",
+      "magnitude": "habitable_room_min_dimension",
+      "operator": ">=",
+      "value": 7,
+      "unit": "ft",
+      "source": {
+        "document": "CRC 2025",
+        "section": "minimum horizontal dimension (R304 in prior editions; verify)"
+      },
+      "verified": false,
+      "variants": [
+        {
+          "variant_id": "kitchen_exempt",
+          "parameters": {
+            "exempt_space_types": [
+              "kitchen"
+            ]
+          },
+          "source": {
+            "document": "CRC 2025",
+            "section": "kitchen exception (verify)"
+          },
+          "verified": false
+        }
+      ]
+    },
+    {
+      "rule_id": "C03-GLAZING",
+      "magnitude": "glazing_to_floor_area",
+      "operator": ">=",
+      "value": 0.08,
+      "unit": "ratio",
+      "source": {
+        "document": "CRC 2025",
+        "section": "natural light (R303 in prior editions; verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "C03-VENTILATION",
+      "magnitude": "openable_to_floor_area",
+      "operator": ">=",
+      "value": 0.04,
+      "unit": "ratio",
+      "source": {
+        "document": "CRC 2025",
+        "section": "natural ventilation (R303 in prior editions; verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "C06-HALLWAY-WIDTH",
+      "magnitude": "hallway_clear_width",
+      "operator": ">=",
+      "value": 3,
+      "unit": "ft",
+      "note": "36 in; numbering in the 2025 cycle to verify",
+      "source": {
+        "document": "CRC 2025",
+        "section": "hallways (R311.6 in prior editions; verify)"
+      },
+      "verified": false
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/household/0.2",
+  "title": "spaceplan household (who lives, how they live, trajectory)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "archetype_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "members": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "member_id",
+          "age_years"
+        ],
+        "properties": {
+          "member_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "age_years": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120
+          },
+          "mobility": {
+            "enum": [
+              "full",
+              "reduced",
+              "anticipated"
+            ]
+          },
+          "works_from_home": {
+            "type": "boolean"
+          },
+          "partner_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-z0-9_]+$"
+          }
+        }
+      }
+    },
+    "social_life": {
+      "enum": [
+        "intimate",
+        "frequent",
+        "large_gatherings"
+      ]
+    },
+    "guests": {
+      "enum": [
+        "rare",
+        "frequent",
+        "temporary_residents"
+      ]
+    },
+    "cooking": {
+      "enum": [
+        "light",
+        "daily",
+        "intensive"
+      ]
+    },
+    "vehicles": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "pets": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 20
+    },
+    "shared_rooms_ok": {
+      "type": "boolean"
+    },
+    "cultural_profile": {
+      "enum": [
+        "latino",
+        "anglo",
+        "mixed",
+        "custom",
+        null
+      ]
+    },
+    "trajectory": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "horizon_years": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "event",
+              "in_years"
+            ],
+            "properties": {
+              "event": {
+                "enum": [
+                  "child_expected",
+                  "elder_joins",
+                  "adult_joins",
+                  "member_leaves",
+                  "mobility_change"
+                ]
+              },
+              "in_years": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 30
+              },
+              "member_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "age_years": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 120
+              },
+              "mobility": {
+                "enum": [
+                  "full",
+                  "reduced",
+                  "anticipated"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "program_tier": {
+      "enum": [
+        "required",
+        "preferred",
+        "desirable"
+      ]
+    },
+    "include_household": {
+      "type": "boolean",
+      "description": "Privacy: copy the composition into the package (default false)"
+    },
+    "culture_aspects": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Client-chosen cultural aspects; override the preset of cultural_profile",
+      "properties": {
+        "kitchen_living_relation": {
+          "enum": [
+            "open",
+            "separable",
+            "closed"
+          ]
+        },
+        "social_center": {
+          "enum": [
+            "dining_table",
+            "kitchen_island",
+            "living"
+          ]
+        },
+        "ventilation_priority": {
+          "enum": [
+            "normal",
+            "high"
+          ]
+        },
+        "dining_capacity": {
+          "enum": [
+            "household",
+            "extended_family"
+          ]
+        },
+        "outdoor_cooking": {
+          "enum": [
+            "none",
+            "amenity",
+            "gathering"
+          ]
+        },
+        "entry_sequence": {
+          "enum": [
+            "front",
+            "garage_mudroom_kitchen"
+          ]
+        },
+        "laundry_location": {
+          "enum": [
+            "service_yard",
+            "near_bedrooms"
+          ]
+        },
+        "bath_per_bedroom": {
+          "enum": [
+            "shared_ok",
+            "en_suite_preferred"
+          ]
+        },
+        "patio_use": {
+          "enum": [
+            "gathering",
+            "lawn_play"
+          ]
+        }
+      }
+    },
+    "kitchen_typology": {
+      "enum": [
+        "open_island",
+        "semi_open_separable",
+        "closed_ventilated",
+        "double_kitchen",
+        null
+      ],
+      "description": "Explicit kitchen typology; otherwise selected from the aspects"
+    }
+  }
+}

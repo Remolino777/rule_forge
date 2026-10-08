@@ -1,0 +1,2091 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/catalog/0.1",
+  "title": "spaceplan zone, scale and typology catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalog_id",
+    "catalog_version",
+    "units",
+    "default_source",
+    "scales",
+    "zones",
+    "profiles",
+    "target_rounding_sqft",
+    "space_types",
+    "site_zone_types",
+    "garage_by_cars",
+    "typologies",
+    "orientation_model",
+    "zoning",
+    "zone_parts",
+    "zoning_profiles",
+    "backyard_policy",
+    "backyard_elements",
+    "circulation",
+    "relation_matrix",
+    "realization",
+    "corrections",
+    "polygonal_extension",
+    "cost_index",
+    "accessibility"
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "zone": {
+      "enum": [
+        "social",
+        "private",
+        "kitchen",
+        "service",
+        "circulation",
+        "garage"
+      ]
+    },
+    "scale": {
+      "enum": [
+        "large",
+        "normal",
+        "intermediate",
+        "support",
+        "intermediate_exterior",
+        "large_exterior"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "citation",
+        "status"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "catalog",
+            "client",
+            "code",
+            "public_data"
+          ]
+        },
+        "citation": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "provisional"
+          ]
+        }
+      }
+    },
+    "weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "shoulder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "roles"
+      ],
+      "properties": {
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "street_view",
+              "garden_view",
+              "exterior",
+              "street",
+              "garden",
+              "side_yard"
+            ]
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "properties": {
+    "catalog_id": {
+      "type": "string"
+    },
+    "catalog_version": {
+      "type": "string"
+    },
+    "units": {
+      "const": "sq_ft"
+    },
+    "default_source": {
+      "$ref": "#/$defs/source"
+    },
+    "scales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scale",
+          "area_min",
+          "area_max",
+          "facade",
+          "topology",
+          "placement_order"
+        ],
+        "properties": {
+          "scale": {
+            "$ref": "#/$defs/scale"
+          },
+          "area_min": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "area_max": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "facade": {
+            "enum": [
+              "required",
+              "required_if_habitable",
+              "desirable",
+              "none",
+              "exterior"
+            ]
+          },
+          "topology": {
+            "enum": [
+              "node",
+              "satellite",
+              "site"
+            ]
+          },
+          "placement_order": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "zone",
+          "dominant_scale",
+          "floor_preference",
+          "floor_rule",
+          "orientation",
+          "content",
+          "min_width_ft"
+        ],
+        "properties": {
+          "zone": {
+            "$ref": "#/$defs/zone"
+          },
+          "dominant_scale": {
+            "$ref": "#/$defs/scale"
+          },
+          "floor_preference": {
+            "enum": [
+              "ground",
+              "upper",
+              "any"
+            ]
+          },
+          "floor_rule": {
+            "enum": [
+              "soft",
+              "hard"
+            ]
+          },
+          "orientation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sun",
+              "morning_light",
+              "street_privacy"
+            ],
+            "properties": {
+              "sun": {
+                "$ref": "#/$defs/weight"
+              },
+              "morning_light": {
+                "$ref": "#/$defs/weight"
+              },
+              "street_privacy": {
+                "$ref": "#/$defs/weight"
+              }
+            }
+          },
+          "content": {
+            "type": "string"
+          },
+          "min_width_ft": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "$ref": "#/$defs/zone"
+        },
+        "additionalProperties": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "target_rounding_sqft": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "space_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "space_type",
+          "zone",
+          "scale",
+          "habitable",
+          "wet",
+          "area",
+          "passable",
+          "min_side_ft"
+        ],
+        "properties": {
+          "space_type": {
+            "$ref": "#/$defs/id"
+          },
+          "zone": {
+            "$ref": "#/$defs/zone"
+          },
+          "scale": {
+            "enum": [
+              "large",
+              "normal",
+              "intermediate",
+              "support"
+            ]
+          },
+          "habitable": {
+            "type": "boolean"
+          },
+          "wet": {
+            "type": "boolean"
+          },
+          "area": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "min",
+              "target",
+              "max"
+            ],
+            "properties": {
+              "min": {
+                "type": "number",
+                "minimum": 0
+              },
+              "target": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "max": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "host_types": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "scale_range_exception": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/$defs/source"
+          },
+          "passable": {
+            "type": "boolean"
+          },
+          "min_side_ft": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "vehicles": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "lanes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "site_zone_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "site_zone",
+          "scale",
+          "parameters"
+        ],
+        "properties": {
+          "site_zone": {
+            "enum": [
+              "garden",
+              "front_green",
+              "walkway",
+              "entry_deck",
+              "driveway",
+              "side_yard"
+            ]
+          },
+          "scale": {
+            "$ref": "#/$defs/scale"
+          },
+          "parameters": {
+            "type": "object"
+          },
+          "note": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "garage_by_cars": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "0",
+        "1",
+        "2"
+      ],
+      "properties": {
+        "0": {
+          "type": "null"
+        },
+        "1": {
+          "$ref": "#/$defs/id"
+        },
+        "2": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "typologies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "typology_id",
+          "label",
+          "bedrooms",
+          "gross_factor",
+          "spaces",
+          "dwelling_type"
+        ],
+        "properties": {
+          "typology_id": {
+            "$ref": "#/$defs/id"
+          },
+          "label": {
+            "type": "string"
+          },
+          "bedrooms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "gross_factor": {
+            "type": "number",
+            "minimum": 1
+          },
+          "spaces": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "space_type",
+                "count"
+              ],
+              "properties": {
+                "space_type": {
+                  "$ref": "#/$defs/id"
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "dwelling_type": {
+            "enum": [
+              "house",
+              "apartment"
+            ]
+          }
+        }
+      }
+    },
+    "orientation_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "equator_weight_full_at_lat_deg",
+        "morning_azimuth_deg",
+        "afternoon_azimuth_deg"
+      ],
+      "properties": {
+        "equator_weight_full_at_lat_deg": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "morning_azimuth_deg": {
+          "type": "number"
+        },
+        "afternoon_azimuth_deg": {
+          "type": "number"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "zoning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_contact_ft",
+        "max_aspect_ratio",
+        "top_k",
+        "weights",
+        "site_facades",
+        "max_zones_per_column",
+        "space_weights",
+        "level_weights",
+        "max_through_column",
+        "merge_options"
+      ],
+      "properties": {
+        "min_contact_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max_aspect_ratio": {
+          "type": "number",
+          "minimum": 1
+        },
+        "top_k": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "weights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "relations",
+            "orientation",
+            "shape"
+          ],
+          "properties": {
+            "relations": {
+              "type": "number",
+              "minimum": 0
+            },
+            "orientation": {
+              "type": "number",
+              "minimum": 0
+            },
+            "shape": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "site_facades": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "front",
+                "rear",
+                "left",
+                "right"
+              ]
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "max_zones_per_column": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "space_weights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "matrix",
+            "circulation",
+            "shape"
+          ],
+          "properties": {
+            "matrix": {
+              "type": "number",
+              "minimum": 0
+            },
+            "circulation": {
+              "type": "number",
+              "minimum": 0
+            },
+            "shape": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "level_weights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "zone",
+            "space"
+          ],
+          "properties": {
+            "zone": {
+              "type": "number",
+              "minimum": 0
+            },
+            "space": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "max_through_column": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "merge_options": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "into",
+              "max_area_sqft"
+            ],
+            "properties": {
+              "into": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/zone"
+                }
+              },
+              "max_area_sqft": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "shoulder_facades": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "front_shoulder",
+            "rear_shoulder",
+            "source"
+          ],
+          "properties": {
+            "front_shoulder": {
+              "$ref": "#/$defs/shoulder"
+            },
+            "rear_shoulder": {
+              "$ref": "#/$defs/shoulder"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
+          }
+        },
+        "max_area_shift": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "note_area_shift": {
+          "type": "string"
+        },
+        "joint_articulation": {
+          "type": "boolean"
+        }
+      }
+    },
+    "zone_parts": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/zone"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schemes"
+        ],
+        "properties": {
+          "schemes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "scheme_id",
+                "parts",
+                "dwelling_types"
+              ],
+              "properties": {
+                "scheme_id": {
+                  "type": "string"
+                },
+                "parts": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "part",
+                      "space_types",
+                      "min_width_ft"
+                    ],
+                    "properties": {
+                      "part": {
+                        "type": "string",
+                        "pattern": "^[a-z]+$"
+                      },
+                      "space_types": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "$ref": "#/$defs/id"
+                        }
+                      },
+                      "min_width_ft": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                },
+                "dwelling_types": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "house",
+                      "apartment"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "zoning_profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "house",
+        "apartment"
+      ],
+      "properties": {
+        "house": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "access_role",
+            "entry",
+            "anchors",
+            "entry_sequence"
+          ],
+          "properties": {
+            "access_role": {
+              "type": "string"
+            },
+            "entry": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "zone",
+                "interval",
+                "min_overlap_ft"
+              ],
+              "properties": {
+                "zone": {
+                  "$ref": "#/$defs/zone"
+                },
+                "interval": {
+                  "enum": [
+                    "entry_deck",
+                    "entrance"
+                  ]
+                },
+                "min_overlap_ft": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            },
+            "anchors": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "anchor_id",
+                  "space_types",
+                  "facade_role",
+                  "kind",
+                  "min_contact_ft",
+                  "weight",
+                  "source"
+                ],
+                "properties": {
+                  "anchor_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "space_types": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/id"
+                    }
+                  },
+                  "facade_role": {
+                    "enum": [
+                      "main_street",
+                      "street",
+                      "garden",
+                      "side_yard",
+                      "exterior",
+                      "access",
+                      "party_wall"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "hard",
+                      "soft"
+                    ]
+                  },
+                  "min_contact_ft": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "source": {
+                    "$ref": "#/$defs/source"
+                  },
+                  "fallback_role": {
+                    "enum": [
+                      "street_view",
+                      "garden_view",
+                      "exterior",
+                      "street"
+                    ]
+                  },
+                  "fallback_penalty": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "entry_sequence": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "anchor_id",
+                    "via_zone",
+                    "target_zone",
+                    "kind",
+                    "forbid_entrance_contact",
+                    "source"
+                  ],
+                  "properties": {
+                    "anchor_id": {
+                      "$ref": "#/$defs/id"
+                    },
+                    "via_zone": {
+                      "$ref": "#/$defs/zone"
+                    },
+                    "target_zone": {
+                      "$ref": "#/$defs/zone"
+                    },
+                    "kind": {
+                      "enum": [
+                        "hard",
+                        "soft"
+                      ]
+                    },
+                    "forbid_entrance_contact": {
+                      "type": "boolean"
+                    },
+                    "source": {
+                      "$ref": "#/$defs/source"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "apartment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "access_role",
+            "entry",
+            "anchors",
+            "entry_sequence"
+          ],
+          "properties": {
+            "access_role": {
+              "type": "string"
+            },
+            "entry": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "zone",
+                "interval",
+                "min_overlap_ft"
+              ],
+              "properties": {
+                "zone": {
+                  "$ref": "#/$defs/zone"
+                },
+                "interval": {
+                  "enum": [
+                    "entry_deck",
+                    "entrance"
+                  ]
+                },
+                "min_overlap_ft": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            },
+            "anchors": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "anchor_id",
+                  "space_types",
+                  "facade_role",
+                  "kind",
+                  "min_contact_ft",
+                  "weight",
+                  "source"
+                ],
+                "properties": {
+                  "anchor_id": {
+                    "$ref": "#/$defs/id"
+                  },
+                  "space_types": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/id"
+                    }
+                  },
+                  "facade_role": {
+                    "enum": [
+                      "main_street",
+                      "street",
+                      "garden",
+                      "side_yard",
+                      "exterior",
+                      "access",
+                      "party_wall"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "hard",
+                      "soft"
+                    ]
+                  },
+                  "min_contact_ft": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "source": {
+                    "$ref": "#/$defs/source"
+                  },
+                  "fallback_role": {
+                    "enum": [
+                      "street_view",
+                      "garden_view",
+                      "exterior",
+                      "street"
+                    ]
+                  },
+                  "fallback_penalty": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "entry_sequence": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "anchor_id",
+                    "via_zone",
+                    "target_zone",
+                    "kind",
+                    "forbid_entrance_contact",
+                    "source"
+                  ],
+                  "properties": {
+                    "anchor_id": {
+                      "$ref": "#/$defs/id"
+                    },
+                    "via_zone": {
+                      "$ref": "#/$defs/zone"
+                    },
+                    "target_zone": {
+                      "$ref": "#/$defs/zone"
+                    },
+                    "kind": {
+                      "enum": [
+                        "hard",
+                        "soft"
+                      ]
+                    },
+                    "forbid_entrance_contact": {
+                      "type": "boolean"
+                    },
+                    "source": {
+                      "$ref": "#/$defs/source"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "backyard_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_green_fraction",
+        "groups",
+        "search_step_ft"
+      ],
+      "properties": {
+        "min_green_fraction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "groups": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "max"
+            ],
+            "properties": {
+              "max": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "search_step_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "backyard_elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "element",
+          "area",
+          "min_dim_ft",
+          "aspect",
+          "priority",
+          "placement",
+          "counts_as_green",
+          "requires",
+          "group",
+          "clearances"
+        ],
+        "properties": {
+          "element": {
+            "enum": [
+              "rear_deck",
+              "pool",
+              "spa",
+              "bbq",
+              "shed",
+              "garden_beds",
+              "covered_terrace",
+              "outdoor_kitchen"
+            ]
+          },
+          "area": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "min",
+              "target",
+              "max"
+            ],
+            "properties": {
+              "min": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "target": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "max": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "min_dim_ft": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "aspect": {
+            "type": "number",
+            "minimum": 1
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "placement": {
+            "enum": [
+              "attach_rear",
+              "visible_center",
+              "near_deck",
+              "touch_deck",
+              "rear_corner",
+              "along_side"
+            ]
+          },
+          "counts_as_green": {
+            "type": "boolean"
+          },
+          "requires": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "group": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "clearances": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lot_line": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "rule_id",
+                  "param"
+                ],
+                "properties": {
+                  "rule_id": {
+                    "type": "string"
+                  },
+                  "param": {
+                    "type": "string"
+                  }
+                }
+              },
+              "dwelling": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "rule_id",
+                  "param"
+                ],
+                "properties": {
+                  "rule_id": {
+                    "type": "string"
+                  },
+                  "param": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "circulation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "design_width_ft",
+        "normative_width",
+        "door_contact_ft",
+        "derived_space_types",
+        "target_fraction",
+        "warn_fraction",
+        "hall_min_terminals",
+        "search",
+        "private_roles"
+      ],
+      "properties": {
+        "design_width_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "normative_width": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule_id"
+          ],
+          "properties": {
+            "rule_id": {
+              "type": "string"
+            }
+          }
+        },
+        "door_contact_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "derived_space_types": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "target_fraction": {
+          "type": "number"
+        },
+        "warn_fraction": {
+          "type": "number"
+        },
+        "hall_min_terminals": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "search": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "zone_schemes",
+            "options_per_hall_side",
+            "options_without_hall",
+            "max_combinations_per_scheme"
+          ],
+          "properties": {
+            "zone_schemes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "options_per_hall_side": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "options_without_hall": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_combinations_per_scheme": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "private_roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "search_retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "zone_schemes",
+            "options_per_hall_side",
+            "options_without_hall",
+            "max_combinations_per_scheme"
+          ],
+          "properties": {
+            "zone_schemes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "options_per_hall_side": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "options_without_hall": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_combinations_per_scheme": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "note": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "relation_matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "roles",
+        "house",
+        "apartment",
+        "semantics",
+        "hard_groups"
+      ],
+      "properties": {
+        "roles": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "house": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b",
+              "type",
+              "kind",
+              "weight",
+              "source"
+            ],
+            "properties": {
+              "a": {
+                "type": "string"
+              },
+              "b": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "D",
+                  "I"
+                ]
+              },
+              "kind": {
+                "enum": [
+                  "hard",
+                  "soft"
+                ]
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0
+              },
+              "source": {
+                "$ref": "#/$defs/source"
+              }
+            }
+          }
+        },
+        "apartment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b",
+              "type",
+              "kind",
+              "weight",
+              "source"
+            ],
+            "properties": {
+              "a": {
+                "type": "string"
+              },
+              "b": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "D",
+                  "I"
+                ]
+              },
+              "kind": {
+                "enum": [
+                  "hard",
+                  "soft"
+                ]
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0
+              },
+              "source": {
+                "$ref": "#/$defs/source"
+              }
+            }
+          }
+        },
+        "semantics": {
+          "type": "object"
+        },
+        "hard_groups": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "house",
+            "apartment"
+          ],
+          "properties": {
+            "house": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "group_id",
+                  "pairs",
+                  "k",
+                  "source"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string"
+                  },
+                  "pairs": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "k": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "source": {
+                    "$ref": "#/$defs/source"
+                  }
+                }
+              }
+            },
+            "apartment": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "group_id",
+                  "pairs",
+                  "k",
+                  "source"
+                ],
+                "properties": {
+                  "group_id": {
+                    "type": "string"
+                  },
+                  "pairs": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "k": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "source": {
+                    "$ref": "#/$defs/source"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "realization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default",
+        "auto_min_utilization_A",
+        "auto_fallback",
+        "steps_reported",
+        "source"
+      ],
+      "properties": {
+        "default": {
+          "enum": [
+            "auto",
+            "A_inscribed_rectangle",
+            "B_stepped_footprint",
+            "B_polygonal_footprint"
+          ]
+        },
+        "auto_min_utilization_A": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "auto_fallback": {
+          "enum": [
+            "A_inscribed_rectangle",
+            "B_stepped_footprint",
+            "B_polygonal_footprint"
+          ]
+        },
+        "steps_reported": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      }
+    },
+    "corrections": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_evaluations",
+        "recess_step_ft",
+        "recess_max_ft",
+        "variables",
+        "source"
+      ],
+      "properties": {
+        "max_evaluations": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "recess_step_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "recess_max_ft": {
+          "type": "number",
+          "minimum": 0
+        },
+        "variables": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "strategy",
+            "garage_layout",
+            "front_recess"
+          ],
+          "properties": {
+            "strategy": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "value",
+                  "cost"
+                ],
+                "properties": {
+                  "value": {
+                    "enum": [
+                      "A_inscribed_rectangle",
+                      "B_stepped_footprint",
+                      "B_polygonal_footprint"
+                    ]
+                  },
+                  "cost": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "garage_layout": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "value",
+                  "cost"
+                ],
+                "properties": {
+                  "value": {
+                    "enum": [
+                      "as_brief",
+                      "tandem",
+                      "one_car"
+                    ]
+                  },
+                  "cost": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "front_recess": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "cost_per_ft"
+              ],
+              "properties": {
+                "cost_per_ft": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "pareto_extra_runs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "polygonal_extension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tolerant_space_types",
+        "min_piece_width_ft",
+        "habitable_max_extension_fraction",
+        "min_corner_angle_deg",
+        "source"
+      ],
+      "properties": {
+        "tolerant_space_types": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "min_piece_width_ft": {
+          "type": "number",
+          "minimum": 0
+        },
+        "habitable_max_extension_fraction": {
+          "type": "number",
+          "minimum": 0
+        },
+        "min_corner_angle_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 180
+        },
+        "note": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      }
+    },
+    "cost_index": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "note",
+        "legend",
+        "default_model",
+        "models",
+        "area_classes",
+        "coefficients",
+        "form_factors",
+        "hillside_mean_slope_threshold",
+        "estimates",
+        "reference_mix",
+        "reference_dwelling_gross_sqft",
+        "budget_levels",
+        "source",
+        "later_works_factor"
+      ],
+      "properties": {
+        "note": {
+          "type": "string"
+        },
+        "legend": {
+          "type": "string"
+        },
+        "default_model": {
+          "enum": [
+            "base",
+            "weighted",
+            "shape"
+          ]
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "base",
+              "weighted",
+              "shape"
+            ]
+          }
+        },
+        "area_classes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "wet_class",
+            "zone_class",
+            "anchor_class",
+            "exterior_classes"
+          ],
+          "properties": {
+            "wet_class": {
+              "type": "string"
+            },
+            "zone_class": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "anchor_class": {
+              "type": "string"
+            },
+            "exterior_classes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "coefficients": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "min",
+              "mode",
+              "max"
+            ],
+            "properties": {
+              "min": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "mode": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "max": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          }
+        },
+        "form_factors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "min",
+              "mode",
+              "max"
+            ],
+            "properties": {
+              "min": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "mode": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "max": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          }
+        },
+        "hillside_mean_slope_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "estimates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "footprint_aspect_ratio",
+            "stair_space_type"
+          ],
+          "properties": {
+            "footprint_aspect_ratio": {
+              "type": "number",
+              "minimum": 1
+            },
+            "stair_space_type": {
+              "type": "string"
+            }
+          }
+        },
+        "reference_mix": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "reference_dwelling_gross_sqft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "budget_levels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "citation",
+            "status"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "catalog",
+                "client",
+                "code",
+                "public_data"
+              ]
+            },
+            "citation": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "provisional"
+              ]
+            }
+          }
+        },
+        "later_works_factor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min",
+            "mode",
+            "max"
+          ],
+          "properties": {
+            "min": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mode": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "note",
+        "bedroom_space_types",
+        "bath_space_type",
+        "bath_area_factor",
+        "bedroom_area_factor",
+        "passage_width_ft",
+        "door_clear_width_in",
+        "turning_diameter_ft",
+        "step_free_entry",
+        "source"
+      ],
+      "properties": {
+        "note": {
+          "type": "string"
+        },
+        "bedroom_space_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bath_space_type": {
+          "type": "string"
+        },
+        "bath_area_factor": {
+          "type": "number",
+          "minimum": 1
+        },
+        "bedroom_area_factor": {
+          "type": "number",
+          "minimum": 1
+        },
+        "passage_width_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "door_clear_width_in": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "turning_diameter_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "step_free_entry": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "citation",
+            "status"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "catalog",
+                "client",
+                "code",
+                "public_data"
+              ]
+            },
+            "citation": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "provisional"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "display": {
+      "type": "object",
+      "required": [
+        "default_lang",
+        "labels",
+        "review_notes",
+        "sheet"
+      ],
+      "properties": {
+        "default_lang": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object"
+        },
+        "review_notes": {
+          "type": "object"
+        },
+        "sheet": {
+          "type": "object"
+        }
+      }
+    },
+    "area_analysis": {
+      "type": "object",
+      "required": [
+        "profiles",
+        "strategies",
+        "garden_min_fraction_of_lot",
+        "frontage",
+        "upper_floor_min_useful_sqft",
+        "daily_use",
+        "source"
+      ]
+    },
+    "vertical_schemes": {
+      "type": "object",
+      "required": [
+        "groups",
+        "bedroom_groups",
+        "laundry_rule",
+        "schemes",
+        "scoring",
+        "source"
+      ],
+      "properties": {
+        "schemes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "scheme_id",
+              "floors",
+              "assign",
+              "applies",
+              "label"
+            ],
+            "properties": {
+              "floors": {
+                "enum": [
+                  1,
+                  2
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1825 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/household_catalog/0.1",
+  "title": "spaceplan household model: dimensions, bedroom policy, tiers, rules and archetypes",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "household_catalog_id",
+    "household_catalog_version",
+    "default_source",
+    "age_bands",
+    "dimensions",
+    "member_defaults",
+    "bedroom_policy",
+    "tiers",
+    "program_defaults",
+    "trajectory",
+    "rules",
+    "archetypes",
+    "culture_aspects",
+    "culture_presets",
+    "kitchen_typologies",
+    "kitchen_typology_selection",
+    "program_quality",
+    "program_substitutions"
+  ],
+  "properties": {
+    "household_catalog_id": {
+      "type": "string"
+    },
+    "household_catalog_version": {
+      "type": "string"
+    },
+    "default_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "citation",
+        "status"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "catalog",
+            "client",
+            "code",
+            "public_data"
+          ]
+        },
+        "citation": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "provisional"
+          ]
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "age_bands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "band",
+          "min_years",
+          "max_years",
+          "room_role",
+          "grown"
+        ],
+        "properties": {
+          "band": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "min_years": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "max_years": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "room_role": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "grown": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "dimension",
+          "values",
+          "default",
+          "effect"
+        ],
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "values": {
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "default": {},
+          "effect": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "member_defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mobility",
+        "works_from_home",
+        "partner_id"
+      ],
+      "properties": {
+        "mobility": {
+          "enum": [
+            "full",
+            "reduced",
+            "anticipated"
+          ]
+        },
+        "works_from_home": {
+          "type": "boolean"
+        },
+        "partner_id": {
+          "type": "null"
+        }
+      }
+    },
+    "bedroom_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "own_room_bands",
+        "max_per_shared_room",
+        "required_share_groups",
+        "preferred_share_groups",
+        "partners_share",
+        "room_space_types",
+        "accessible_ground_floor_tiers",
+        "source"
+      ],
+      "properties": {
+        "own_room_bands": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          }
+        },
+        "max_per_shared_room": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "required_share_groups": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$"
+            }
+          }
+        },
+        "preferred_share_groups": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]+$"
+            }
+          }
+        },
+        "partners_share": {
+          "type": "boolean"
+        },
+        "room_space_types": {
+          "type": "object",
+          "required": [
+            "default"
+          ],
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "required",
+              "preferred",
+              "desirable"
+            ],
+            "properties": {
+              "required": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "preferred": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "desirable": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              }
+            }
+          }
+        },
+        "accessible_ground_floor_tiers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reduced",
+            "anticipated"
+          ],
+          "properties": {
+            "reduced": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "required",
+                  "preferred",
+                  "desirable"
+                ]
+              }
+            },
+            "anticipated": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "required",
+                  "preferred",
+                  "desirable"
+                ]
+              }
+            }
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "citation",
+            "status"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "catalog",
+                "client",
+                "code",
+                "public_data"
+              ]
+            },
+            "citation": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "provisional"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "tiers": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tier",
+          "area_profile",
+          "meaning"
+        ],
+        "properties": {
+          "tier": {
+            "enum": [
+              "required",
+              "preferred",
+              "desirable"
+            ]
+          },
+          "area_profile": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "meaning": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "program_defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gross_factor",
+        "default_program_tier",
+        "source"
+      ],
+      "properties": {
+        "gross_factor": {
+          "type": "number",
+          "minimum": 1
+        },
+        "default_program_tier": {
+          "enum": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "citation",
+            "status"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "catalog",
+                "client",
+                "code",
+                "public_data"
+              ]
+            },
+            "citation": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "provisional"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "trajectory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_horizon_years",
+        "design_life_years",
+        "joining_defaults",
+        "source",
+        "convertible_space_types"
+      ],
+      "properties": {
+        "default_horizon_years": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "design_life_years": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "joining_defaults": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "age_years",
+              "mobility"
+            ],
+            "properties": {
+              "age_years": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "mobility": {
+                "enum": [
+                  "full",
+                  "reduced",
+                  "anticipated"
+                ]
+              }
+            }
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "citation",
+            "status"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "catalog",
+                "client",
+                "code",
+                "public_data"
+              ]
+            },
+            "citation": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "provisional"
+              ]
+            }
+          }
+        },
+        "convertible_space_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule_id",
+          "layer",
+          "description",
+          "when",
+          "effects"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "pattern": "^[A-Z0-9-]+$"
+          },
+          "layer": {
+            "enum": [
+              "household",
+              "culture"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "when": {
+            "type": "object"
+          },
+          "effects": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "effect",
+                "tiers"
+              ],
+              "properties": {
+                "effect": {
+                  "enum": [
+                    "space",
+                    "area_factor",
+                    "garage_cars",
+                    "relation_hint",
+                    "quality_weight",
+                    "type_area_factor",
+                    "relation_override",
+                    "anchor_override",
+                    "backyard_element",
+                    "backyard_green"
+                  ]
+                },
+                "tiers": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": [
+                      "required",
+                      "preferred",
+                      "desirable"
+                    ]
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "space"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "space_type",
+                      "household_role",
+                      "count"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "space_type": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                      },
+                      "household_role": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                      },
+                      "count": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "ground_floor": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "area_factor"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "zone",
+                      "factor"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "zone": {
+                        "enum": [
+                          "social",
+                          "private",
+                          "kitchen",
+                          "service",
+                          "circulation",
+                          "garage"
+                        ]
+                      },
+                      "factor": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "garage_cars"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "count"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "count": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "relation_hint"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "a",
+                      "b",
+                      "relation"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "a": {
+                        "type": "string"
+                      },
+                      "b": {
+                        "type": "string"
+                      },
+                      "relation": {
+                        "enum": [
+                          "en_suite",
+                          "near",
+                          "adjacent",
+                          "separate"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "quality_weight"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "criterion",
+                      "weight"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "criterion": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                      },
+                      "weight": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "type_area_factor"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "space_type",
+                      "factor"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "space_type": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "factor": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "relation_override"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "a",
+                      "b",
+                      "type"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "a": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "b": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "type": {
+                        "enum": [
+                          "D",
+                          "I",
+                          "N"
+                        ]
+                      },
+                      "kind": {
+                        "enum": [
+                          "hard",
+                          "soft"
+                        ]
+                      },
+                      "weight": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "anchor_override"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "anchor_id",
+                      "mode"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "anchor_id": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "mode": {
+                        "enum": [
+                          "hard",
+                          "soft",
+                          "off"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "backyard_element"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "element",
+                      "priority"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "element": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "priority": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "add": {
+                        "type": "boolean",
+                        "description": "Append the element when the brief backyard program lacks it"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "backyard_green"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "min_green_fraction"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "min_green_fraction": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "citation",
+              "status"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "catalog",
+                  "client",
+                  "code",
+                  "public_data"
+                ]
+              },
+              "citation": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "verified",
+                  "provisional"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "archetypes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "archetype_id",
+          "label",
+          "description",
+          "household"
+        ],
+        "properties": {
+          "archetype_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "household": {
+            "$ref": "#/$defs/household"
+          }
+        }
+      }
+    },
+    "culture_aspects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "aspect",
+          "values",
+          "effect"
+        ],
+        "properties": {
+          "aspect": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "effect": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "culture_presets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "profile",
+          "label",
+          "aspects",
+          "source"
+        ],
+        "properties": {
+          "profile": {
+            "enum": [
+              "latino",
+              "anglo",
+              "mixed",
+              "custom"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "aspects": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "citation",
+              "status"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "catalog",
+                  "client",
+                  "code",
+                  "public_data"
+                ]
+              },
+              "citation": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "verified",
+                  "provisional"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "kitchen_typologies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "typology_id",
+          "label",
+          "effects"
+        ],
+        "properties": {
+          "typology_id": {
+            "enum": [
+              "open_island",
+              "semi_open_separable",
+              "closed_ventilated",
+              "double_kitchen"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "effects": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "effect",
+                "tiers"
+              ],
+              "properties": {
+                "effect": {
+                  "enum": [
+                    "space",
+                    "area_factor",
+                    "garage_cars",
+                    "relation_hint",
+                    "quality_weight",
+                    "type_area_factor",
+                    "relation_override",
+                    "anchor_override",
+                    "backyard_element",
+                    "backyard_green"
+                  ]
+                },
+                "tiers": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": [
+                      "required",
+                      "preferred",
+                      "desirable"
+                    ]
+                  }
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "space"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "space_type",
+                      "household_role",
+                      "count"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "space_type": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                      },
+                      "household_role": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                      },
+                      "count": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "ground_floor": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "area_factor"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "zone",
+                      "factor"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "zone": {
+                        "enum": [
+                          "social",
+                          "private",
+                          "kitchen",
+                          "service",
+                          "circulation",
+                          "garage"
+                        ]
+                      },
+                      "factor": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "garage_cars"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "count"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "count": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "object"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "relation_hint"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "a",
+                      "b",
+                      "relation"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "a": {
+                        "type": "string"
+                      },
+                      "b": {
+                        "type": "string"
+                      },
+                      "relation": {
+                        "enum": [
+                          "en_suite",
+                          "near",
+                          "adjacent",
+                          "separate"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "quality_weight"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "criterion",
+                      "weight"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "criterion": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                      },
+                      "weight": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "type_area_factor"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "space_type",
+                      "factor"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "space_type": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "factor": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "relation_override"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "a",
+                      "b",
+                      "type"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "a": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "b": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "type": {
+                        "enum": [
+                          "D",
+                          "I",
+                          "N"
+                        ]
+                      },
+                      "kind": {
+                        "enum": [
+                          "hard",
+                          "soft"
+                        ]
+                      },
+                      "weight": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "anchor_override"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "anchor_id",
+                      "mode"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "anchor_id": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "mode": {
+                        "enum": [
+                          "hard",
+                          "soft",
+                          "off"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "backyard_element"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "element",
+                      "priority"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "element": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_@]+$"
+                      },
+                      "priority": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "add": {
+                        "type": "boolean",
+                        "description": "Append the element when the brief backyard program lacks it"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "effect": {
+                        "const": "backyard_green"
+                      }
+                    }
+                  },
+                  "then": {
+                    "additionalProperties": false,
+                    "required": [
+                      "min_green_fraction"
+                    ],
+                    "properties": {
+                      "effect": true,
+                      "tiers": true,
+                      "min_green_fraction": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "kitchen_typology_selection": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "when",
+          "typology"
+        ],
+        "properties": {
+          "when": {
+            "type": "object"
+          },
+          "typology": {
+            "enum": [
+              "open_island",
+              "semi_open_separable",
+              "closed_ventilated",
+              "double_kitchen"
+            ]
+          }
+        }
+      }
+    },
+    "program_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "note",
+        "weights",
+        "culture_multiplier",
+        "knee_min_gain",
+        "source"
+      ],
+      "properties": {
+        "note": {
+          "type": "string"
+        },
+        "weights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "preferred_instance",
+            "desirable_instance",
+            "zone_size_upgrade",
+            "garage_car",
+            "next_stage_coverage"
+          ],
+          "properties": {
+            "preferred_instance": {
+              "type": "number",
+              "minimum": 0
+            },
+            "desirable_instance": {
+              "type": "number",
+              "minimum": 0
+            },
+            "zone_size_upgrade": {
+              "type": "number",
+              "minimum": 0
+            },
+            "garage_car": {
+              "type": "number",
+              "minimum": 0
+            },
+            "next_stage_coverage": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "culture_multiplier": {
+          "type": "number",
+          "minimum": 1
+        },
+        "knee_min_gain": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "citation",
+            "status"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "catalog",
+                "client",
+                "code",
+                "public_data"
+              ]
+            },
+            "citation": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "verified",
+                "provisional"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "program_substitutions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "substitution_id",
+          "from",
+          "to",
+          "also_remove",
+          "description"
+        ],
+        "properties": {
+          "substitution_id": {
+            "type": "string"
+          },
+          "from": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "space_type",
+              "household_role"
+            ],
+            "properties": {
+              "space_type": {
+                "type": "string"
+              },
+              "household_role": {
+                "type": "string"
+              }
+            }
+          },
+          "to": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "space_type",
+                "household_role"
+              ],
+              "properties": {
+                "space_type": {
+                  "type": "string"
+                },
+                "household_role": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "also_remove": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "space_type",
+                "household_role"
+              ],
+              "properties": {
+                "space_type": {
+                  "type": "string"
+                },
+                "household_role": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "household": {
+      "title": "spaceplan household (who lives, how they live, trajectory)",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "archetype_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "members": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "member_id",
+              "age_years"
+            ],
+            "properties": {
+              "member_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "age_years": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 120
+              },
+              "mobility": {
+                "enum": [
+                  "full",
+                  "reduced",
+                  "anticipated"
+                ]
+              },
+              "works_from_home": {
+                "type": "boolean"
+              },
+              "partner_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-z0-9_]+$"
+              }
+            }
+          }
+        },
+        "social_life": {
+          "enum": [
+            "intimate",
+            "frequent",
+            "large_gatherings"
+          ]
+        },
+        "guests": {
+          "enum": [
+            "rare",
+            "frequent",
+            "temporary_residents"
+          ]
+        },
+        "cooking": {
+          "enum": [
+            "light",
+            "daily",
+            "intensive"
+          ]
+        },
+        "vehicles": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "pets": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "shared_rooms_ok": {
+          "type": "boolean"
+        },
+        "cultural_profile": {
+          "enum": [
+            "latino",
+            "anglo",
+            "mixed",
+            "custom",
+            null
+          ]
+        },
+        "trajectory": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "horizon_years": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "event",
+                  "in_years"
+                ],
+                "properties": {
+                  "event": {
+                    "enum": [
+                      "child_expected",
+                      "elder_joins",
+                      "adult_joins",
+                      "member_leaves",
+                      "mobility_change"
+                    ]
+                  },
+                  "in_years": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 30
+                  },
+                  "member_id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9_]+$"
+                  },
+                  "age_years": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 120
+                  },
+                  "mobility": {
+                    "enum": [
+                      "full",
+                      "reduced",
+                      "anticipated"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "program_tier": {
+          "enum": [
+            "required",
+            "preferred",
+            "desirable"
+          ]
+        },
+        "include_household": {
+          "type": "boolean",
+          "description": "Privacy: copy the composition into the package (default false)"
+        },
+        "culture_aspects": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Client-chosen cultural aspects; override the preset of cultural_profile",
+          "properties": {
+            "kitchen_living_relation": {
+              "enum": [
+                "open",
+                "separable",
+                "closed"
+              ]
+            },
+            "social_center": {
+              "enum": [
+                "dining_table",
+                "kitchen_island",
+                "living"
+              ]
+            },
+            "ventilation_priority": {
+              "enum": [
+                "normal",
+                "high"
+              ]
+            },
+            "dining_capacity": {
+              "enum": [
+                "household",
+                "extended_family"
+              ]
+            },
+            "outdoor_cooking": {
+              "enum": [
+                "none",
+                "amenity",
+                "gathering"
+              ]
+            },
+            "entry_sequence": {
+              "enum": [
+                "front",
+                "garage_mudroom_kitchen"
+              ]
+            },
+            "laundry_location": {
+              "enum": [
+                "service_yard",
+                "near_bedrooms"
+              ]
+            },
+            "bath_per_bedroom": {
+              "enum": [
+                "shared_ok",
+                "en_suite_preferred"
+              ]
+            },
+            "patio_use": {
+              "enum": [
+                "gathering",
+                "lawn_play"
+              ]
+            }
+          }
+        },
+        "kitchen_typology": {
+          "enum": [
+            "open_island",
+            "semi_open_separable",
+            "closed_ventilated",
+            "double_kitchen",
+            null
+          ],
+          "description": "Explicit kitchen typology; otherwise selected from the aspects"
+        }
+      }
+    }
+  }
+}
