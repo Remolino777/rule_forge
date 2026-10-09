@@ -23,6 +23,7 @@ from spaceplan.core.lib_aux.allocation import (  # noqa: F401  (fit_lengths re-e
     ranked_product,
 )
 from spaceplan.core.lib_aux.quantity import worst_status
+from spaceplan.modules.zoning.lib.band_enumeration import band_arrangements
 from spaceplan.modules.zoning.lib.circulation import (
     DoorRules,
     Node,
@@ -174,8 +175,6 @@ def _realize_columns(rect: Rect, along_x: bool, columns, areas: dict[str, float]
 
 
 def _arrangements(ids: list[str], max_stack: int):
-    from spaceplan.modules.zoning.lib.zoning import band_arrangements
-
     yield from band_arrangements(ids, max_stack, set(), set())
 
 

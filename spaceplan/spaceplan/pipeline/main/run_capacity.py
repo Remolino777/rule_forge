@@ -5,6 +5,9 @@ House:     brief -> validation -> program review -> scope -> lot -> boundaries -
            -> one-floor zoning (layer 1c) -> multivariable correction if it does not zone -> backyard (1d)
            -> package -> validation.
 Apartment: brief -> validation -> program review -> unit -> zoning with the apartment profile -> package.
+
+Refactor tanda 3: thin orchestrator. Each stage is a module workflow (household, lotcap, site, zoning, cost);
+this file only composes them, assembles and validates the package and draws the optional figures.
 """
 
 from __future__ import annotations
@@ -12,26 +15,22 @@ from __future__ import annotations
 from pathlib import Path
 
 from spaceplan.core.lib.catalog import load_catalog
-from spaceplan.core.lib.enums import Strategy
 from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset, load_ruleset_resource
 from spaceplan.core.lib.schema_validation import validate_brief, validate_package
 from spaceplan.core.lib_aux.json_io import dump_json, load_json
 from spaceplan.modules.cost.main.run_cost import package_cost
 from spaceplan.modules.household.lib.program_review import review_program
 from spaceplan.modules.household.main.run_household import resolve_brief_household
-from spaceplan.modules.lotcap.lib.capacity import auto_strategy
-from spaceplan.modules.lotcap.lib.flag_lot import resolve_flag_lot
-from spaceplan.modules.lotcap.lib.scope import check_scope
-from spaceplan.modules.lotcap.main.run_lotcap import (  # noqa: F401  (re-exported)
+from spaceplan.modules.lotcap.lib.scope import ScopeResult, check_scope
+from spaceplan.modules.lotcap.main.run_lotcap import (  # noqa: F401  (LotSetup re-exported)
     LotSetup,
+    flag_lot_body,
+    flag_lot_warning,
     prepare_lot,
+    select_strategy,
 )
-from spaceplan.modules.site.lib.backyard import backyard_for_site
-from spaceplan.modules.site.lib.site_partition import build_site_partition
-from spaceplan.modules.zoning.lib.realization import get_strategy
-from spaceplan.modules.zoning.lib.unit import build_unit
-from spaceplan.modules.zoning.lib.zoning import zone_site_options, zone_unit
-from spaceplan.modules.zoning.main.run_corrections import search_corrections
+from spaceplan.modules.site.main.run_site import plan_site, plan_site_backyard
+from spaceplan.modules.zoning.main.run_zoning import zone_apartment, zone_house
 from spaceplan.pipeline.lib.package import PackageInputs, assemble_package
 
 
@@ -53,15 +52,13 @@ def run_capacity(
     'cost' block (step 6.5b; `budget` overrides brief.budget)."""
     brief, household_block, tier_programs = resolve_brief_household(brief, catalog_path, household_catalog_path)
     validate_brief(brief)
-    brief, flag = resolve_flag_lot(brief)
+    brief, flag = flag_lot_body(brief)
     package = _run_capacity_resolved(brief, rules_path, plot_path, catalog_path, site_plot_path, zoning_plot_path,
                                      strategy, corrections)
     if household_block is not None:
         package["household"] = household_block
     if flag is not None:
-        package["warnings"].append(
-            f"flag lot (provisional): planned on the {flag['body_area_sqft']:.0f} sq ft body; access strip "
-            f"{flag['access_strip_area_sqft']:.0f} sq ft is exterior paving; street frontage {flag['street_frontage_ft']:.0f} ft")
+        package["warnings"].append(flag_lot_warning(flag))
     cost = package_cost(load_catalog(catalog_path), brief, package, tier_programs, cost_model,
                         budget if budget is not None else brief.get("budget"))
     if cost is not None:
@@ -96,43 +93,27 @@ def _run_capacity_resolved(
         return package
 
     setup = prepare_lot(brief, rs, catalog)
-    lot, boundaries, evaluation, sensitivity = setup.lot, setup.boundaries, setup.evaluation, setup.sensitivity
-    capacity, conformity, frame, profile = setup.capacity, setup.conformity, setup.frame, setup.profile
-    realization = catalog.data["realization"]
-    requested = strategy or realization["default"]
-    if requested == "auto":
-        strategy_name, why = auto_strategy(realization, capacity.realizable[0])
-    else:
-        strategy_name, why = requested, "requested"
-    if profile is None and strategy_name != Strategy.A_INSCRIBED_RECTANGLE.value:
-        strategy_name, why = Strategy.A_INSCRIBED_RECTANGLE.value, "no envelope profile; strategy A"
-    selection = {"requested": requested, "strategy": strategy_name, "reason": why}
-
-    site, site_warnings = build_site_partition(rs, catalog, brief, lot, boundaries, evaluation, capacity,
-                                               strategy_name)
-    zoning = zone_site_options(catalog, brief, frame, site, get_strategy(strategy_name), profile)
-    zoning["selection"] = selection
-    correction = None
-    if corrections and profile is not None:
-        rect = capacity.realizable[0]
-        correction = search_corrections(brief, rs, catalog, lot, boundaries, evaluation, capacity, profile,
-                                        rect["width_ft"], strategy_name, site, zoning)
-    backyard_for_site(catalog, rs, brief, lot, boundaries, site, zoning)
+    strategy_name, selection = select_strategy(catalog, setup, strategy)
+    site, site_warnings = plan_site(rs, catalog, brief, setup, strategy_name)
+    zoning, correction = zone_house(brief, rs, catalog, setup, site, strategy_name, selection, corrections)
+    plan_site_backyard(catalog, rs, brief, setup, site, zoning)
+    lot, boundaries, evaluation = setup.lot, setup.boundaries, setup.evaluation
     package = assemble_package(
-        PackageInputs(brief, rs, scope, review, lot, boundaries, evaluation, capacity, sensitivity, conformity,
-                      site, tuple(site_warnings), zoning, corrections=correction, strategy=strategy_name)
+        PackageInputs(brief, rs, scope, review, lot, boundaries, evaluation, setup.capacity, setup.sensitivity,
+                      setup.conformity, site, tuple(site_warnings), zoning, corrections=correction,
+                      strategy=strategy_name)
     )
     validate_package(package)
     if plot_path:
-        from spaceplan.modules.viz.lib.visualize import plot_capacity
+        from spaceplan.modules.viz.lib.lot_site_plots import plot_capacity
 
         plot_capacity(lot, boundaries, evaluation.edge_setbacks, package, plot_path)
     if site_plot_path:
-        from spaceplan.modules.viz.lib.visualize import plot_site
+        from spaceplan.modules.viz.lib.lot_site_plots import plot_site
 
         plot_site(lot, package, site_plot_path)
     if zoning_plot_path:
-        from spaceplan.modules.viz.lib.visualize import plot_zoning
+        from spaceplan.modules.viz.lib.zoning_plots import plot_zoning
 
         plot_zoning(lot, package, zoning_plot_path)
     return package
@@ -140,11 +121,8 @@ def _run_capacity_resolved(
 
 def run_apartment(brief: dict, rs, catalog, zoning_plot_path: str | Path | None = None) -> dict:
     """Apartments: space planning inside the unit; the normative capacity layer is out of the pilot scope."""
-    from spaceplan.modules.lotcap.lib.scope import ScopeResult
-
     review = review_program(catalog, load_ruleset_resource(*CRC_RULESET), brief["program"])
-    unit = build_unit(brief["unit"])
-    zoning = zone_unit(catalog, brief, unit, get_strategy(Strategy.A_INSCRIBED_RECTANGLE))
+    unit, zoning = zone_apartment(brief, catalog)
     scope = ScopeResult(False, (
         "apartment: normative capacity not modelled (multifamily zones and CBC R-2 are outside the RS-1-7 pilot); "
         "space planning only",))
@@ -163,7 +141,7 @@ def run_apartment(brief: dict, rs, catalog, zoning_plot_path: str | Path | None 
         package["warnings"].append(f"net program {net:.0f} sq ft exceeds the unit rectangle {unit.rect_area:.0f} sq ft")
     validate_package(package)
     if zoning_plot_path:
-        from spaceplan.modules.viz.lib.visualize import plot_zoning
+        from spaceplan.modules.viz.lib.zoning_plots import plot_zoning
 
         plot_zoning(None, package, zoning_plot_path, outline=unit.polygon)
     return package

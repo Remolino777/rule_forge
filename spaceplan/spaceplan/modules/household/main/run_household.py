@@ -6,17 +6,21 @@
         -> advance by the horizon (aging + events) -> same chain -> growth delta
 
 `resolve_brief_program` lets a brief carry a household block instead of (or besides) a program.
+
+Refactor tanda 3: this workflow no longer prices the programs. `derive_household` takes an optional
+`stage_cost(catalog, stage)` callable; the pipeline (spaceplan.pipeline.main.run_household_report) passes the
+cost module's reading, so the household module does not depend on the cost module.
 """
 
 from __future__ import annotations
 
 import copy
+from collections.abc import Callable
 from pathlib import Path
 
 from spaceplan.core.lib.catalog import Catalog, load_catalog
 from spaceplan.core.lib.enums import HOUSEHOLD_TIERS as TIERS
 from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
-from spaceplan.modules.cost.main.run_cost import household_cost
 from spaceplan.modules.household.lib.culture import merge_culture_into_brief
 from spaceplan.modules.household.lib.household import (
     Household,
@@ -175,10 +179,10 @@ def derive_household(
     household_catalog_path: str | Path | None = None,
     dwelling_type: str = "house",
     next_stage: bool = True,
-    cost_model: str | None = None,
+    stage_cost: Callable[[Catalog, dict], dict] | None = None,
 ) -> dict:
-    """Needs and programs for the current stage and (optionally) the next one, with growth delta and
-    the relative cost index of every tier (reference-dwelling reading, step 6.5b)."""
+    """Needs and programs for the current stage and (optionally) the next one, with growth delta; with
+    `stage_cost`, also the 'cost' block of every stage (relative cost index of every tier, step 6.5b)."""
     catalog, hcat = load_catalogs(catalog_path, household_catalog_path)
     crc = load_ruleset_resource(*CRC_RULESET)
     household = load_household(raw, hcat)
@@ -192,15 +196,17 @@ def derive_household(
         "program_tier": household.program_tier or hcat.data["program_defaults"]["default_program_tier"],
         "privacy": PRIVACY_NOTE,
         **_public_stage(now, hcat, dwelling_type),
-        "cost": household_cost(catalog, now, cost_model),
     }
+    if stage_cost is not None:
+        result["cost"] = stage_cost(catalog, now)
     if next_stage:
         later_household, applied = advance(household, household.horizon_years, hcat)
         later = _stage(later_household, hcat, catalog, crc, dwelling_type)
         result["next_stage"] = {"horizon_years": household.horizon_years, "events_applied": applied,
-                                **_public_stage(later, hcat, dwelling_type),
-                                "cost": household_cost(catalog, later, cost_model),
-                                "growth_delta": growth_delta(now, later, hcat)}
+                                **_public_stage(later, hcat, dwelling_type)}
+        if stage_cost is not None:
+            result["next_stage"]["cost"] = stage_cost(catalog, later)
+        result["next_stage"]["growth_delta"] = growth_delta(now, later, hcat)
     return result
 
 

@@ -22,7 +22,11 @@ from spaceplan.core.lib.enums import Strategy
 from spaceplan.core.lib.rules import RuleSet
 from spaceplan.modules.areas.lib.building_indices import IndexLimits, indices_all_variants
 from spaceplan.modules.areas.lib.vertical_split import FloorSplit
-from spaceplan.modules.site.lib.site_partition import measure_footprint, site_context
+from spaceplan.modules.site.lib.site_partition import (
+    front_yard_area,
+    measure_footprint,
+    site_context,
+)
 
 STATUS_ORDER = ("exceeds_far", "exceeds_coverage", "upper_exceeds_ground", "exceeds_strategy", "frontage_short",
                 "site_fails")
@@ -171,7 +175,7 @@ class SiteMeasurer:
         self.catalog, self.brief, self.budget = catalog, brief, budget
         self.ctx = site_context(rs, catalog, brief, setup.lot, setup.boundaries, setup.evaluation, setup.capacity)
         self.env_status = setup.capacity.capacity["envelope"]["area"].status
-        self.budget.front_yard_sqft = self.ctx.front_yard.area
+        self.budget.front_yard_sqft = front_yard_area(self.ctx)
         self.cache: dict[tuple, dict] = {}
         self.calls = 0
 

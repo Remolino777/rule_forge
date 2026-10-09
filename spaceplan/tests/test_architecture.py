@@ -109,27 +109,10 @@ ALLOWED = {  # plan 3.2: module -> modules it may import (besides itself)
     "viz": {"core", "lotcap"},  # contracts, plus lotcap types to draw the lot
     "pipeline": {"core", *MODULES},
 }
-# Temporary exceptions (2026-10-08, refactor tanda 2): current dependencies that break the 3.2 graph or the
-# "no main imports another module's main" rule. Each one is (importing file, imported module); they are
-# resolved and removed in tanda 3. A dependency not listed here that breaks the graph fails the test.
-TEMPORARY_EXCEPTIONS = {
-    # areas workflow runs the capacity pipeline, the household and profile workflows and draws its sheets
-    ("modules/areas/main/run_area_matrix.py", "spaceplan.pipeline.main.run_capacity"),
-    ("modules/areas/main/run_area_matrix.py", "spaceplan.modules.viz.lib.review_notes"),
-    ("modules/areas/main/run_area_matrix.py", "spaceplan.modules.viz.lib.visualize"),
-    ("modules/areas/main/run_area_matrix.py", "spaceplan.modules.household.main.run_household"),
-    ("modules/areas/main/run_area_matrix.py", "spaceplan.modules.profiles.main.run_profiles"),
-    ("modules/areas/main/run_area_matrix.py", "spaceplan.modules.lotcap.main.run_lotcap"),
-    # household workflow prices the derived programs and prints the parameter table
-    ("modules/household/main/run_household.py", "spaceplan.modules.cost.main.run_cost"),
-    ("modules/household/main/run_program.py", "spaceplan.pipeline.lib.catalog_table"),
-    # profiles workflow runs the capacity pipeline on the lot, builds a lot and draws its sheets
-    ("modules/profiles/main/run_profiles.py", "spaceplan.pipeline.main.run_capacity"),
-    ("modules/profiles/main/run_profiles.py", "spaceplan.modules.lotcap.lib.lot"),
-    ("modules/profiles/main/run_profiles.py", "spaceplan.modules.viz.lib.review_notes"),
-    ("modules/profiles/main/run_profiles.py", "spaceplan.modules.viz.lib.visualize"),
-    ("modules/profiles/main/run_profiles.py", "spaceplan.modules.household.main.run_household"),
-}
+# Temporary exceptions (2026-10-08, refactor tanda 2): dependencies that broke the 3.2 graph or the "no main
+# imports another module's main" rule. Refactor tanda 3 (2026-10-09) resolved all of them: the list stays empty
+# and a dependency that breaks the graph fails the test.
+TEMPORARY_EXCEPTIONS: set[tuple[str, str]] = set()
 BRIDGE_PACKAGES = ("lib", "lib_aux", "main")  # old paths: bridge modules only (removed in tanda 4)
 
 
@@ -197,17 +180,20 @@ def test_files_follow_plan_table():
         "cost/main": {"run_cost"},
         "profiles/lib": {"program_profiles"},
         "profiles/main": {"run_profiles"},
+        "site/main": {"run_site"},  # tanda 3
         "zoning/lib": {"zoning", "space_layout", "circulation", "relation_matrix", "realization", "polygonal",
-                       "corrections", "unit"},
-        "zoning/main": {"run_corrections"},
+                       "corrections", "unit", "band_enumeration"},  # band_enumeration: tanda 3 (cycle broken)
+        "zoning/main": {"run_corrections", "run_zoning"},  # run_zoning: tanda 3
         "areas/lib": {"vertical_split", "building_indices", "area_budget", "area_matrix"},
         "areas/main": {"run_area_matrix"},
-        "viz/lib": {"visualize", "review_notes"},
+        "viz/lib": {"visualize", "review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",
+                    "area_matrix_plots"},  # tanda 3: visualize split by topic (visualize is a facade until tanda 4)
     }
     for sub, names in planned.items():
         assert {p.stem for p in (ROOT / "modules" / sub).glob("*.py") if p.stem != "__init__"} == names, sub
     assert {p.stem for p in (ROOT / "pipeline" / "lib").glob("*.py")} >= {"package", "catalog_table"}
-    assert {p.stem for p in (ROOT / "pipeline" / "main").glob("*.py")} >= {"run_capacity", "cli"}
+    assert {p.stem for p in (ROOT / "pipeline" / "main").glob("*.py")} >= {
+        "run_capacity", "cli", "run_household_report", "run_catalog", "run_portfolio", "run_area_analysis"}
 
 
 @pytest.mark.parametrize("path", _real_files(), ids=lambda p: str(p.relative_to(ROOT)))
@@ -240,10 +226,9 @@ def test_no_main_imports_another_modules_main():
     assert chains - TEMPORARY_EXCEPTIONS == set()
 
 
-def test_temporary_exceptions_are_still_needed():
-    """An exception that no longer exists must be removed from the list (tanda 3 empties it)."""
-    current = {(f, m) for f, m, _, _ in _module_edges()}
-    assert TEMPORARY_EXCEPTIONS <= current
+def test_temporary_exceptions_are_resolved():
+    """Tanda 3 resolved every temporary exception of tanda 2: the list is empty."""
+    assert TEMPORARY_EXCEPTIONS == set()
 
 
 def test_allowed_graph_is_acyclic():
@@ -253,23 +238,158 @@ def test_allowed_graph_is_acyclic():
     assert nx.is_directed_acyclic_graph(graph)
 
 
+def test_module_graph_has_no_cycles():
+    """Real dependency graph between modules (core, the 8 modules, pipeline), bridges excluded."""
+    import networkx as nx
+
+    graph = nx.DiGraph([(src, dst) for _, _, src, dst in _module_edges()])
+    assert list(nx.simple_cycles(graph)) == []
+
+
+def _file_graph():
+    """Import graph between real files (module-level and deferred imports, `from pkg import module` included)."""
+    import networkx as nx
+
+    files = {_dotted(p): p for p in _real_files()}
+    graph = nx.DiGraph()
+    graph.add_nodes_from(files)
+    for name, path in files.items():
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("spaceplan."):
+                targets = [node.module, *(f"{node.module}.{a.name}" for a in node.names)]
+            elif isinstance(node, ast.Import):
+                targets = [a.name for a in node.names]
+            else:
+                continue
+            for target in targets:
+                if target in files and target != name:
+                    graph.add_edge(name, target)
+    return graph
+
+
+def test_file_import_graph_has_no_cycles():
+    """No import cycle between files, deferred imports included (tanda 3 broke zoning <-> space_layout)."""
+    import networkx as nx
+
+    assert list(nx.simple_cycles(_file_graph())) == []
+
+
+def test_zoning_and_space_layout_share_band_enumeration():
+    graph = _file_graph()
+    zoning, layout = "spaceplan.modules.zoning.lib.zoning", "spaceplan.modules.zoning.lib.space_layout"
+    bands = "spaceplan.modules.zoning.lib.band_enumeration"
+    assert not graph.has_edge(layout, zoning)
+    assert graph.has_edge(layout, bands) and graph.has_edge(zoning, bands)
+
+
+def _cross_module_names():
+    """(importing file, imported module, name) for every `from X import name` across modules (bridges excluded)."""
+    out = []
+    for path in _real_files():
+        src = _unit(_dotted(path))
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("spaceplan."):
+                dst = _unit(node.module)
+                if dst not in (None, "bridge", src):
+                    out.extend((str(path.relative_to(ROOT)), node.module, a.name) for a in node.names)
+    return out
+
+
+def test_no_private_names_across_modules():
+    """Modules talk through public names only (tanda 3: site publishes what areas needs)."""
+    assert [(f, m, n) for f, m, n in _cross_module_names() if n.startswith("_")] == []
+
+
+def test_cross_module_imports_use_declared_interfaces():
+    """When a file declares __all__ (its public interface), other modules import only names listed there."""
+    import importlib
+
+    wrong = []
+    for f, m, n in _cross_module_names():
+        module = importlib.import_module(m)
+        exported = getattr(module, "__all__", None)
+        if exported is not None and n not in exported and not hasattr(importlib.import_module(m), "__path__"):
+            wrong.append((f, m, n))
+    assert wrong == []
+
+
+def test_site_interface_is_declared():
+    from spaceplan.modules.site.lib import site_partition
+
+    assert {"site_context", "measure_footprint", "front_yard_area", "build_site_partition"} <= set(
+        site_partition.__all__)
+    assert all(not n.startswith("_") for n in site_partition.__all__)
+
+
+def test_capacity_pipeline_is_a_thin_orchestrator():
+    """run_capacity composes module workflows: household, cost, flag lot, site and zoning go through their main/."""
+    imported = _spaceplan_imports(ROOT / "pipeline" / "main" / "run_capacity.py")
+    assert {"spaceplan.modules.household.main.run_household", "spaceplan.modules.cost.main.run_cost",
+            "spaceplan.modules.lotcap.main.run_lotcap", "spaceplan.modules.site.main.run_site",
+            "spaceplan.modules.zoning.main.run_zoning"} <= imported
+    assert not {m for m in imported if m.startswith(("spaceplan.modules.cost.lib", "spaceplan.modules.site.lib",
+                                                     "spaceplan.modules.zoning.lib",
+                                                     "spaceplan.modules.lotcap.lib.flag_lot",
+                                                     "spaceplan.modules.lotcap.lib.capacity"))}
+
+
+def test_code_imports_the_split_figure_files():
+    """visualize.py is a facade for the bridge only; real code imports the figure file of each topic."""
+    users = [str(p.relative_to(ROOT)) for p in _real_files()
+             if "spaceplan.modules.viz.lib.visualize" in _spaceplan_imports(p)]
+    assert users == []
+
+
+def test_visualize_facade_reexports_the_split_files():
+    from spaceplan.modules.viz.lib import (
+        area_matrix_plots,
+        lot_site_plots,
+        portfolio_sheet,
+        review_sheets,
+        visualize,
+        zoning_plots,
+    )
+
+    for module in (lot_site_plots, zoning_plots, review_sheets, portfolio_sheet, area_matrix_plots):
+        names = [n for n, v in vars(module).items() if callable(v) and getattr(v, "__module__", None) == module.__name__]
+        assert names and all(getattr(visualize, n) is getattr(module, n) for n in names)
+
+
 TANDA2_BRIDGES = sorted(p for sub in ("lib", "main") for p in (ROOT / sub).glob("*.py")
                         if p.stem != "__init__" and "spaceplan.core." not in p.read_text(encoding="utf-8"))
 
 
+# Tanda 3: workflows that compose several modules moved to the pipeline; the bridge of their old path re-exports
+# them from there (same signature and output) on top of its module.
+BRIDGE_PIPELINE_NAMES = {
+    "main/run_household.py": {"spaceplan.pipeline.main.run_household_report": {"derive_household"}},
+    "main/run_program.py": {"spaceplan.pipeline.main.run_catalog": {"parameter_table"}},
+    "main/run_profiles.py": {"spaceplan.pipeline.main.run_portfolio": {"run_profiles", "run_profiles_file"}},
+    "main/run_area_matrix.py": {"spaceplan.pipeline.main.run_area_analysis": {"run_area_matrix"}},
+}
+
+
 @pytest.mark.parametrize("path", TANDA2_BRIDGES, ids=lambda p: f"{p.parent.name}/{p.name}")
 def test_tanda2_bridges_reexport_their_module(path):
-    """spaceplan.lib.* / spaceplan.main.* bridges import only their new module and re-export the same objects."""
+    """spaceplan.lib.* / spaceplan.main.* bridges import only their new module (plus the pipeline workflows listed
+    in BRIDGE_PIPELINE_NAMES) and re-export the same objects."""
     import importlib
 
-    targets = _spaceplan_imports(path)
+    extra = BRIDGE_PIPELINE_NAMES.get(f"{path.parent.name}/{path.name}", {})
+    targets = _spaceplan_imports(path) - set(extra)
+    assert set(extra) <= _spaceplan_imports(path)
     assert len(targets) == 1
     (target,) = targets
     assert _unit(target) in (*MODULES, "pipeline") and target.rsplit(".", 1)[1] == path.stem
     old = importlib.import_module(f"spaceplan.{path.parent.name}.{path.stem}")
     new = importlib.import_module(target)
+    overridden = set().union(*extra.values()) if extra else set()
     public = getattr(new, "__all__", [n for n in vars(new) if not n.startswith("_")])
-    assert public and all(getattr(old, n) is getattr(new, n) for n in public)
+    assert public and all(getattr(old, n) is getattr(new, n) for n in public if n not in overridden)
+    for module, names in extra.items():
+        pipeline = importlib.import_module(module)
+        assert all(getattr(old, n) is getattr(pipeline, n) for n in names)
 
 
 def test_tanda2_bridges_cover_the_old_files():

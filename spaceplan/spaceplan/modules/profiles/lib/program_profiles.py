@@ -425,6 +425,35 @@ def describe_curve_moves(points: list[dict]) -> list[str]:
     return [p["move"] for p in points[1:]]
 
 
+def profile_programs(stages: dict, catalog, model, reference, far_sqft: float | None = None,
+                     budget_fraction: float | None = None, strategy: str | None = None,
+                     mean_slope: float | None = None) -> tuple[dict, dict]:
+    """Expansion curve and the five program profiles of a household on one reading (shared with step 6.6).
+
+    Moved from spaceplan.modules.profiles.main.run_profiles in refactor tanda 3 without changes, so the area
+    analysis uses it through the profiles library (no main -> main chain)."""
+    ci = catalog.data["cost_index"]
+    common = {"catalog": catalog, "hcat": stages["hcat"], "reference": reference, "model": model,
+              "far_sqft": far_sqft, "budget_fraction": budget_fraction, "strategy": strategy,
+              "mean_slope": mean_slope}
+    later_ctx = ProfileContext(derivation=stages["later"]["derivation"], needs=stages["later"]["needs"], **common)
+    ctx = ProfileContext(derivation=stages["now"]["derivation"], needs=stages["now"]["needs"],
+                         next_needs=stages["later"]["needs"], **common)
+    exp = expansion_profiles(ctx)
+    states = exp["_states"]
+    profiles = {k: exp[k] for k in ("minimum", "optimum", "maximum")}
+
+    acc_program, features = accessible_program(catalog, profiles["optimum"]["program"])
+    acc_sheet = build_sheet(catalog, acc_program, "accessible", strategy=strategy, mean_slope=mean_slope)
+    acc_index = relative_index(model, acc_sheet, reference, ci, ctx.point)
+    profiles["accessible"] = {**{k: v for k, v in profiles["optimum"].items() if k not in ("program", "curve_step")},
+                              "profile": "accessible", "program": acc_program,
+                              "gross_area_sqft": round(acc_sheet.gross_area, 1), "index": round(acc_index, 4),
+                              "accessibility": features}
+    profiles["staged"] = staged_profile(ctx, later_ctx, states["minimum"], states["optimum"])
+    return exp, profiles
+
+
 __all__ = [
     "Any",
     "ProfileContext",
@@ -433,6 +462,7 @@ __all__ = [
     "expansion_profiles",
     "floor_feasibility",
     "get_cost_model",
+    "profile_programs",
     "program_delta",
     "public",
     "staged_profile",

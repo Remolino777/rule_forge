@@ -585,6 +585,11 @@ def site_context(rs: RuleSet, catalog: Catalog, brief: dict, lot: Lot, boundarie
     return ctx
 
 
+def front_yard_area(ctx: SiteContext) -> float:
+    """Front yard area (sq ft) of a site context (public accessor used by the area analysis)."""
+    return ctx.front_yard.area
+
+
 def measure_footprint(ctx: SiteContext, catalog: Catalog, brief: dict, program: dict, strategy_name: str,
                       footprint_area: float, floors: int, footprint_norm: float, env_status: str,
                       steps: int = 2) -> dict[str, Any]:
@@ -703,3 +708,9 @@ def build_site_partition(
         "primary_street_id": street["street_id"],
     }
     return partition, warnings
+
+
+# Public interface of the site module (refactor tanda 3): other modules use only these names.
+__all__ = ["DECK_POSITIONS", "WALKWAY_VARIANTS", "SiteContext", "access_layout", "build_site_partition",
+           "envelope_profile", "footprint_variants", "front_yard_area", "garage_lanes", "layout_checks",
+           "measure_footprint", "paving_corrections", "site_context"]

@@ -3,21 +3,27 @@
 lot -> boundaries -> rule variants (setbacks) -> envelope -> capacity (strategy A, plus B when the envelope allows)
 -> lot conformity. Shared by the capacity pipeline and the area analysis (step 6.6). Moved from
 spaceplan.main.run_capacity in refactor tanda 2 without changes.
+
+Refactor tanda 3: the flag-lot reading (body as lot, access strip as paving) and the realization strategy
+selection also live here, moved from the capacity pipeline without changes.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
+from spaceplan.core.lib.enums import Strategy
 from spaceplan.core.lib_aux.quantity import PROVISIONAL, VERIFIED
 from spaceplan.core.lib_aux.section import profile_of_largest
 from spaceplan.modules.lotcap.lib.boundaries import classify_boundaries
 from spaceplan.modules.lotcap.lib.capacity import (
+    auto_strategy,
     compute_capacity,
     envelope_sensitivity,
     evaluate_setbacks,
     realizable_strategy_b,
 )
+from spaceplan.modules.lotcap.lib.flag_lot import resolve_flag_lot
 from spaceplan.modules.lotcap.lib.lot import build_lot
 from spaceplan.modules.lotcap.lib.rule_variants import lot_conformity
 
@@ -79,4 +85,30 @@ def prepare_lot(brief: dict, rs, catalog) -> LotSetup:
     return LotSetup(lot, boundaries, evaluation, sensitivity, capacity, conformity, frame, envelope_local, profile)
 
 
-__all__ = ["LotSetup", "prepare_lot"]
+
+def flag_lot_body(brief: dict) -> tuple[dict, dict | None]:
+    """(brief planned on the flag-lot body, flag facts or None); the brief is untouched for other lots."""
+    return resolve_flag_lot(brief)
+
+
+def flag_lot_warning(flag: dict) -> str:
+    """Package warning of a flag lot (provisional reading)."""
+    return (f"flag lot (provisional): planned on the {flag['body_area_sqft']:.0f} sq ft body; access strip "
+            f"{flag['access_strip_area_sqft']:.0f} sq ft is exterior paving; street frontage {flag['street_frontage_ft']:.0f} ft")
+
+
+def select_strategy(catalog, setup: LotSetup, strategy: str | None = None) -> tuple[str, dict]:
+    """Realization strategy of the lot: 'auto' (catalog default) or a strategy name; A without an envelope
+    profile. Returns (strategy name, selection record of the package)."""
+    realization = catalog.data["realization"]
+    requested = strategy or realization["default"]
+    if requested == "auto":
+        strategy_name, why = auto_strategy(realization, setup.capacity.realizable[0])
+    else:
+        strategy_name, why = requested, "requested"
+    if setup.profile is None and strategy_name != Strategy.A_INSCRIBED_RECTANGLE.value:
+        strategy_name, why = Strategy.A_INSCRIBED_RECTANGLE.value, "no envelope profile; strategy A"
+    return strategy_name, {"requested": requested, "strategy": strategy_name, "reason": why}
+
+
+__all__ = ["LotSetup", "flag_lot_body", "flag_lot_warning", "prepare_lot", "select_strategy"]

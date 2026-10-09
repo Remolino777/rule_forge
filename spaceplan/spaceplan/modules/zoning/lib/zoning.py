@@ -24,6 +24,13 @@ from dataclasses import dataclass, field, replace
 from spaceplan.core.lib.catalog import Catalog, site_parameters
 from spaceplan.core.lib.enums import RelationType, SiteZone, Zone
 from spaceplan.core.lib_aux.allocation import fit_lengths
+from spaceplan.modules.zoning.lib.band_enumeration import (  # noqa: F401  (private names re-exported)
+    BandGeometry,
+    _column_ok,
+    _compositions,
+    _set_partitions,
+    band_arrangements,
+)
 from spaceplan.modules.zoning.lib.realization import (
     SHOULDER_FACADES,
     FootprintDomain,
@@ -324,74 +331,6 @@ class ZoningContext:
 
 
 # --------------------------------------------------------------------------- enumeration
-
-
-def _compositions(n: int, max_part: int):
-    if n == 0:
-        yield ()
-        return
-    for part in range(1, min(max_part, n) + 1):
-        for rest in _compositions(n - part, max_part):
-            yield (part, *rest)
-
-
-def _set_partitions(items: list[str], max_block: int):
-    """Unordered partitions of items into blocks of at most max_block elements."""
-    if not items:
-        yield []
-        return
-    first, rest = items[0], items[1:]
-    for partition in _set_partitions(rest, max_block):
-        for i, block in enumerate(partition):
-            if len(block) < max_block:
-                yield partition[:i] + [[first, *block]] + partition[i + 1:]
-        yield [[first], *partition]
-
-
-@dataclass(frozen=True)
-class BandGeometry:
-    """What a column needs to know to be checked before any ordering: band width, depth and area."""
-
-    width: float
-    depth: float
-    area: float
-
-
-def _column_ok(column: tuple[str, ...], areas: dict[str, float], min_width: dict[str, float],
-               band: BandGeometry, vehicle_cells: set[str], vehicle_depth: float) -> bool:
-    col_area = sum(areas[c] for c in column)
-    col_width = band.width * col_area / band.area
-    for c in column:
-        depth = band.depth * areas[c] / col_area
-        if col_width < min_width[c] - 1e-9 or depth < min_width[c] - 1e-9:
-            return False
-        if c in vehicle_cells and depth < vehicle_depth - 1e-9:
-            return False
-    return True
-
-
-def band_arrangements(zones: list[str], max_per_column: int, first_in_column: set[str], last_in_column: set[str],
-                      column_ok=None, columns_ok=None):
-    """Ordered columns of stacked zones. Columns are checked once (dimensions do not depend on column order);
-    columns_ok(columns) rejects a whole set of columns before their orderings are generated."""
-    for partition in _set_partitions(sorted(zones), max_per_column):
-        orders_per_block = []
-        for block in partition:
-            orders = [
-                o for o in itertools.permutations(block)
-                if all(o.index(z) == 0 for z in o if z in first_in_column)
-                and all(o.index(z) == len(o) - 1 for z in o if z in last_in_column)
-                and (column_ok is None or column_ok(o))
-            ]
-            if not orders:
-                break
-            orders_per_block.append(orders)
-        else:
-            for chosen in itertools.product(*orders_per_block):
-                if columns_ok is not None and not columns_ok(chosen):
-                    continue
-                for columns in itertools.permutations(chosen):
-                    yield tuple(columns)
 
 
 def enumerate_with_through(zones: list[str], max_per_column: int, must_front: set[str], must_rear: set[str],

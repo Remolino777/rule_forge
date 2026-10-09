@@ -72,3 +72,7 @@ def facade_affinity(catalog: Catalog, facades: list[dict]) -> dict[str, dict[str
             row[f["facade_id"]] = 0.0 if total == 0 else sum(prefs[k] * exposures[k] for k in ZONE_WEIGHT_KEYS) / total
         out[zone["zone"]] = row
     return out
+
+
+__all__ = ["STREET_CLASSES", "ZONE_WEIGHT_KEYS", "boundary_exposures", "compass_azimuth", "exposure",
+           "facade_affinity", "local_normal_azimuth"]

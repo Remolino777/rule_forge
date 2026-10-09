@@ -25,13 +25,11 @@ from spaceplan.core.lib.schema_validation import BriefValidationError, validate_
 from spaceplan.core.lib_aux.json_io import dump_json, load_json
 from spaceplan.modules.household.lib.household import HouseholdError
 from spaceplan.modules.household.lib.household_catalog import HouseholdCatalogError
-from spaceplan.modules.household.main.run_household import (
-    derive_household,
-    load_catalogs,
-    resolve_brief_program,
-)
-from spaceplan.modules.household.main.run_program import build_program, parameter_table
+from spaceplan.modules.household.main.run_household import load_catalogs, resolve_brief_program
+from spaceplan.modules.household.main.run_program import build_program
 from spaceplan.pipeline.main.run_capacity import run_capacity_file
+from spaceplan.pipeline.main.run_catalog import parameter_table
+from spaceplan.pipeline.main.run_household_report import derive_household
 
 
 def _review_lines(review: dict) -> list[str]:
@@ -364,7 +362,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(result, indent=2) if args.json else "\n".join(_household_lines(result, args.tier)))
             return 0
         if args.command == "profiles":
-            from spaceplan.modules.profiles.main.run_profiles import run_profiles
+            from spaceplan.pipeline.main.run_portfolio import run_profiles
 
             if args.source.endswith(".json"):
                 source = load_json(args.source)
@@ -378,7 +376,8 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(result, indent=2) if args.json else "\n".join(_profile_lines(result)))
             return 0
         if args.command == "areas":
-            from spaceplan.modules.areas.main.run_area_matrix import run_area_matrix, write_tables
+            from spaceplan.modules.areas.main.run_area_matrix import write_tables
+            from spaceplan.pipeline.main.run_area_analysis import run_area_matrix
 
             result = run_area_matrix(args.lots or None, _parse_households(args.households), args.cost_model,
                                      not args.no_site, args.zone_top, args.sheets, args.lang,

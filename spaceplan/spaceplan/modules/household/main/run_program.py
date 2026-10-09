@@ -1,4 +1,7 @@
-"""Workflow for step 3: typology -> program block -> review; catalog -> parameter table."""
+"""Workflow for step 3: typology -> program block -> review.
+
+Refactor tanda 3: the catalog parameter table (command `catalog`) moved to spaceplan.pipeline.main.run_catalog.
+"""
 
 from __future__ import annotations
 
@@ -8,7 +11,6 @@ from spaceplan.core.lib.catalog import load_catalog
 from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
 from spaceplan.modules.household.lib.program_builder import expand_typology
 from spaceplan.modules.household.lib.program_review import review_program
-from spaceplan.pipeline.lib.catalog_table import render_cost_table, render_parameter_table
 
 
 def build_program(
@@ -21,7 +23,4 @@ def build_program(
     return {"program": program, "review": review}
 
 
-def parameter_table(catalog_path: str | Path | None = None, garage_cars: int = 2) -> str:
-    catalog = load_catalog(catalog_path)
-    return (render_parameter_table(catalog, load_ruleset_resource(*CRC_RULESET), garage_cars) + "\n"
-            + render_cost_table(catalog))
+__all__ = ["build_program"]

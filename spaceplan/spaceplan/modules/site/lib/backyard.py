@@ -239,7 +239,7 @@ def plan_backyard(catalog: Catalog, rs: RuleSet, program: dict, ctx: YardContext
 
 
 __all__ = ["Request", "YardContext", "plan_backyard", "priority_filter", "rect_dims", "requests_from_brief",
-           "PROVISIONAL"]
+           "PROVISIONAL", "backyard_for_site"]
 
 
 def backyard_for_site(catalog: Catalog, rs: RuleSet, brief: dict, lot, boundaries, site: dict, zoning: dict) -> None:
