@@ -39,7 +39,8 @@ def apartments():
 TESTS = Path(__file__).resolve().parent
 GOLDEN = TESTS / "golden"
 FIXTURE_MODULE = {"lot_capacity": "lotcap", "site_plan": "site", "zoning_scheme": "zoning", "program": "household",
-                  "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas"}
+                  "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas",
+                  "stack_plan": "stacking"}
 
 
 def load_fixture(contract: str, subject: str) -> dict:

@@ -1,0 +1,64 @@
+{
+  "catalog_id": "spaceplan-stacking-catalog",
+  "catalog_version": "0.1.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json.",
+  "units": "ft, sq ft",
+  "selection": {
+    "modes": {
+      "best": 1,
+      "top2": 2,
+      "all": null
+    },
+    "default_mode": "top2",
+    "note": "Cells of the area matrix (step 6.6) taken to the stacking layer: rank <= k inside each (lot, household, profile); 'all' takes every ranked (feasible) cell."
+  },
+  "levels": {
+    "floor_to_floor_ft": 10.0,
+    "ground_floor_above_grade_ft": 1.0,
+    "top_floor_plate_ft": 9.0,
+    "note": "Floor-to-floor equals the brief default (massing_assumptions.floor_to_floor_ft = 10 ft). Ground finish floor 1 ft above grade (slab on grade with an entry step; must stay within the first-story limit of 113.0261(a)). Top-floor plate = 8 ft ceiling + 1 ft roof framing above the top finish floor.",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined massing hypothesis for one- and two-story RS-1-7 houses, spaceplan step 6.7 (2026-10); validate with pilot approved plans",
+      "status": "provisional"
+    }
+  },
+  "roofs": {
+    "default_roof": "pitched_4_12",
+    "types": [
+      {
+        "roof_id": "flat",
+        "kind": "flat",
+        "parapet_ft": 2.0,
+        "label": {"es": "Techo plano con pretil", "en": "Flat roof with parapet"}
+      },
+      {
+        "roof_id": "pitched_4_12",
+        "kind": "pitched",
+        "pitch_rise_per_run": 0.3333,
+        "span": "short_side",
+        "label": {"es": "Techo inclinado 4:12", "en": "Pitched roof 4:12"}
+      }
+    ],
+    "note": "A pitched roof spans the short side of the top floor (gable or hip ridge along the long side): ridge = plate + short side / 2 x pitch. The short side of a floor is estimated as min(street-facing width of the strategy, floor area / width) until step S1 draws the floor.",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined roof hypothesis (low-slope pitched roofs are common in the Clairemont ranch stock; to be checked against pilot plans)",
+      "status": "provisional"
+    }
+  },
+  "stair": {
+    "space_type": "stair",
+    "note": "Stair area per level comes from the residential catalog (space type 'stair', target area), the same value step 6.6 used; S1 replaces it by the stair geometry.",
+    "consistency_tolerance_sqft": 1.0
+  },
+  "below_grade": {
+    "probe_exposures_ft": [0.0, 3.0, 4.5, 6.0],
+    "note": "Exposures (grade to the finish floor above) reported per lot to show how the basement rules classify a level -1 on that lot; the basement options B1-B3 are step 6.7b.",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined probe values, spaceplan step 6.7 (2026-10)",
+      "status": "provisional"
+    }
+  }
+}

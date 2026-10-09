@@ -80,7 +80,7 @@ def test_no_crc_numbers_in_program_review():
 # ------------------------------------------------------------------ architecture v3 (refactor tanda 2)
 # REFACTOR_PLAN.md section 3: modules/<m>/{main,lib,lib_aux} + pipeline, acyclic module graph (3.2).
 
-MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "viz")
+MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "stacking", "viz")
 ALLOWED = {  # plan 3.2: module -> modules it may import (besides itself)
     "core": set(),
     "lotcap": {"core"},
@@ -90,6 +90,7 @@ ALLOWED = {  # plan 3.2: module -> modules it may import (besides itself)
     "profiles": {"core", "household", "cost"},
     "zoning": {"core", "lotcap", "site"},
     "areas": {"core", "lotcap", "site", "household", "cost", "profiles"},
+    "stacking": {"core", "lotcap", "site", "cost", "zoning", "areas"},  # step 6.7 (S0 uses core only)
     "viz": {"core", "lotcap"},  # contracts, plus lotcap types to draw the lot
     "pipeline": {"core", *MODULES},
 }
@@ -170,6 +171,10 @@ def test_files_follow_plan_table():
         "zoning/main": {"run_corrections", "run_zoning", "contract"},  # run_zoning: tanda 3
         "areas/lib": {"vertical_split", "building_indices", "area_budget", "area_matrix"},
         "areas/main": {"run_area_matrix", "contract"},
+        "stacking/lib": {"stacking_catalog", "vertical_rules", "levels", "height_check", "cell_selection",
+                         "lot_vertical"},  # step 6.7a S0
+        "stacking/lib_aux": {"vertical_geometry"},
+        "stacking/main": {"run_stacking", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",
                     "area_matrix_plots"},  # tanda 3: visualize split by topic; tanda 4: facade removed
         "viz/main": {"run_viz"},  # tanda 4: figures from contracts

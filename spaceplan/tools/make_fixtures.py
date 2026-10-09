@@ -28,7 +28,8 @@ APARTMENTS = ("apt_2br_interior",)
 PORTFOLIO = {"archetype_id": "empty_nest", "cultural_profile": "anglo"}
 AREA_LOT, AREA_HOUSEHOLD = "interior_50x100", ("empty_nest", "anglo")
 MODULE_OF = {"lot_capacity": "lotcap", "site_plan": "site", "zoning_scheme": "zoning", "program": "household",
-             "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas"}
+             "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas",
+             "stack_plan": "stacking"}
 
 
 def fixture_path(contract: str, subject: str) -> Path:
@@ -38,7 +39,11 @@ def fixture_path(contract: str, subject: str) -> Path:
 def produce() -> dict[Path, dict]:
     from spaceplan.core.lib_aux.json_io import load_resource_json
     from spaceplan.pipeline.main.run_capacity import run_capacity_contracts
-    from spaceplan.pipeline.main.run_modules import area_matrix_contract_for, portfolio_contract_for
+    from spaceplan.pipeline.main.run_modules import (
+        area_matrix_contract_for,
+        portfolio_contract_for,
+        stack_plan_contract_for,
+    )
 
     out: dict[Path, dict] = {}
     for name in HOUSES + APARTMENTS:
@@ -53,6 +58,10 @@ def produce() -> dict[Path, dict]:
     matrix = area_matrix_contract_for(lots=[AREA_LOT], households=[AREA_HOUSEHOLD], zone_top=0)
     _check_area_rows(matrix)
     out[fixture_path("area_matrix", f"{AREA_LOT}_{'_'.join(AREA_HOUSEHOLD)}")] = matrix
+    # step 6.7: stack_plan of the same lot and household, every ranked cell, from the two fixtures above
+    lot_capacity = out[fixture_path("lot_capacity", AREA_LOT)]
+    out[fixture_path("stack_plan", f"{AREA_LOT}_{'_'.join(AREA_HOUSEHOLD)}")] = stack_plan_contract_for(
+        area_matrix=matrix, lot_capacities=[lot_capacity], mode="all")
     return out
 
 

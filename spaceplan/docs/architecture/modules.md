@@ -25,6 +25,7 @@ graph LR
     areas -->|1| household
     areas -->|2| cost
     areas -->|1| profiles
+    stacking -->|7| core
     viz -->|4| core
     viz -->|3| lotcap
     pipeline -->|8| core
@@ -35,12 +36,13 @@ graph LR
     pipeline -->|3| profiles
     pipeline -->|1| zoning
     pipeline -->|3| areas
+    pipeline -->|2| stacking
     pipeline -->|4| viz
 ```
 
 | Módulo | Importa | Importado por |
 |---|---|---|
-| `core` | — | lotcap, site, household, cost, profiles, zoning, areas, viz, pipeline |
+| `core` | — | lotcap, site, household, cost, profiles, zoning, areas, stacking, viz, pipeline |
 | `lotcap` | core | site, areas, viz, pipeline |
 | `site` | core, lotcap | zoning, areas, pipeline |
 | `household` | core | profiles, areas, pipeline |
@@ -48,8 +50,9 @@ graph LR
 | `profiles` | core, household, cost | areas, pipeline |
 | `zoning` | core, site | pipeline |
 | `areas` | core, lotcap, site, household, cost, profiles | pipeline |
+| `stacking` | core | pipeline |
 | `viz` | core, lotcap | pipeline |
-| `pipeline` | core, lotcap, site, household, cost, profiles, zoning, areas, viz | — |
+| `pipeline` | core, lotcap, site, household, cost, profiles, zoning, areas, stacking, viz | — |
 
 ## Archivos por módulo y capa
 
@@ -63,6 +66,7 @@ graph LR
 | `profiles` | `contract`, `run_profiles` | `program_profiles` | — |
 | `zoning` | `contract`, `run_corrections`, `run_zoning` | `band_enumeration`, `circulation`, `corrections`, `polygonal`, `realization`, `relation_matrix`, `space_layout`, `unit`, `zoning` | — |
 | `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `vertical_split` | — |
+| `stacking` | `contract`, `run_stacking` | `cell_selection`, `height_check`, `levels`, `lot_vertical`, `stacking_catalog`, `vertical_rules` | `vertical_geometry` |
 | `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `zoning_plots` | — |
 | `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio` | `catalog_table`, `package` | — |
 
@@ -79,7 +83,8 @@ productor), `brief_id` y `consumers` (informativos). Esquemas en `spaceplan/cont
 | `cost_report` | `cost` | profiles, areas, pipeline | `cost` | — |
 | `program_portfolio` | `profiles` | areas, viz | `reading`, `model`, `ceilings`, `household`, `curve`, `profiles` | `legend`, `quality_note`, `sheets` |
 | `zoning_scheme` | `zoning` | viz, pipeline | `zoning` | `unit`, `corrections`, `dwelling_type`, `realization_strategy` |
-| `area_matrix` | `areas` | viz | `meta`, `lots`, `cells` | `figures` |
+| `area_matrix` | `areas` | viz, stacking | `meta`, `lots`, `cells` | `figures` |
+| `stack_plan` | `stacking` | viz, pipeline | `meta`, `lots`, `cells` | `figures` |
 
 Cada productor tiene `modules/<m>/main/contract.py` con `to_contract` (valida al producir) y
 `from_contract` (valida al leer). El `pipeline` arma el paquete solo desde los contratos

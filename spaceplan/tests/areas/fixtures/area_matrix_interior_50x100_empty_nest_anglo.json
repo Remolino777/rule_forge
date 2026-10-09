@@ -5,7 +5,8 @@
  "input_sha256": "0517d50ecc4342c0ce44e898ddea183c95438d6daae3d99d0674c48fb02e2b59",
  "brief_id": null,
  "consumers": [
-  "viz"
+  "viz",
+  "stacking"
  ],
  "meta": {
   "step": "6.6",

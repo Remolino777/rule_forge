@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "spaceplan"
 DOC = ROOT / "docs" / "architecture" / "modules.md"
-MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "viz")
+MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "stacking", "viz")
 ORDER = ("core", *MODULES, "pipeline")
 
 

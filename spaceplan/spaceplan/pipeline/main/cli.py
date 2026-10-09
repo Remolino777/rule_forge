@@ -324,6 +324,17 @@ def _add_module_parsers(sub) -> None:
     p_cost.add_argument("--cost-model", choices=("base", "weighted", "shape"))
     p_cost.add_argument("-o", "--out")
     p_cost.add_argument("--json", action="store_true")
+    p_stack = sub.add_parser("stacking", help="stacking module (step 6.7): levels and height budget of the area-matrix "
+                                              "winners -> stack_plan contract")
+    p_stack.add_argument("lots", nargs="*", help="pilot lot names or brief paths (default: the 10 pilot lots)")
+    p_stack.add_argument("--households", help="comma list archetype.culture (culture: none|latino|anglo)")
+    p_stack.add_argument("--cells", choices=("best", "top2", "all"), help="area-matrix cells taken (default: top2)")
+    p_stack.add_argument("--area-matrix", help="read this area_matrix contract instead of computing it")
+    p_stack.add_argument("--lot-capacity", action="append", default=[],
+                         help="lot_capacity contract of a lot (repeat); default: computed from the lot briefs")
+    p_stack.add_argument("--tables", help="directory for stack_plan_cells.csv")
+    p_stack.add_argument("-o", "--out", help="write the stack_plan contract")
+    p_stack.add_argument("--json", action="store_true")
     p_viz = sub.add_parser("viz", help="viz module: figures from contracts")
     p_viz.add_argument("--lot-capacity")
     p_viz.add_argument("--site-plan")
@@ -347,6 +358,8 @@ def _run_module_command(args) -> int:
         contracts = capacity_contracts(load_json(args.brief), args.strategy, not args.no_corrections)
         return _write_module_contract(contracts.get(CONTRACT_OF_MODULE[args.command]), args.out, args.json,
                                       args.command)
+    if args.command == "stacking":
+        return _run_stacking_command(args)
     if args.command == "cost":
         report = cost_contract_for(load_contract(args.lot_capacity, "lot_capacity"),
                                    load_contract(args.site_plan, "site_plan"), load_contract(args.program, "program"),
@@ -384,6 +397,37 @@ def _run_module_command(args) -> int:
     if not figures:
         raise ValueError("viz: nothing to draw (give --capacity-plot, --site-plot, --zoning-plot or --area-matrix)")
     print("\n".join(f"figure      {f}" for f in figures))
+    return 0
+
+
+def _stack_lines(contract: dict) -> list[str]:
+    meta = contract["meta"]
+    sel = meta["selection"]
+    lines = _contract_lines(contract) + [
+        f"stage       {meta['stage']} (step {meta['step']}), cells {meta['selection_mode']}: "
+        f"{sel['selected_cells']} of {sel['ranked_cells']} ranked ({sel['selected_two_floor']} with two floors)"]
+    for lot in contract["lots"]:
+        env, s = lot["height_envelope"], lot["summary"]
+        lines.append(f"  {lot['lot_id']:<26} plane {env['plane_start_ft']:g}->{env['overall_max_ft']:g} ft at "
+                     f"{env['angle_deg']} deg  floors by height {lot['floors_by_height']}  "
+                     f"{s['status_counts']}  to S1: {s['to_s1']}  max inset {s['max_side_inset_ft']:.1f} ft")
+    return lines
+
+
+def _run_stacking_command(args) -> int:
+    from spaceplan.modules.stacking.main.contract import from_contract
+    from spaceplan.modules.stacking.main.run_stacking import write_tables
+    from spaceplan.pipeline.main.run_modules import stack_plan_contract_for
+
+    contract = stack_plan_contract_for(
+        area_matrix=load_contract(args.area_matrix, "area_matrix") if args.area_matrix else None,
+        lot_capacities=[load_contract(p, "lot_capacity") for p in args.lot_capacity] or None,
+        mode=args.cells, lots=args.lots or None, households=_parse_households(args.households), zone_top=0)
+    if args.out:
+        write_contract(contract, args.out)
+    if args.tables:
+        write_tables(from_contract(contract), args.tables)
+    print(json.dumps(contract, indent=2) if args.json else "\n".join(_stack_lines(contract)))
     return 0
 
 
@@ -466,7 +510,7 @@ def main(argv: list[str] | None = None) -> int:
     _add_module_parsers(sub)
     args = parser.parse_args(argv)
     try:
-        if args.command in ("lotcap", "site", "zoning", "cost", "viz"):
+        if args.command in ("lotcap", "site", "zoning", "cost", "viz", "stacking"):
             return _run_module_command(args)
         if args.command == "validate":
             brief, _ = resolve_brief_program(load_json(args.brief))

@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · 1,026 pruebas
+Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapa S0 hecha** (sección 4j: módulo `stacking`, contrato `stack_plan`) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · catálogo de apilamiento 0.1.0 · 1,113 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -623,6 +623,51 @@ detalle en `docs/refactor/log/tanda-4.md`). Suite completa ≈ 11 min 17 s corri
 `docs/architecture/modules.md` (estructura, grafo permitido, esquema y `contract.py`, composición en `pipeline`,
 CLI, pruebas con contratos fijos, regenerar el documento).
 
+## 4j. Paso 6.7a, etapa S0 (9 oct 2026): módulo `stacking` — niveles y presupuesto de altura
+
+**Qué hace.** Toma las celdas ganadoras de 6.6 (`area_matrix`, por defecto rango ≤ 2 por lote, hogar y perfil) y la
+`lot_capacity` de cada lote, y para cada celda arma los **niveles respecto del terreno** (0 planta baja, +1 planta
+alta; −1 sótano en 6.7b) con sus propiedades por regla (cuenta en FAR, es piso, cuenta en IO) y revisa la **altura**
+por tipo de techo contra el plano envolvente de 131.0444. No dibuja nada: es aritmética (S0). Marca `next_stage = S1`
+en las celdas de dos pisos que siguen (escalera, polígono por nivel, contención: etapa S1).
+
+**Paso 0 (verificación normativa en el texto oficial del SDMC).** Reglas nuevas en un conjunto aparte,
+`data/rules/sdmc_rs_1_7_vertical.json` (0.1.0), para no tocar el conjunto de capacidad ni los paquetes dorados:
+V01 geometría del plano (131.0444(a)(b)(c): conecta la altura máxima junto al retiro con la altura máxima total;
+45° desde la vertical en lotes < 75 ft; frontal solo sobre 27 ft) — **lectura provisional**: 24 ft en la línea del
+retiro lateral subiendo a 30 ft (el 24 solo aparece en el Diagrama 131-04L); V02 medición de altura (113.0270:
+terreno más bajo entre existente y propuesto; altura total + diferencia de cota hasta 10 ft), V03 sótano en el FAR
+(113.0234(a)(2): cuenta si el piso superior está > 3 ft 6 in sobre el terreno, o > 5 ft con pendiente ≥ 5 %),
+V04 pisos (113.0261: primer piso ≤ 2 ft 6 in; sótano es piso con ≥ 6 ft), V05 garaje en el FAR (113.0234(a)(6) y
+(d)(3)(A)(i): **el garaje de vivienda unifamiliar sí cuenta**, confirma la lectura por defecto de 6.6). V02–V05
+`verified: true`. Parámetros de diseño en `data/catalog/stacking_catalog.json` (0.1.0, todos `provisional`):
+entrepiso 10 ft, planta baja 1 ft sobre terreno, placa 9 ft, techos plano (pretil 2 ft) e inclinado 4:12 (por
+defecto), modos de selección, sondeo de sótano.
+
+**Arquitectura.** `modules/stacking/{main: run_stacking, contract; lib: stacking_catalog, vertical_rules, levels,
+height_check, cell_selection, lot_vertical; lib_aux: vertical_geometry}`. En S0 solo importa `core` (lee contratos);
+`ALLOWED` le reserva `lotcap, site, cost, zoning, areas` para S1/S2. Composición en `pipeline/main/run_modules.py`
+(`stack_plan_contract_for`, y `lot_capacity_contract_for`: capa 0 sola, mismo contrato que el flujo completo).
+CLI: `spaceplan stacking [LOTES] [--households ..] [--cells best|top2|all] [--area-matrix AM --lot-capacity LC ..]
+[-o stack_plan.json] [--tables DIR]` (piloto completo ≈ 1 min). Contrato fijo
+`tests/stacking/fixtures/stack_plan_interior_50x100_empty_nest_anglo.json`; 47 pruebas nuevas.
+
+**Resultados del piloto (10 lotes × 21 hogares, top2: 1,977 celdas, 1,108 de dos pisos).**
+1. **La altura nunca impide dos pisos**: 0 celdas exceden; con techo inclinado la cumbrera de dos pisos queda entre
+   21.4 y 25.8 ft (holgura mínima 4.2 ft bajo 30 ft). Tres pisos no caben por altura en ningún lote (131.0460 no
+   aplica en el piloto).
+2. **El plano 131.0444 solo manda en 67 celdas (6 %)** y siempre por el **hastial hacia el lindero lateral** (planta
+   alta más ancha que profunda): retranqueo de 0.3–1.8 ft (media 0.7). Con techo plano o la cumbrera girada todas
+   quedan dentro del plano: es una decisión de orientación del techo, no un límite de capacidad. Casi todas son
+   máximos (47) y esquema V1 (58).
+3. El plano frontal (sobre 27 ft) nunca se activa.
+4. Sótano (sondeo): en los lotes planos un semisótano con el piso superior a 4.5 ft cuenta en el FAR sin ser piso;
+   en la ladera (pendiente media 28 %) hasta 5 ft queda fuera del FAR: la regla ya favorece el walkout (H2 de 6.7b).
+
+**Limitaciones de S0.** Plantas como rectángulos (ancho de la estrategia; la alta, escalada); la pendiente es la media
+del lote (113.0234 la pide por borde); el inicio del plano en 24 ft es lectura del diagrama; techo y entrepiso son
+hipótesis.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -651,7 +696,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 
 ## 7. Verificaciones normativas pendientes (todas marcadas `verified: false`)
 
-- Altura 24/30 ft (131.0444(b)), medición 113.0270, Diagrama 131-04L (plano envolvente), definición de *steep hillsides*.
+- Altura 24/30 ft: leída en 6.7a como 24 ft en el retiro lateral → 30 ft total (Diagrama 131-04L, provisional; V01). Medición 113.0270, sótanos 113.0234(a)(2), pisos 113.0261 y garaje en el FAR **verificados** (reglas V02–V05). Pendiente: definición de *steep hillsides*, mapa C-1041, retiros de estructuras subterráneas y si el sótano cuenta en el IO.
 - Ancho y profundidad de lote irregular y posterior en lotes triangulares (Cap. 11).
 - Si el deck cuenta como pavimento (131.0447); si garaje/deck/bodega cuentan en el FAR.
 - Piscina/jacuzzi: separaciones a linderos y vivienda (valores *placeholder* 5/3/5 ft) y barrera de seguridad (CA H&SC).
@@ -682,7 +727,8 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7 | Apilamiento grueso integrado al portafolio: geometría de los esquemas V1–V5 (planta alta contenida, escalera en la junta, plano envolvente 131.0444) | ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; S1 escalera, polígono por nivel con 131.0444, contención; S2 zonificación de la planta alta | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 
 Total ≈ 50 h (6.6 tomó 8 h por los esquemas verticales, los índices y el lote bandera). Mínimo viable ≈ 14 h: 6.5a con 4 arquetipos, 6.5b nivel base, 6.5c solo cocina y matriz D/I/N.

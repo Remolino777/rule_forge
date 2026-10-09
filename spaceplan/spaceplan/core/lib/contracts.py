@@ -31,14 +31,16 @@ CONTRACT_VERSION = "0.2.0"
 ENVELOPE = ("contract", "version", "produced_by", "input_sha256", "brief_id", "consumers")
 STRIPPED = ("contract", "version", "produced_by", "input_sha256", "consumers")  # brief_id stays in the payload
 PRODUCERS = {"lot_capacity": "lotcap", "site_plan": "site", "program": "household", "cost_report": "cost",
-             "program_portfolio": "profiles", "zoning_scheme": "zoning", "area_matrix": "areas"}
+             "program_portfolio": "profiles", "zoning_scheme": "zoning", "area_matrix": "areas",
+             "stack_plan": "stacking"}
 CONSUMERS = {"lot_capacity": ["site", "zoning", "areas", "cost", "viz", "pipeline"],
              "site_plan": ["zoning", "areas", "cost", "viz", "pipeline"],
              "program": ["profiles", "zoning", "cost", "pipeline"],
              "cost_report": ["profiles", "areas", "pipeline"],
              "program_portfolio": ["areas", "viz"],
              "zoning_scheme": ["viz", "pipeline"],
-             "area_matrix": ["viz"]}
+             "area_matrix": ["viz", "stacking"],
+             "stack_plan": ["viz", "pipeline"]}
 
 
 class ContractValidationError(ValueError):

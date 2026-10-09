@@ -167,7 +167,7 @@ def validate_package(package: dict) -> None:
 # ------------------------------------------------------------------------------------ module contracts
 
 CONTRACTS = ("lot_capacity", "site_plan", "program", "cost_report", "program_portfolio", "zoning_scheme",
-             "area_matrix")
+             "area_matrix", "stack_plan")
 REFERENCED_SCHEMAS = ("brief", "package")  # contract blocks reference these definitions
 
 

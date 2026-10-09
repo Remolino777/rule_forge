@@ -8,6 +8,8 @@
                                    site or zoning computation)
     portfolio_contract_for(...)    program_portfolio of a brief or an archetype
     area_matrix_contract_for(...)  area_matrix of the pilot (or a subset)
+    lot_capacity_contract_for(brief)  lot_capacity only (layer 0: no site, zoning or cost)
+    stack_plan_contract_for(...)   stack_plan (step 6.7) from an area_matrix and the lot_capacity of its lots
 """
 
 from __future__ import annotations
@@ -15,21 +17,27 @@ from __future__ import annotations
 from pathlib import Path
 
 from spaceplan.core.lib.catalog import load_catalog
-from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset_resource
+from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset, load_ruleset_resource
 from spaceplan.core.lib.schema_validation import validate_brief
 from spaceplan.modules.areas.main.contract import to_contract as area_matrix_contract
+from spaceplan.modules.areas.main.run_area_matrix import PILOT_LOTS, load_lot_brief
 from spaceplan.modules.cost.main.contract import cost_from_contracts
 from spaceplan.modules.household.lib.program_review import review_program
 from spaceplan.modules.household.main.contract import to_contract as program_contract
 from spaceplan.modules.household.main.run_household import resolve_brief_household
-from spaceplan.modules.lotcap.main.run_lotcap import flag_lot_body
+from spaceplan.modules.lotcap.lib.scope import check_scope
+from spaceplan.modules.lotcap.main.contract import to_contract as lot_capacity_contract
+from spaceplan.modules.lotcap.main.run_lotcap import flag_lot_body, prepare_lot, select_strategy
 from spaceplan.modules.profiles.main.contract import to_contract as portfolio_contract
+from spaceplan.modules.stacking.main.contract import to_contract as stack_plan_contract
+from spaceplan.modules.stacking.main.run_stacking import run_stacking
 from spaceplan.pipeline.main.run_area_analysis import run_area_matrix
 from spaceplan.pipeline.main.run_capacity import run_capacity_contracts
 from spaceplan.pipeline.main.run_portfolio import run_profiles
 
 MODULE_OF_CONTRACT = {"lot_capacity": "lotcap", "site_plan": "site", "zoning_scheme": "zoning", "program": "household",
-                      "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas"}
+                      "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas",
+                      "stack_plan": "stacking"}
 CONTRACT_OF_MODULE = {m: c for c, m in MODULE_OF_CONTRACT.items()}
 
 
@@ -73,5 +81,38 @@ def area_matrix_contract_for(**kwargs) -> dict:
     return area_matrix_contract(run_area_matrix(**kwargs))
 
 
+def lot_capacity_contract_for(brief: dict, catalog_path: str | Path | None = None,
+                              strategy: str | None = None) -> dict | None:
+    """lot_capacity of a brief with layer 0 only (same contract the capacity workflow writes; None out of scope)."""
+    resolved, _, _ = resolve_brief_household(brief, catalog_path)
+    validate_brief(resolved)
+    if resolved["dwelling_type"] != "house":
+        return None
+    body, flag = flag_lot_body(resolved)
+    rs, catalog = load_ruleset(), load_catalog(catalog_path)
+    scope = check_scope(body, rs)
+    if not scope.in_scope:
+        return None
+    setup = prepare_lot(body, rs, catalog)
+    strategy_name, _ = select_strategy(catalog, setup, strategy)
+    return lot_capacity_contract(body, scope, setup, strategy_name, flag)
+
+
+def stack_plan_contract_for(area_matrix: dict | None = None, lot_capacities: list[dict] | None = None,
+                            mode: str | None = None, lots: list[str] | None = None,
+                            households: list[tuple[str, str | None]] | None = None, **area_kwargs) -> dict:
+    """stack_plan (step 6.7): reads the given contracts, or produces them for `lots` (default: the pilot)."""
+    if area_matrix is None:
+        area_matrix = area_matrix_contract_for(lots=lots, households=households, **area_kwargs)
+    if lot_capacities is None:
+        lot_capacities = [c for c in (lot_capacity_contract_for(load_lot_brief(n)) for n in (lots or PILOT_LOTS))
+                          if c is not None]
+    result = run_stacking(area_matrix, lot_capacities, mode)
+    inputs = {"area_matrix": area_matrix["input_sha256"],
+              "lot_capacity": sorted(c["input_sha256"] for c in lot_capacities), "meta": result["meta"]}
+    return stack_plan_contract(result, inputs)
+
+
 __all__ = ["CONTRACT_OF_MODULE", "MODULE_OF_CONTRACT", "area_matrix_contract_for", "capacity_contracts",
-           "cost_contract_for", "portfolio_contract_for", "program_contract_for"]
+           "cost_contract_for", "lot_capacity_contract_for", "portfolio_contract_for", "program_contract_for",
+           "stack_plan_contract_for"]

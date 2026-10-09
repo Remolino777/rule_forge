@@ -1,0 +1,137 @@
+{
+  "ruleset_id": "sdmc-rs-1-7-vertical",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "us-ca-san-diego",
+  "zone": "RS-1-7",
+  "code_edition": "SDMC-Ch11-2024-10; SDMC-Ch13-2026-07",
+  "transcribed_from": "Official SDMC PDFs read on 2026-10-09 (docs.sandiego.gov/municode: Ch11Art03Division02.pdf, Ch13Art01Division04.pdf) for step 6.7",
+  "verification_note": "Separate ruleset for the vertical layer (step 6.7) so the capacity ruleset and its golden packages stay unchanged. verified=true: the value was read in the official text with its section. verified=false: interpretation or a value only shown in a diagram; re-check before freezing the golden rules at gate G0. The angle by lot width, the 27 ft front trigger and the 24/30 ft values stay in the capacity ruleset (Z05, Z06); this file adds how they combine and how heights and below-grade floors are measured.",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "spaceplan v1.1",
+      "section": "9. Layer 1b"
+    }
+  },
+  "lot_measurement": {
+    "verified": false,
+    "source": {
+      "document": "SDMC Ch. 11",
+      "section": "see sdmc_rs_1_7_capacity.json"
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "V01-ANGLED-PLANE-GEOMETRY",
+      "magnitude": "angled_building_envelope_geometry",
+      "operator": "within",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "plane_start_height_ft": 24,
+        "overall_max_height_ft": 30,
+        "angle_from": "vertical",
+        "applies_at": "required_side_setback_line",
+        "front_and_street_side_when_height_exceeds_ft_rule": "Z06-ANGLED-PLANE.front_trigger_height_ft"
+      },
+      "text": [
+        "131.0444(a): the angled building envelope plane connects the maximum structure height adjacent to the setback and the overall maximum structure height.",
+        "131.0444(b), Table 131-04H: 45 degrees for lots less than 75 ft wide; 30 degrees from 75 to 150 ft; angles measured inward from the vertical.",
+        "131.0444(c): required adjacent to required side yards; also adjacent to front and street side yards where the maximum structure height exceeds 27 ft."
+      ],
+      "note": "Interpretation: Table 131-04D lists 24/30 ft for RS-1-7; read as 24 ft at the required side setback line (the label 'Maximum structure height 24'' of Diagram 131-04L) rising along the plane to the 30 ft overall maximum. The 24 ft start height is only in the diagram, not in the text. The capacity ruleset keeps 24 ft as its conservative maximum (Z05); this reading is used by the stacking layer and reported as provisional.",
+      "source": {
+        "document": "SDMC",
+        "section": "131.0444(a)(b)(c); Table 131-04D; Table 131-04H; Diagram 131-04L"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "V02-HEIGHT-MEASUREMENT",
+      "magnitude": "structure_height_measurement",
+      "operator": "<=",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "grade": "lower_of_existing_or_proposed",
+        "overall_height_grade_search_ft": 5,
+        "overall_height_extra_cap_ft": 10
+      },
+      "text": [
+        "113.0270(a)(1): measured vertically from the existing grade or proposed grade, whichever is lower.",
+        "113.0270(a)(2)(A): plumb line from all points on top of the structure to grade directly below.",
+        "113.0270(a)(2)(B): overall height from the lowest grade within 5 ft of the perimeter (or the property line, whichever is closer) to the highest point; it may not exceed the zone maximum plus the maximum grade differential within the footprint or 10 ft, whichever is less."
+      ],
+      "source": {
+        "document": "SDMC",
+        "section": "113.0270(a)(1)(2)"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "V03-BASEMENT-GFA",
+      "magnitude": "basement_exposure_counted_in_gfa",
+      "operator": ">",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "slope_threshold": 0.05,
+        "flat_exposure_ft": 3.5,
+        "sloped_exposure_ft": 5.0,
+        "measured_from": "lower_of_existing_or_proposed_grade",
+        "measured_to": "finish_floor_above"
+      },
+      "text": [
+        "113.0234(a)(2): lots that slope less than 5 percent along each edge of the building footprint: GFA includes the portions of a basement where the vertical distance between grade (lower of existing or proposed) and the finish-floor elevation above exceeds 3 ft 6 in.",
+        "Lots that slope 5 percent or more along any edge of the footprint: the threshold is 5 ft (Diagram 113-02J)."
+      ],
+      "note": "The slope is per footprint edge; until the brief carries the slope per edge (step 6.7b) the stacking layer uses the lot mean slope and flags the reading as approximate.",
+      "source": {
+        "document": "SDMC",
+        "section": "113.0234(a)(2)"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "V04-STORY-DEFINITION",
+      "magnitude": "story_thresholds",
+      "operator": "<=",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "first_story_max_floor_above_grade_ft": 2.5,
+        "basement_story_exposure_ft": 6.0
+      },
+      "text": [
+        "113.0261(a): the first story is the lowest story whose floor is not more than 2 ft 6 in above grade (lower of existing or proposed), measured to the finish floor.",
+        "113.0261(d): underground parking structures and basements are stories if there is a vertical distance, at any point, of 6 ft or more between grade and the finish-floor elevation immediately above."
+      ],
+      "source": {
+        "document": "SDMC",
+        "section": "113.0261(a)(d)"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "V05-GARAGE-GFA",
+      "magnitude": "garage_counted_in_gfa",
+      "operator": "==",
+      "value": true,
+      "unit": "boolean",
+      "parameters": {
+        "open_elevations_to_exclude": 2,
+        "single_dwelling_exclusion_applies": false
+      },
+      "text": [
+        "113.0234(a)(6): GFA includes on- or above-grade parking structures, garages and carports with less than two elevations 100 percent open.",
+        "113.0234(d)(3)(A)(i): the parking-structure exclusion does not apply to garages or carports that serve single dwelling unit development."
+      ],
+      "note": "Confirms the default reading of step 6.6 (garage included in the FAR); the garage-excluded column of 6.6 stays as a sensitivity.",
+      "source": {
+        "document": "SDMC",
+        "section": "113.0234(a)(6); 113.0234(d)(3)(A)(i)"
+      },
+      "verified": true
+    }
+  ]
+}

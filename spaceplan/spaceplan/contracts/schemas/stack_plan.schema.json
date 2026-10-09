@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/stack_plan/0.2.0",
+  "title": "Stack plan per lot (step 6.7)",
+  "description": "Levels relative to grade, height budget against the angled envelope plane and the stage each selected area-matrix cell reached (S0 levels and height; S1 stair and plane-limited polygons; S2 upper-floor zoning).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "version", "produced_by", "input_sha256", "meta", "lots", "cells"],
+  "$defs": {
+    "status": {"enum": ["within_plane", "plane_governs", "exceeds_height"]},
+    "level": {
+      "type": "object",
+      "required": ["level", "kind", "finish_floor_ft", "gross_sqft", "stair_sqft", "counts_in_gfa", "is_story",
+                   "counts_in_io"],
+      "properties": {
+        "level": {"type": "integer", "minimum": -1},
+        "kind": {"enum": ["below", "ground", "upper"]},
+        "finish_floor_ft": {"type": "number"},
+        "gross_sqft": {"type": "number", "minimum": 0},
+        "stair_sqft": {"type": "number", "minimum": 0},
+        "spaces": {"type": ["array", "null"], "items": {"type": "string"}},
+        "counts_in_gfa": {"type": "boolean"},
+        "is_story": {"type": "boolean"},
+        "counts_in_io": {"type": "boolean"}
+      }
+    },
+    "height": {
+      "type": "object",
+      "required": ["roof_id", "status", "plate_ft", "top_ft", "side_wall", "side_inset_ft", "front_plane_required",
+                   "overall_height_ft", "overall_limit_ft", "headroom_ft"],
+      "properties": {
+        "roof_id": {"type": "string"},
+        "status": {"$ref": "#/$defs/status"},
+        "plate_ft": {"type": "number"},
+        "top_ft": {"type": "number"},
+        "side_wall": {"enum": ["eave", "gable", "parapet"]},
+        "side_inset_ft": {"type": "number", "minimum": 0},
+        "front_plane_required": {"type": "boolean"},
+        "top_floor_width_ft": {"type": "number"},
+        "top_floor_depth_ft": {"type": "number"},
+        "grade_differential_ft": {"type": "number"},
+        "overall_height_ft": {"type": "number"},
+        "overall_limit_ft": {"type": "number"},
+        "headroom_ft": {"type": "number"}
+      }
+    },
+    "below_grade": {
+      "type": "object",
+      "required": ["exposure_ft", "slope_class", "gfa_threshold_ft", "story_threshold_ft", "counts_in_gfa", "is_story",
+                   "band"],
+      "properties": {
+        "exposure_ft": {"type": "number"},
+        "slope_class": {"enum": ["flat", "sloped"]},
+        "gfa_threshold_ft": {"type": "number"},
+        "story_threshold_ft": {"type": "number"},
+        "counts_in_gfa": {"type": "boolean"},
+        "is_story": {"type": "boolean"},
+        "band": {"enum": ["outside_gfa", "gfa_not_story", "story"]},
+        "sources": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "stack_plan"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "produced_by": {"const": "stacking"},
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 (canonical JSON) of the inputs the producer read (the area_matrix and lot_capacity contracts and the selection mode)."
+    },
+    "brief_id": {"type": ["string", "null"], "description": "Brief the contract belongs to (informative; null for a multi-lot plan)."},
+    "consumers": {"type": "array", "items": {"type": "string"}, "description": "Informative: modules expected to read it (viz, pipeline)."},
+    "meta": {
+      "type": "object",
+      "required": ["step", "stage", "selection_mode", "selection", "vertical_ruleset", "vertical_ruleset_version",
+                   "stacking_catalog_version", "households", "lots"],
+      "properties": {
+        "step": {"type": "string"},
+        "stage": {"enum": ["S0", "S1", "S2"]},
+        "selection_mode": {"type": "string"},
+        "selection": {"type": "object"},
+        "vertical_ruleset": {"type": "string"},
+        "vertical_ruleset_version": {"type": "string"},
+        "stacking_catalog_version": {"type": "string"},
+        "households": {"type": "array", "items": {"type": "string"}},
+        "lots": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "lots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["lot_id", "lot_width_ft", "height_envelope", "floors_by_height", "slope_class", "below_grade_probe",
+                     "summary"],
+        "properties": {
+          "lot_id": {"type": "string"},
+          "lot_width_ft": {"type": "number"},
+          "side_setback_ft": {"type": "number"},
+          "height_envelope": {
+            "type": "object",
+            "required": ["plane_start_ft", "overall_max_ft", "angle_deg", "front_trigger_ft", "status"],
+            "properties": {
+              "plane_start_ft": {"type": "number"},
+              "overall_max_ft": {"type": "number"},
+              "angle_deg": {"type": ["number", "null"]},
+              "front_trigger_ft": {"type": ["number", "null"]},
+              "status": {"enum": ["verified", "provisional"]}
+            }
+          },
+          "floors_by_height": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+          "slope_class": {"enum": ["flat", "sloped"]},
+          "below_grade_probe": {"type": "array", "items": {"$ref": "#/$defs/below_grade"}},
+          "summary": {"type": "object"}
+        }
+      }
+    },
+    "cells": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["lot_id", "household_id", "profile", "scheme_id", "floors", "rank", "selection", "levels", "height",
+                     "default_roof", "status", "next_stage", "warnings"],
+        "properties": {
+          "lot_id": {"type": "string"},
+          "household_id": {"type": "string"},
+          "profile": {"type": "string"},
+          "scheme_id": {"type": "string"},
+          "floors": {"type": "integer", "minimum": 1},
+          "rank": {"type": "integer", "minimum": 1},
+          "selection": {"type": "string"},
+          "levels": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/level"}},
+          "height": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/height"}},
+          "default_roof": {"type": "string"},
+          "status": {"$ref": "#/$defs/status"},
+          "next_stage": {"enum": ["S1", "S2", null]},
+          "warnings": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "figures": {"type": "array", "items": {"type": "string"}}
+  }
+}

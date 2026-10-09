@@ -19,7 +19,8 @@ que antes de escribir comprueba que el paquete armado con ellos es idéntico a l
 
 Línea de comandos: `spaceplan lotcap|site|zoning BRIEF -o C.json`, `spaceplan household BRIEF --contract P.json`,
 `spaceplan cost --lot-capacity .. --site-plan .. --program ..`, `spaceplan viz ...`, `--contract` en `profiles` y
-`areas`, `spaceplan capacity BRIEF --contracts DIR`.
+`areas`, `spaceplan stacking [LOTES] [--area-matrix AM --lot-capacity LC ...] -o S.json` (paso 6.7),
+`spaceplan capacity BRIEF --contracts DIR`.
 
 ## Sobre común
 
@@ -44,7 +45,8 @@ Todo contrato lleva:
 | `cost_report` | cost | profiles, areas, pipeline | `cost` (del paquete: índice relativo, presupuesto, tornado; sin dinero) |
 | `program_portfolio` | profiles | areas, viz | salida de `run_profiles`: `ceilings`, `curve`, `profiles` (cinco perfiles) |
 | `zoning_scheme` | zoning | viz, pipeline | `zoning`, `unit`, `corrections` (del paquete), `dwelling_type`, `realization_strategy` |
-| `area_matrix` | areas | viz | salida de `run_area_matrix`: `meta`, `lots` (presupuesto, resumen, E2), `cells` |
+| `area_matrix` | areas | viz, stacking | salida de `run_area_matrix`: `meta`, `lots` (presupuesto, resumen, E2), `cells` |
+| `stack_plan` | stacking | viz, pipeline | paso 6.7 (`run_stacking`): `meta` (etapa S0/S1/S2, selección, reglas y catálogo con hash), `lots` (plano envolvente, pisos que permite la altura, sondeo bajo terreno), `cells` (niveles respecto del terreno, altura por tipo de techo, estado, etapa siguiente) |
 
 `brief` (0.5) y `package` (0.9) ya existen en `data/schemas/` y no cambian.
 
