@@ -141,24 +141,9 @@ def run_area_matrix(
         result["lots"].append(lot)
         result["cells"].extend(cells)
     if sheets_dir:
-        from spaceplan.modules.viz.lib.area_matrix_plots import (
-            plot_area_budget,
-            plot_decision_map,
-            plot_ic_io,
-            plot_scheme_matrix,
-        )
+        from spaceplan.modules.viz.main.run_viz import area_matrix_figures
 
-        out = Path(sheets_dir)
-        out.mkdir(parents=True, exist_ok=True)
-        figures = []
-        for lot in result["lots"]:
-            lid = lot["budget"]["lot_id"]
-            lot_cells = [c for c in result["cells"] if c["lot_id"] == lid]
-            figures.append(plot_decision_map(lot, lot_cells, out / f"{lid}_decision_map.png", display, lang))
-            figures.append(plot_area_budget(lot, lot_cells, out / f"{lid}_area_budget.png", display, lang))
-            figures.append(plot_ic_io(lot, lot_cells, out / f"{lid}_ic_io.png", display, lang))
-        figures.append(plot_scheme_matrix(result, out / "pilot_best_schemes.png", display, lang))
-        result["figures"] = [str(f) for f in figures]
+        result["figures"] = [str(f) for f in area_matrix_figures(result, sheets_dir, display, lang)]
     return result
 
 

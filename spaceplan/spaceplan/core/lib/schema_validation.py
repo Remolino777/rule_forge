@@ -150,7 +150,7 @@ def validate_brief(brief: dict) -> None:
     errors = _schema_errors(brief, "brief")
     if not errors and "program" not in brief:
         errors = ["brief has no program: give one, or a household block and derive it first "
-                  "(spaceplan.main.run_household.resolve_brief_program)" if "household" in brief
+                  "(spaceplan.modules.household.main.run_household.resolve_brief_program)" if "household" in brief
                   else "brief needs a program or a household block"]
     if not errors:
         errors = semantic_errors(brief)

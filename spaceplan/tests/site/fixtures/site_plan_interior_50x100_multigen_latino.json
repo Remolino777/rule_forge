@@ -1,0 +1,119 @@
+{
+ "contract": "site_plan",
+ "version": "0.2.0",
+ "produced_by": "site",
+ "input_sha256": "cb8ee5ebeee4f894a0d2854bbf18b16af65572323f4b643c7a09d071fdb70e5d",
+ "brief_id": "interior-50x100-multigen-latino",
+ "consumers": [
+  "zoning",
+  "areas",
+  "cost",
+  "viz",
+  "pipeline"
+ ],
+ "site_partition": {
+  "frame": {
+   "origin": [
+    0.0,
+    0.0
+   ],
+   "angle_rad": 0.0
+  },
+  "streets": [
+   {
+    "street_id": "street_main",
+    "role": "primary",
+    "street_type": "local",
+    "noise_level": 0.3,
+    "curb_cut": {
+     "edge_id": "e0",
+     "position": 0.75,
+     "width_ft": 20
+    },
+    "grade_offset_ft": 0.0
+   }
+  ],
+  "front_yard_area_sqft": 750.0,
+  "orientation": {
+   "latitude_deg": 32.8,
+   "north_azimuth_deg": 0.0,
+   "boundaries": [
+    {
+     "edge_id": "e0",
+     "boundary_class": "front",
+     "outward_azimuth_deg": 180.0,
+     "sun": 1.0,
+     "morning_light": 0.0,
+     "afternoon_shade": 1.0,
+     "street_exposure": 1.0
+    },
+    {
+     "edge_id": "e1",
+     "boundary_class": "side",
+     "outward_azimuth_deg": 90.0,
+     "sun": 0.0,
+     "morning_light": 1.0,
+     "afternoon_shade": 1.0,
+     "street_exposure": 0.0
+    },
+    {
+     "edge_id": "e2",
+     "boundary_class": "rear",
+     "outward_azimuth_deg": 0.0,
+     "sun": 0.0,
+     "morning_light": 0.0,
+     "afternoon_shade": 1.0,
+     "street_exposure": 0.0
+    },
+    {
+     "edge_id": "e3",
+     "boundary_class": "side",
+     "outward_azimuth_deg": 270.0,
+     "sun": 0.0,
+     "morning_light": 0.0,
+     "afternoon_shade": 0.0,
+     "street_exposure": 0.0
+    }
+   ]
+  },
+  "limits": {
+   "max_paving_fraction": 0.6,
+   "deck_counts_as_paving": true,
+   "deck_max_projection_ft": 6,
+   "deck_max_height_ft": 15,
+   "deck_min_open_fraction": 0.4,
+   "equipment_min_distance_ft": 4
+  },
+  "options": [
+   {
+    "option_id": "n1",
+    "floors": 1,
+    "footprint_area_sqft": 3156.75,
+    "feasible": false,
+    "preferences_met": false,
+    "reasons": [
+     "required gross 3157 exceeds FAR limit 3000",
+     "footprint 3157 exceeds normative footprint 3024",
+     "footprint depth 75.2 ft exceeds strategy A depth 72.0 ft (realization)"
+    ]
+   },
+   {
+    "option_id": "n2",
+    "floors": 2,
+    "footprint_area_sqft": 1578.375,
+    "feasible": false,
+    "preferences_met": false,
+    "reasons": [
+     "required gross 3157 exceeds FAR limit 3000"
+    ]
+   }
+  ],
+  "strategy": "A_inscribed_rectangle",
+  "front_recess_ft": 0.0,
+  "selected_option_id": null,
+  "primary_street_id": "street_main"
+ },
+ "warnings": [
+  "site partition: no option satisfies the normative site checks"
+ ]
+}

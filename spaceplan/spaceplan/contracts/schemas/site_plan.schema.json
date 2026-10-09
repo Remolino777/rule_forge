@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/site_plan/0.1.0",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/site_plan/0.2.0",
   "title": "Site plan (layer 1)",
   "description": "Site partition: options by number of floors, accesses, paving, garden, facade roles and backyard.",
   "type": "object",
@@ -28,6 +28,13 @@
       "pattern": "^[0-9a-f]{64}$",
       "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
     },
+    "brief_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Brief the contract belongs to (informative)."
+    },
     "consumers": {
       "type": "array",
       "items": {
@@ -37,6 +44,10 @@
     },
     "site_partition": {
       "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/site_partition"
+    },
+    "warnings": {
+      "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/warnings",
+      "description": "Site warnings, in the order the package lists them."
     }
   }
 }

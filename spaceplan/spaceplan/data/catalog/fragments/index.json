@@ -1,6 +1,6 @@
 {
   "catalog_id": "spaceplan-residential-catalog",
-  "note": "Residential catalog split by owning module (refactor tanda 1). The loader merges the fragments, in this order, into the same dictionary as residential_catalog.json, then restores key_order. residential_catalog.json is kept as the reference until tanda 4. The household catalog (household_catalog.json) is a separate catalog owned by the household module and is not merged.",
+  "note": "Residential catalog split by owning module (refactor tanda 1). The loader merges the fragments, in this order, into one dictionary, then restores key_order. The pre-split residential_catalog.json was removed in refactor tanda 4; tests/core/test_catalog_fragments.py keeps its SHA-256 as the reference. The household catalog (household_catalog.json) is a separate catalog owned by the household module and is not merged.",
   "fragments": [
     "core",
     "household",

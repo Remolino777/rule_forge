@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/program_portfolio/0.1.0",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/program_portfolio/0.2.0",
   "title": "Program portfolio",
   "description": "Expansion curve, the five profiles (minimum, optimum, maximum, accessible, staged) and the ceilings.",
   "type": "object",
@@ -123,7 +123,14 @@
     "curve": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "required": [
+          "step",
+          "move",
+          "gross_area_sqft",
+          "index",
+          "quality"
+        ]
       }
     },
     "profiles": {
@@ -138,19 +145,212 @@
       ],
       "properties": {
         "minimum": {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "profile",
+            "program",
+            "gross_area_sqft",
+            "index",
+            "quality",
+            "feasibility",
+            "within_ceilings"
+          ],
+          "properties": {
+            "profile": {
+              "type": "string"
+            },
+            "program": {
+              "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/program"
+            },
+            "gross_area_sqft": {
+              "type": "number"
+            },
+            "index": {
+              "type": "number"
+            },
+            "quality": {
+              "type": "number"
+            },
+            "feasibility": {
+              "type": "string"
+            },
+            "within_ceilings": {
+              "type": "boolean"
+            },
+            "next_stage_coverage": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
         },
         "optimum": {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "profile",
+            "program",
+            "gross_area_sqft",
+            "index",
+            "quality",
+            "feasibility",
+            "within_ceilings"
+          ],
+          "properties": {
+            "profile": {
+              "type": "string"
+            },
+            "program": {
+              "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/program"
+            },
+            "gross_area_sqft": {
+              "type": "number"
+            },
+            "index": {
+              "type": "number"
+            },
+            "quality": {
+              "type": "number"
+            },
+            "feasibility": {
+              "type": "string"
+            },
+            "within_ceilings": {
+              "type": "boolean"
+            },
+            "next_stage_coverage": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
         },
         "maximum": {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "profile",
+            "program",
+            "gross_area_sqft",
+            "index",
+            "quality",
+            "feasibility",
+            "within_ceilings"
+          ],
+          "properties": {
+            "profile": {
+              "type": "string"
+            },
+            "program": {
+              "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/program"
+            },
+            "gross_area_sqft": {
+              "type": "number"
+            },
+            "index": {
+              "type": "number"
+            },
+            "quality": {
+              "type": "number"
+            },
+            "feasibility": {
+              "type": "string"
+            },
+            "within_ceilings": {
+              "type": "boolean"
+            },
+            "next_stage_coverage": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
         },
         "accessible": {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "profile",
+            "program",
+            "gross_area_sqft",
+            "index",
+            "quality",
+            "feasibility",
+            "within_ceilings"
+          ],
+          "properties": {
+            "profile": {
+              "type": "string"
+            },
+            "program": {
+              "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/program"
+            },
+            "gross_area_sqft": {
+              "type": "number"
+            },
+            "index": {
+              "type": "number"
+            },
+            "quality": {
+              "type": "number"
+            },
+            "feasibility": {
+              "type": "string"
+            },
+            "within_ceilings": {
+              "type": "boolean"
+            },
+            "next_stage_coverage": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
         },
         "staged": {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "profile",
+            "today",
+            "final",
+            "index_today",
+            "index_later",
+            "index_total"
+          ],
+          "properties": {
+            "today": {
+              "type": "object",
+              "required": [
+                "program"
+              ],
+              "properties": {
+                "program": {
+                  "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/program"
+                }
+              }
+            },
+            "final": {
+              "type": "object",
+              "required": [
+                "program"
+              ],
+              "properties": {
+                "program": {
+                  "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/program"
+                }
+              }
+            },
+            "index_today": {
+              "type": "number"
+            },
+            "index_later": {
+              "type": "number"
+            },
+            "index_total": {
+              "type": "number"
+            }
+          }
         }
       }
     },

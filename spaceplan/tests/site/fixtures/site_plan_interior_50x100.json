@@ -1,0 +1,1859 @@
+{
+ "contract": "site_plan",
+ "version": "0.2.0",
+ "produced_by": "site",
+ "input_sha256": "42b5c86c81bf0d1e9ba5bdb3f4fdbae7ed559c952d62f1c6dc64f55f0f90c0ab",
+ "brief_id": "interior-50x100",
+ "consumers": [
+  "zoning",
+  "areas",
+  "cost",
+  "viz",
+  "pipeline"
+ ],
+ "site_partition": {
+  "frame": {
+   "origin": [
+    0.0,
+    0.0
+   ],
+   "angle_rad": 0.0
+  },
+  "streets": [
+   {
+    "street_id": "street_main",
+    "role": "primary",
+    "street_type": "local",
+    "noise_level": 0.3,
+    "curb_cut": {
+     "edge_id": "e0",
+     "position": 0.75,
+     "width_ft": 20
+    },
+    "grade_offset_ft": 0.0
+   }
+  ],
+  "front_yard_area_sqft": 750.0,
+  "orientation": {
+   "latitude_deg": 32.8,
+   "north_azimuth_deg": 0.0,
+   "boundaries": [
+    {
+     "edge_id": "e0",
+     "boundary_class": "front",
+     "outward_azimuth_deg": 180.0,
+     "sun": 1.0,
+     "morning_light": 0.0,
+     "afternoon_shade": 1.0,
+     "street_exposure": 1.0
+    },
+    {
+     "edge_id": "e1",
+     "boundary_class": "side",
+     "outward_azimuth_deg": 90.0,
+     "sun": 0.0,
+     "morning_light": 1.0,
+     "afternoon_shade": 1.0,
+     "street_exposure": 0.0
+    },
+    {
+     "edge_id": "e2",
+     "boundary_class": "rear",
+     "outward_azimuth_deg": 0.0,
+     "sun": 0.0,
+     "morning_light": 0.0,
+     "afternoon_shade": 1.0,
+     "street_exposure": 0.0
+    },
+    {
+     "edge_id": "e3",
+     "boundary_class": "side",
+     "outward_azimuth_deg": 270.0,
+     "sun": 0.0,
+     "morning_light": 0.0,
+     "afternoon_shade": 0.0,
+     "street_exposure": 0.0
+    }
+   ]
+  },
+  "limits": {
+   "max_paving_fraction": 0.6,
+   "deck_counts_as_paving": true,
+   "deck_max_projection_ft": 6,
+   "deck_max_height_ft": 15,
+   "deck_min_open_fraction": 0.4,
+   "equipment_min_distance_ft": 4
+  },
+  "options": [
+   {
+    "option_id": "n1",
+    "floors": 1,
+    "footprint_area_sqft": 2212.0,
+    "feasible": true,
+    "preferences_met": false,
+    "reasons": [],
+    "variants_evaluated": [
+     {
+      "walkway_variant": "independent",
+      "deck_position": "centered",
+      "paving_fraction": 0.528,
+      "normative_ok": true,
+      "error": null
+     },
+     {
+      "walkway_variant": "independent",
+      "deck_position": "offset",
+      "paving_fraction": 0.528,
+      "normative_ok": true,
+      "error": null
+     },
+     {
+      "walkway_variant": "from_driveway",
+      "deck_position": "centered",
+      "paving_fraction": 0.504,
+      "normative_ok": true,
+      "error": null
+     },
+     {
+      "walkway_variant": "from_driveway",
+      "deck_position": "offset",
+      "paving_fraction": 0.48,
+      "normative_ok": true,
+      "error": null
+     }
+    ],
+    "footprint_variant": "equipment_room_left",
+    "footprint_candidates": [
+     {
+      "footprint_variant": "full_width",
+      "rect_local": [
+       4.0,
+       15.0,
+       46.0,
+       67.6667
+      ],
+      "normative_ok": true,
+      "preferences_met": false,
+      "intervals": {
+       "entry_deck": [
+        16.0,
+        26.0
+       ],
+       "driveway": [
+        26.0,
+        46.0
+       ]
+      },
+      "access_options": [
+       {
+        "deck_position": "centered",
+        "deck_interval_ft": [
+         10.0,
+         20.0
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.512,
+        "walkway_variant": "from_driveway"
+       },
+       {
+        "deck_position": "offset",
+        "deck_interval_ft": [
+         16.0,
+         26.0
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.48,
+        "walkway_variant": "from_driveway"
+       }
+      ]
+     },
+     {
+      "footprint_variant": "equipment_room_left",
+      "rect_local": [
+       7.0,
+       15.0,
+       46.0,
+       71.7179
+      ],
+      "normative_ok": true,
+      "preferences_met": false,
+      "intervals": {
+       "entry_deck": [
+        16.0,
+        26.0
+       ],
+       "driveway": [
+        26.0,
+        46.0
+       ]
+      },
+      "access_options": [
+       {
+        "deck_position": "centered",
+        "deck_interval_ft": [
+         11.5,
+         21.5
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.504,
+        "walkway_variant": "from_driveway"
+       },
+       {
+        "deck_position": "offset",
+        "deck_interval_ft": [
+         16.0,
+         26.0
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.48,
+        "walkway_variant": "from_driveway"
+       }
+      ]
+     }
+    ],
+    "corrections": [],
+    "footprint_width_ft": 39.0,
+    "footprint_depth_ft": 56.7179,
+    "coverage_ratio": 0.4424,
+    "zones": {
+     "footprint": {
+      "area_sqft": 2212.0,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          46.0,
+          15.0
+         ],
+         [
+          46.0,
+          71.7179
+         ],
+         [
+          7.0,
+          71.7179
+         ],
+         [
+          7.0,
+          15.0
+         ],
+         [
+          46.0,
+          15.0
+         ]
+        ]
+       ]
+      }
+     },
+     "garden": {
+      "area_sqft": 1414.1026,
+      "depth_ft": 28.2821,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          0.0,
+          100.0
+         ],
+         [
+          50.0,
+          100.0
+         ],
+         [
+          50.0,
+          71.7179
+         ],
+         [
+          0.0,
+          71.7179
+         ],
+         [
+          0.0,
+          100.0
+         ]
+        ]
+       ]
+      }
+     },
+     "side_yards": {
+      "area_sqft": 623.8974,
+      "clearance_ft": 7.0,
+      "polygon": {
+       "type": "MultiPolygon",
+       "coordinates": [
+        [
+         [
+          [
+           46.0,
+           15.0
+          ],
+          [
+           46.0,
+           71.7179
+          ],
+          [
+           50.0,
+           71.7179
+          ],
+          [
+           50.0,
+           15.0
+          ],
+          [
+           46.0,
+           15.0
+          ]
+         ]
+        ],
+        [
+         [
+          [
+           0.0,
+           15.0
+          ],
+          [
+           0.0,
+           71.7179
+          ],
+          [
+           7.0,
+           71.7179
+          ],
+          [
+           7.0,
+           15.0
+          ],
+          [
+           0.0,
+           15.0
+          ]
+         ]
+        ]
+       ]
+      }
+     },
+     "front_green": {
+      "area_sqft": 390.0,
+      "parts": 2,
+      "polygon": {
+       "type": "MultiPolygon",
+       "coordinates": [
+        [
+         [
+          [
+           46.0,
+           0.0
+          ],
+          [
+           46.0,
+           15.0
+          ],
+          [
+           50.0,
+           15.0
+          ],
+          [
+           50.0,
+           0.0
+          ],
+          [
+           46.0,
+           0.0
+          ]
+         ]
+        ],
+        [
+         [
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           15.0
+          ],
+          [
+           16.0,
+           15.0
+          ],
+          [
+           16.0,
+           9.0
+          ],
+          [
+           26.0,
+           9.0
+          ],
+          [
+           26.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        ]
+       ]
+      }
+     },
+     "driveway": {
+      "area_sqft": 300.0,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          26.0,
+          15.0
+         ],
+         [
+          46.0,
+          15.0
+         ],
+         [
+          46.0,
+          0.0
+         ],
+         [
+          26.0,
+          0.0
+         ],
+         [
+          26.0,
+          15.0
+         ]
+        ]
+       ]
+      }
+     },
+     "walkway": {
+      "area_sqft": 0.0,
+      "polygon": null
+     },
+     "entry_deck": {
+      "area_sqft": 60.0,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          16.0,
+          9.0
+         ],
+         [
+          16.0,
+          15.0
+         ],
+         [
+          26.0,
+          15.0
+         ],
+         [
+          26.0,
+          9.0
+         ],
+         [
+          16.0,
+          9.0
+         ]
+        ]
+       ]
+      }
+     }
+    },
+    "front_yard_area_sqft": 750.0,
+    "access": {
+     "walkway_variant": "from_driveway",
+     "deck_position": "offset",
+     "walkway_breaks": 1,
+     "deck_width_ft": 10.0,
+     "deck_depth_ft": 6,
+     "deck_interval_ft": [
+      16.0,
+      26.0
+     ],
+     "deck_visible_from_street": true,
+     "deck_afternoon_shade": 1.0,
+     "driveway_interval_ft": [
+      26.0,
+      46.0
+     ],
+     "driveway_shift_ft": -1.5,
+     "garage_face_constraint": "garage must occupy the front facade over driveway_interval_ft (local x)"
+    },
+    "checks": [
+     {
+      "check_id": "footprint_within_envelope",
+      "kind": "normative",
+      "value": null,
+      "limit": null,
+      "passes": true,
+      "status": "verified",
+      "source": "geometry:setback_envelope",
+      "note": null
+     },
+     {
+      "check_id": "front_paving_fraction",
+      "kind": "normative",
+      "value": 0.48,
+      "limit": 0.6,
+      "passes": true,
+      "status": "provisional",
+      "source": "SDMC 131.0447",
+      "note": "without deck 0.400"
+     },
+     {
+      "check_id": "deck_projection",
+      "kind": "normative",
+      "value": 6.0,
+      "limit": 6,
+      "passes": true,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(6)",
+      "note": null
+     },
+     {
+      "check_id": "deck_height",
+      "kind": "deferred",
+      "value": null,
+      "limit": 15,
+      "passes": null,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(6)",
+      "note": "verified in elevations (planogen / step 12)"
+     },
+     {
+      "check_id": "deck_open_fraction",
+      "kind": "deferred",
+      "value": null,
+      "limit": 0.4,
+      "passes": null,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(6)",
+      "note": "verified in elevations (planogen / step 12)"
+     },
+     {
+      "check_id": "walkway_breaks",
+      "kind": "design",
+      "value": 1,
+      "limit": 1,
+      "passes": true,
+      "status": "provisional",
+      "source": "catalog:walkway.max_breaks",
+      "note": null
+     },
+     {
+      "check_id": "vehicle_count",
+      "kind": "normative",
+      "value": 2,
+      "limit": 4,
+      "passes": true,
+      "status": "verified",
+      "source": "SDMC 131.0447",
+      "note": null
+     },
+     {
+      "check_id": "garden_area",
+      "kind": "preference",
+      "value": 1414.1026,
+      "limit": 2000,
+      "passes": false,
+      "status": "verified",
+      "source": "brief:preferences.min_garden_area_sqft",
+      "note": null
+     },
+     {
+      "check_id": "side_yard_equipment_room",
+      "kind": "info",
+      "value": 3.0,
+      "limit": 3,
+      "passes": true,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(5)",
+      "note": "widest side clearance 7.00 ft; equipment must stay 4 ft from the lot line"
+     }
+    ],
+    "facades": [
+     {
+      "facade_id": "front",
+      "length_ft": 39.0,
+      "azimuth_deg": 180.0,
+      "faces": "front_yard",
+      "sun": 1.0,
+      "morning_light": 0.0,
+      "afternoon_shade": 1.0,
+      "street_exposure": 1.0,
+      "garden": 0.0
+     },
+     {
+      "facade_id": "right",
+      "length_ft": 56.7179,
+      "azimuth_deg": 90.0,
+      "faces": "side_yard",
+      "sun": 0.0,
+      "morning_light": 1.0,
+      "afternoon_shade": 1.0,
+      "street_exposure": 0.0,
+      "garden": 0.0
+     },
+     {
+      "facade_id": "rear",
+      "length_ft": 39.0,
+      "azimuth_deg": 0.0,
+      "faces": "garden",
+      "sun": 0.0,
+      "morning_light": 0.0,
+      "afternoon_shade": 1.0,
+      "street_exposure": 0.0,
+      "garden": 1.0
+     },
+     {
+      "facade_id": "left",
+      "length_ft": 56.7179,
+      "azimuth_deg": 270.0,
+      "faces": "side_yard",
+      "sun": 0.0,
+      "morning_light": 0.0,
+      "afternoon_shade": 0.0,
+      "street_exposure": 0.0,
+      "garden": 0.0
+     }
+    ],
+    "zone_facade_affinity": {
+     "social": {
+      "front": 0.625,
+      "right": 0.375,
+      "rear": 0.1875,
+      "left": 0.1875
+     },
+     "private": {
+      "front": 0.1304,
+      "right": 0.8696,
+      "rear": 0.4348,
+      "left": 0.4348
+     },
+     "kitchen": {
+      "front": 0.3333,
+      "right": 0.6667,
+      "rear": 0.2,
+      "left": 0.2
+     },
+     "service": {
+      "front": 0.0,
+      "right": 0.0,
+      "rear": 0.0,
+      "left": 0.0
+     },
+     "circulation": {
+      "front": 0.0,
+      "right": 0.0,
+      "rear": 0.0,
+      "left": 0.0
+     },
+     "garage": {
+      "front": 0.0,
+      "right": 0.0,
+      "rear": 0.0,
+      "left": 0.0
+     }
+    },
+    "backyard": {
+     "source": "zoning n1 #1 (full_width/deck_centered)",
+     "yard_area_sqft": 1616.6667,
+     "min_green_fraction": 0.3,
+     "budget_sqft": 1131.6667,
+     "used_sqft": 546.0,
+     "green_area_sqft": 1070.6667,
+     "green_fraction": 0.6623,
+     "status": "provisional",
+     "elements": [
+      {
+       "element": "rear_deck",
+       "priority": 1,
+       "status": "placed",
+       "area_sqft": 150.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           36.75,
+           67.6667
+          ],
+          [
+           36.75,
+           75.6667
+          ],
+          [
+           18.0,
+           75.6667
+          ],
+          [
+           18.0,
+           67.6667
+          ],
+          [
+           36.75,
+           67.6667
+          ]
+         ]
+        ]
+       },
+       "clearances": {},
+       "dims_ft": [
+        18.75,
+        8.0
+       ]
+      },
+      {
+       "element": "pool",
+       "priority": 2,
+       "status": "placed",
+       "area_sqft": 300.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           37.4949,
+           75.6667
+          ],
+          [
+           37.4949,
+           87.9141
+          ],
+          [
+           13.0,
+           87.9141
+          ],
+          [
+           13.0,
+           75.6667
+          ],
+          [
+           37.4949,
+           75.6667
+          ]
+         ]
+        ]
+       },
+       "clearances": {
+        "lot_line": {
+         "ft": 5.0,
+         "status": "provisional",
+         "source": "SDMC / CA H&SC pool and spa regulations (pending)"
+        },
+        "dwelling": {
+         "ft": 5.0,
+         "status": "provisional",
+         "source": "SDMC / CA H&SC pool and spa regulations (pending)"
+        }
+       },
+       "dims_ft": [
+        24.4949,
+        12.2474
+       ]
+      },
+      {
+       "element": "spa",
+       "priority": 3,
+       "status": "excluded",
+       "area_sqft": 0.0,
+       "reason": "group 'water' already has 1 element(s)",
+       "polygon": null,
+       "clearances": {
+        "lot_line": {
+         "ft": 3.0,
+         "status": "provisional",
+         "source": "SDMC / CA H&SC pool and spa regulations (pending)"
+        }
+       },
+       "dims_ft": null
+      },
+      {
+       "element": "bbq",
+       "priority": 4,
+       "status": "placed",
+       "area_sqft": 32.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           18.0,
+           67.6667
+          ],
+          [
+           18.0,
+           75.6667
+          ],
+          [
+           14.0,
+           75.6667
+          ],
+          [
+           14.0,
+           67.6667
+          ],
+          [
+           18.0,
+           67.6667
+          ]
+         ]
+        ]
+       },
+       "clearances": {},
+       "dims_ft": [
+        4.0,
+        8.0
+       ]
+      },
+      {
+       "element": "shed",
+       "priority": 5,
+       "status": "placed",
+       "area_sqft": 64.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           9.532,
+           86.6667
+          ],
+          [
+           9.532,
+           96.4646
+          ],
+          [
+           3.0,
+           96.4646
+          ],
+          [
+           3.0,
+           86.6667
+          ],
+          [
+           9.532,
+           86.6667
+          ]
+         ]
+        ]
+       },
+       "clearances": {
+        "lot_line": {
+         "ft": 3.0,
+         "status": "provisional",
+         "source": "SDMC accessory structures in RS zones (pending)"
+        },
+        "dwelling": {
+         "ft": 3.0,
+         "status": "verified",
+         "source": "SDMC 131.0450"
+        }
+       },
+       "dims_ft": [
+        6.532,
+        9.798
+       ]
+      },
+      {
+       "element": "garden_beds",
+       "priority": 6,
+       "status": "placed",
+       "area_sqft": 40.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           12.6491,
+           67.6667
+          ],
+          [
+           12.6491,
+           70.8289
+          ],
+          [
+           0.0,
+           70.8289
+          ],
+          [
+           0.0,
+           67.6667
+          ],
+          [
+           12.6491,
+           67.6667
+          ]
+         ]
+        ]
+       },
+       "clearances": {},
+       "dims_ft": [
+        12.6491,
+        3.1623
+       ]
+      }
+     ],
+     "checks": [
+      {
+       "check_id": "green_fraction",
+       "kind": "preference",
+       "value": 0.6623,
+       "limit": 0.3,
+       "passes": true,
+       "status": "verified",
+       "source": "catalog:backyard_policy.min_green_fraction / brief:backyard_program",
+       "note": null
+      },
+      {
+       "check_id": "pool_safety_barrier",
+       "kind": "deferred",
+       "value": null,
+       "limit": null,
+       "passes": null,
+       "status": "provisional",
+       "source": "SDMC / CA H&SC pool and spa regulations (pending)",
+       "note": "barrier required"
+      }
+     ],
+     "yard_polygon": {
+      "type": "Polygon",
+      "coordinates": [
+       [
+        [
+         0.0,
+         100.0
+        ],
+        [
+         50.0,
+         100.0
+        ],
+        [
+         50.0,
+         67.6667
+        ],
+        [
+         0.0,
+         67.6667
+        ],
+        [
+         0.0,
+         100.0
+        ]
+       ]
+      ]
+     }
+    }
+   },
+   {
+    "option_id": "n2",
+    "floors": 2,
+    "footprint_area_sqft": 1106.0,
+    "feasible": true,
+    "preferences_met": true,
+    "reasons": [],
+    "variants_evaluated": [
+     {
+      "walkway_variant": "independent",
+      "deck_position": "centered",
+      "paving_fraction": 0.528,
+      "normative_ok": true,
+      "error": null
+     },
+     {
+      "walkway_variant": "independent",
+      "deck_position": "offset",
+      "paving_fraction": 0.528,
+      "normative_ok": true,
+      "error": null
+     },
+     {
+      "walkway_variant": "from_driveway",
+      "deck_position": "centered",
+      "paving_fraction": 0.504,
+      "normative_ok": true,
+      "error": null
+     },
+     {
+      "walkway_variant": "from_driveway",
+      "deck_position": "offset",
+      "paving_fraction": 0.48,
+      "normative_ok": true,
+      "error": null
+     }
+    ],
+    "footprint_variant": "equipment_room_left",
+    "footprint_candidates": [
+     {
+      "footprint_variant": "full_width",
+      "rect_local": [
+       4.0,
+       15.0,
+       46.0,
+       41.3333
+      ],
+      "normative_ok": true,
+      "preferences_met": true,
+      "intervals": {
+       "entry_deck": [
+        16.0,
+        26.0
+       ],
+       "driveway": [
+        26.0,
+        46.0
+       ]
+      },
+      "access_options": [
+       {
+        "deck_position": "centered",
+        "deck_interval_ft": [
+         10.0,
+         20.0
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.512,
+        "walkway_variant": "from_driveway"
+       },
+       {
+        "deck_position": "offset",
+        "deck_interval_ft": [
+         16.0,
+         26.0
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.48,
+        "walkway_variant": "from_driveway"
+       }
+      ]
+     },
+     {
+      "footprint_variant": "equipment_room_left",
+      "rect_local": [
+       7.0,
+       15.0,
+       46.0,
+       43.359
+      ],
+      "normative_ok": true,
+      "preferences_met": true,
+      "intervals": {
+       "entry_deck": [
+        16.0,
+        26.0
+       ],
+       "driveway": [
+        26.0,
+        46.0
+       ]
+      },
+      "access_options": [
+       {
+        "deck_position": "centered",
+        "deck_interval_ft": [
+         11.5,
+         21.5
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.504,
+        "walkway_variant": "from_driveway"
+       },
+       {
+        "deck_position": "offset",
+        "deck_interval_ft": [
+         16.0,
+         26.0
+        ],
+        "driveway_interval_ft": [
+         26.0,
+         46.0
+        ],
+        "paving_fraction": 0.48,
+        "walkway_variant": "from_driveway"
+       }
+      ]
+     }
+    ],
+    "corrections": [],
+    "footprint_width_ft": 39.0,
+    "footprint_depth_ft": 28.359,
+    "coverage_ratio": 0.2212,
+    "zones": {
+     "footprint": {
+      "area_sqft": 1106.0,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          46.0,
+          15.0
+         ],
+         [
+          46.0,
+          43.359
+         ],
+         [
+          7.0,
+          43.359
+         ],
+         [
+          7.0,
+          15.0
+         ],
+         [
+          46.0,
+          15.0
+         ]
+        ]
+       ]
+      }
+     },
+     "garden": {
+      "area_sqft": 2832.0513,
+      "depth_ft": 56.641,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          0.0,
+          100.0
+         ],
+         [
+          50.0,
+          100.0
+         ],
+         [
+          50.0,
+          43.359
+         ],
+         [
+          0.0,
+          43.359
+         ],
+         [
+          0.0,
+          100.0
+         ]
+        ]
+       ]
+      }
+     },
+     "side_yards": {
+      "area_sqft": 311.9487,
+      "clearance_ft": 7.0,
+      "polygon": {
+       "type": "MultiPolygon",
+       "coordinates": [
+        [
+         [
+          [
+           46.0,
+           15.0
+          ],
+          [
+           46.0,
+           43.359
+          ],
+          [
+           50.0,
+           43.359
+          ],
+          [
+           50.0,
+           15.0
+          ],
+          [
+           46.0,
+           15.0
+          ]
+         ]
+        ],
+        [
+         [
+          [
+           0.0,
+           15.0
+          ],
+          [
+           0.0,
+           43.359
+          ],
+          [
+           7.0,
+           43.359
+          ],
+          [
+           7.0,
+           15.0
+          ],
+          [
+           0.0,
+           15.0
+          ]
+         ]
+        ]
+       ]
+      }
+     },
+     "front_green": {
+      "area_sqft": 390.0,
+      "parts": 2,
+      "polygon": {
+       "type": "MultiPolygon",
+       "coordinates": [
+        [
+         [
+          [
+           46.0,
+           0.0
+          ],
+          [
+           46.0,
+           15.0
+          ],
+          [
+           50.0,
+           15.0
+          ],
+          [
+           50.0,
+           0.0
+          ],
+          [
+           46.0,
+           0.0
+          ]
+         ]
+        ],
+        [
+         [
+          [
+           0.0,
+           0.0
+          ],
+          [
+           0.0,
+           15.0
+          ],
+          [
+           16.0,
+           15.0
+          ],
+          [
+           16.0,
+           9.0
+          ],
+          [
+           26.0,
+           9.0
+          ],
+          [
+           26.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        ]
+       ]
+      }
+     },
+     "driveway": {
+      "area_sqft": 300.0,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          26.0,
+          15.0
+         ],
+         [
+          46.0,
+          15.0
+         ],
+         [
+          46.0,
+          0.0
+         ],
+         [
+          26.0,
+          0.0
+         ],
+         [
+          26.0,
+          15.0
+         ]
+        ]
+       ]
+      }
+     },
+     "walkway": {
+      "area_sqft": 0.0,
+      "polygon": null
+     },
+     "entry_deck": {
+      "area_sqft": 60.0,
+      "polygon": {
+       "type": "Polygon",
+       "coordinates": [
+        [
+         [
+          16.0,
+          9.0
+         ],
+         [
+          16.0,
+          15.0
+         ],
+         [
+          26.0,
+          15.0
+         ],
+         [
+          26.0,
+          9.0
+         ],
+         [
+          16.0,
+          9.0
+         ]
+        ]
+       ]
+      }
+     }
+    },
+    "front_yard_area_sqft": 750.0,
+    "access": {
+     "walkway_variant": "from_driveway",
+     "deck_position": "offset",
+     "walkway_breaks": 1,
+     "deck_width_ft": 10.0,
+     "deck_depth_ft": 6,
+     "deck_interval_ft": [
+      16.0,
+      26.0
+     ],
+     "deck_visible_from_street": true,
+     "deck_afternoon_shade": 1.0,
+     "driveway_interval_ft": [
+      26.0,
+      46.0
+     ],
+     "driveway_shift_ft": -1.5,
+     "garage_face_constraint": "garage must occupy the front facade over driveway_interval_ft (local x)"
+    },
+    "checks": [
+     {
+      "check_id": "footprint_within_envelope",
+      "kind": "normative",
+      "value": null,
+      "limit": null,
+      "passes": true,
+      "status": "verified",
+      "source": "geometry:setback_envelope",
+      "note": null
+     },
+     {
+      "check_id": "front_paving_fraction",
+      "kind": "normative",
+      "value": 0.48,
+      "limit": 0.6,
+      "passes": true,
+      "status": "provisional",
+      "source": "SDMC 131.0447",
+      "note": "without deck 0.400"
+     },
+     {
+      "check_id": "deck_projection",
+      "kind": "normative",
+      "value": 6.0,
+      "limit": 6,
+      "passes": true,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(6)",
+      "note": null
+     },
+     {
+      "check_id": "deck_height",
+      "kind": "deferred",
+      "value": null,
+      "limit": 15,
+      "passes": null,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(6)",
+      "note": "verified in elevations (planogen / step 12)"
+     },
+     {
+      "check_id": "deck_open_fraction",
+      "kind": "deferred",
+      "value": null,
+      "limit": 0.4,
+      "passes": null,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(6)",
+      "note": "verified in elevations (planogen / step 12)"
+     },
+     {
+      "check_id": "walkway_breaks",
+      "kind": "design",
+      "value": 1,
+      "limit": 1,
+      "passes": true,
+      "status": "provisional",
+      "source": "catalog:walkway.max_breaks",
+      "note": null
+     },
+     {
+      "check_id": "vehicle_count",
+      "kind": "normative",
+      "value": 2,
+      "limit": 4,
+      "passes": true,
+      "status": "verified",
+      "source": "SDMC 131.0447",
+      "note": null
+     },
+     {
+      "check_id": "garden_area",
+      "kind": "preference",
+      "value": 2832.0513,
+      "limit": 2000,
+      "passes": true,
+      "status": "verified",
+      "source": "brief:preferences.min_garden_area_sqft",
+      "note": null
+     },
+     {
+      "check_id": "side_yard_equipment_room",
+      "kind": "info",
+      "value": 3.0,
+      "limit": 3,
+      "passes": true,
+      "status": "verified",
+      "source": "SDMC 131.0461(a)(5)",
+      "note": "widest side clearance 7.00 ft; equipment must stay 4 ft from the lot line"
+     }
+    ],
+    "facades": [
+     {
+      "facade_id": "front",
+      "length_ft": 39.0,
+      "azimuth_deg": 180.0,
+      "faces": "front_yard",
+      "sun": 1.0,
+      "morning_light": 0.0,
+      "afternoon_shade": 1.0,
+      "street_exposure": 1.0,
+      "garden": 0.0
+     },
+     {
+      "facade_id": "right",
+      "length_ft": 28.359,
+      "azimuth_deg": 90.0,
+      "faces": "side_yard",
+      "sun": 0.0,
+      "morning_light": 1.0,
+      "afternoon_shade": 1.0,
+      "street_exposure": 0.0,
+      "garden": 0.0
+     },
+     {
+      "facade_id": "rear",
+      "length_ft": 39.0,
+      "azimuth_deg": 0.0,
+      "faces": "garden",
+      "sun": 0.0,
+      "morning_light": 0.0,
+      "afternoon_shade": 1.0,
+      "street_exposure": 0.0,
+      "garden": 1.0
+     },
+     {
+      "facade_id": "left",
+      "length_ft": 28.359,
+      "azimuth_deg": 270.0,
+      "faces": "side_yard",
+      "sun": 0.0,
+      "morning_light": 0.0,
+      "afternoon_shade": 0.0,
+      "street_exposure": 0.0,
+      "garden": 0.0
+     }
+    ],
+    "zone_facade_affinity": {
+     "social": {
+      "front": 0.625,
+      "right": 0.375,
+      "rear": 0.1875,
+      "left": 0.1875
+     },
+     "private": {
+      "front": 0.1304,
+      "right": 0.8696,
+      "rear": 0.4348,
+      "left": 0.4348
+     },
+     "kitchen": {
+      "front": 0.3333,
+      "right": 0.6667,
+      "rear": 0.2,
+      "left": 0.2
+     },
+     "service": {
+      "front": 0.0,
+      "right": 0.0,
+      "rear": 0.0,
+      "left": 0.0
+     },
+     "circulation": {
+      "front": 0.0,
+      "right": 0.0,
+      "rear": 0.0,
+      "left": 0.0
+     },
+     "garage": {
+      "front": 0.0,
+      "right": 0.0,
+      "rear": 0.0,
+      "left": 0.0
+     }
+    },
+    "backyard": {
+     "source": "site n2 footprint (no one-floor zoning)",
+     "yard_area_sqft": 2832.0513,
+     "min_green_fraction": 0.3,
+     "budget_sqft": 1982.4359,
+     "used_sqft": 546.0,
+     "green_area_sqft": 2286.0513,
+     "green_fraction": 0.8072,
+     "status": "provisional",
+     "elements": [
+      {
+       "element": "rear_deck",
+       "priority": 1,
+       "status": "placed",
+       "area_sqft": 150.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           35.75,
+           43.359
+          ],
+          [
+           35.75,
+           51.359
+          ],
+          [
+           17.0,
+           51.359
+          ],
+          [
+           17.0,
+           43.359
+          ],
+          [
+           35.75,
+           43.359
+          ]
+         ]
+        ]
+       },
+       "clearances": {},
+       "dims_ft": [
+        18.75,
+        8.0
+       ]
+      },
+      {
+       "element": "pool",
+       "priority": 2,
+       "status": "placed",
+       "area_sqft": 300.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           38.4949,
+           51.359
+          ],
+          [
+           38.4949,
+           63.6064
+          ],
+          [
+           14.0,
+           63.6064
+          ],
+          [
+           14.0,
+           51.359
+          ],
+          [
+           38.4949,
+           51.359
+          ]
+         ]
+        ]
+       },
+       "clearances": {
+        "lot_line": {
+         "ft": 5.0,
+         "status": "provisional",
+         "source": "SDMC / CA H&SC pool and spa regulations (pending)"
+        },
+        "dwelling": {
+         "ft": 5.0,
+         "status": "provisional",
+         "source": "SDMC / CA H&SC pool and spa regulations (pending)"
+        }
+       },
+       "dims_ft": [
+        24.4949,
+        12.2474
+       ]
+      },
+      {
+       "element": "spa",
+       "priority": 3,
+       "status": "excluded",
+       "area_sqft": 0.0,
+       "reason": "group 'water' already has 1 element(s)",
+       "polygon": null,
+       "clearances": {
+        "lot_line": {
+         "ft": 3.0,
+         "status": "provisional",
+         "source": "SDMC / CA H&SC pool and spa regulations (pending)"
+        }
+       },
+       "dims_ft": null
+      },
+      {
+       "element": "bbq",
+       "priority": 4,
+       "status": "placed",
+       "area_sqft": 32.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           17.0,
+           43.359
+          ],
+          [
+           17.0,
+           51.359
+          ],
+          [
+           13.0,
+           51.359
+          ],
+          [
+           13.0,
+           43.359
+          ],
+          [
+           17.0,
+           43.359
+          ]
+         ]
+        ]
+       },
+       "clearances": {},
+       "dims_ft": [
+        4.0,
+        8.0
+       ]
+      },
+      {
+       "element": "shed",
+       "priority": 5,
+       "status": "placed",
+       "area_sqft": 64.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           9.532,
+           86.359
+          ],
+          [
+           9.532,
+           96.1569
+          ],
+          [
+           3.0,
+           96.1569
+          ],
+          [
+           3.0,
+           86.359
+          ],
+          [
+           9.532,
+           86.359
+          ]
+         ]
+        ]
+       },
+       "clearances": {
+        "lot_line": {
+         "ft": 3.0,
+         "status": "provisional",
+         "source": "SDMC accessory structures in RS zones (pending)"
+        },
+        "dwelling": {
+         "ft": 3.0,
+         "status": "verified",
+         "source": "SDMC 131.0450"
+        }
+       },
+       "dims_ft": [
+        6.532,
+        9.798
+       ]
+      },
+      {
+       "element": "garden_beds",
+       "priority": 6,
+       "status": "placed",
+       "area_sqft": 40.0,
+       "reason": null,
+       "polygon": {
+        "type": "Polygon",
+        "coordinates": [
+         [
+          [
+           12.6491,
+           43.359
+          ],
+          [
+           12.6491,
+           46.5213
+          ],
+          [
+           0.0,
+           46.5213
+          ],
+          [
+           0.0,
+           43.359
+          ],
+          [
+           12.6491,
+           43.359
+          ]
+         ]
+        ]
+       },
+       "clearances": {},
+       "dims_ft": [
+        12.6491,
+        3.1623
+       ]
+      }
+     ],
+     "checks": [
+      {
+       "check_id": "green_fraction",
+       "kind": "preference",
+       "value": 0.8072,
+       "limit": 0.3,
+       "passes": true,
+       "status": "verified",
+       "source": "catalog:backyard_policy.min_green_fraction / brief:backyard_program",
+       "note": null
+      },
+      {
+       "check_id": "pool_safety_barrier",
+       "kind": "deferred",
+       "value": null,
+       "limit": null,
+       "passes": null,
+       "status": "provisional",
+       "source": "SDMC / CA H&SC pool and spa regulations (pending)",
+       "note": "barrier required"
+      }
+     ],
+     "yard_polygon": {
+      "type": "Polygon",
+      "coordinates": [
+       [
+        [
+         0.0,
+         100.0
+        ],
+        [
+         50.0,
+         100.0
+        ],
+        [
+         50.0,
+         43.359
+        ],
+        [
+         0.0,
+         43.359
+        ],
+        [
+         0.0,
+         100.0
+        ]
+       ]
+      ]
+     }
+    }
+   }
+  ],
+  "strategy": "A_inscribed_rectangle",
+  "front_recess_ft": 0.0,
+  "selected_option_id": "n2",
+  "primary_street_id": "street_main"
+ },
+ "warnings": []
+}

@@ -1,0 +1,3880 @@
+{
+ "contract": "zoning_scheme",
+ "version": "0.2.0",
+ "produced_by": "zoning",
+ "input_sha256": "42b5c86c81bf0d1e9ba5bdb3f4fdbae7ed559c952d62f1c6dc64f55f0f90c0ab",
+ "brief_id": "interior-50x100",
+ "consumers": [
+  "viz",
+  "pipeline"
+ ],
+ "zoning": {
+  "strategy": "A_inscribed_rectangle",
+  "dwelling_type": "house",
+  "options": [
+   {
+    "option_id": "n1",
+    "floors": 1,
+    "status": "zoned",
+    "reason": null,
+    "profile": "house",
+    "facade_roles": {
+     "front": [
+      "access",
+      "exterior",
+      "main_street",
+      "street"
+     ],
+     "right": [
+      "exterior",
+      "side_yard"
+     ],
+     "rear": [
+      "exterior",
+      "garden"
+     ],
+     "left": [
+      "exterior",
+      "side_yard"
+     ]
+    },
+    "footprint_candidates": [
+     "full_width/deck_centered",
+     "full_width/deck_offset",
+     "equipment_room_left/deck_centered",
+     "equipment_room_left/deck_offset"
+    ],
+    "zone_areas_sqft": {
+     "social": 442.4,
+     "kitchen": 221.2,
+     "private": 847.9333,
+     "service": 61.4444,
+     "circulation": 147.4667,
+     "garage": 491.5556
+    },
+    "constraints": {
+     "adjacency_required": [],
+     "adjacency_forbidden": [
+      "r13"
+     ],
+     "no_door": [
+      "r12"
+     ],
+     "groups": [
+      "g01_garage_link"
+     ],
+     "facade_required": [
+      "r03",
+      "r05"
+     ],
+     "desired": [
+      "r07",
+      "r06",
+      "r08",
+      "r10",
+      "r14"
+     ],
+     "profile_anchors": [
+      "living_faces_main_street:hard",
+      "kitchen_faces_rear:soft"
+     ],
+     "skipped": [
+      "r01",
+      "r02",
+      "r04",
+      "r09",
+      "r11"
+     ]
+    },
+    "strategy": "A_inscribed_rectangle",
+    "variants_searched": 96,
+    "enumerated": 51696,
+    "valid": 28,
+    "failures_by_first_violation": {
+     "facade": 10598,
+     "forbidden": 188,
+     "group": 194,
+     "matrix": 412,
+     "profile": 40276
+    },
+    "diagnostics": [],
+    "zone_level_best": [
+     "TL:social_living+social_dining+kitchen/F:circulation|garage/R:private_bedrooms+private_suite",
+     "TL:social+kitchen/F:circulation|garage/R:private_bedrooms+private_suite",
+     "TL:social_living+social_dining+kitchen/F:circulation|garage/R:private",
+     "TL:social+kitchen/F:circulation|garage/R:private",
+     "F:social_living+social_dining|circulation|garage/R:kitchen|private_bedrooms+private_suite",
+     "F:social_living+social_dining|circulation|garage/R:kitchen|private"
+    ],
+    "space_level": {
+     "zone_schemes_considered": 28,
+     "combinations_evaluated": 3360,
+     "valid": 28,
+     "failures_by_first_violation": {
+      "cell_dimensions": 16,
+      "forbidden": 6,
+      "matrix:D": 302,
+      "net_area": 80,
+      "reachability": 2944
+     }
+    },
+    "schemes": [
+     {
+      "footprint_variant": "full_width/deck_centered",
+      "footprint_local": [
+       4.0,
+       15.0,
+       46.0,
+       67.6667
+      ],
+      "topology": {
+       "front": [
+        [
+         "social_living"
+        ],
+        [
+         "circulation"
+        ],
+        [
+         "garage"
+        ]
+       ],
+       "rear": [
+        [
+         "social_dining",
+         "private_suite"
+        ],
+        [
+         "kitchen"
+        ],
+        [
+         "private_bedrooms"
+        ]
+       ],
+       "through": [],
+       "through_side": null,
+       "key": "F:social_living|circulation|garage/R:social_dining+private_suite|kitchen|private_bedrooms"
+      },
+      "front_depth_ft": 21.6519,
+      "rear_depth_ft": 31.0148,
+      "spine_local": null,
+      "cells": {
+       "social_living": {
+        "zone": "social",
+        "spaces": [
+         "living_room"
+        ],
+        "rect_local": [
+         4.0,
+         15.0,
+         16.4865,
+         36.6519
+        ],
+        "area_sqft": 270.3556,
+        "facades": {
+         "front": 12.4865,
+         "left": 21.6519
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            16.4865,
+            15.0
+           ],
+           [
+            16.4865,
+            36.6519
+           ],
+           [
+            4.0,
+            36.6519
+           ],
+           [
+            4.0,
+            15.0
+           ],
+           [
+            16.4865,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "circulation": {
+        "zone": "circulation",
+        "spaces": [
+         "hall"
+        ],
+        "rect_local": [
+         16.4865,
+         15.0,
+         23.2973,
+         36.6519
+        ],
+        "area_sqft": 147.4667,
+        "facades": {
+         "front": 6.8108
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            23.2973,
+            15.0
+           ],
+           [
+            23.2973,
+            36.6519
+           ],
+           [
+            16.4865,
+            36.6519
+           ],
+           [
+            16.4865,
+            15.0
+           ],
+           [
+            23.2973,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "garage": {
+        "zone": "garage",
+        "spaces": [
+         "garage_2car"
+        ],
+        "rect_local": [
+         23.2973,
+         15.0,
+         46.0,
+         36.6519
+        ],
+        "area_sqft": 491.5556,
+        "facades": {
+         "front": 22.7027,
+         "right": 21.6519
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            15.0
+           ],
+           [
+            46.0,
+            36.6519
+           ],
+           [
+            23.2973,
+            36.6519
+           ],
+           [
+            23.2973,
+            15.0
+           ],
+           [
+            46.0,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "social_dining": {
+        "zone": "social",
+        "spaces": [
+         "dining_room"
+        ],
+        "rect_local": [
+         4.0,
+         36.6519,
+         23.0189,
+         45.6978
+        ],
+        "area_sqft": 172.0444,
+        "facades": {
+         "left": 9.046
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            23.0189,
+            36.6519
+           ],
+           [
+            23.0189,
+            45.6978
+           ],
+           [
+            4.0,
+            45.6978
+           ],
+           [
+            4.0,
+            36.6519
+           ],
+           [
+            23.0189,
+            36.6519
+           ]
+          ]
+         ]
+        }
+       },
+       "private_suite": {
+        "zone": "private",
+        "spaces": [
+         "primary_bath",
+         "primary_suite"
+        ],
+        "rect_local": [
+         4.0,
+         45.6978,
+         23.0189,
+         67.6667
+        ],
+        "area_sqft": 417.8222,
+        "facades": {
+         "rear": 19.0189,
+         "left": 21.9688
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            23.0189,
+            45.6978
+           ],
+           [
+            23.0189,
+            67.6667
+           ],
+           [
+            4.0,
+            67.6667
+           ],
+           [
+            4.0,
+            45.6978
+           ],
+           [
+            23.0189,
+            45.6978
+           ]
+          ]
+         ]
+        }
+       },
+       "kitchen": {
+        "zone": "kitchen",
+        "spaces": [
+         "kitchen",
+         "laundry"
+        ],
+        "rect_local": [
+         23.0189,
+         36.6519,
+         32.1321,
+         67.6667
+        ],
+        "area_sqft": 282.6444,
+        "facades": {
+         "rear": 9.1132
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            32.1321,
+            36.6519
+           ],
+           [
+            32.1321,
+            67.6667
+           ],
+           [
+            23.0189,
+            67.6667
+           ],
+           [
+            23.0189,
+            36.6519
+           ],
+           [
+            32.1321,
+            36.6519
+           ]
+          ]
+         ]
+        }
+       },
+       "private_bedrooms": {
+        "zone": "private",
+        "spaces": [
+         "bathroom",
+         "bedroom"
+        ],
+        "rect_local": [
+         32.1321,
+         36.6519,
+         46.0,
+         67.6667
+        ],
+        "area_sqft": 430.1111,
+        "facades": {
+         "rear": 13.8679,
+         "right": 31.0148
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            36.6519
+           ],
+           [
+            46.0,
+            67.6667
+           ],
+           [
+            32.1321,
+            67.6667
+           ],
+           [
+            32.1321,
+            36.6519
+           ],
+           [
+            46.0,
+            36.6519
+           ]
+          ]
+         ]
+        }
+       }
+      },
+      "realization": {
+       "mode": "rectangle",
+       "joint": null,
+       "footprint_area_sqft": 2212.0,
+       "footprint_bbox_local": [
+        4.0,
+        15.0,
+        46.0,
+        67.6667
+       ],
+       "steps_local": [],
+       "shoulders": {},
+       "wedges": [],
+       "wedge_area_sqft": 0,
+       "y_front": 15.0,
+       "envelope_use": null,
+       "area_shift": {}
+      },
+      "adjacency": [
+       {
+        "a": "social_living",
+        "b": "circulation",
+        "contact_ft": 21.6519,
+        "door_allowed": true
+       },
+       {
+        "a": "social_living",
+        "b": "social_dining",
+        "contact_ft": 12.4865,
+        "door_allowed": true
+       },
+       {
+        "a": "circulation",
+        "b": "garage",
+        "contact_ft": 21.6519,
+        "door_allowed": true
+       },
+       {
+        "a": "circulation",
+        "b": "social_dining",
+        "contact_ft": 6.5324,
+        "door_allowed": true
+       },
+       {
+        "a": "circulation",
+        "b": "kitchen",
+        "contact_ft": 0.2784,
+        "door_allowed": true
+       },
+       {
+        "a": "garage",
+        "b": "kitchen",
+        "contact_ft": 8.8348,
+        "door_allowed": true
+       },
+       {
+        "a": "garage",
+        "b": "private_bedrooms",
+        "contact_ft": 13.8679,
+        "door_allowed": false
+       },
+       {
+        "a": "social_dining",
+        "b": "private_suite",
+        "contact_ft": 19.0189,
+        "door_allowed": true
+       },
+       {
+        "a": "social_dining",
+        "b": "kitchen",
+        "contact_ft": 9.046,
+        "door_allowed": true
+       },
+       {
+        "a": "private_suite",
+        "b": "kitchen",
+        "contact_ft": 21.9688,
+        "door_allowed": true
+       },
+       {
+        "a": "kitchen",
+        "b": "private_bedrooms",
+        "contact_ft": 31.0148,
+        "door_allowed": true
+       }
+      ],
+      "split_zones": {
+       "social": [
+        "social_living",
+        "social_dining"
+       ],
+       "private": [
+        "private_suite",
+        "private_bedrooms"
+       ]
+      },
+      "anchors": [
+       {
+        "anchor_id": "living_faces_main_street",
+        "kind": "hard",
+        "applicable": true,
+        "satisfied": true,
+        "cells": [
+         "social_living"
+        ],
+        "via_role": "main_street"
+       },
+       {
+        "anchor_id": "kitchen_faces_rear",
+        "kind": "soft",
+        "applicable": true,
+        "satisfied": true,
+        "cells": [
+         "kitchen"
+        ],
+        "via_role": "garden"
+       }
+      ],
+      "entry_sequence": null,
+      "scores": {
+       "total": 0.6412,
+       "relations": 0.6977,
+       "orientation": 0.3497,
+       "orientation_raw": 66.2022,
+       "shape": 0.975,
+       "satisfied_relations": [
+        "r07",
+        "r08",
+        "r10",
+        "kitchen_faces_rear"
+       ],
+       "zone_total": 0.6139
+      },
+      "spaces": {
+       "bath_1": {
+        "space_type": "bathroom",
+        "zone": "private",
+        "cell": "private_bedrooms",
+        "rect_local": [
+         35.6321,
+         36.6519,
+         46.0,
+         41.6519
+        ],
+        "area_sqft": 51.8396,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 51.8396,
+        "passable": false,
+        "depth_from_entry": 5,
+        "roles": [
+         "private_bath"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            36.6519
+           ],
+           [
+            46.0,
+            41.6519
+           ],
+           [
+            35.6321,
+            41.6519
+           ],
+           [
+            35.6321,
+            36.6519
+           ],
+           [
+            46.0,
+            36.6519
+           ]
+          ]
+         ]
+        }
+       },
+       "bath_2": {
+        "space_type": "primary_bath",
+        "zone": "private",
+        "cell": "private_suite",
+        "rect_local": [
+         4.0,
+         49.1978,
+         9.0,
+         67.6667
+        ],
+        "area_sqft": 92.3441,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 92.3441,
+        "passable": false,
+        "depth_from_entry": 4,
+        "roles": [
+         "private_bath"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            9.0,
+            49.1978
+           ],
+           [
+            9.0,
+            67.6667
+           ],
+           [
+            4.0,
+            67.6667
+           ],
+           [
+            4.0,
+            49.1978
+           ],
+           [
+            9.0,
+            49.1978
+           ]
+          ]
+         ]
+        }
+       },
+       "bedroom_1": {
+        "space_type": "bedroom",
+        "zone": "private",
+        "cell": "private_bedrooms",
+        "rect_local": [
+         35.6321,
+         41.6519,
+         46.0,
+         54.6593
+        ],
+        "area_sqft": 134.8598,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 134.8598,
+        "passable": false,
+        "depth_from_entry": 5,
+        "roles": [
+         "bedroom"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            41.6519
+           ],
+           [
+            46.0,
+            54.6593
+           ],
+           [
+            35.6321,
+            54.6593
+           ],
+           [
+            35.6321,
+            41.6519
+           ],
+           [
+            46.0,
+            41.6519
+           ]
+          ]
+         ]
+        }
+       },
+       "bedroom_2": {
+        "space_type": "bedroom",
+        "zone": "private",
+        "cell": "private_bedrooms",
+        "rect_local": [
+         35.6321,
+         54.6593,
+         46.0,
+         67.6667
+        ],
+        "area_sqft": 134.8598,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 134.8598,
+        "passable": false,
+        "depth_from_entry": 5,
+        "roles": [
+         "bedroom"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            54.6593
+           ],
+           [
+            46.0,
+            67.6667
+           ],
+           [
+            35.6321,
+            67.6667
+           ],
+           [
+            35.6321,
+            54.6593
+           ],
+           [
+            46.0,
+            54.6593
+           ]
+          ]
+         ]
+        }
+       },
+       "dining_room": {
+        "space_type": "dining_room",
+        "zone": "social",
+        "cell": "social_dining",
+        "rect_local": [
+         4.0,
+         36.6519,
+         23.0189,
+         45.6978
+        ],
+        "area_sqft": 172.0444,
+        "through_strip_sqft": 53.5123,
+        "net_area_sqft": 118.5321,
+        "passable": true,
+        "depth_from_entry": 2,
+        "roles": [
+         "dining"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            23.0189,
+            36.6519
+           ],
+           [
+            23.0189,
+            45.6978
+           ],
+           [
+            4.0,
+            45.6978
+           ],
+           [
+            4.0,
+            36.6519
+           ],
+           [
+            23.0189,
+            36.6519
+           ]
+          ]
+         ]
+        }
+       },
+       "garage_2car": {
+        "space_type": "garage_2car",
+        "zone": "garage",
+        "cell": "garage",
+        "rect_local": [
+         23.2973,
+         15.0,
+         46.0,
+         36.6519
+        ],
+        "area_sqft": 491.5556,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 491.5556,
+        "passable": false,
+        "depth_from_entry": 2,
+        "roles": [],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            15.0
+           ],
+           [
+            46.0,
+            36.6519
+           ],
+           [
+            23.2973,
+            36.6519
+           ],
+           [
+            23.2973,
+            15.0
+           ],
+           [
+            46.0,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "hall": {
+        "space_type": "hall",
+        "zone": "circulation",
+        "cell": "circulation",
+        "rect_local": [
+         16.4865,
+         15.0,
+         23.2973,
+         36.6519
+        ],
+        "area_sqft": 147.4667,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 147.4667,
+        "passable": true,
+        "depth_from_entry": 1,
+        "roles": [],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            23.2973,
+            15.0
+           ],
+           [
+            23.2973,
+            36.6519
+           ],
+           [
+            16.4865,
+            36.6519
+           ],
+           [
+            16.4865,
+            15.0
+           ],
+           [
+            23.2973,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "kitchen_space": {
+        "space_type": "kitchen",
+        "zone": "kitchen",
+        "cell": "kitchen",
+        "rect_local": [
+         23.0189,
+         36.6519,
+         32.1321,
+         60.9243
+        ],
+        "area_sqft": 221.2,
+        "through_strip_sqft": 85.0713,
+        "net_area_sqft": 136.1287,
+        "passable": true,
+        "depth_from_entry": 3,
+        "roles": [
+         "kitchen"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            32.1321,
+            36.6519
+           ],
+           [
+            32.1321,
+            60.9243
+           ],
+           [
+            23.0189,
+            60.9243
+           ],
+           [
+            23.0189,
+            36.6519
+           ],
+           [
+            32.1321,
+            36.6519
+           ]
+          ]
+         ]
+        }
+       },
+       "laundry": {
+        "space_type": "laundry",
+        "zone": "service",
+        "cell": "kitchen",
+        "rect_local": [
+         23.0189,
+         60.9243,
+         32.1321,
+         67.6667
+        ],
+        "area_sqft": 61.4444,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 61.4444,
+        "passable": false,
+        "depth_from_entry": 4,
+        "roles": [
+         "laundry"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            32.1321,
+            60.9243
+           ],
+           [
+            32.1321,
+            67.6667
+           ],
+           [
+            23.0189,
+            67.6667
+           ],
+           [
+            23.0189,
+            60.9243
+           ],
+           [
+            32.1321,
+            60.9243
+           ]
+          ]
+         ]
+        }
+       },
+       "living_room": {
+        "space_type": "living_room",
+        "zone": "social",
+        "cell": "social_living",
+        "rect_local": [
+         4.0,
+         15.0,
+         16.4865,
+         36.6519
+        ],
+        "area_sqft": 270.3556,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 270.3556,
+        "passable": true,
+        "depth_from_entry": 2,
+        "roles": [
+         "living"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            16.4865,
+            15.0
+           ],
+           [
+            16.4865,
+            36.6519
+           ],
+           [
+            4.0,
+            36.6519
+           ],
+           [
+            4.0,
+            15.0
+           ],
+           [
+            16.4865,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "primary_suite": {
+        "space_type": "primary_suite",
+        "zone": "private",
+        "cell": "private_suite",
+        "rect_local": [
+         9.0,
+         49.1978,
+         23.0189,
+         67.6667
+        ],
+        "area_sqft": 258.912,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 258.912,
+        "passable": false,
+        "depth_from_entry": 4,
+        "roles": [
+         "primary_bedroom"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            23.0189,
+            49.1978
+           ],
+           [
+            23.0189,
+            67.6667
+           ],
+           [
+            9.0,
+            67.6667
+           ],
+           [
+            9.0,
+            49.1978
+           ],
+           [
+            23.0189,
+            49.1978
+           ]
+          ]
+         ]
+        }
+       }
+      },
+      "halls": [
+       {
+        "hall_id": "hall_private_bedrooms",
+        "cell": "private_bedrooms",
+        "side": "left",
+        "rect_local": [
+         32.1321,
+         36.6519,
+         35.6321,
+         67.6667
+        ],
+        "area_sqft": 108.5519,
+        "width_ft": 3.5,
+        "depth_from_entry": 4,
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            35.6321,
+            36.6519
+           ],
+           [
+            35.6321,
+            67.6667
+           ],
+           [
+            32.1321,
+            67.6667
+           ],
+           [
+            32.1321,
+            36.6519
+           ],
+           [
+            35.6321,
+            36.6519
+           ]
+          ]
+         ]
+        }
+       },
+       {
+        "hall_id": "hall_private_suite",
+        "cell": "private_suite",
+        "side": "front",
+        "rect_local": [
+         4.0,
+         45.6978,
+         23.0189,
+         49.1978
+        ],
+        "area_sqft": 66.566,
+        "width_ft": 3.5,
+        "depth_from_entry": 3,
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            23.0189,
+            45.6978
+           ],
+           [
+            23.0189,
+            49.1978
+           ],
+           [
+            4.0,
+            49.1978
+           ],
+           [
+            4.0,
+            45.6978
+           ],
+           [
+            23.0189,
+            45.6978
+           ]
+          ]
+         ]
+        }
+       }
+      ],
+      "satellites": {},
+      "doors": [
+       {
+        "a": "bath_1",
+        "b": "bedroom_1",
+        "kind": "ensuite",
+        "segment_local": [
+         [
+          35.6321,
+          41.6519
+         ],
+         [
+          46.0,
+          41.6519
+         ]
+        ],
+        "segment": [
+         [
+          35.6321,
+          41.6519
+         ],
+         [
+          46.0,
+          41.6519
+         ]
+        ]
+       },
+       {
+        "a": "bath_1",
+        "b": "hall_private_bedrooms",
+        "kind": "door",
+        "segment_local": [
+         [
+          35.6321,
+          36.6519
+         ],
+         [
+          35.6321,
+          41.6519
+         ]
+        ],
+        "segment": [
+         [
+          35.6321,
+          36.6519
+         ],
+         [
+          35.6321,
+          41.6519
+         ]
+        ]
+       },
+       {
+        "a": "bath_2",
+        "b": "hall_private_suite",
+        "kind": "door",
+        "segment_local": [
+         [
+          4.0,
+          49.1978
+         ],
+         [
+          9.0,
+          49.1978
+         ]
+        ],
+        "segment": [
+         [
+          4.0,
+          49.1978
+         ],
+         [
+          9.0,
+          49.1978
+         ]
+        ]
+       },
+       {
+        "a": "bath_2",
+        "b": "primary_suite",
+        "kind": "ensuite",
+        "segment_local": [
+         [
+          9.0,
+          49.1978
+         ],
+         [
+          9.0,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          9.0,
+          49.1978
+         ],
+         [
+          9.0,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "bedroom_1",
+        "b": "hall_private_bedrooms",
+        "kind": "door",
+        "segment_local": [
+         [
+          35.6321,
+          41.6519
+         ],
+         [
+          35.6321,
+          54.6593
+         ]
+        ],
+        "segment": [
+         [
+          35.6321,
+          41.6519
+         ],
+         [
+          35.6321,
+          54.6593
+         ]
+        ]
+       },
+       {
+        "a": "bedroom_2",
+        "b": "hall_private_bedrooms",
+        "kind": "door",
+        "segment_local": [
+         [
+          35.6321,
+          54.6593
+         ],
+         [
+          35.6321,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          35.6321,
+          54.6593
+         ],
+         [
+          35.6321,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "hall",
+        "kind": "open",
+        "segment_local": [
+         [
+          16.4865,
+          36.6519
+         ],
+         [
+          23.0189,
+          36.6519
+         ]
+        ],
+        "segment": [
+         [
+          16.4865,
+          36.6519
+         ],
+         [
+          23.0189,
+          36.6519
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "hall_private_suite",
+        "kind": "open",
+        "segment_local": [
+         [
+          4.0,
+          45.6978
+         ],
+         [
+          23.0189,
+          45.6978
+         ]
+        ],
+        "segment": [
+         [
+          4.0,
+          45.6978
+         ],
+         [
+          23.0189,
+          45.6978
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "kitchen_space",
+        "kind": "open",
+        "segment_local": [
+         [
+          23.0189,
+          36.6519
+         ],
+         [
+          23.0189,
+          45.6978
+         ]
+        ],
+        "segment": [
+         [
+          23.0189,
+          36.6519
+         ],
+         [
+          23.0189,
+          45.6978
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "living_room",
+        "kind": "open",
+        "segment_local": [
+         [
+          4.0,
+          36.6519
+         ],
+         [
+          16.4865,
+          36.6519
+         ]
+        ],
+        "segment": [
+         [
+          4.0,
+          36.6519
+         ],
+         [
+          16.4865,
+          36.6519
+         ]
+        ]
+       },
+       {
+        "a": "garage_2car",
+        "b": "hall",
+        "kind": "door",
+        "segment_local": [
+         [
+          23.2973,
+          15.0
+         ],
+         [
+          23.2973,
+          36.6519
+         ]
+        ],
+        "segment": [
+         [
+          23.2973,
+          15.0
+         ],
+         [
+          23.2973,
+          36.6519
+         ]
+        ]
+       },
+       {
+        "a": "garage_2car",
+        "b": "kitchen_space",
+        "kind": "door",
+        "segment_local": [
+         [
+          23.2973,
+          36.6519
+         ],
+         [
+          32.1321,
+          36.6519
+         ]
+        ],
+        "segment": [
+         [
+          23.2973,
+          36.6519
+         ],
+         [
+          32.1321,
+          36.6519
+         ]
+        ]
+       },
+       {
+        "a": "hall",
+        "b": "living_room",
+        "kind": "open",
+        "segment_local": [
+         [
+          16.4865,
+          15.0
+         ],
+         [
+          16.4865,
+          36.6519
+         ]
+        ],
+        "segment": [
+         [
+          16.4865,
+          15.0
+         ],
+         [
+          16.4865,
+          36.6519
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_bedrooms",
+        "b": "kitchen_space",
+        "kind": "open",
+        "segment_local": [
+         [
+          32.1321,
+          36.6519
+         ],
+         [
+          32.1321,
+          60.9243
+         ]
+        ],
+        "segment": [
+         [
+          32.1321,
+          36.6519
+         ],
+         [
+          32.1321,
+          60.9243
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_bedrooms",
+        "b": "laundry",
+        "kind": "door",
+        "segment_local": [
+         [
+          32.1321,
+          60.9243
+         ],
+         [
+          32.1321,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          32.1321,
+          60.9243
+         ],
+         [
+          32.1321,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_suite",
+        "b": "kitchen_space",
+        "kind": "open",
+        "segment_local": [
+         [
+          23.0189,
+          45.6978
+         ],
+         [
+          23.0189,
+          49.1978
+         ]
+        ],
+        "segment": [
+         [
+          23.0189,
+          45.6978
+         ],
+         [
+          23.0189,
+          49.1978
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_suite",
+        "b": "primary_suite",
+        "kind": "door",
+        "segment_local": [
+         [
+          9.0,
+          49.1978
+         ],
+         [
+          23.0189,
+          49.1978
+         ]
+        ],
+        "segment": [
+         [
+          9.0,
+          49.1978
+         ],
+         [
+          23.0189,
+          49.1978
+         ]
+        ]
+       },
+       {
+        "a": "kitchen_space",
+        "b": "laundry",
+        "kind": "door",
+        "segment_local": [
+         [
+          23.0189,
+          60.9243
+         ],
+         [
+          32.1321,
+          60.9243
+         ]
+        ],
+        "segment": [
+         [
+          23.0189,
+          60.9243
+         ],
+         [
+          32.1321,
+          60.9243
+         ]
+        ]
+       },
+       {
+        "a": "@entry",
+        "b": "hall",
+        "kind": "entry",
+        "segment_local": [
+         [
+          16.4865,
+          15.0
+         ],
+         [
+          20.0,
+          15.0
+         ]
+        ],
+        "segment": [
+         [
+          16.4865,
+          15.0
+         ],
+         [
+          20.0,
+          15.0
+         ]
+        ]
+       },
+       {
+        "a": "bedroom_2",
+        "b": "@patio",
+        "kind": "patio",
+        "segment_local": [
+         [
+          35.6321,
+          67.6667
+         ],
+         [
+          46.0,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          35.6321,
+          67.6667
+         ],
+         [
+          46.0,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_bedrooms",
+        "b": "@patio",
+        "kind": "patio",
+        "segment_local": [
+         [
+          32.1321,
+          67.6667
+         ],
+         [
+          35.6321,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          32.1321,
+          67.6667
+         ],
+         [
+          35.6321,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "laundry",
+        "b": "@patio",
+        "kind": "patio",
+        "segment_local": [
+         [
+          23.0189,
+          67.6667
+         ],
+         [
+          32.1321,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          23.0189,
+          67.6667
+         ],
+         [
+          32.1321,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "primary_suite",
+        "b": "@patio",
+        "kind": "patio",
+        "segment_local": [
+         [
+          9.0,
+          67.6667
+         ],
+         [
+          23.0189,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          9.0,
+          67.6667
+         ],
+         [
+          23.0189,
+          67.6667
+         ]
+        ]
+       }
+      ],
+      "matrix": [
+       {
+        "pair": "D:access-living",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:access-dining",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:access-social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "D:living-dining",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:living-kitchen",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:living-social_bath",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "I:living-primary_bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for living_room"
+       },
+       {
+        "pair": "I:living-patio",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for living_room"
+       },
+       {
+        "pair": "D:dining-kitchen",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:dining-social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "I:dining-laundry",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:dining-patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for dining_room"
+       },
+       {
+        "pair": "I:kitchen-social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "D:kitchen-laundry",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:kitchen-patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:primary_bedroom-private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:primary_bedroom-patio",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for primary_suite"
+       },
+       {
+        "pair": "D:bedroom-private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:bedroom-bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:laundry-patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:primary_bedroom-suite_closet",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "group:patio_from_dining_or_kitchen",
+        "type": "D",
+        "kind": "hard",
+        "weight": 0.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": "1 of 2 (needs 1)"
+       }
+      ],
+      "circulation": {
+       "foyer_sqft": 147.4667,
+       "halls_sqft": 175.1179,
+       "strips_sqft": 138.5836,
+       "total_sqft": 461.1681,
+       "fraction": 0.2085,
+       "design_width_ft": 3.5,
+       "normative_min_ft": 3.0,
+       "width_ok": true,
+       "normative_status": "provisional",
+       "normative_source": "CRC 2025 hallways (R311.6 in prior editions; verify)",
+       "target_fraction": 0.15,
+       "warn": true
+      },
+      "space_scores": {
+       "total": 0.6593,
+       "matrix": 0.6,
+       "circulation": 0.6101,
+       "shape": 0.9785
+      },
+      "rank": 1
+     },
+     {
+      "footprint_variant": "full_width/deck_offset",
+      "footprint_local": [
+       4.0,
+       15.0,
+       46.0,
+       67.6667
+      ],
+      "topology": {
+       "front": [
+        [
+         "social_living",
+         "social_dining"
+        ],
+        [
+         "circulation"
+        ],
+        [
+         "garage"
+        ]
+       ],
+       "rear": [
+        [
+         "kitchen"
+        ],
+        [
+         "private_bedrooms",
+         "private_suite"
+        ]
+       ],
+       "through": [],
+       "through_side": null,
+       "key": "F:social_living+social_dining|circulation|garage/R:kitchen|private_bedrooms+private_suite"
+      },
+      "front_depth_ft": 27.2111,
+      "rear_depth_ft": 25.4556,
+      "spine_local": null,
+      "cells": {
+       "social_living": {
+        "zone": "social",
+        "spaces": [
+         "living_room"
+        ],
+        "rect_local": [
+         4.0,
+         15.0,
+         20.2581,
+         31.629
+        ],
+        "area_sqft": 270.3556,
+        "facades": {
+         "front": 16.2581,
+         "left": 16.629
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            20.2581,
+            15.0
+           ],
+           [
+            20.2581,
+            31.629
+           ],
+           [
+            4.0,
+            31.629
+           ],
+           [
+            4.0,
+            15.0
+           ],
+           [
+            20.2581,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "social_dining": {
+        "zone": "social",
+        "spaces": [
+         "dining_room"
+        ],
+        "rect_local": [
+         4.0,
+         31.629,
+         20.2581,
+         42.2111
+        ],
+        "area_sqft": 172.0444,
+        "facades": {
+         "left": 10.5821
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            20.2581,
+            31.629
+           ],
+           [
+            20.2581,
+            42.2111
+           ],
+           [
+            4.0,
+            42.2111
+           ],
+           [
+            4.0,
+            31.629
+           ],
+           [
+            20.2581,
+            31.629
+           ]
+          ]
+         ]
+        }
+       },
+       "circulation": {
+        "zone": "circulation",
+        "spaces": [
+         "hall"
+        ],
+        "rect_local": [
+         20.2581,
+         15.0,
+         25.6774,
+         42.2111
+        ],
+        "area_sqft": 147.4667,
+        "facades": {
+         "front": 5.4194
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            25.6774,
+            15.0
+           ],
+           [
+            25.6774,
+            42.2111
+           ],
+           [
+            20.2581,
+            42.2111
+           ],
+           [
+            20.2581,
+            15.0
+           ],
+           [
+            25.6774,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "garage": {
+        "zone": "garage",
+        "spaces": [
+         "garage_2car",
+         "laundry"
+        ],
+        "rect_local": [
+         25.6774,
+         15.0,
+         46.0,
+         42.2111
+        ],
+        "area_sqft": 553.0,
+        "facades": {
+         "front": 20.3226,
+         "right": 27.2111
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            15.0
+           ],
+           [
+            46.0,
+            42.2111
+           ],
+           [
+            25.6774,
+            42.2111
+           ],
+           [
+            25.6774,
+            15.0
+           ],
+           [
+            46.0,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "kitchen": {
+        "zone": "kitchen",
+        "spaces": [
+         "kitchen"
+        ],
+        "rect_local": [
+         4.0,
+         42.2111,
+         12.6897,
+         67.6667
+        ],
+        "area_sqft": 221.2,
+        "facades": {
+         "rear": 8.6897,
+         "left": 25.4556
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            12.6897,
+            42.2111
+           ],
+           [
+            12.6897,
+            67.6667
+           ],
+           [
+            4.0,
+            67.6667
+           ],
+           [
+            4.0,
+            42.2111
+           ],
+           [
+            12.6897,
+            42.2111
+           ]
+          ]
+         ]
+        }
+       },
+       "private_bedrooms": {
+        "zone": "private",
+        "spaces": [
+         "bathroom",
+         "bedroom"
+        ],
+        "rect_local": [
+         12.6897,
+         42.2111,
+         46.0,
+         55.1233
+        ],
+        "area_sqft": 430.1111,
+        "facades": {
+         "right": 12.9122
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            42.2111
+           ],
+           [
+            46.0,
+            55.1233
+           ],
+           [
+            12.6897,
+            55.1233
+           ],
+           [
+            12.6897,
+            42.2111
+           ],
+           [
+            46.0,
+            42.2111
+           ]
+          ]
+         ]
+        }
+       },
+       "private_suite": {
+        "zone": "private",
+        "spaces": [
+         "primary_bath",
+         "primary_suite"
+        ],
+        "rect_local": [
+         12.6897,
+         55.1233,
+         46.0,
+         67.6667
+        ],
+        "area_sqft": 417.8222,
+        "facades": {
+         "rear": 33.3103,
+         "right": 12.5433
+        },
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            55.1233
+           ],
+           [
+            46.0,
+            67.6667
+           ],
+           [
+            12.6897,
+            67.6667
+           ],
+           [
+            12.6897,
+            55.1233
+           ],
+           [
+            46.0,
+            55.1233
+           ]
+          ]
+         ]
+        }
+       }
+      },
+      "realization": {
+       "mode": "rectangle",
+       "joint": null,
+       "footprint_area_sqft": 2212.0,
+       "footprint_bbox_local": [
+        4.0,
+        15.0,
+        46.0,
+        67.6667
+       ],
+       "steps_local": [],
+       "shoulders": {},
+       "wedges": [],
+       "wedge_area_sqft": 0,
+       "y_front": 15.0,
+       "envelope_use": null,
+       "area_shift": {}
+      },
+      "adjacency": [
+       {
+        "a": "social_living",
+        "b": "social_dining",
+        "contact_ft": 16.2581,
+        "door_allowed": true
+       },
+       {
+        "a": "social_living",
+        "b": "circulation",
+        "contact_ft": 16.629,
+        "door_allowed": true
+       },
+       {
+        "a": "social_dining",
+        "b": "circulation",
+        "contact_ft": 10.5821,
+        "door_allowed": true
+       },
+       {
+        "a": "social_dining",
+        "b": "kitchen",
+        "contact_ft": 8.6897,
+        "door_allowed": true
+       },
+       {
+        "a": "social_dining",
+        "b": "private_bedrooms",
+        "contact_ft": 7.5684,
+        "door_allowed": true
+       },
+       {
+        "a": "circulation",
+        "b": "garage",
+        "contact_ft": 27.2111,
+        "door_allowed": true
+       },
+       {
+        "a": "circulation",
+        "b": "private_bedrooms",
+        "contact_ft": 5.4194,
+        "door_allowed": true
+       },
+       {
+        "a": "garage",
+        "b": "private_bedrooms",
+        "contact_ft": 20.3226,
+        "door_allowed": false
+       },
+       {
+        "a": "kitchen",
+        "b": "private_bedrooms",
+        "contact_ft": 12.9122,
+        "door_allowed": true
+       },
+       {
+        "a": "kitchen",
+        "b": "private_suite",
+        "contact_ft": 12.5433,
+        "door_allowed": true
+       },
+       {
+        "a": "private_bedrooms",
+        "b": "private_suite",
+        "contact_ft": 33.3103,
+        "door_allowed": true
+       }
+      ],
+      "split_zones": {
+       "social": [
+        "social_living",
+        "social_dining"
+       ],
+       "private": [
+        "private_suite",
+        "private_bedrooms"
+       ]
+      },
+      "anchors": [
+       {
+        "anchor_id": "living_faces_main_street",
+        "kind": "hard",
+        "applicable": true,
+        "satisfied": true,
+        "cells": [
+         "social_living"
+        ],
+        "via_role": "main_street"
+       },
+       {
+        "anchor_id": "kitchen_faces_rear",
+        "kind": "soft",
+        "applicable": true,
+        "satisfied": true,
+        "cells": [
+         "kitchen"
+        ],
+        "via_role": "garden"
+       }
+      ],
+      "entry_sequence": null,
+      "scores": {
+       "total": 0.5953,
+       "relations": 0.7674,
+       "orientation": 0.3101,
+       "orientation_raw": 58.7104,
+       "shape": 0.9425,
+       "satisfied_relations": [
+        "r07",
+        "r08",
+        "r10",
+        "r14",
+        "kitchen_faces_rear"
+       ],
+       "zone_total": 0.6195
+      },
+      "spaces": {
+       "bath_1": {
+        "space_type": "bathroom",
+        "zone": "private",
+        "cell": "private_bedrooms",
+        "rect_local": [
+         12.6897,
+         45.7111,
+         17.6897,
+         55.1233
+        ],
+        "area_sqft": 47.0612,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 47.0612,
+        "passable": false,
+        "depth_from_entry": 3,
+        "roles": [
+         "private_bath"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            17.6897,
+            45.7111
+           ],
+           [
+            17.6897,
+            55.1233
+           ],
+           [
+            12.6897,
+            55.1233
+           ],
+           [
+            12.6897,
+            45.7111
+           ],
+           [
+            17.6897,
+            45.7111
+           ]
+          ]
+         ]
+        }
+       },
+       "bath_2": {
+        "space_type": "primary_bath",
+        "zone": "private",
+        "cell": "private_suite",
+        "rect_local": [
+         40.7394,
+         55.1233,
+         46.0,
+         67.6667
+        ],
+        "area_sqft": 65.986,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 65.986,
+        "passable": false,
+        "depth_from_entry": 4,
+        "roles": [
+         "private_bath"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            55.1233
+           ],
+           [
+            46.0,
+            67.6667
+           ],
+           [
+            40.7394,
+            67.6667
+           ],
+           [
+            40.7394,
+            55.1233
+           ],
+           [
+            46.0,
+            55.1233
+           ]
+          ]
+         ]
+        }
+       },
+       "bedroom_1": {
+        "space_type": "bedroom",
+        "zone": "private",
+        "cell": "private_bedrooms",
+        "rect_local": [
+         17.6897,
+         45.7111,
+         31.8448,
+         55.1233
+        ],
+        "area_sqft": 133.2319,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 133.2319,
+        "passable": false,
+        "depth_from_entry": 3,
+        "roles": [
+         "bedroom"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            31.8448,
+            45.7111
+           ],
+           [
+            31.8448,
+            55.1233
+           ],
+           [
+            17.6897,
+            55.1233
+           ],
+           [
+            17.6897,
+            45.7111
+           ],
+           [
+            31.8448,
+            45.7111
+           ]
+          ]
+         ]
+        }
+       },
+       "bedroom_2": {
+        "space_type": "bedroom",
+        "zone": "private",
+        "cell": "private_bedrooms",
+        "rect_local": [
+         31.8448,
+         45.7111,
+         46.0,
+         55.1233
+        ],
+        "area_sqft": 133.2319,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 133.2319,
+        "passable": false,
+        "depth_from_entry": 3,
+        "roles": [
+         "bedroom"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            45.7111
+           ],
+           [
+            46.0,
+            55.1233
+           ],
+           [
+            31.8448,
+            55.1233
+           ],
+           [
+            31.8448,
+            45.7111
+           ],
+           [
+            46.0,
+            45.7111
+           ]
+          ]
+         ]
+        }
+       },
+       "dining_room": {
+        "space_type": "dining_room",
+        "zone": "social",
+        "cell": "social_dining",
+        "rect_local": [
+         4.0,
+         31.629,
+         20.2581,
+         42.2111
+        ],
+        "area_sqft": 172.0444,
+        "through_strip_sqft": 60.215,
+        "net_area_sqft": 111.8294,
+        "passable": true,
+        "depth_from_entry": 2,
+        "roles": [
+         "dining"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            20.2581,
+            31.629
+           ],
+           [
+            20.2581,
+            42.2111
+           ],
+           [
+            4.0,
+            42.2111
+           ],
+           [
+            4.0,
+            31.629
+           ],
+           [
+            20.2581,
+            31.629
+           ]
+          ]
+         ]
+        }
+       },
+       "garage_2car": {
+        "space_type": "garage_2car",
+        "zone": "garage",
+        "cell": "garage",
+        "rect_local": [
+         25.6774,
+         15.0,
+         46.0,
+         37.2111
+        ],
+        "area_sqft": 451.3871,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 451.3871,
+        "passable": false,
+        "depth_from_entry": 2,
+        "roles": [],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            15.0
+           ],
+           [
+            46.0,
+            37.2111
+           ],
+           [
+            25.6774,
+            37.2111
+           ],
+           [
+            25.6774,
+            15.0
+           ],
+           [
+            46.0,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "hall": {
+        "space_type": "hall",
+        "zone": "circulation",
+        "cell": "circulation",
+        "rect_local": [
+         20.2581,
+         15.0,
+         25.6774,
+         42.2111
+        ],
+        "area_sqft": 147.4667,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 147.4667,
+        "passable": true,
+        "depth_from_entry": 1,
+        "roles": [],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            25.6774,
+            15.0
+           ],
+           [
+            25.6774,
+            42.2111
+           ],
+           [
+            20.2581,
+            42.2111
+           ],
+           [
+            20.2581,
+            15.0
+           ],
+           [
+            25.6774,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "kitchen_space": {
+        "space_type": "kitchen",
+        "zone": "kitchen",
+        "cell": "kitchen",
+        "rect_local": [
+         4.0,
+         42.2111,
+         12.6897,
+         67.6667
+        ],
+        "area_sqft": 221.2,
+        "through_strip_sqft": 82.3505,
+        "net_area_sqft": 138.8495,
+        "passable": true,
+        "depth_from_entry": 3,
+        "roles": [
+         "kitchen"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            12.6897,
+            42.2111
+           ],
+           [
+            12.6897,
+            67.6667
+           ],
+           [
+            4.0,
+            67.6667
+           ],
+           [
+            4.0,
+            42.2111
+           ],
+           [
+            12.6897,
+            42.2111
+           ]
+          ]
+         ]
+        }
+       },
+       "laundry": {
+        "space_type": "laundry",
+        "zone": "service",
+        "cell": "garage",
+        "rect_local": [
+         25.6774,
+         37.2111,
+         46.0,
+         42.2111
+        ],
+        "area_sqft": 101.6129,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 101.6129,
+        "passable": false,
+        "depth_from_entry": 2,
+        "roles": [
+         "laundry"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            37.2111
+           ],
+           [
+            46.0,
+            42.2111
+           ],
+           [
+            25.6774,
+            42.2111
+           ],
+           [
+            25.6774,
+            37.2111
+           ],
+           [
+            46.0,
+            37.2111
+           ]
+          ]
+         ]
+        }
+       },
+       "living_room": {
+        "space_type": "living_room",
+        "zone": "social",
+        "cell": "social_living",
+        "rect_local": [
+         4.0,
+         15.0,
+         20.2581,
+         31.629
+        ],
+        "area_sqft": 270.3556,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 270.3556,
+        "passable": true,
+        "depth_from_entry": 2,
+        "roles": [
+         "living"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            20.2581,
+            15.0
+           ],
+           [
+            20.2581,
+            31.629
+           ],
+           [
+            4.0,
+            31.629
+           ],
+           [
+            4.0,
+            15.0
+           ],
+           [
+            20.2581,
+            15.0
+           ]
+          ]
+         ]
+        }
+       },
+       "primary_suite": {
+        "space_type": "primary_suite",
+        "zone": "private",
+        "cell": "private_suite",
+        "rect_local": [
+         16.1897,
+         55.1233,
+         40.7394,
+         67.6667
+        ],
+        "area_sqft": 307.9346,
+        "through_strip_sqft": 0.0,
+        "net_area_sqft": 307.9346,
+        "passable": false,
+        "depth_from_entry": 5,
+        "roles": [
+         "primary_bedroom"
+        ],
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            40.7394,
+            55.1233
+           ],
+           [
+            40.7394,
+            67.6667
+           ],
+           [
+            16.1897,
+            67.6667
+           ],
+           [
+            16.1897,
+            55.1233
+           ],
+           [
+            40.7394,
+            55.1233
+           ]
+          ]
+         ]
+        }
+       }
+      },
+      "halls": [
+       {
+        "hall_id": "hall_private_bedrooms",
+        "cell": "private_bedrooms",
+        "side": "front",
+        "rect_local": [
+         12.6897,
+         42.2111,
+         46.0,
+         45.7111
+        ],
+        "area_sqft": 116.5862,
+        "width_ft": 3.5,
+        "depth_from_entry": 2,
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            46.0,
+            42.2111
+           ],
+           [
+            46.0,
+            45.7111
+           ],
+           [
+            12.6897,
+            45.7111
+           ],
+           [
+            12.6897,
+            42.2111
+           ],
+           [
+            46.0,
+            42.2111
+           ]
+          ]
+         ]
+        }
+       },
+       {
+        "hall_id": "hall_private_suite",
+        "cell": "private_suite",
+        "side": "left",
+        "rect_local": [
+         12.6897,
+         55.1233,
+         16.1897,
+         67.6667
+        ],
+        "area_sqft": 43.9016,
+        "width_ft": 3.5,
+        "depth_from_entry": 4,
+        "polygon": {
+         "type": "Polygon",
+         "coordinates": [
+          [
+           [
+            16.1897,
+            55.1233
+           ],
+           [
+            16.1897,
+            67.6667
+           ],
+           [
+            12.6897,
+            67.6667
+           ],
+           [
+            12.6897,
+            55.1233
+           ],
+           [
+            16.1897,
+            55.1233
+           ]
+          ]
+         ]
+        }
+       }
+      ],
+      "satellites": {},
+      "doors": [
+       {
+        "a": "bath_1",
+        "b": "bedroom_1",
+        "kind": "ensuite",
+        "segment_local": [
+         [
+          17.6897,
+          45.7111
+         ],
+         [
+          17.6897,
+          55.1233
+         ]
+        ],
+        "segment": [
+         [
+          17.6897,
+          45.7111
+         ],
+         [
+          17.6897,
+          55.1233
+         ]
+        ]
+       },
+       {
+        "a": "bath_1",
+        "b": "hall_private_bedrooms",
+        "kind": "door",
+        "segment_local": [
+         [
+          12.6897,
+          45.7111
+         ],
+         [
+          17.6897,
+          45.7111
+         ]
+        ],
+        "segment": [
+         [
+          12.6897,
+          45.7111
+         ],
+         [
+          17.6897,
+          45.7111
+         ]
+        ]
+       },
+       {
+        "a": "bath_1",
+        "b": "hall_private_suite",
+        "kind": "door",
+        "segment_local": [
+         [
+          12.6897,
+          55.1233
+         ],
+         [
+          16.1897,
+          55.1233
+         ]
+        ],
+        "segment": [
+         [
+          12.6897,
+          55.1233
+         ],
+         [
+          16.1897,
+          55.1233
+         ]
+        ]
+       },
+       {
+        "a": "bath_2",
+        "b": "bedroom_2",
+        "kind": "ensuite",
+        "segment_local": [
+         [
+          40.7394,
+          55.1233
+         ],
+         [
+          46.0,
+          55.1233
+         ]
+        ],
+        "segment": [
+         [
+          40.7394,
+          55.1233
+         ],
+         [
+          46.0,
+          55.1233
+         ]
+        ]
+       },
+       {
+        "a": "bath_2",
+        "b": "primary_suite",
+        "kind": "ensuite",
+        "segment_local": [
+         [
+          40.7394,
+          55.1233
+         ],
+         [
+          40.7394,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          40.7394,
+          55.1233
+         ],
+         [
+          40.7394,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "bedroom_1",
+        "b": "hall_private_bedrooms",
+        "kind": "door",
+        "segment_local": [
+         [
+          17.6897,
+          45.7111
+         ],
+         [
+          31.8448,
+          45.7111
+         ]
+        ],
+        "segment": [
+         [
+          17.6897,
+          45.7111
+         ],
+         [
+          31.8448,
+          45.7111
+         ]
+        ]
+       },
+       {
+        "a": "bedroom_2",
+        "b": "hall_private_bedrooms",
+        "kind": "door",
+        "segment_local": [
+         [
+          31.8448,
+          45.7111
+         ],
+         [
+          46.0,
+          45.7111
+         ]
+        ],
+        "segment": [
+         [
+          31.8448,
+          45.7111
+         ],
+         [
+          46.0,
+          45.7111
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "hall",
+        "kind": "open",
+        "segment_local": [
+         [
+          20.2581,
+          31.629
+         ],
+         [
+          20.2581,
+          42.2111
+         ]
+        ],
+        "segment": [
+         [
+          20.2581,
+          31.629
+         ],
+         [
+          20.2581,
+          42.2111
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "hall_private_bedrooms",
+        "kind": "open",
+        "segment_local": [
+         [
+          12.6897,
+          42.2111
+         ],
+         [
+          20.2581,
+          42.2111
+         ]
+        ],
+        "segment": [
+         [
+          12.6897,
+          42.2111
+         ],
+         [
+          20.2581,
+          42.2111
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "kitchen_space",
+        "kind": "open",
+        "segment_local": [
+         [
+          4.0,
+          42.2111
+         ],
+         [
+          12.6897,
+          42.2111
+         ]
+        ],
+        "segment": [
+         [
+          4.0,
+          42.2111
+         ],
+         [
+          12.6897,
+          42.2111
+         ]
+        ]
+       },
+       {
+        "a": "dining_room",
+        "b": "living_room",
+        "kind": "open",
+        "segment_local": [
+         [
+          4.0,
+          31.629
+         ],
+         [
+          20.2581,
+          31.629
+         ]
+        ],
+        "segment": [
+         [
+          4.0,
+          31.629
+         ],
+         [
+          20.2581,
+          31.629
+         ]
+        ]
+       },
+       {
+        "a": "garage_2car",
+        "b": "hall",
+        "kind": "door",
+        "segment_local": [
+         [
+          25.6774,
+          15.0
+         ],
+         [
+          25.6774,
+          37.2111
+         ]
+        ],
+        "segment": [
+         [
+          25.6774,
+          15.0
+         ],
+         [
+          25.6774,
+          37.2111
+         ]
+        ]
+       },
+       {
+        "a": "garage_2car",
+        "b": "laundry",
+        "kind": "ensuite",
+        "segment_local": [
+         [
+          25.6774,
+          37.2111
+         ],
+         [
+          46.0,
+          37.2111
+         ]
+        ],
+        "segment": [
+         [
+          25.6774,
+          37.2111
+         ],
+         [
+          46.0,
+          37.2111
+         ]
+        ]
+       },
+       {
+        "a": "hall",
+        "b": "hall_private_bedrooms",
+        "kind": "open",
+        "segment_local": [
+         [
+          20.2581,
+          42.2111
+         ],
+         [
+          25.6774,
+          42.2111
+         ]
+        ],
+        "segment": [
+         [
+          20.2581,
+          42.2111
+         ],
+         [
+          25.6774,
+          42.2111
+         ]
+        ]
+       },
+       {
+        "a": "hall",
+        "b": "laundry",
+        "kind": "door",
+        "segment_local": [
+         [
+          25.6774,
+          37.2111
+         ],
+         [
+          25.6774,
+          42.2111
+         ]
+        ],
+        "segment": [
+         [
+          25.6774,
+          37.2111
+         ],
+         [
+          25.6774,
+          42.2111
+         ]
+        ]
+       },
+       {
+        "a": "hall",
+        "b": "living_room",
+        "kind": "open",
+        "segment_local": [
+         [
+          20.2581,
+          15.0
+         ],
+         [
+          20.2581,
+          31.629
+         ]
+        ],
+        "segment": [
+         [
+          20.2581,
+          15.0
+         ],
+         [
+          20.2581,
+          31.629
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_bedrooms",
+        "b": "kitchen_space",
+        "kind": "open",
+        "segment_local": [
+         [
+          12.6897,
+          42.2111
+         ],
+         [
+          12.6897,
+          45.7111
+         ]
+        ],
+        "segment": [
+         [
+          12.6897,
+          42.2111
+         ],
+         [
+          12.6897,
+          45.7111
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_bedrooms",
+        "b": "laundry",
+        "kind": "door",
+        "segment_local": [
+         [
+          25.6774,
+          42.2111
+         ],
+         [
+          46.0,
+          42.2111
+         ]
+        ],
+        "segment": [
+         [
+          25.6774,
+          42.2111
+         ],
+         [
+          46.0,
+          42.2111
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_suite",
+        "b": "kitchen_space",
+        "kind": "open",
+        "segment_local": [
+         [
+          12.6897,
+          55.1233
+         ],
+         [
+          12.6897,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          12.6897,
+          55.1233
+         ],
+         [
+          12.6897,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_suite",
+        "b": "primary_suite",
+        "kind": "door",
+        "segment_local": [
+         [
+          16.1897,
+          55.1233
+         ],
+         [
+          16.1897,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          16.1897,
+          55.1233
+         ],
+         [
+          16.1897,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "@entry",
+        "b": "hall",
+        "kind": "entry",
+        "segment_local": [
+         [
+          20.2581,
+          15.0
+         ],
+         [
+          25.6774,
+          15.0
+         ]
+        ],
+        "segment": [
+         [
+          20.2581,
+          15.0
+         ],
+         [
+          25.6774,
+          15.0
+         ]
+        ]
+       },
+       {
+        "a": "hall_private_suite",
+        "b": "@patio",
+        "kind": "patio",
+        "segment_local": [
+         [
+          12.6897,
+          67.6667
+         ],
+         [
+          16.1897,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          12.6897,
+          67.6667
+         ],
+         [
+          16.1897,
+          67.6667
+         ]
+        ]
+       },
+       {
+        "a": "primary_suite",
+        "b": "@patio",
+        "kind": "patio",
+        "segment_local": [
+         [
+          16.1897,
+          67.6667
+         ],
+         [
+          40.7394,
+          67.6667
+         ]
+        ],
+        "segment": [
+         [
+          16.1897,
+          67.6667
+         ],
+         [
+          40.7394,
+          67.6667
+         ]
+        ]
+       }
+      ],
+      "matrix": [
+       {
+        "pair": "D:access-living",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:access-dining",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:access-social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "D:living-dining",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:living-kitchen",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:living-social_bath",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "I:living-primary_bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for living_room"
+       },
+       {
+        "pair": "I:living-patio",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for living_room"
+       },
+       {
+        "pair": "D:dining-kitchen",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:dining-social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "I:dining-laundry",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:dining-patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for dining_room"
+       },
+       {
+        "pair": "I:kitchen-social_bath",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "D:kitchen-laundry",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:kitchen-patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:primary_bedroom-private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:primary_bedroom-patio",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for primary_suite"
+       },
+       {
+        "pair": "D:bedroom-private_bath",
+        "type": "D",
+        "kind": "hard",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "I:bedroom-bedroom",
+        "type": "I",
+        "kind": "soft",
+        "weight": 0.5,
+        "applicable": true,
+        "satisfied": true,
+        "detail": null
+       },
+       {
+        "pair": "D:laundry-patio",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "applicable": true,
+        "satisfied": false,
+        "detail": "fails for laundry"
+       },
+       {
+        "pair": "D:primary_bedroom-suite_closet",
+        "type": "D",
+        "kind": "soft",
+        "weight": 1.0,
+        "applicable": false,
+        "satisfied": true,
+        "detail": "role absent"
+       },
+       {
+        "pair": "group:patio_from_dining_or_kitchen",
+        "type": "D",
+        "kind": "hard",
+        "weight": 0.0,
+        "applicable": true,
+        "satisfied": true,
+        "detail": "1 of 2 (needs 1)"
+       }
+      ],
+      "circulation": {
+       "foyer_sqft": 147.4667,
+       "halls_sqft": 160.4878,
+       "strips_sqft": 142.5655,
+       "total_sqft": 450.52,
+       "fraction": 0.2037,
+       "design_width_ft": 3.5,
+       "normative_min_ft": 3.0,
+       "width_ok": true,
+       "normative_status": "provisional",
+       "normative_source": "CRC 2025 hallways (R311.6 in prior editions; verify)",
+       "target_fraction": 0.15,
+       "warn": true
+      },
+      "space_scores": {
+       "total": 0.5791,
+       "matrix": 0.4667,
+       "circulation": 0.6422,
+       "shape": 0.9238
+      },
+      "rank": 2
+     }
+    ]
+   },
+   {
+    "option_id": "n2",
+    "floors": 2,
+    "status": "deferred_to_stacking",
+    "reason": "multi-floor zoning is step 7"
+   }
+  ],
+  "selection": {
+   "requested": "auto",
+   "strategy": "A_inscribed_rectangle",
+   "reason": "strategy A uses 100% of the envelope (>= 80%)"
+  }
+ },
+ "unit": null,
+ "corrections": null,
+ "dwelling_type": "house",
+ "realization_strategy": "A_inscribed_rectangle"
+}

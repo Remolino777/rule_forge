@@ -2,7 +2,8 @@
 
 Design ranges live in data/catalog/fragments/*.json (one fragment per owning module, merged in the order
 of fragments/index.json) with their source; code only reads them. Normative minima (CRC) stay in a ruleset,
-never in the catalog. data/catalog/residential_catalog.json is the pre-split reference copy (until tanda 4).
+never in the catalog. The pre-split single file (residential_catalog.json) was removed in refactor tanda 4; a
+single-file catalog given by path is still accepted.
 """
 
 from __future__ import annotations
@@ -17,7 +18,6 @@ from spaceplan.core.lib.schema_validation import load_schema
 from spaceplan.core.lib_aux.hashing import sha256_of
 from spaceplan.core.lib_aux.json_io import load_json, load_resource_json
 
-DEFAULT_CATALOG = ("data", "catalog", "residential_catalog.json")  # reference copy, removed in tanda 4
 FRAGMENTS_DIR = ("data", "catalog", "fragments")
 FRAGMENT_INDEX = "index.json"
 

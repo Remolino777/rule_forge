@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 8 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · 620 pruebas
+Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · 1,026 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -21,9 +21,12 @@ Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 2. **Primero análisis lógico y plan de acción en pasos**; **preguntar siempre antes de empezar a programar**.
 3. Incluir siempre una sección de **posibilidades de innovación**.
 4. Estructura de código: `main/` (workflow), `lib/` (funciones de dominio), `lib_aux/` (sub-librería sin conocimiento
-   de dominio). `lib_aux` no importa `lib`/`main`; `lib` no importa `main` (lo verifica `tests/test_architecture.py`).
+   de dominio), dentro de cada módulo (`core/`, `modules/<m>/`, `pipeline/`). `lib_aux` no importa `lib`/`main`;
+   `lib` no importa `main`; los módulos siguen el grafo acíclico del plan y hablan por contratos (lo verifica
+   `tests/pipeline/test_architecture.py`).
 5. Ningún número normativo en el código: los valores viven en `data/rules/*.json` (DSL) y los parámetros de diseño
-   en `data/catalog/residential_catalog.json`, cada uno con su fuente y estado (`verified`/`provisional`).
+   en el catálogo (`data/catalog/fragments/*.json`, un fragmento por módulo), cada uno con su fuente y estado
+   (`verified`/`provisional`).
 6. F3 (RuleForge, 110 h) no se recorta bajo ninguna circunstancia.
 7. **Costos sin valores reales.** El costo es un índice relativo sin unidades (1 = construir el 100 % del área máxima
    normativa del lote). Ningún precio en el código ni en el catálogo; la conexión a un módulo de costos real futuro se
@@ -38,9 +41,11 @@ planogen v2, spaceplan v1.1 (diseño conceptual del módulo).
 ## 2. Cómo correr
 
 ```bash
-unzip spaceplan_steps_1_6_5d.zip && cd spaceplan
+git clone --branch spaceplan-modular https://github.com/Remolino777/rule_forge && cd rule_forge/spaceplan
 pip install -e ".[dev]"            # shapely, numpy, jsonschema, networkx, matplotlib, pytest
-pytest -q                           # 561 pruebas, ~9 min, ~5 min (correr en tandas si el entorno corta a 300 s)
+python -m pytest -q tests/cost             # un módulo (segundos); suite completa por carpetas (tests/<módulo>/), ~10 min
+python tools/golden_check.py check          # GOLDEN CHECK PASSED (nada cambió)
+spaceplan capacity spaceplan/data/briefs/interior_50x100.json --contracts out/contracts   # contratos de cada módulo
 spaceplan household --list                                    # 7 arquetipos
 spaceplan household multigenerational                         # programas R/P/D ahora y en 5 años, delta
 spaceplan household mi_hogar.json --tier preferred --no-next  # hogar propio (ver data/schemas/household.schema.json)
@@ -69,31 +74,28 @@ House:     brief -> validate -> program review -> scope -> lot -> boundaries -> 
 Apartment: brief -> validate -> program review -> unit -> zoning (apartment profile) -> package
 ```
 
-| Archivo | Responsabilidad |
-|---|---|
-| `main/run_capacity.py` | Orquesta todo; `run_capacity()` despacha casa/apartamento (`run_apartment`). |
-| `main/run_program.py`, `main/cli.py` | Expansión de tipologías, tabla de parámetros, CLI (`validate`, `capacity`, `program`, `catalog`). |
-| `lib/rules.py`, `lib/rule_variants.py` | Acceso al DSL y tabla de decisión de variantes (retiros, FAR, altura, pavimento, proyecciones...). |
-| `lib/lot.py`, `boundaries.py`, `lot_metrics.py`, `capacity.py` | Capa 0: lote, linderos, métricas, envolvente, FAR, factibilidad en 3 niveles. |
-| `lib/site_partition.py`, `orientation.py` | Capa 1: huella por número de pisos, acceso (deck, sendero, acceso vehicular), pavimento, orientación y afinidad zona–fachada. Expone todas las posiciones de deck que cumplen (`access_options`). |
-| `lib/catalog.py`, `program_builder.py`, `program_review.py`, `catalog_table.py` | Catálogo, tipologías, revisión de programa vs CRC, tabla de parámetros. |
-| `lib/realization.py` | Interfaz intercambiable `RealizationStrategy`; `StrategyA`: rectángulo inscrito, 2 bandas de columnas apiladas, columna pasante opcional, spine opcional. |
-| `lib/zoning.py` | Nivel de zonas: perfiles por tipo de vivienda, anclas, secuencia de entrada, particiones por espacios, fusiones, enumeración exhaustiva con poda, condiciones necesarias de la matriz; drivers `zone_site_options` (casa) y `zone_unit` (apartamento) que llaman al nivel de espacios. |
-| `lib/space_layout.py` | Nivel de espacios: subdivisión de cada celda (guillotina con lados mínimos), pasillo tallado opcional, evaluación global, ranking. |
-| `lib/circulation.py` | Grafo de puertas, reglas de puertas, accesibilidad, evaluación D/I, franjas de circulación. |
-| `lib/relation_matrix.py` | Matriz D/I/N por tipo de vivienda + overrides del brief + grupos duros. |
-| `lib/unit.py` | Unidad de apartamento (polígono, roles de borde, entrada). |
-| `lib/backyard.py` | Programa del patio con filtro de prioridad, reserva verde y separaciones. |
-| `lib/package.py`, `schema_validation.py`, `visualize.py` | Ensamblado del paquete, validación, diagramas (6.6: mapa de decisión, presupuesto de áreas, IC–IO, mejor esquema). |
-| `lib/building_indices.py` | (6.6) IC e IO como familia de reglas de razón del DSL (`Z15`), variantes de garaje. |
-| `lib/vertical_split.py` | (6.6) Esquemas verticales V0–V5: grupos, reparto por piso, reglas duras, métricas y pesos del hogar. |
-| `lib/area_budget.py`, `lib/area_matrix.py` | (6.6) Límites del lote, E0/E1 por estrategia, celdas, ranking, Pareto. |
-| `lib/flag_lot.py` | (6.6) Lote bandera, lectura provisional (cuerpo como lote, acceso como pavimento). |
-| `main/run_area_matrix.py` | (6.6) Workflow del piloto, E2, tablas y figuras; `main/run_capacity.prepare_lot` y `main/run_profiles.profile_programs` extraídos para reutilizarlos. |
+**Arquitectura modular (reestructuración 8–9 oct 2026, sección 4i).** El flujo de arriba no cambió; ahora cada
+etapa es un módulo con `main/` (workflow), `lib/` (dominio) y `lib_aux/` (sin dominio) y entrega un **contrato JSON**.
+Grafo de dependencias, archivos por capa y contratos **generados desde el código**: `docs/architecture/modules.md`.
 
-Datos: `data/schemas/` (brief 0.2, package 0.6, catalog), `data/rules/sdmc_rs_1_7_capacity.json` (v0.3.0, Z00–Z14),
-`data/rules/crc_2025_habitability.json` (v0.2.0, C01, C03, C06), `data/catalog/residential_catalog.json` (v0.5.0),
-`data/briefs/` (4 casas, 2 apartamentos).
+| Módulo | Responsabilidad | Contrato que produce |
+|---|---|---|
+| `core/` | DSL (`rules`), catálogo en fragmentos (`catalog`), contratos (`contracts`), validación, grafo de relaciones; `lib_aux`: geometría, `Quantity`, hash, JSON, sección, predicados, codo, Pareto | — |
+| `modules/lotcap/` | Capa 0: lote, linderos, métricas, variantes de reglas, alcance, capacidad A/B, lote bandera, selección de estrategia (`run_lotcap`) | `lot_capacity` |
+| `modules/site/` | Capa 1: partición del sitio por pisos, orientación, patio (`run_site`) | `site_plan` |
+| `modules/household/` | Hogar, catálogo de hogar, reglas, cultura, tipologías, revisión del programa (`run_household`, `run_program`) | `program` |
+| `modules/cost/` | Ficha de cantidades, modelos de costo, presupuesto, tornado (`run_cost`); lee `lot_capacity`, `site_plan` y `program` como JSON | `cost_report` |
+| `modules/profiles/` | Curva de expansión, mínimo/óptimo/máximo, por etapas, accesible (`run_profiles`) | `program_portfolio` |
+| `modules/zoning/` | Zonas y espacios, circulación, matriz D/I/N, estrategias A/B, poligonal, correcciones, unidad (`run_zoning`, `run_corrections`) | `zoning_scheme` |
+| `modules/areas/` | Esquemas verticales, IC/IO, presupuesto de áreas, matriz por lote (`run_area_matrix`) | `area_matrix` |
+| `modules/viz/` | Figuras y láminas; `main/run_viz` dibuja desde contratos | — |
+| `pipeline/` | Composición: `run_capacity` (encadena contratos), `run_portfolio`, `run_area_analysis`, `run_household_report`, `run_catalog`, `run_modules`, CLI; `lib/package` arma el paquete solo desde contratos | `package` (0.9) |
+
+Datos: `data/schemas/` (brief 0.5, package 0.9, catalog), `data/rules/sdmc_rs_1_7_capacity.json` (v0.4.0, Z00–Z15),
+`data/rules/crc_2025_habitability.json` (v0.2.0, C01, C03, C06), `data/catalog/fragments/*.json` (catálogo residencial
+0.11.0 en 8 fragmentos por módulo + `index.json`; el archivo único `residential_catalog.json` se eliminó en la tanda 4),
+`data/catalog/household_catalog.json` (0.3.0), `data/briefs/` (15 briefs: 13 casas, 2 apartamentos),
+`contracts/schemas/` (7 contratos 0.2.0).
 
 ## 4. Decisiones de diseño acumuladas
 
@@ -566,6 +568,61 @@ números normativos en el código nuevo; bandera (3); lotes nuevos; Pareto; CLI.
 4. Lote bandera provisional; la conformidad reporta la profundidad del cuerpo.
 5. Láminas E2 del abanico rotulan como "frente" el ancho mayor del lote (heredado).
 
+## 4i. Reestructuración modular (8–9 oct 2026, 4 tandas programadas): módulos por etapa y contratos
+
+**Qué cambió (sin cambiar resultados).** Refactorización pura en la rama `spaceplan-modular` (ramas instantáneas
+`refactor/tanda-0` a `refactor/tanda-4`; plan en `docs/refactor/REFACTOR_PLAN.md`, informes en
+`docs/refactor/log/`). Los 15 paquetes de referencia y la tabla del piloto son idénticos a la instantánea dorada
+(`python tools/golden_check.py check`); además, los 21 paquetes en bruto (orden de claves, bloques sin redondear,
+tres combinaciones de opciones) son idénticos byte a byte a los de la tanda 3.
+
+- **Tanda 1**: 7 esquemas de contrato, núcleo `core/`, catálogo en fragmentos por módulo.
+- **Tanda 2**: `modules/<m>/{main,lib,lib_aux}` y `pipeline/`, prueba del grafo de dependencias.
+- **Tanda 3**: ciclo `zoning` ↔ `space_layout` roto, interfaz pública del sitio, `run_capacity` delgado,
+  `visualize.py` repartido, cero excepciones al grafo.
+- **Tanda 4 (cierre)**: contratos ejecutables y encadenados, CLI por módulo, pruebas por módulo con contratos fijos,
+  puentes y catálogo original eliminados, documentación generada.
+
+**Contratos ejecutables (0.2.0).** `core/lib/contracts.py` (`make_contract`, `read_contract`, `package_json`,
+`plain_json`); cada productor tiene `modules/<m>/main/contract.py` con `to_contract` / `from_contract`, ambos
+validan contra el esquema. `run_capacity_contracts(brief)` devuelve `(paquete, contratos)`: el paquete se arma
+**solo** desde `program`, `lot_capacity`, `site_plan` y `zoning_scheme` (`pipeline/lib/package.py`), el costo
+lee esos contratos como JSON (`cost_from_contracts`, sin importar código de lotcap, site ni household) y las
+figuras de `capacity` se dibujan desde los contratos (`viz/main/run_viz.py`).
+
+**CLI por módulo.** `spaceplan lotcap|site|zoning BRIEF -o C.json`, `spaceplan household BRIEF.json --contract
+P.json`, `spaceplan cost --lot-capacity .. --site-plan .. --program .. [--brief] [--budget]`, `spaceplan viz
+--lot-capacity .. --site-plan .. --zoning-scheme .. --capacity-plot|--site-plot|--zoning-plot PNG [--area-matrix AM
+--sheets DIR]`, `--contract` en `profiles` y `areas`, `spaceplan capacity BRIEF --contracts DIR`. Los comandos
+anteriores no cambian.
+
+**Pruebas por módulo.** `tests/<módulo>/` (core, lotcap, site, household, cost, profiles, zoning, areas, viz,
+pipeline) con contratos fijos en `tests/<módulo>/fixtures/` (14, generados por `tools/make_fixtures.py`, que solo
+escribe si el paquete armado con ellos es idéntico a la instantánea). Cada módulo se prueba contra su contrato fijo
+sin correr el pipeline completo y cada contrato se prueba con su consumidor. `docs/architecture/modules.md` se
+genera desde el código (`tools/module_graph.py`) y una prueba falla si queda desactualizado.
+
+**Pruebas y tiempos.** 1,026 pruebas (1,107 al cierre de la tanda 3; la baja son pruebas de los puentes eliminados,
+detalle en `docs/refactor/log/tanda-4.md`). Suite completa ≈ 11 min 17 s corriendo las carpetas en serie (antes
+≈ 9 min de reloj, ≈ 11 min sumando tandas de archivos); por módulo: core 1 min 32 s · lotcap 1 min 55 s · site
+1 min 6 s · household 3 min 46 s · cost 14 s · profiles 43 s · zoning 1 min 9 s · areas 15 s · viz 3 s · pipeline
+32 s. Golden check ≈ 2 min 36 s.
+
+**Decisiones de diseño (para revisar).**
+1. `to_contract` / `from_contract` viven en `main/` de cada módulo (`lotcap` necesita `LotSetup`, que es de `main`).
+2. `site` y `zoning` siguen recibiendo objetos geométricos en memoria de `lotcap`; sus comandos corren los módulos
+   previos. Rehidratar la geometría desde `lot_capacity` es el paso siguiente natural.
+3. Serialización como el paquete (4 decimales en lote, sitio, zonificación y revisión; hogar y costo tal cual). Un
+   módulo que lee un contrato redondeado puede moverse en el último decimal (el patio leyendo la zonificación:
+   < 0.01 sq ft); el pipeline evita ese camino para no cambiar resultados.
+4. Conflicto de nombres en la CLI: `household`, `profiles` y `areas` ya existían; escriben su contrato con
+   `--contract` en vez de un subcomando nuevo.
+5. El catálogo original se eliminó; su SHA-256 queda fijado en `tests/core/test_catalog_fragments.py`.
+
+**Cómo agregar un módulo** (p. ej. `stacking` para el paso 6.7): ver la última sección de
+`docs/architecture/modules.md` (estructura, grafo permitido, esquema y `contract.py`, composición en `pipeline`,
+CLI, pruebas con contratos fijos, regenerar el documento).
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -631,12 +688,20 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 Total ≈ 50 h (6.6 tomó 8 h por los esquemas verticales, los índices y el lote bandera). Mínimo viable ≈ 14 h: 6.5a con 4 arquetipos, 6.5b nivel base, 6.5c solo cocina y matriz D/I/N.
 El paso 7 detallado (zonificación por piso con la junta como núcleo) queda para un curso o después de F3.
 
-### Reestructuración modular (opción A, 8-oct-2026)
-Antes del paso 6.7 se reestructura spaceplan en módulos por etapa con contratos JSON, en 4 tandas programadas sobre
-la rama `spaceplan-modular` del repositorio `Remolino777/rule_forge` (ramas instantáneas `refactor/tanda-0` a `refactor/tanda-4`). Plan completo:
-`docs/refactor/REFACTOR_PLAN.md`; verificación de que nada cambia: `python tools/golden_check.py check`.
+### Reestructuración modular (opción A, 8–9 oct 2026) — **hecha** (sección 4i)
+spaceplan quedó en módulos por etapa con contratos JSON ejecutables, en 4 tandas programadas sobre la rama
+`spaceplan-modular` del repositorio `Remolino777/rule_forge` (ramas instantáneas `refactor/tanda-0` a
+`refactor/tanda-4`). Plan: `docs/refactor/REFACTOR_PLAN.md`; informes: `docs/refactor/log/`; verificación de que
+nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como módulo nuevo `stacking`
+(propuesta: consume `lot_capacity`, `site_plan` y `area_matrix`; produce un contrato nuevo, p. ej. `stacked_scheme`).
 
 ## 9. Posibilidades de innovación registradas
+
+- (reestructuración modular) Contratos como frontera para ejecutar módulos en paralelo o como servicios, con caché
+  por `input_sha256`; rehidratar la geometría desde `lot_capacity` para que `site` y `zoning` corran solo con
+  contratos; generar los esquemas desde los tipos (`dataclasses` → JSON Schema); selección de pruebas por impacto con
+  el grafo de módulos generado; contratos versionados por fragmento del catálogo para saber qué módulo cambió un
+  resultado; un módulo `stacking` (6.7) y luego `ifc_export` (paso 13) como consumidores puros de contratos.
 
 - (paso 6.6) Curva IO–IC del piloto como figura central; umbral de cruce un piso / dos pisos (IC ≈ 0.35) como regla
   explicable y contrastable con planos aprobados de Clairemont; transferencia a un POT colombiano declarando IO e IC
@@ -685,7 +750,9 @@ la rama `spaceplan-modular` del repositorio `Remolino777/rule_forge` (ramas inst
 
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
-> Adjunto `spaceplan_steps_1_6_6.zip` y este HANDOFF. Continuamos el módulo spaceplan del capstone con el **paso 6.7:
-> apilamiento grueso** (geometría de los esquemas verticales de 6.6: planta alta contenida, escalera en la junta,
-> plano envolvente 131.0444) sobre los mejores esquemas de dos pisos del piloto. Respeta las reglas de la sección 1.
-> Primero haz el análisis lógico y el plan, y pregúntame antes de programar.
+> Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `spaceplan-modular`,
+> arquitectura modular de la sección 4i) con el **paso 6.7: apilamiento grueso** como módulo nuevo `stacking`
+> (geometría de los esquemas verticales de 6.6: planta alta contenida, escalera en la junta, plano envolvente
+> 131.0444) sobre los mejores esquemas de dos pisos del piloto, leyendo los contratos `lot_capacity`, `site_plan` y
+> `area_matrix`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de
+> programar.

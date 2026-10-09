@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/cost_report/0.1.0",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/cost_report/0.2.0",
   "title": "Relative cost report",
   "description": "Quantity sheets, relative index per cost model, budget and tornado. Relative index only, no money.",
   "type": "object",
@@ -27,6 +27,13 @@
       "type": "string",
       "pattern": "^[0-9a-f]{64}$",
       "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
+    },
+    "brief_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Brief the contract belongs to (informative)."
     },
     "consumers": {
       "type": "array",

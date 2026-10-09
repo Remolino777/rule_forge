@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/lot_capacity/0.1.0",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/lot_capacity/0.2.0",
   "title": "Lot capacity (layer 0)",
   "description": "Lot, boundaries, setbacks and rule variants, envelope, FAR, coverage, realizable capacity per strategy, lot conformity and sensitivity. Blocks reuse the package schema definitions.",
   "type": "object",
@@ -36,6 +36,13 @@
       "pattern": "^[0-9a-f]{64}$",
       "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
     },
+    "brief_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Brief the contract belongs to (informative)."
+    },
     "consumers": {
       "type": "array",
       "items": {
@@ -59,6 +66,10 @@
             "null"
           ],
           "description": "Flag-lot reading (body and access strip), provisional."
+        },
+        "lot_block": {
+          "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/lot",
+          "description": "Brief lot block the module planned on (the body of a flag lot); viz rebuilds the lot geometry from it."
         }
       }
     },
@@ -88,6 +99,21 @@
     },
     "warnings": {
       "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/warnings"
+    },
+    "terrain": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://municipal-permit-intelligence/spaceplan/brief/0.2#/properties/terrain"
+        }
+      ],
+      "description": "Brief terrain block (slope for the quantity sheets)."
+    },
+    "realization_strategy": {
+      "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/meta/properties/realization_strategy",
+      "description": "Footprint realization strategy selected by lotcap."
     }
   },
   "$defs": {

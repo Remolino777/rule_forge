@@ -41,8 +41,8 @@ def _normalize(package: dict) -> dict:
 
 
 def packages() -> dict[str, str]:
-    from spaceplan.lib_aux.json_io import load_json
-    from spaceplan.main.run_capacity import run_capacity
+    from spaceplan.core.lib_aux.json_io import load_json
+    from spaceplan.pipeline.main.run_capacity import run_capacity
 
     out = {}
     for path in sorted((ROOT / "spaceplan" / "data" / "briefs").glob("*.json")):
@@ -52,8 +52,8 @@ def packages() -> dict[str, str]:
 
 
 def area_matrix() -> dict[str, str]:
-    from spaceplan.lib.area_matrix import compact
-    from spaceplan.main.run_area_matrix import run_area_matrix
+    from spaceplan.modules.areas.lib.area_matrix import compact
+    from spaceplan.pipeline.main.run_area_analysis import run_area_matrix
 
     result = run_area_matrix(zone_top=0)
     rows = [_round(compact(c)) for c in result["cells"]]

@@ -1,0 +1,253 @@
+{
+ "contract": "program",
+ "version": "0.2.0",
+ "produced_by": "household",
+ "input_sha256": "85263c39eecf081962422c51c013d3c3df2c756db977d54e8f2a0d3fb07212f3",
+ "brief_id": "apt-2br-interior",
+ "consumers": [
+  "profiles",
+  "zoning",
+  "cost",
+  "pipeline"
+ ],
+ "program": {
+  "spaces": [
+   {
+    "space_id": "living_dining",
+    "space_type": "living_dining",
+    "zone": "social",
+    "scale": "large",
+    "wet": false,
+    "min_area_sqft": 250.0,
+    "target_area_sqft": 305.0,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "kitchen",
+    "space_type": "kitchen",
+    "zone": "kitchen",
+    "scale": "normal",
+    "wet": true,
+    "min_area_sqft": 110.0,
+    "target_area_sqft": 145.0,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "primary_suite",
+    "space_type": "primary_suite",
+    "zone": "private",
+    "scale": "large",
+    "wet": false,
+    "min_area_sqft": 250.0,
+    "target_area_sqft": 250,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "primary_bath",
+    "space_type": "primary_bath",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 60.0,
+    "target_area_sqft": 70.0,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "bedroom",
+    "space_type": "bedroom",
+    "zone": "private",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110.0,
+    "target_area_sqft": 120.0,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "bathroom",
+    "space_type": "bathroom",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 40.0,
+    "target_area_sqft": 45.0,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "foyer",
+    "space_type": "foyer",
+    "zone": "circulation",
+    "scale": "intermediate",
+    "wet": false,
+    "min_area_sqft": 35.0,
+    "target_area_sqft": 40.0,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "hall",
+    "space_type": "hall",
+    "zone": "circulation",
+    "scale": "intermediate",
+    "wet": false,
+    "min_area_sqft": 40.0,
+    "target_area_sqft": 75.0,
+    "floor_preference": null,
+    "host_space_id": null
+   },
+   {
+    "space_id": "laundry_closet",
+    "space_type": "laundry_closet",
+    "zone": "service",
+    "scale": "support",
+    "wet": true,
+    "min_area_sqft": 12.0,
+    "target_area_sqft": 15.0,
+    "floor_preference": null,
+    "host_space_id": "hall"
+   },
+   {
+    "space_id": "closet",
+    "space_type": "closet",
+    "zone": "private",
+    "scale": "support",
+    "wet": false,
+    "min_area_sqft": 6.0,
+    "target_area_sqft": 10.0,
+    "floor_preference": null,
+    "host_space_id": "bedroom"
+   }
+  ],
+  "zone_budgets": {
+   "social": {
+    "min_sqft": 250.0,
+    "max_sqft": 450.0
+   },
+   "private": {
+    "min_sqft": 466.0,
+    "max_sqft": 850.0
+   },
+   "kitchen": {
+    "min_sqft": 110.0,
+    "max_sqft": 250.0
+   },
+   "service": {
+    "min_sqft": 12.0,
+    "max_sqft": 35.0
+   },
+   "circulation": {
+    "min_sqft": 75.0,
+    "max_sqft": 270.0
+   }
+  },
+  "garage_cars": 0,
+  "required_gross_area_sqft": null,
+  "gross_factor": 1.08
+ },
+ "household": null,
+ "program_review": {
+  "catalog_id": "spaceplan-residential-catalog",
+  "catalog_version": "0.11.0",
+  "catalog_sha256": "450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e",
+  "crc_ruleset_id": "crc-2025-habitability",
+  "crc_ruleset_sha256": "f231b2a00817c5aaba27fdcfd9e0eeb33157a93681436d2fb8ac2480719a6b77",
+  "summary": {
+   "net_area_sqft": 1075.0,
+   "gross_factor": 1.08,
+   "gross_estimate_sqft": 1161.0,
+   "declared_gross_sqft": null,
+   "by_zone": {
+    "social": {
+     "net_target_sqft": 305.0,
+     "budget_min_sqft": 250.0,
+     "budget_max_sqft": 450.0,
+     "within_budget": true
+    },
+    "private": {
+     "net_target_sqft": 495.0,
+     "budget_min_sqft": 466.0,
+     "budget_max_sqft": 850.0,
+     "within_budget": true
+    },
+    "kitchen": {
+     "net_target_sqft": 145.0,
+     "budget_min_sqft": 110.0,
+     "budget_max_sqft": 250.0,
+     "within_budget": true
+    },
+    "service": {
+     "net_target_sqft": 15.0,
+     "budget_min_sqft": 12.0,
+     "budget_max_sqft": 35.0,
+     "within_budget": true
+    },
+    "circulation": {
+     "net_target_sqft": 115.0,
+     "budget_min_sqft": 75.0,
+     "budget_max_sqft": 270.0,
+     "within_budget": true
+    }
+   },
+   "habitable_spaces": [
+    "living_dining",
+    "kitchen",
+    "primary_suite",
+    "bedroom"
+   ],
+   "exterior_edge_required": [
+    {
+     "space_id": "living_dining",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "kitchen",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "primary_suite",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "bedroom",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    }
+   ],
+   "min_side_ft": {
+    "living_dining": 7.0,
+    "kitchen": null,
+    "primary_suite": 7.0,
+    "bedroom": 7.0
+   },
+   "satellites": {
+    "laundry_closet": "hall",
+    "closet": "bedroom"
+   },
+   "placement_order": [
+    "living_dining",
+    "primary_suite",
+    "kitchen",
+    "bedroom",
+    "hall",
+    "primary_bath",
+    "bathroom",
+    "foyer"
+   ]
+  },
+  "counts": {
+   "error": 0,
+   "warning": 0,
+   "info": 0
+  },
+  "buildable_as_stated": true,
+  "findings": []
+ }
+}

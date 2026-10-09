@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/zoning_scheme/0.1.0",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/zoning_scheme/0.2.0",
   "title": "Zoning scheme (layers 1c/2)",
   "description": "Zoning options, zone and space schemes, circulation, apartment unit and corrections.",
   "type": "object",
@@ -28,6 +28,13 @@
       "pattern": "^[0-9a-f]{64}$",
       "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
     },
+    "brief_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Brief the contract belongs to (informative)."
+    },
     "consumers": {
       "type": "array",
       "items": {
@@ -43,6 +50,12 @@
     },
     "corrections": {
       "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/corrections"
+    },
+    "dwelling_type": {
+      "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/meta/properties/dwelling_type"
+    },
+    "realization_strategy": {
+      "$ref": "https://municipal-permit-intelligence/spaceplan/package/0.6#/properties/meta/properties/realization_strategy"
     }
   }
 }

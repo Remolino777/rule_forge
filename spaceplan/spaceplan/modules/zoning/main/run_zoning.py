@@ -37,4 +37,17 @@ def zone_apartment(brief: dict, catalog) -> tuple[object, dict]:
     return unit, zoning
 
 
-__all__ = ["zone_apartment", "zone_house"]
+def unit_record(unit, net_area_sqft: float) -> dict:
+    """Package 'unit' block of an apartment (moved from the capacity pipeline in refactor tanda 4 without changes)."""
+    return {
+        "area_sqft": unit.polygon.area,
+        "rect_area_sqft": unit.rect_area,
+        "polygon": unit.polygon,
+        "edges": [{"edge_id": e["edge_id"], "role": e["role"]} for e in unit.edges],
+        "entrance_interval_ft": list(unit.entrance_interval),
+        "facade_roles": {f: sorted(r) for f, r in unit.facade_roles.items()},
+        "program_fill_ratio": net_area_sqft / unit.rect_area,
+    }
+
+
+__all__ = ["unit_record", "zone_apartment", "zone_house"]

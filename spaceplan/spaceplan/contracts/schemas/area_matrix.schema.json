@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/area_matrix/0.1.0",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/area_matrix/0.2.0",
   "title": "Area matrix per lot (step 6.6)",
   "description": "Lot area budget, cells (program x vertical scheme x strategy), ranks, Pareto front and E2 results.",
   "type": "object",
@@ -29,6 +29,13 @@
       "type": "string",
       "pattern": "^[0-9a-f]{64}$",
       "description": "SHA-256 (canonical JSON) of the inputs the producer read (brief or upstream contracts), for traceability."
+    },
+    "brief_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Brief the contract belongs to (informative)."
     },
     "consumers": {
       "type": "array",
@@ -81,17 +88,33 @@
         "required": [
           "budget",
           "summary",
-          "e2"
+          "e2",
+          "lot_polygon"
         ],
         "properties": {
           "budget": {
-            "type": "object"
+            "type": "object",
+            "required": [
+              "lot_id",
+              "ic_max"
+            ]
           },
           "summary": {
             "type": "object"
           },
           "e2": {
             "type": "array"
+          },
+          "lot_polygon": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
           }
         }
       }
@@ -102,11 +125,61 @@
         "type": "object",
         "required": [
           "lot_id",
+          "household_id",
+          "archetype_id",
+          "culture",
+          "profile",
+          "scheme_id",
           "floors",
           "status",
+          "IC",
+          "IC_max",
+          "IO",
+          "index",
+          "score",
+          "rank",
           "best",
           "pareto"
-        ]
+        ],
+        "properties": {
+          "lot_id": {
+            "type": "string"
+          },
+          "household_id": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string"
+          },
+          "scheme_id": {
+            "type": "string"
+          },
+          "floors": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string"
+          },
+          "IC": {
+            "type": "number"
+          },
+          "IC_max": {
+            "type": "number"
+          },
+          "IO": {
+            "type": "number"
+          },
+          "index": {
+            "type": "number"
+          },
+          "best": {
+            "type": "boolean"
+          },
+          "pareto": {
+            "type": "boolean"
+          }
+        }
       }
     },
     "figures": {

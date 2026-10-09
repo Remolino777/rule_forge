@@ -1,0 +1,288 @@
+{
+ "contract": "program",
+ "version": "0.2.0",
+ "produced_by": "household",
+ "input_sha256": "42b5c86c81bf0d1e9ba5bdb3f4fdbae7ed559c952d62f1c6dc64f55f0f90c0ab",
+ "brief_id": "interior-50x100",
+ "consumers": [
+  "profiles",
+  "zoning",
+  "cost",
+  "pipeline"
+ ],
+ "program": {
+  "spaces": [
+   {
+    "space_id": "living_room",
+    "zone": "social",
+    "scale": "large",
+    "wet": false,
+    "min_area_sqft": 200,
+    "target_area_sqft": 220,
+    "floor_preference": 0,
+    "space_type": "living_room",
+    "host_space_id": null
+   },
+   {
+    "space_id": "dining_room",
+    "zone": "social",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110,
+    "target_area_sqft": 140,
+    "floor_preference": 0,
+    "space_type": "dining_room",
+    "host_space_id": null
+   },
+   {
+    "space_id": "kitchen_space",
+    "zone": "kitchen",
+    "scale": "normal",
+    "wet": true,
+    "min_area_sqft": 120,
+    "target_area_sqft": 180,
+    "floor_preference": 0,
+    "space_type": "kitchen",
+    "host_space_id": null
+   },
+   {
+    "space_id": "primary_suite",
+    "zone": "private",
+    "scale": "large",
+    "wet": false,
+    "min_area_sqft": 200,
+    "target_area_sqft": 280,
+    "floor_preference": null,
+    "space_type": "primary_suite",
+    "host_space_id": null
+   },
+   {
+    "space_id": "bedroom_1",
+    "zone": "private",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110,
+    "target_area_sqft": 150,
+    "floor_preference": null,
+    "space_type": "bedroom",
+    "host_space_id": null
+   },
+   {
+    "space_id": "bedroom_2",
+    "zone": "private",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110,
+    "target_area_sqft": 150,
+    "floor_preference": null,
+    "space_type": "bedroom",
+    "host_space_id": null
+   },
+   {
+    "space_id": "bath_1",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 40,
+    "target_area_sqft": 50,
+    "floor_preference": null,
+    "space_type": "bathroom",
+    "host_space_id": null
+   },
+   {
+    "space_id": "bath_2",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 45,
+    "target_area_sqft": 60,
+    "floor_preference": null,
+    "space_type": "primary_bath",
+    "host_space_id": null
+   },
+   {
+    "space_id": "laundry",
+    "zone": "service",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 35,
+    "target_area_sqft": 50,
+    "floor_preference": 0,
+    "space_type": "laundry",
+    "host_space_id": null
+   },
+   {
+    "space_id": "hall",
+    "zone": "circulation",
+    "scale": "intermediate",
+    "wet": false,
+    "min_area_sqft": 80,
+    "target_area_sqft": 120,
+    "floor_preference": null,
+    "space_type": "hall",
+    "host_space_id": null
+   },
+   {
+    "space_id": "garage_2car",
+    "zone": "garage",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 380,
+    "target_area_sqft": 400,
+    "floor_preference": 0,
+    "space_type": "garage_2car",
+    "host_space_id": null
+   }
+  ],
+  "zone_budgets": {
+   "social": {
+    "min_sqft": 300,
+    "max_sqft": 500
+   },
+   "private": {
+    "min_sqft": 600,
+    "max_sqft": 1000
+   },
+   "kitchen": {
+    "min_sqft": 150,
+    "max_sqft": 250
+   },
+   "service": {
+    "min_sqft": 40,
+    "max_sqft": 120
+   },
+   "circulation": {
+    "min_sqft": 100,
+    "max_sqft": 250
+   },
+   "garage": {
+    "min_sqft": 200,
+    "max_sqft": 450
+   }
+  },
+  "garage_cars": 2,
+  "required_gross_area_sqft": 2212,
+  "gross_factor": 1.15
+ },
+ "household": null,
+ "program_review": {
+  "catalog_id": "spaceplan-residential-catalog",
+  "catalog_version": "0.11.0",
+  "catalog_sha256": "450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e",
+  "crc_ruleset_id": "crc-2025-habitability",
+  "crc_ruleset_sha256": "f231b2a00817c5aaba27fdcfd9e0eeb33157a93681436d2fb8ac2480719a6b77",
+  "summary": {
+   "net_area_sqft": 1800.0,
+   "gross_factor": 1.15,
+   "gross_estimate_sqft": 2070.0,
+   "declared_gross_sqft": 2212,
+   "by_zone": {
+    "social": {
+     "net_target_sqft": 360.0,
+     "budget_min_sqft": 300,
+     "budget_max_sqft": 500,
+     "within_budget": true
+    },
+    "private": {
+     "net_target_sqft": 690.0,
+     "budget_min_sqft": 600,
+     "budget_max_sqft": 1000,
+     "within_budget": true
+    },
+    "kitchen": {
+     "net_target_sqft": 180.0,
+     "budget_min_sqft": 150,
+     "budget_max_sqft": 250,
+     "within_budget": true
+    },
+    "service": {
+     "net_target_sqft": 50.0,
+     "budget_min_sqft": 40,
+     "budget_max_sqft": 120,
+     "within_budget": true
+    },
+    "circulation": {
+     "net_target_sqft": 120.0,
+     "budget_min_sqft": 100,
+     "budget_max_sqft": 250,
+     "within_budget": true
+    },
+    "garage": {
+     "net_target_sqft": 400.0,
+     "budget_min_sqft": 200,
+     "budget_max_sqft": 450,
+     "within_budget": true
+    }
+   },
+   "habitable_spaces": [
+    "living_room",
+    "dining_room",
+    "kitchen_space",
+    "primary_suite",
+    "bedroom_1",
+    "bedroom_2"
+   ],
+   "exterior_edge_required": [
+    {
+     "space_id": "living_room",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "dining_room",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "kitchen_space",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "primary_suite",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "bedroom_1",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "bedroom_2",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    }
+   ],
+   "min_side_ft": {
+    "living_room": 7.0,
+    "dining_room": 7.0,
+    "kitchen_space": null,
+    "primary_suite": 7.0,
+    "bedroom_1": 7.0,
+    "bedroom_2": 7.0
+   },
+   "satellites": {},
+   "placement_order": [
+    "primary_suite",
+    "living_room",
+    "garage_2car",
+    "kitchen_space",
+    "bedroom_1",
+    "bedroom_2",
+    "dining_room",
+    "hall",
+    "bath_2",
+    "bath_1",
+    "laundry"
+   ]
+  },
+  "counts": {
+   "error": 0,
+   "warning": 0,
+   "info": 0
+  },
+  "buildable_as_stated": true,
+  "findings": []
+ }
+}

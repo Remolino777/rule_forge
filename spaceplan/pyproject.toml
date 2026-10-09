@@ -23,7 +23,7 @@ dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "matplotlib>=3.7"]
 spaceplan = "spaceplan.pipeline.main.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["spaceplan*"]  # spaceplan, .core, .modules.<m>.{main,lib,lib_aux}, .pipeline, bridges
+include = ["spaceplan*"]  # spaceplan, .core, .modules.<m>.{main,lib,lib_aux}, .pipeline (bridges removed in tanda 4)
 
 [tool.setuptools.package-data]
 spaceplan = ["data/schemas/*.json", "data/rules/*.json", "data/briefs/*.json", "data/catalog/*.json",

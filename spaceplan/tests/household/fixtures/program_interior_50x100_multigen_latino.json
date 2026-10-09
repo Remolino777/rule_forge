@@ -1,0 +1,1125 @@
+{
+ "contract": "program",
+ "version": "0.2.0",
+ "produced_by": "household",
+ "input_sha256": "cb8ee5ebeee4f894a0d2854bbf18b16af65572323f4b643c7a09d071fdb70e5d",
+ "brief_id": "interior-50x100-multigen-latino",
+ "consumers": [
+  "profiles",
+  "zoning",
+  "cost",
+  "pipeline"
+ ],
+ "program": {
+  "spaces": [
+   {
+    "space_id": "living_room",
+    "space_type": "living_room",
+    "zone": "social",
+    "scale": "large",
+    "wet": false,
+    "min_area_sqft": 200.0,
+    "target_area_sqft": 320.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "dining_room",
+    "space_type": "dining_room",
+    "zone": "social",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110.0,
+    "target_area_sqft": 220.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "family_room",
+    "space_type": "family_room",
+    "zone": "social",
+    "scale": "large",
+    "wet": false,
+    "min_area_sqft": 220.0,
+    "target_area_sqft": 345.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "kitchen",
+    "space_type": "kitchen",
+    "zone": "kitchen",
+    "scale": "normal",
+    "wet": true,
+    "min_area_sqft": 110.0,
+    "target_area_sqft": 205.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "pantry",
+    "space_type": "pantry",
+    "zone": "kitchen",
+    "scale": "support",
+    "wet": false,
+    "min_area_sqft": 12.0,
+    "target_area_sqft": 20.0,
+    "floor_preference": null,
+    "host_space_id": "kitchen",
+    "household_role": "general"
+   },
+   {
+    "space_id": "primary_suite",
+    "space_type": "primary_suite",
+    "zone": "private",
+    "scale": "large",
+    "wet": false,
+    "min_area_sqft": 250.0,
+    "target_area_sqft": 290.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "primary"
+   },
+   {
+    "space_id": "bedroom_accessible",
+    "space_type": "bedroom",
+    "zone": "private",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110.0,
+    "target_area_sqft": 140.0,
+    "floor_preference": 0,
+    "host_space_id": null,
+    "household_role": "accessible"
+   },
+   {
+    "space_id": "bedroom_child_1",
+    "space_type": "bedroom",
+    "zone": "private",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110.0,
+    "target_area_sqft": 140.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "child"
+   },
+   {
+    "space_id": "bedroom_child_2",
+    "space_type": "bedroom",
+    "zone": "private",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 110.0,
+    "target_area_sqft": 140.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "child"
+   },
+   {
+    "space_id": "primary_bath",
+    "space_type": "primary_bath",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 60.0,
+    "target_area_sqft": 80.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "primary"
+   },
+   {
+    "space_id": "bathroom_accessible",
+    "space_type": "bathroom",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 40.0,
+    "target_area_sqft": 55.0,
+    "floor_preference": 0,
+    "host_space_id": null,
+    "household_role": "accessible"
+   },
+   {
+    "space_id": "bathroom",
+    "space_type": "bathroom",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 40.0,
+    "target_area_sqft": 55.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "walk_in_closet_primary",
+    "space_type": "walk_in_closet",
+    "zone": "private",
+    "scale": "intermediate",
+    "wet": false,
+    "min_area_sqft": 35.0,
+    "target_area_sqft": 50.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "primary"
+   },
+   {
+    "space_id": "closet_1",
+    "space_type": "closet",
+    "zone": "private",
+    "scale": "support",
+    "wet": false,
+    "min_area_sqft": 6.0,
+    "target_area_sqft": 10.0,
+    "floor_preference": null,
+    "host_space_id": "bedroom_accessible",
+    "household_role": "general"
+   },
+   {
+    "space_id": "closet_2",
+    "space_type": "closet",
+    "zone": "private",
+    "scale": "support",
+    "wet": false,
+    "min_area_sqft": 6.0,
+    "target_area_sqft": 10.0,
+    "floor_preference": null,
+    "host_space_id": "bedroom_child_1",
+    "household_role": "general"
+   },
+   {
+    "space_id": "closet_3",
+    "space_type": "closet",
+    "zone": "private",
+    "scale": "support",
+    "wet": false,
+    "min_area_sqft": 6.0,
+    "target_area_sqft": 10.0,
+    "floor_preference": null,
+    "host_space_id": "bedroom_child_2",
+    "household_role": "general"
+   },
+   {
+    "space_id": "half_bath",
+    "space_type": "half_bath",
+    "zone": "circulation",
+    "scale": "support",
+    "wet": true,
+    "min_area_sqft": 18.0,
+    "target_area_sqft": 25.0,
+    "floor_preference": null,
+    "host_space_id": "foyer",
+    "household_role": "general"
+   },
+   {
+    "space_id": "laundry",
+    "space_type": "laundry",
+    "zone": "service",
+    "scale": "intermediate",
+    "wet": true,
+    "min_area_sqft": 35.0,
+    "target_area_sqft": 50.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "storage",
+    "space_type": "storage",
+    "zone": "service",
+    "scale": "support",
+    "wet": false,
+    "min_area_sqft": 10.0,
+    "target_area_sqft": 20.0,
+    "floor_preference": null,
+    "host_space_id": "laundry",
+    "household_role": "general"
+   },
+   {
+    "space_id": "foyer",
+    "space_type": "foyer",
+    "zone": "circulation",
+    "scale": "intermediate",
+    "wet": false,
+    "min_area_sqft": 35.0,
+    "target_area_sqft": 50.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "hall",
+    "space_type": "hall",
+    "zone": "circulation",
+    "scale": "intermediate",
+    "wet": false,
+    "min_area_sqft": 40.0,
+    "target_area_sqft": 90.0,
+    "floor_preference": null,
+    "host_space_id": null,
+    "household_role": "general"
+   },
+   {
+    "space_id": "garage_2car",
+    "space_type": "garage_2car",
+    "zone": "garage",
+    "scale": "normal",
+    "wet": false,
+    "min_area_sqft": 380.0,
+    "target_area_sqft": 420.0,
+    "floor_preference": 0,
+    "host_space_id": null,
+    "household_role": "general"
+   }
+  ],
+  "zone_budgets": {
+   "social": {
+    "min_sqft": 530.0,
+    "max_sqft": 1040.0
+   },
+   "private": {
+    "min_sqft": 773.0,
+    "max_sqft": 1480.0
+   },
+   "kitchen": {
+    "min_sqft": 122.0,
+    "max_sqft": 285.0
+   },
+   "service": {
+    "min_sqft": 45.0,
+    "max_sqft": 115.0
+   },
+   "circulation": {
+    "min_sqft": 93.0,
+    "max_sqft": 305.0
+   },
+   "garage": {
+    "min_sqft": 380.0,
+    "max_sqft": 500.0
+   }
+  },
+  "garage_cars": 2,
+  "required_gross_area_sqft": null,
+  "gross_factor": 1.15
+ },
+ "household": {
+  "household_catalog_id": "mpi-household-model",
+  "household_catalog_version": "0.3.0",
+  "household_catalog_sha256": "fdab4ffa2c0a379ec486e42af55a018efbc61e312a1cd1942ceae61d821e36b2",
+  "archetype_id": "multigenerational",
+  "program_tier": "preferred",
+  "program_source": "derived",
+  "composition": {
+   "child_0_5": 0,
+   "child_6_12": 2,
+   "teen_13_18": 0,
+   "adult": 2,
+   "senior": 1
+  },
+  "needs": [
+   {
+    "space_type": "living_dining",
+    "household_role": "general",
+    "counts": {
+     "required": 1,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H02-SOCIAL-COMBINED"
+    ]
+   },
+   {
+    "space_type": "living_room",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H04-SOCIAL-SPLIT"
+    ]
+   },
+   {
+    "space_type": "dining_room",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H04-SOCIAL-SPLIT",
+     "C01-DINING-EXTENDED"
+    ]
+   },
+   {
+    "space_type": "family_room",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H05-FAMILY-ROOM",
+     "H06-FAMILY-ROOM-GATHERINGS",
+     "C02-RECEIVING-ROOM"
+    ]
+   },
+   {
+    "space_type": "kitchen",
+    "household_role": "general",
+    "counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H01-KITCHEN"
+    ]
+   },
+   {
+    "space_type": "breakfast_nook",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H09-BREAKFAST-NOOK"
+    ]
+   },
+   {
+    "space_type": "pantry",
+    "household_role": "general",
+    "counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H07-PANTRY",
+     "H08-PANTRY-INTENSIVE"
+    ]
+   },
+   {
+    "space_type": "primary_suite",
+    "household_role": "primary",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ]
+   },
+   {
+    "space_type": "bedroom",
+    "household_role": "accessible",
+    "counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ]
+   },
+   {
+    "space_type": "bedroom",
+    "household_role": "child",
+    "counts": {
+     "required": 1,
+     "preferred": 2,
+     "desirable": 2
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ]
+   },
+   {
+    "space_type": "bedroom",
+    "household_role": "primary",
+    "counts": {
+     "required": 1,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "BEDROOM-POLICY"
+    ]
+   },
+   {
+    "space_type": "primary_bath",
+    "household_role": "primary",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H14-PRIMARY-BATH"
+    ]
+   },
+   {
+    "space_type": "bathroom",
+    "household_role": "accessible",
+    "counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "rule_ids": [
+     "H17-ACCESSIBLE-BATH-REDUCED",
+     "H18-ACCESSIBLE-BATH-ANTICIPATED"
+    ]
+   },
+   {
+    "space_type": "bathroom",
+    "household_role": "general",
+    "counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H11-BATH-MINIMUM",
+     "H12-BATH-SHARED"
+    ]
+   },
+   {
+    "space_type": "walk_in_closet",
+    "household_role": "primary",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H14-PRIMARY-BATH"
+    ]
+   },
+   {
+    "space_type": "closet",
+    "household_role": "general",
+    "counts": {
+     "required": 3,
+     "preferred": 3,
+     "desirable": 3
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H32-CLOSETS"
+    ]
+   },
+   {
+    "space_type": "half_bath",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H19-HALF-BATH-SOCIAL",
+     "H20-HALF-BATH"
+    ]
+   },
+   {
+    "space_type": "laundry",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H27-LAUNDRY-ROOM"
+    ]
+   },
+   {
+    "space_type": "storage",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H29-STORAGE"
+    ]
+   },
+   {
+    "space_type": "mechanical",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H29-STORAGE"
+    ]
+   },
+   {
+    "space_type": "foyer",
+    "household_role": "general",
+    "counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H10-ENTRY"
+    ]
+   },
+   {
+    "space_type": "hall",
+    "household_role": "general",
+    "counts": {
+     "required": 1,
+     "preferred": 1,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H10-ENTRY"
+    ]
+   },
+   {
+    "space_type": "laundry_closet",
+    "household_role": "general",
+    "counts": {
+     "required": 1,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H26-LAUNDRY-MINIMUM"
+    ]
+   },
+   {
+    "space_type": "flex_room",
+    "household_role": "guest",
+    "counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H23-GUESTS-RARE"
+    ]
+   },
+   {
+    "space_type": "mudroom",
+    "household_role": "general",
+    "counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 1
+    },
+    "ground_floor_counts": {
+     "required": 0,
+     "preferred": 0,
+     "desirable": 0
+    },
+    "rule_ids": [
+     "H31-MUDROOM-CHILDREN"
+    ]
+   }
+  ],
+  "garage_cars": {
+   "required": 1,
+   "preferred": 2,
+   "desirable": 2
+  },
+  "driveway_vehicles": 0,
+  "relation_hints": [
+   {
+    "a": "bedroom:accessible",
+    "b": "bathroom:accessible",
+    "relation": "en_suite",
+    "rule_ids": [
+     "H17-ACCESSIBLE-BATH-REDUCED",
+     "H18-ACCESSIBLE-BATH-ANTICIPATED"
+    ]
+   }
+  ],
+  "quality_weights": {
+   "kitchen_ventilation": 1.3
+  },
+  "rule_trace": [
+   {
+    "rule_id": "BEDROOM-POLICY",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H01-KITCHEN",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H02-SOCIAL-COMBINED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H04-SOCIAL-SPLIT",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H05-FAMILY-ROOM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H06-FAMILY-ROOM-GATHERINGS",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H07-PANTRY",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H08-PANTRY-INTENSIVE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H09-BREAKFAST-NOOK",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H10-ENTRY",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H11-BATH-MINIMUM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H12-BATH-SHARED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H14-PRIMARY-BATH",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H17-ACCESSIBLE-BATH-REDUCED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H18-ACCESSIBLE-BATH-ANTICIPATED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H19-HALF-BATH-SOCIAL",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H20-HALF-BATH",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H23-GUESTS-RARE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H26-LAUNDRY-MINIMUM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H27-LAUNDRY-ROOM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H29-STORAGE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H31-MUDROOM-CHILDREN",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H32-CLOSETS",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "H33-GARAGE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "KT-SEMI-OPEN-SEPARABLE",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "C01-DINING-EXTENDED",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "C02-RECEIVING-ROOM",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "C04-VENTILATION",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "C05-INTENSIVE-WORK-AREA",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "C06-SERVICE-YARD",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "C10-OUTDOOR-GATHERING",
+    "status": "provisional"
+   },
+   {
+    "rule_id": "C12-PATIO-GATHERING",
+    "status": "provisional"
+   }
+  ],
+  "privacy": "Composition by age band only; member list and cultural profile are copied only when household.include_household is true. Bedroom grouping is design guidance, not an occupancy limit.",
+  "culture": {
+   "applied": [
+    {
+     "kind": "relation",
+     "a": "dining",
+     "b": "patio",
+     "type": "D",
+     "rule_id": "C01-DINING-EXTENDED"
+    },
+    {
+     "kind": "relation",
+     "a": "kitchen",
+     "b": "laundry",
+     "type": "D",
+     "rule_id": "C06-SERVICE-YARD"
+    },
+    {
+     "kind": "relation",
+     "a": "laundry",
+     "b": "patio",
+     "type": "D",
+     "rule_id": "C06-SERVICE-YARD"
+    },
+    {
+     "kind": "relation",
+     "a": "living",
+     "b": "kitchen",
+     "type": "I",
+     "rule_id": "KT-SEMI-OPEN-SEPARABLE"
+    },
+    {
+     "kind": "backyard_element",
+     "element": "covered_terrace",
+     "priority": 1,
+     "rule_id": "C10-OUTDOOR-GATHERING"
+    },
+    {
+     "kind": "backyard_element",
+     "element": "outdoor_kitchen",
+     "priority": 2,
+     "rule_id": "C10-OUTDOOR-GATHERING"
+    },
+    {
+     "kind": "backyard_priority",
+     "element": "pool",
+     "priority": 6,
+     "rule_id": "C12-PATIO-GATHERING"
+    },
+    {
+     "kind": "backyard_priority",
+     "element": "rear_deck",
+     "priority": 6,
+     "rule_id": "C12-PATIO-GATHERING"
+    }
+   ],
+   "kitchen_typology": "semi_open_separable",
+   "rule_ids": [
+    "KT-SEMI-OPEN-SEPARABLE",
+    "C01-DINING-EXTENDED",
+    "C02-RECEIVING-ROOM",
+    "C04-VENTILATION",
+    "C05-INTENSIVE-WORK-AREA",
+    "C06-SERVICE-YARD",
+    "C10-OUTDOOR-GATHERING",
+    "C12-PATIO-GATHERING"
+   ],
+   "overridden_by_brief": [],
+   "note": "Cultural aspects are client choices; tendencies are editable starting points, not a characterization of any group."
+  }
+ },
+ "program_review": {
+  "catalog_id": "spaceplan-residential-catalog",
+  "catalog_version": "0.11.0",
+  "catalog_sha256": "450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e",
+  "crc_ruleset_id": "crc-2025-habitability",
+  "crc_ruleset_sha256": "f231b2a00817c5aaba27fdcfd9e0eeb33157a93681436d2fb8ac2480719a6b77",
+  "summary": {
+   "net_area_sqft": 2745.0,
+   "gross_factor": 1.15,
+   "gross_estimate_sqft": 3156.75,
+   "declared_gross_sqft": null,
+   "by_zone": {
+    "social": {
+     "net_target_sqft": 885.0,
+     "budget_min_sqft": 530.0,
+     "budget_max_sqft": 1040.0,
+     "within_budget": true
+    },
+    "private": {
+     "net_target_sqft": 980.0,
+     "budget_min_sqft": 773.0,
+     "budget_max_sqft": 1480.0,
+     "within_budget": true
+    },
+    "kitchen": {
+     "net_target_sqft": 225.0,
+     "budget_min_sqft": 122.0,
+     "budget_max_sqft": 285.0,
+     "within_budget": true
+    },
+    "service": {
+     "net_target_sqft": 70.0,
+     "budget_min_sqft": 45.0,
+     "budget_max_sqft": 115.0,
+     "within_budget": true
+    },
+    "circulation": {
+     "net_target_sqft": 165.0,
+     "budget_min_sqft": 93.0,
+     "budget_max_sqft": 305.0,
+     "within_budget": true
+    },
+    "garage": {
+     "net_target_sqft": 420.0,
+     "budget_min_sqft": 380.0,
+     "budget_max_sqft": 500.0,
+     "within_budget": true
+    }
+   },
+   "habitable_spaces": [
+    "living_room",
+    "dining_room",
+    "family_room",
+    "kitchen",
+    "primary_suite",
+    "bedroom_accessible",
+    "bedroom_child_1",
+    "bedroom_child_2"
+   ],
+   "exterior_edge_required": [
+    {
+     "space_id": "living_room",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "dining_room",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "family_room",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "kitchen",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "primary_suite",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "bedroom_accessible",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "bedroom_child_1",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    },
+    {
+     "space_id": "bedroom_child_2",
+     "reason": "CRC 2025 natural light (R303 in prior editions; verify); CRC 2025 natural ventilation (R303 in prior editions; verify)",
+     "status": "provisional"
+    }
+   ],
+   "min_side_ft": {
+    "living_room": 7.0,
+    "dining_room": 7.0,
+    "family_room": 7.0,
+    "kitchen": null,
+    "primary_suite": 7.0,
+    "bedroom_accessible": 7.0,
+    "bedroom_child_1": 7.0,
+    "bedroom_child_2": 7.0
+   },
+   "satellites": {
+    "pantry": "kitchen",
+    "closet_1": "bedroom_accessible",
+    "closet_2": "bedroom_child_1",
+    "closet_3": "bedroom_child_2",
+    "half_bath": "foyer",
+    "storage": "laundry"
+   },
+   "placement_order": [
+    "family_room",
+    "living_room",
+    "primary_suite",
+    "garage_2car",
+    "dining_room",
+    "kitchen",
+    "bedroom_accessible",
+    "bedroom_child_1",
+    "bedroom_child_2",
+    "hall",
+    "primary_bath",
+    "bathroom",
+    "bathroom_accessible",
+    "foyer",
+    "laundry",
+    "walk_in_closet_primary"
+   ]
+  },
+  "counts": {
+   "error": 0,
+   "warning": 0,
+   "info": 0
+  },
+  "buildable_as_stated": true,
+  "findings": []
+ }
+}

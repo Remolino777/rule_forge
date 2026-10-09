@@ -11,7 +11,18 @@ spaceplan household --list
 spaceplan household --rules-markdown OUT
 spaceplan profiles BRIEF|ARCHETYPE [--culture P] [--budget L|F] [--cost-model M] [--zone] [--sheets DIR] [--lang es|en] [-o OUT]
 spaceplan areas [LOT ...] [--households A.C,...] [--cost-model M] [--no-site] [--zone-top K] [--sheets DIR]
-                [--tables DIR] [--scheme Vx] [--lang es|en] [--json]
+                [--tables DIR] [--scheme Vx] [--lang es|en] [--json] [--contract OUT]
+
+Module commands (refactor tanda 4): each reads and writes module contracts (contracts/schemas).
+spaceplan lotcap|site|zoning BRIEF [-o CONTRACT] [--strategy S] [--no-corrections] [--json]
+spaceplan household BRIEF.json --contract OUT                 (program contract of a brief)
+spaceplan cost --lot-capacity LC --site-plan SP --program PG [--brief BRIEF] [--budget L|F] [--cost-model M]
+               [-o CONTRACT] [--json]
+spaceplan profiles ... --contract OUT                          (program_portfolio contract)
+spaceplan areas ... --contract OUT                             (area_matrix contract)
+spaceplan viz [--lot-capacity LC] [--site-plan SP] [--zoning-scheme ZS] [--area-matrix AM] [--capacity-plot PNG]
+              [--site-plot PNG] [--zoning-plot PNG] [--sheets DIR] [--lang es|en]
+spaceplan capacity BRIEF ... --contracts DIR                   (writes every contract of the brief)
 """
 
 from __future__ import annotations
@@ -21,13 +32,14 @@ import json
 import sys
 
 from spaceplan.core.lib.catalog import CatalogError
+from spaceplan.core.lib.contracts import ContractValidationError, load_contract, write_contract
 from spaceplan.core.lib.schema_validation import BriefValidationError, validate_brief
 from spaceplan.core.lib_aux.json_io import dump_json, load_json
 from spaceplan.modules.household.lib.household import HouseholdError
 from spaceplan.modules.household.lib.household_catalog import HouseholdCatalogError
 from spaceplan.modules.household.main.run_household import load_catalogs, resolve_brief_program
 from spaceplan.modules.household.main.run_program import build_program
-from spaceplan.pipeline.main.run_capacity import run_capacity_file
+from spaceplan.pipeline.main.run_capacity import run_capacity_contracts, run_capacity_file
 from spaceplan.pipeline.main.run_catalog import parameter_table
 from spaceplan.pipeline.main.run_household_report import derive_household
 
@@ -262,6 +274,129 @@ def _household_lines(result: dict, tier_filter: str | None) -> list[str]:
     return lines
 
 
+def _contract_lines(contract: dict) -> list[str]:
+    name = contract["contract"]
+    lines = [(f"contract    {name} {contract['version']} by {contract['produced_by']}  brief {contract.get('brief_id')}  "
+              f"input {contract['input_sha256'][:12]}")]
+    if name == "lot_capacity":
+        cap = contract["capacity"]
+        lines.append(f"  lot {contract['lot_metrics']['area_sqft']:.0f} sq ft, envelope {cap['envelope']['area']['value']:.0f}, "
+                     f"FAR {cap['far_ratio']['value']:.2f} -> {cap['gross_area_max']['value']:.0f} sq ft, "
+                     f"strategy {contract['realization_strategy']}")
+    elif name == "site_plan":
+        site = contract["site_partition"]
+        lines += [f"  {o['option_id']}: {o['floors']} floor(s), feasible={o.get('feasible')}" for o in site["options"]]
+    elif name == "zoning_scheme":
+        lines += [f"  {o['option_id']}: {o['status']}" for o in (contract["zoning"] or {}).get("options", [])]
+    elif name == "program":
+        lines.append(f"  {len(contract['program']['spaces'])} spaces, buildable as stated: "
+                     f"{contract['program_review']['buildable_as_stated']}")
+    lines += [f"warning     {w}" for w in contract.get("warnings", [])]
+    return lines
+
+
+def _write_module_contract(contract: dict | None, out: str | None, as_json: bool, label: str) -> int:
+    if contract is None:
+        print(f"{label}: no contract for this brief (out of the capacity scope or no normative maximum)",
+              file=sys.stderr)
+        return 2
+    if out:
+        write_contract(contract, out)
+    print(json.dumps(contract, indent=2) if as_json else "\n".join(_contract_lines(contract)))
+    return 0
+
+
+def _add_module_parsers(sub) -> None:
+    for name, contract in (("lotcap", "lot_capacity"), ("site", "site_plan"), ("zoning", "zoning_scheme")):
+        p = sub.add_parser(name, help=f"{name} module: run the capacity workflow and write the {contract} contract")
+        p.add_argument("brief")
+        p.add_argument("-o", "--out")
+        p.add_argument("--strategy", default=None,
+                       choices=("auto", "A_inscribed_rectangle", "B_stepped_footprint", "B_polygonal_footprint"))
+        p.add_argument("--no-corrections", action="store_true")
+        p.add_argument("--json", action="store_true")
+    p_cost = sub.add_parser("cost", help="cost module: cost_report from the lot_capacity, site_plan and program contracts")
+    p_cost.add_argument("--lot-capacity", required=True)
+    p_cost.add_argument("--site-plan", required=True)
+    p_cost.add_argument("--program", required=True)
+    p_cost.add_argument("--brief", help="brief with a household block: adds the household tiers and its budget")
+    p_cost.add_argument("--budget")
+    p_cost.add_argument("--cost-model", choices=("base", "weighted", "shape"))
+    p_cost.add_argument("-o", "--out")
+    p_cost.add_argument("--json", action="store_true")
+    p_viz = sub.add_parser("viz", help="viz module: figures from contracts")
+    p_viz.add_argument("--lot-capacity")
+    p_viz.add_argument("--site-plan")
+    p_viz.add_argument("--zoning-scheme")
+    p_viz.add_argument("--area-matrix")
+    p_viz.add_argument("--capacity-plot")
+    p_viz.add_argument("--site-plot")
+    p_viz.add_argument("--zoning-plot")
+    p_viz.add_argument("--sheets", help="directory for the area-matrix figures")
+    p_viz.add_argument("--lang", choices=("es", "en"))
+
+
+def _run_module_command(args) -> int:
+    from spaceplan.pipeline.main.run_modules import (
+        CONTRACT_OF_MODULE,
+        capacity_contracts,
+        cost_contract_for,
+    )
+
+    if args.command in ("lotcap", "site", "zoning"):
+        contracts = capacity_contracts(load_json(args.brief), args.strategy, not args.no_corrections)
+        return _write_module_contract(contracts.get(CONTRACT_OF_MODULE[args.command]), args.out, args.json,
+                                      args.command)
+    if args.command == "cost":
+        report = cost_contract_for(load_contract(args.lot_capacity, "lot_capacity"),
+                                   load_contract(args.site_plan, "site_plan"), load_contract(args.program, "program"),
+                                   load_json(args.brief) if args.brief else None, args.cost_model,
+                                   _parse_budget(args.budget))
+        if report is not None and not args.json:
+            if args.out:
+                write_contract(report, args.out)
+            print("\n".join(_contract_lines(report) + _cost_lines(report["cost"])))
+            return 0
+        return _write_module_contract(report, args.out, args.json, "cost")
+    from spaceplan.modules.viz.main.run_viz import (
+        draw_area_matrix,
+        draw_capacity,
+        draw_site,
+        draw_zoning,
+    )
+
+    lc = load_contract(args.lot_capacity, "lot_capacity") if args.lot_capacity else None
+    sp = load_contract(args.site_plan, "site_plan") if args.site_plan else None
+    zs = load_contract(args.zoning_scheme, "zoning_scheme") if args.zoning_scheme else None
+    figures = []
+    if args.capacity_plot:
+        figures.append(draw_capacity(_need(lc, "--lot-capacity"), args.capacity_plot))
+    if args.site_plot:
+        figures.append(draw_site(_need(lc, "--lot-capacity"), _need(sp, "--site-plan"), args.site_plot))
+    if args.zoning_plot:
+        zs = _need(zs, "--zoning-scheme")
+        if zs["unit"] is None:
+            _need(lc, "--lot-capacity")
+        figures.append(draw_zoning(zs, args.zoning_plot, lc, sp))
+    if args.area_matrix:
+        figures += draw_area_matrix(load_contract(args.area_matrix, "area_matrix"), _need(args.sheets, "--sheets"),
+                                    args.lang)
+    if not figures:
+        raise ValueError("viz: nothing to draw (give --capacity-plot, --site-plot, --zoning-plot or --area-matrix)")
+    print("\n".join(f"figure      {f}" for f in figures))
+    return 0
+
+
+def _need(value, option: str):
+    if value is None:
+        raise ValueError(f"missing {option}")
+    return value
+
+
+def _is_brief(data: dict) -> bool:
+    return isinstance(data, dict) and "dwelling_type" in data and "meta" in data
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="spaceplan")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -283,6 +418,7 @@ def main(argv: list[str] | None = None) -> int:
                        help="skip the multivariable minimal correction when the one-floor option does not zone")
     p_cap.add_argument("--budget", help="relative budget: tight|medium|ample or a fraction of the lot maximum")
     p_cap.add_argument("--cost-model", choices=("base", "weighted", "shape"))
+    p_cap.add_argument("--contracts", help="directory where every module contract of the brief is written")
     p_prog = sub.add_parser("program", help="expand a catalog typology into a brief program block")
     p_prog.add_argument("typology")
     p_prog.add_argument("--garage", type=int, choices=(0, 1, 2), default=2)
@@ -302,6 +438,7 @@ def main(argv: list[str] | None = None) -> int:
     p_house.add_argument("--culture", choices=("latino", "anglo", "mixed", "custom"),
                          help="cultural profile preset chosen by the client (editable aspects in a JSON household)")
     p_house.add_argument("--rules-markdown", help="write the household rules and archetypes table and exit")
+    p_house.add_argument("--contract", help="with a brief: write its program contract (household module)")
     p_prof = sub.add_parser("profiles", help="minimum / optimum / maximum, staged and accessible programs (step 6.5d)")
     p_prof.add_argument("source", help="brief with a household block (lot reading) or an archetype id (reference)")
     p_prof.add_argument("--culture", choices=("latino", "anglo", "mixed", "custom"))
@@ -312,6 +449,7 @@ def main(argv: list[str] | None = None) -> int:
     p_prof.add_argument("--lang", choices=("es", "en"))
     p_prof.add_argument("-o", "--out")
     p_prof.add_argument("--json", action="store_true")
+    p_prof.add_argument("--contract", help="write the program_portfolio contract")
     p_area = sub.add_parser("areas", help="area matrix per lot: profile x vertical scheme x strategy (step 6.6)")
     p_area.add_argument("lots", nargs="*", help="pilot lot names or brief paths (default: the 10 pilot lots)")
     p_area.add_argument("--households", help="comma list archetype.culture (culture: none|latino|anglo)")
@@ -324,8 +462,12 @@ def main(argv: list[str] | None = None) -> int:
     p_area.add_argument("--scheme", action="append", default=[],
                         help="vertical scheme fixed by the client (V0-V5); evaluated even if not applicable")
     p_area.add_argument("--json", action="store_true")
+    p_area.add_argument("--contract", help="write the area_matrix contract")
+    _add_module_parsers(sub)
     args = parser.parse_args(argv)
     try:
+        if args.command in ("lotcap", "site", "zoning", "cost", "viz"):
+            return _run_module_command(args)
         if args.command == "validate":
             brief, _ = resolve_brief_program(load_json(args.brief))
             validate_brief(brief)
@@ -353,6 +495,12 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"{a['archetype_id']:<18} {a['label']}: {a['description']}")
                 return 0
             raw = load_json(args.household) if args.household.endswith(".json") else {"archetype_id": args.household}
+            if args.contract:
+                from spaceplan.pipeline.main.run_modules import program_contract_for
+
+                if not _is_brief(raw):
+                    raise ValueError("household --contract needs a brief (the program contract belongs to a brief)")
+                return _write_module_contract(program_contract_for(raw), args.contract, args.json, "household")
             if args.culture:
                 raw = {**raw, "cultural_profile": args.culture}
             result = derive_household(raw, dwelling_type=args.dwelling, next_stage=not args.no_next,
@@ -370,7 +518,17 @@ def main(argv: list[str] | None = None) -> int:
                 source = {"household": {"archetype_id": args.source}, "meta": {"brief_id": args.source}}
             if args.culture:
                 source.setdefault("household", {})["cultural_profile"] = args.culture
-            result = run_profiles(source, _parse_budget(args.budget), args.cost_model, args.zone, args.sheets, args.lang)
+            if args.contract:
+                from spaceplan.modules.profiles.main.contract import from_contract
+                from spaceplan.pipeline.main.run_modules import portfolio_contract_for
+
+                contract = portfolio_contract_for(source, _parse_budget(args.budget), args.cost_model, args.zone,
+                                                  args.sheets, args.lang)
+                write_contract(contract, args.contract)
+                result = from_contract(contract)
+            else:
+                result = run_profiles(source, _parse_budget(args.budget), args.cost_model, args.zone, args.sheets,
+                                      args.lang)
             if args.out:
                 dump_json(result, args.out)
             print(json.dumps(result, indent=2) if args.json else "\n".join(_profile_lines(result)))
@@ -384,6 +542,10 @@ def main(argv: list[str] | None = None) -> int:
                                      forced_schemes=tuple(args.scheme))
             if args.tables:
                 write_tables(result, args.tables)
+            if args.contract:
+                from spaceplan.modules.areas.main.contract import to_contract
+
+                write_contract(to_contract(result), args.contract)
             print(json.dumps(result, indent=2, default=str) if args.json else "\n".join(_area_lines(result)))
             return 0
         if args.command == "catalog":
@@ -393,9 +555,22 @@ def main(argv: list[str] | None = None) -> int:
                     fh.write(table)
             print(table)
             return 0
-        package = run_capacity_file(args.brief, args.out, args.rules, args.plot, args.catalog, args.site_plot,
-                                    args.zoning_plot, args.strategy, not args.no_corrections,
-                                    cost_model=args.cost_model, budget=_parse_budget(args.budget))
+        if args.contracts:
+            package, contracts = run_capacity_contracts(load_json(args.brief), args.rules, args.plot, args.catalog,
+                                                        args.site_plot, args.zoning_plot, args.strategy,
+                                                        not args.no_corrections, cost_model=args.cost_model,
+                                                        budget=_parse_budget(args.budget))
+            from pathlib import Path
+
+            Path(args.contracts).mkdir(parents=True, exist_ok=True)
+            for name, contract in contracts.items():
+                write_contract(contract, Path(args.contracts) / f"{name}.json")
+            if args.out:
+                dump_json(package, args.out)
+        else:
+            package = run_capacity_file(args.brief, args.out, args.rules, args.plot, args.catalog, args.site_plot,
+                                        args.zoning_plot, args.strategy, not args.no_corrections,
+                                        cost_model=args.cost_model, budget=_parse_budget(args.budget))
         print(json.dumps(package, indent=2) if args.json else _summary(package))
         return 0
     except (HouseholdError, HouseholdCatalogError) as exc:
@@ -408,6 +583,9 @@ def main(argv: list[str] | None = None) -> int:
         print(exc, file=sys.stderr)
         return 2
     except BriefValidationError as exc:
+        print(exc, file=sys.stderr)
+        return 2
+    except ContractValidationError as exc:
         print(exc, file=sys.stderr)
         return 2
 

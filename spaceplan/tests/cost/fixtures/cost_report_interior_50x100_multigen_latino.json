@@ -1,0 +1,743 @@
+{
+ "contract": "cost_report",
+ "version": "0.2.0",
+ "produced_by": "cost",
+ "input_sha256": "eb7f81e100bde5048a1e948d962cf8114593b8438c78200ac24503306c826edb",
+ "brief_id": "interior-50x100-multigen-latino",
+ "consumers": [
+  "profiles",
+  "areas",
+  "pipeline"
+ ],
+ "cost": {
+  "legend": "Comparative relative index, not a cost estimate or quote",
+  "model": "base",
+  "reading": "lot",
+  "reference": {
+   "label": "lot_normative_max",
+   "gross_area_sqft": 3000.0,
+   "mix": {
+    "habitable_dry": 0.58,
+    "wet": 0.12,
+    "service": 0.04,
+    "circulation": 0.08,
+    "garage": 0.18
+   },
+   "form": "one floor, rectangle, flat, no exterior works"
+  },
+  "budget": {
+   "applies": true,
+   "budget": null,
+   "buildable_max_index": 1.0,
+   "governing": "normative",
+   "verdicts": {
+    "required@1f": {
+     "index": 0.5079,
+     "within_normative": true,
+     "within_budget": null,
+     "headroom": 0.4921
+    },
+    "required@2f": {
+     "index": 0.5479,
+     "within_normative": true,
+     "within_budget": null,
+     "headroom": 0.4521
+    },
+    "preferred@1f": {
+     "index": 1.0522,
+     "within_normative": false,
+     "within_budget": null,
+     "headroom": -0.0522
+    },
+    "preferred@2f": {
+     "index": 1.0922,
+     "within_normative": false,
+     "within_budget": null,
+     "headroom": -0.0922
+    },
+    "desirable@1f": {
+     "index": 1.1634,
+     "within_normative": false,
+     "within_budget": null,
+     "headroom": -0.1634
+    },
+    "desirable@2f": {
+     "index": 1.2034,
+     "within_normative": false,
+     "within_budget": null,
+     "headroom": -0.2034
+    }
+   },
+   "suggestions": [
+    "some options exceed the normative maximum of the lot (index > 1)"
+   ]
+  },
+  "options": [
+   {
+    "label": "required@1f",
+    "kind": "household_tier",
+    "index": 0.5079,
+    "by_model": {
+     "base": 0.5079,
+     "weighted": 0.529,
+     "shape": 0.529
+    },
+    "breakdown": {
+     "gross_area_sqft": 1523.75
+    },
+    "quantities": {
+     "label": "required@1f",
+     "gross_area_sqft": 1523.75,
+     "area_by_class": {
+      "circulation": {
+       "value": 132.25,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "garage": {
+       "value": 287.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "habitable_dry": {
+       "value": 816.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "wet": {
+       "value": 287.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      }
+     },
+     "exterior_by_class": {
+      "backyard": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "deck": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "paving": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      }
+     },
+     "floors": 1,
+     "area_by_floor": [
+      {
+       "value": 1523.75,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      }
+     ],
+     "footprint": {
+      "value": 1523.75,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "gross area split evenly by floor"
+     },
+     "roof": {
+      "value": 1523.75,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint"
+     },
+     "facade_perimeter": {
+      "value": 159.361,
+      "unit": "ft",
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5"
+     },
+     "stairs": 0,
+     "wet_spaces": 4,
+     "wet_cores": {
+      "value": 1.0,
+      "unit": "count",
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces"
+     },
+     "footprint_form": "rectangle",
+     "mean_slope": 0.03,
+     "confidence": "estimated",
+     "notes": []
+    }
+   },
+   {
+    "label": "required@2f",
+    "kind": "household_tier",
+    "index": 0.5479,
+    "by_model": {
+     "base": 0.5479,
+     "weighted": 0.5655,
+     "shape": 0.5372
+    },
+    "breakdown": {
+     "gross_area_sqft": 1643.75
+    },
+    "quantities": {
+     "label": "required@2f",
+     "gross_area_sqft": 1643.75,
+     "area_by_class": {
+      "circulation": {
+       "value": 252.25,
+       "unit": "sq_ft",
+       "basis": "derived",
+       "note": "includes the stair repeated on 2 floors"
+      },
+      "garage": {
+       "value": 287.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "habitable_dry": {
+       "value": 816.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "wet": {
+       "value": 287.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      }
+     },
+     "exterior_by_class": {
+      "backyard": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "deck": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "paving": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      }
+     },
+     "floors": 2,
+     "area_by_floor": [
+      {
+       "value": 821.875,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      },
+      {
+       "value": 821.875,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      }
+     ],
+     "footprint": {
+      "value": 821.875,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "gross area split evenly by floor"
+     },
+     "roof": {
+      "value": 821.875,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint"
+     },
+     "facade_perimeter": {
+      "value": 117.038,
+      "unit": "ft",
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5"
+     },
+     "stairs": 1,
+     "wet_spaces": 4,
+     "wet_cores": {
+      "value": 2.0,
+      "unit": "count",
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces"
+     },
+     "footprint_form": "rectangle",
+     "mean_slope": 0.03,
+     "confidence": "estimated",
+     "notes": [
+      "stair added: 120 sq ft over 2 floors"
+     ]
+    }
+   },
+   {
+    "label": "preferred@1f",
+    "kind": "household_tier",
+    "index": 1.0522,
+    "by_model": {
+     "base": 1.0522,
+     "weighted": 1.1031,
+     "shape": 1.1031
+    },
+    "breakdown": {
+     "gross_area_sqft": 3156.7499999999995
+    },
+    "quantities": {
+     "label": "preferred@1f",
+     "gross_area_sqft": 3156.75,
+     "area_by_class": {
+      "circulation": {
+       "value": 161.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "garage": {
+       "value": 483.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "habitable_dry": {
+       "value": 1949.25,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "service": {
+       "value": 23.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "wet": {
+       "value": 540.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      }
+     },
+     "exterior_by_class": {
+      "backyard": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "deck": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "paving": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      }
+     },
+     "floors": 1,
+     "area_by_floor": [
+      {
+       "value": 3156.75,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      }
+     ],
+     "footprint": {
+      "value": 3156.75,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "gross area split evenly by floor"
+     },
+     "roof": {
+      "value": 3156.75,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint"
+     },
+     "facade_perimeter": {
+      "value": 229.374,
+      "unit": "ft",
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5"
+     },
+     "stairs": 0,
+     "wet_spaces": 6,
+     "wet_cores": {
+      "value": 1.0,
+      "unit": "count",
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces"
+     },
+     "footprint_form": "rectangle",
+     "mean_slope": 0.03,
+     "confidence": "estimated",
+     "notes": []
+    }
+   },
+   {
+    "label": "preferred@2f",
+    "kind": "household_tier",
+    "index": 1.0922,
+    "by_model": {
+     "base": 1.0922,
+     "weighted": 1.1395,
+     "shape": 1.0825
+    },
+    "breakdown": {
+     "gross_area_sqft": 3276.7499999999995
+    },
+    "quantities": {
+     "label": "preferred@2f",
+     "gross_area_sqft": 3276.75,
+     "area_by_class": {
+      "circulation": {
+       "value": 281.0,
+       "unit": "sq_ft",
+       "basis": "derived",
+       "note": "includes the stair repeated on 2 floors"
+      },
+      "garage": {
+       "value": 483.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "habitable_dry": {
+       "value": 1949.25,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "service": {
+       "value": 23.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "wet": {
+       "value": 540.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      }
+     },
+     "exterior_by_class": {
+      "backyard": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "deck": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "paving": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      }
+     },
+     "floors": 2,
+     "area_by_floor": [
+      {
+       "value": 1638.375,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      },
+      {
+       "value": 1638.375,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      }
+     ],
+     "footprint": {
+      "value": 1638.375,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "gross area split evenly by floor"
+     },
+     "roof": {
+      "value": 1638.375,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint"
+     },
+     "facade_perimeter": {
+      "value": 165.246,
+      "unit": "ft",
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5"
+     },
+     "stairs": 1,
+     "wet_spaces": 6,
+     "wet_cores": {
+      "value": 2.0,
+      "unit": "count",
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces"
+     },
+     "footprint_form": "rectangle",
+     "mean_slope": 0.03,
+     "confidence": "estimated",
+     "notes": [
+      "stair added: 120 sq ft over 2 floors"
+     ]
+    }
+   },
+   {
+    "label": "desirable@1f",
+    "kind": "household_tier",
+    "index": 1.1634,
+    "by_model": {
+     "base": 1.1634,
+     "weighted": 1.2132,
+     "shape": 1.2132
+    },
+    "breakdown": {
+     "gross_area_sqft": 3490.25
+    },
+    "quantities": {
+     "label": "desirable@1f",
+     "gross_area_sqft": 3490.25,
+     "area_by_class": {
+      "circulation": {
+       "value": 161.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "garage": {
+       "value": 483.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "habitable_dry": {
+       "value": 2213.75,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "service": {
+       "value": 92.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "wet": {
+       "value": 540.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      }
+     },
+     "exterior_by_class": {
+      "backyard": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "deck": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "paving": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      }
+     },
+     "floors": 1,
+     "area_by_floor": [
+      {
+       "value": 3490.25,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      }
+     ],
+     "footprint": {
+      "value": 3490.25,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "gross area split evenly by floor"
+     },
+     "roof": {
+      "value": 3490.25,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint"
+     },
+     "facade_perimeter": {
+      "value": 241.186,
+      "unit": "ft",
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5"
+     },
+     "stairs": 0,
+     "wet_spaces": 6,
+     "wet_cores": {
+      "value": 1.0,
+      "unit": "count",
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces"
+     },
+     "footprint_form": "rectangle",
+     "mean_slope": 0.03,
+     "confidence": "estimated",
+     "notes": []
+    }
+   },
+   {
+    "label": "desirable@2f",
+    "kind": "household_tier",
+    "index": 1.2034,
+    "by_model": {
+     "base": 1.2034,
+     "weighted": 1.2497,
+     "shape": 1.1872
+    },
+    "breakdown": {
+     "gross_area_sqft": 3610.25
+    },
+    "quantities": {
+     "label": "desirable@2f",
+     "gross_area_sqft": 3610.25,
+     "area_by_class": {
+      "circulation": {
+       "value": 281.0,
+       "unit": "sq_ft",
+       "basis": "derived",
+       "note": "includes the stair repeated on 2 floors"
+      },
+      "garage": {
+       "value": 483.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "habitable_dry": {
+       "value": 2213.75,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "service": {
+       "value": 92.0,
+       "unit": "sq_ft",
+       "basis": "derived"
+      },
+      "wet": {
+       "value": 540.5,
+       "unit": "sq_ft",
+       "basis": "derived"
+      }
+     },
+     "exterior_by_class": {
+      "backyard": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "deck": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      },
+      "paving": {
+       "value": 0.0,
+       "unit": "sq_ft",
+       "basis": "not_available"
+      }
+     },
+     "floors": 2,
+     "area_by_floor": [
+      {
+       "value": 1805.125,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      },
+      {
+       "value": 1805.125,
+       "unit": "sq_ft",
+       "basis": "estimated"
+      }
+     ],
+     "footprint": {
+      "value": 1805.125,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "gross area split evenly by floor"
+     },
+     "roof": {
+      "value": 1805.125,
+      "unit": "sq_ft",
+      "basis": "estimated",
+      "note": "flat-plate assumption: roof = footprint"
+     },
+     "facade_perimeter": {
+      "value": 173.451,
+      "unit": "ft",
+      "basis": "estimated",
+      "note": "rectangle with aspect ratio 1.5"
+     },
+     "stairs": 1,
+     "wet_spaces": 6,
+     "wet_cores": {
+      "value": 2.0,
+      "unit": "count",
+      "basis": "estimated",
+      "note": "one wet core per floor with wet spaces"
+     },
+     "footprint_form": "rectangle",
+     "mean_slope": 0.03,
+     "confidence": "estimated",
+     "notes": [
+      "stair added: 120 sq ft over 2 floors"
+     ]
+    }
+   }
+  ],
+  "tornado": {
+   "model": "shape",
+   "quantity": "index",
+   "a": "required@1f",
+   "b": null,
+   "base": 0.52902,
+   "rows": [
+    {
+     "parameter": "coef:wet",
+     "low_input": 1.3,
+     "high_input": 2.0,
+     "at_low": 0.51883,
+     "at_high": 0.54151,
+     "swing": 0.02269,
+     "base": 0.52902,
+     "crosses_zero": false
+    },
+    {
+     "parameter": "coef:service",
+     "low_input": 0.8,
+     "high_input": 1.0,
+     "at_low": 0.53117,
+     "at_high": 0.52689,
+     "swing": 0.00428,
+     "base": 0.52902,
+     "crosses_zero": false
+    },
+    {
+     "parameter": "coef:circulation",
+     "low_input": 0.8,
+     "high_input": 1.0,
+     "at_low": 0.52884,
+     "at_high": 0.5292,
+     "swing": 0.00036,
+     "base": 0.52902,
+     "crosses_zero": false
+    },
+    {
+     "parameter": "coef:garage",
+     "low_input": 0.45,
+     "high_input": 0.75,
+     "at_low": 0.52893,
+     "at_high": 0.52911,
+     "swing": 0.00019,
+     "base": 0.52902,
+     "crosses_zero": false
+    }
+   ],
+   "decisive_parameters": [],
+   "note": "one parameter at a time; interactions are left to the Monte Carlo interval (step 6.8)"
+  },
+  "sources": {
+   "catalog_id": "spaceplan-residential-catalog",
+   "catalog_version": "0.11.0",
+   "status": "provisional",
+   "citation": "Student-defined relative cost hypothesis, spaceplan step 6.5b (2026-10); dimensionless, never a price; validate ratios with local builders and public data before use"
+  }
+ }
+}

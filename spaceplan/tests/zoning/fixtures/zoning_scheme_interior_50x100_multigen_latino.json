@@ -1,0 +1,157 @@
+{
+ "contract": "zoning_scheme",
+ "version": "0.2.0",
+ "produced_by": "zoning",
+ "input_sha256": "cb8ee5ebeee4f894a0d2854bbf18b16af65572323f4b643c7a09d071fdb70e5d",
+ "brief_id": "interior-50x100-multigen-latino",
+ "consumers": [
+  "viz",
+  "pipeline"
+ ],
+ "zoning": {
+  "strategy": "A_inscribed_rectangle",
+  "dwelling_type": "house",
+  "options": [
+   {
+    "option_id": "n1",
+    "floors": 1,
+    "status": "not_feasible",
+    "reason": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint depth 75.2 ft exceeds strategy A depth 72.0 ft (realization)"
+   },
+   {
+    "option_id": "n2",
+    "floors": 2,
+    "status": "not_feasible",
+    "reason": "required gross 3157 exceeds FAR limit 3000"
+   }
+  ],
+  "selection": {
+   "requested": "auto",
+   "strategy": "A_inscribed_rectangle",
+   "reason": "strategy A uses 100% of the envelope (>= 80%)"
+  }
+ },
+ "unit": null,
+ "corrections": {
+  "triggered_by": "site: required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint depth 75.2 ft exceeds strategy A depth 72.0 ft (realization)",
+  "baseline": {
+   "strategy": "A_inscribed_rectangle",
+   "garage_layout": "as_brief",
+   "front_recess_ft": 0.0
+  },
+  "candidates": 8,
+  "full_runs": 8,
+  "evaluated": [
+   {
+    "strategy": "B_stepped_footprint",
+    "garage_layout": "as_brief",
+    "front_recess_ft": 0.0,
+    "cost": 0.25,
+    "changes": 1,
+    "labels": [
+     "strategy B_stepped_footprint"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint 3157 sq ft exceeds what B_stepped_footprint holds behind the front line (3024)"
+   },
+   {
+    "strategy": "B_polygonal_footprint",
+    "garage_layout": "as_brief",
+    "front_recess_ft": 0.0,
+    "cost": 0.75,
+    "changes": 1,
+    "labels": [
+     "strategy B_polygonal_footprint"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint 3157 sq ft exceeds what B_polygonal_footprint holds behind the front line (3024)"
+   },
+   {
+    "strategy": "A_inscribed_rectangle",
+    "garage_layout": "tandem",
+    "front_recess_ft": 0.0,
+    "cost": 1.5,
+    "changes": 1,
+    "labels": [
+     "garage tandem"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint depth 75.2 ft exceeds strategy A depth 72.0 ft (realization)"
+   },
+   {
+    "strategy": "B_stepped_footprint",
+    "garage_layout": "tandem",
+    "front_recess_ft": 0.0,
+    "cost": 1.75,
+    "changes": 2,
+    "labels": [
+     "strategy B_stepped_footprint",
+     "garage tandem"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint 3157 sq ft exceeds what B_stepped_footprint holds behind the front line (3024)"
+   },
+   {
+    "strategy": "B_polygonal_footprint",
+    "garage_layout": "tandem",
+    "front_recess_ft": 0.0,
+    "cost": 2.25,
+    "changes": 2,
+    "labels": [
+     "strategy B_polygonal_footprint",
+     "garage tandem"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint 3157 sq ft exceeds what B_polygonal_footprint holds behind the front line (3024)"
+   },
+   {
+    "strategy": "A_inscribed_rectangle",
+    "garage_layout": "one_car",
+    "front_recess_ft": 0.0,
+    "cost": 3.0,
+    "changes": 1,
+    "labels": [
+     "garage one_car"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint depth 75.2 ft exceeds strategy A depth 72.0 ft (realization)"
+   },
+   {
+    "strategy": "B_stepped_footprint",
+    "garage_layout": "one_car",
+    "front_recess_ft": 0.0,
+    "cost": 3.25,
+    "changes": 2,
+    "labels": [
+     "strategy B_stepped_footprint",
+     "garage one_car"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint 3157 sq ft exceeds what B_stepped_footprint holds behind the front line (3024)"
+   },
+   {
+    "strategy": "B_polygonal_footprint",
+    "garage_layout": "one_car",
+    "front_recess_ft": 0.0,
+    "cost": 3.75,
+    "changes": 2,
+    "labels": [
+     "strategy B_polygonal_footprint",
+     "garage one_car"
+    ],
+    "outcome": "site_not_feasible",
+    "detail": "required gross 3157 exceeds FAR limit 3000; footprint 3157 exceeds normative footprint 3024; footprint 3157 sq ft exceeds what B_polygonal_footprint holds behind the front line (3024)"
+   }
+  ],
+  "applied": null,
+  "pareto": [],
+  "status": "no_correction_found",
+  "cost_model_source": {
+   "kind": "client",
+   "citation": "Student design decision 2026-10-06 (spaceplan step 6: fan lots, shoulders, multivariable correction)",
+   "status": "provisional"
+  }
+ },
+ "dwelling_type": "house",
+ "realization_strategy": "A_inscribed_rectangle"
+}
