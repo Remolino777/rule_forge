@@ -27,9 +27,7 @@ HOUSES = ("interior_50x100", "interior_50x100_multigen_latino")
 APARTMENTS = ("apt_2br_interior",)
 PORTFOLIO = {"archetype_id": "empty_nest", "cultural_profile": "anglo"}
 AREA_LOT, AREA_HOUSEHOLD = "interior_50x100", ("empty_nest", "anglo")
-MODULE_OF = {"lot_capacity": "lotcap", "site_plan": "site", "zoning_scheme": "zoning", "program": "household",
-             "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas",
-             "stack_plan": "stacking"}
+from spaceplan.core.lib.registry import PRODUCERS as MODULE_OF  # noqa: E402  (single registry)
 
 
 def fixture_path(contract: str, subject: str) -> Path:

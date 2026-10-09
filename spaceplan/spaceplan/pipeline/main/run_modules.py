@@ -17,6 +17,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from spaceplan.core.lib.catalog import load_catalog
+from spaceplan.core.lib.registry import CONTRACT_OF_MODULE, PRODUCERS
 from spaceplan.core.lib.rules import CRC_RULESET, load_ruleset, load_ruleset_resource
 from spaceplan.core.lib.schema_validation import validate_brief
 from spaceplan.modules.areas.main.contract import to_contract as area_matrix_contract
@@ -35,10 +36,7 @@ from spaceplan.pipeline.main.run_area_analysis import run_area_matrix
 from spaceplan.pipeline.main.run_capacity import run_capacity_contracts
 from spaceplan.pipeline.main.run_portfolio import run_profiles
 
-MODULE_OF_CONTRACT = {"lot_capacity": "lotcap", "site_plan": "site", "zoning_scheme": "zoning", "program": "household",
-                      "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas",
-                      "stack_plan": "stacking"}
-CONTRACT_OF_MODULE = {m: c for c, m in MODULE_OF_CONTRACT.items()}
+MODULE_OF_CONTRACT = PRODUCERS  # single registry: spaceplan/core/lib/registry.py
 
 
 def capacity_contracts(brief: dict, strategy: str | None = None, corrections: bool = True,

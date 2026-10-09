@@ -14,10 +14,12 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from spaceplan.core.lib.registry import MODULES  # single registry
+
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "spaceplan"
 DOC = ROOT / "docs" / "architecture" / "modules.md"
-MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "stacking", "viz")
+
 ORDER = ("core", *MODULES, "pipeline")
 
 
@@ -86,24 +88,23 @@ def _contracts() -> list[dict]:
     return rows
 
 
-HOW_TO_ADD = """## Cómo agregar un módulo (p. ej. `stacking`, paso 6.7)
+HOW_TO_ADD = """## Cómo agregar un módulo
 
-1. Crear `spaceplan/modules/<m>/{__init__,main/__init__,lib/__init__,lib_aux/__init__}.py`: `lib/` funciones de
-   dominio, `lib_aux/` utilidades sin dominio, `main/` el workflow del módulo.
-2. Declarar sus dependencias permitidas en `ALLOWED` de `tests/pipeline/test_architecture.py` (el grafo debe seguir
-   siendo acíclico) y sus archivos en `test_files_follow_plan_table`.
-3. Escribir su contrato: `spaceplan/contracts/schemas/<contrato>.schema.json` (Draft 2020-12, sobre común,
-   bloques por `$ref` al paquete o al brief cuando existan), agregarlo a `CONTRACTS`
-   (`core/lib/schema_validation.py`) y a `PRODUCERS`/`CONSUMERS` (`core/lib/contracts.py`).
-4. `modules/<m>/main/contract.py` con `NAME`, `to_contract(...)` (usa `make_contract`, que valida) y
-   `from_contract(contract)` (usa `read_contract`). Serializar como el paquete: `package_json` para los bloques que
-   el paquete redondea, `plain_json` para los que lleva tal cual.
-5. Componerlo en `pipeline/main/` (nunca desde el `main/` de otro módulo); si alimenta el paquete, leerlo con
-   `read_contract` en `pipeline/lib/package.py`.
-6. CLI: subcomando en `pipeline/main/cli.py` que lea y escriba el contrato.
-7. Pruebas en `tests/<m>/` con contratos fijos en `tests/<m>/fixtures/` (agregar el caso a
-   `tools/make_fixtures.py`, que los verifica contra la instantánea dorada).
-8. Regenerar este documento: `python tools/module_graph.py write`.
+Registro único: `spaceplan/core/lib/registry.py` (módulos, importaciones permitidas, contratos con productor y
+consumidores); todas las listas del código, las pruebas y las herramientas se derivan de ahí.
+
+1. `python tools/new_module.py <m> --contract <contrato> --deps core,<módulos> --consumers viz,pipeline
+   --title "Step X.Y ..."`: crea `modules/<m>/{main,lib,lib_aux}`, `main/run_<m>.py`, `main/contract.py`
+   (`to_contract` / `from_contract`), el esquema base `contracts/schemas/<contrato>.schema.json`, la prueba base
+   `tests/<m>/` y la entrada del registro (`--dry-run` para ver la lista).
+2. Dominio en `lib/`, utilidades sin dominio en `lib_aux/`, workflow en `main/`; bloques del contrato en el esquema
+   (Draft 2020-12; `$ref` al paquete o al brief cuando existan). Números normativos en `data/rules`, parámetros de
+   diseño en un catálogo con fuente y estado.
+3. Componerlo en `pipeline/main/run_modules.py` (nunca desde el `main/` de otro módulo) y agregar el subcomando en
+   `pipeline/main/cli.py`.
+4. Contrato fijo: agregar el caso a `tools/make_fixtures.py` y correr `python tools/make_fixtures.py write`.
+5. `python tools/module_graph.py write`; mientras se desarrolla: `python tools/dev_check.py quick <m>`; al cerrar el
+   paso: `python tools/dev_check.py full`.
 """
 
 

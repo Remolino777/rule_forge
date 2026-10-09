@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from spaceplan.core.lib.registry import PRODUCERS
 from spaceplan.core.lib.rules import load_ruleset
 from spaceplan.core.lib_aux.json_io import load_resource_json
 from spaceplan.pipeline.main.run_capacity import run_capacity
@@ -38,9 +39,7 @@ def apartments():
 
 TESTS = Path(__file__).resolve().parent
 GOLDEN = TESTS / "golden"
-FIXTURE_MODULE = {"lot_capacity": "lotcap", "site_plan": "site", "zoning_scheme": "zoning", "program": "household",
-                  "cost_report": "cost", "program_portfolio": "profiles", "area_matrix": "areas",
-                  "stack_plan": "stacking"}
+FIXTURE_MODULE = PRODUCERS  # contract -> producing module (single registry)
 
 
 def load_fixture(contract: str, subject: str) -> dict:

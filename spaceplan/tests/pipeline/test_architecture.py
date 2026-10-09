@@ -5,6 +5,9 @@ from pathlib import Path
 
 import pytest
 
+from spaceplan.core.lib.registry import ALLOWED_IMPORTS
+from spaceplan.core.lib.registry import MODULES as REGISTRY_MODULES
+
 ROOT = Path(__file__).resolve().parents[2] / "spaceplan"
 FORBIDDEN_TOP_LEVEL = {"geom", "vision", "engine", "ruleforge"}  # extractor / verifier packages
 
@@ -80,20 +83,8 @@ def test_no_crc_numbers_in_program_review():
 # ------------------------------------------------------------------ architecture v3 (refactor tanda 2)
 # REFACTOR_PLAN.md section 3: modules/<m>/{main,lib,lib_aux} + pipeline, acyclic module graph (3.2).
 
-MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "stacking", "viz")
-ALLOWED = {  # plan 3.2: module -> modules it may import (besides itself)
-    "core": set(),
-    "lotcap": {"core"},
-    "household": {"core"},
-    "cost": {"core"},
-    "site": {"core", "lotcap"},
-    "profiles": {"core", "household", "cost"},
-    "zoning": {"core", "lotcap", "site"},
-    "areas": {"core", "lotcap", "site", "household", "cost", "profiles"},
-    "stacking": {"core", "lotcap", "site", "cost", "zoning", "areas"},  # step 6.7 (S0 uses core only)
-    "viz": {"core", "lotcap"},  # contracts, plus lotcap types to draw the lot
-    "pipeline": {"core", *MODULES},
-}
+MODULES = REGISTRY_MODULES  # single registry: spaceplan/core/lib/registry.py
+ALLOWED = ALLOWED_IMPORTS
 # Temporary exceptions (2026-10-08, refactor tanda 2): dependencies that broke the 3.2 graph or the "no main
 # imports another module's main" rule. Refactor tanda 3 (2026-10-09) resolved all of them: the list stays empty
 # and a dependency that breaks the graph fails the test.

@@ -1,0 +1,27 @@
+# Full check of spaceplan on every push and pull request (development optimization, 2026-10-09):
+# the whole suite in parallel, golden check, contract fixtures and module doc. Locally, while developing,
+# `python tools/dev_check.py quick <module>` is enough; this job is the gate before merging.
+name: spaceplan
+
+on:
+  push:
+    paths: ["spaceplan/**", ".github/workflows/spaceplan.yml"]
+  pull_request:
+    paths: ["spaceplan/**", ".github/workflows/spaceplan.yml"]
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: spaceplan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: spaceplan/pyproject.toml
+      - run: pip install -e ".[dev]"
+      - run: python tools/dev_check.py full

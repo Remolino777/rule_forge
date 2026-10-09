@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+from spaceplan.core.lib.registry import PRODUCERS
 from spaceplan.core.lib.schema_validation import (
     CONTRACTS,
     contract_errors,
@@ -22,9 +23,6 @@ from spaceplan.core.lib_aux.json_io import load_resource_json
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden"
 ENVELOPE = ("contract", "version", "produced_by", "input_sha256")
-PRODUCERS = {"lot_capacity": "lotcap", "site_plan": "site", "program": "household", "cost_report": "cost",
-             "program_portfolio": "profiles", "zoning_scheme": "zoning", "area_matrix": "areas",
-             "stack_plan": "stacking"}
 HOUSES = ["interior_50x100", "fan_cul_de_sac_35_80x100", "corner_55x100", "hillside_50x100",
           "flag_70x80_pole20", "interior_50x100_multigen_latino"]
 APARTMENTS = ["apt_2br_interior"]

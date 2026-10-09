@@ -6,6 +6,7 @@ from collections import Counter
 
 from jsonschema import Draft202012Validator
 
+from spaceplan.core.lib.registry import CONTRACT_NAMES
 from spaceplan.core.lib.relation_graph import (
     build_relation_graph,
     node_namespace,
@@ -166,8 +167,7 @@ def validate_package(package: dict) -> None:
 
 # ------------------------------------------------------------------------------------ module contracts
 
-CONTRACTS = ("lot_capacity", "site_plan", "program", "cost_report", "program_portfolio", "zoning_scheme",
-             "area_matrix", "stack_plan")
+CONTRACTS = CONTRACT_NAMES  # single registry: spaceplan/core/lib/registry.py
 REFERENCED_SCHEMAS = ("brief", "package")  # contract blocks reference these definitions
 
 

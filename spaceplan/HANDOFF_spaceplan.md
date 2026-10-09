@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapa S0 hecha** (sección 4j: módulo `stacking`, contrato `stack_plan`) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · catálogo de apilamiento 0.1.0 · 1,113 pruebas
+Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapa S0 hecha** (sección 4j: módulo `stacking`, contrato `stack_plan`) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · catálogo de apilamiento 0.1.0 · 1,124 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -45,6 +45,7 @@ git clone --branch spaceplan-modular https://github.com/Remolino777/rule_forge &
 pip install -e ".[dev]"            # shapely, numpy, jsonschema, networkx, matplotlib, pytest
 python -m pytest -q tests/cost             # un módulo (segundos); suite completa por carpetas (tests/<módulo>/), ~10 min
 python tools/golden_check.py check          # GOLDEN CHECK PASSED (nada cambió)
+python tools/dev_check.py quick stacking    # desarrollo: módulo + consumidores + guardas (~15 s); `full` al cerrar
 spaceplan capacity spaceplan/data/briefs/interior_50x100.json --contracts out/contracts   # contratos de cada módulo
 spaceplan household --list                                    # 7 arquetipos
 spaceplan household multigenerational                         # programas R/P/D ahora y en 5 años, delta
@@ -667,6 +668,19 @@ CLI: `spaceplan stacking [LOTES] [--households ..] [--cells best|top2|all] [--ar
 **Limitaciones de S0.** Plantas como rectángulos (ancho de la estrategia; la alta, escalada); la pendiente es la media
 del lote (113.0234 la pide por borde); el inicio del plano en 24 ft es lectura del diagrama; techo y entrepiso son
 hipótesis.
+
+## 4k. Optimización del desarrollo (9 oct 2026)
+
+Diagnóstico de 6.7a S0 (≈ 32 min): ≈ 40 % esperando pruebas, ≈ 20 % reconstruyendo contexto, ≈ 12 % registrando el
+módulo en 7 listas duplicadas; escribir código fue ≈ 15 %. Cambios (rama `dev/optimization`):
+- **Registro único** `spaceplan/core/lib/registry.py` (módulos, importaciones permitidas, contratos con productor y
+  consumidores); `schema_validation`, `contracts`, `run_modules`, `conftest`, `test_contracts`, `test_architecture`,
+  `make_fixtures` y `module_graph` se derivan de él.
+- **Generador** `tools/new_module.py` (carpetas, workflow, contrato, esquema base, prueba base, registro).
+- **Pruebas por niveles** `tools/dev_check.py`: `quick <m>` ≈ 13 s (antes ≈ 8.5 min con la suite completa), `changed`
+  (elige el nivel por lo tocado), `full` en paralelo con pytest-xdist ≈ 7.4 min en 2 núcleos (antes ≈ 14 min en serie).
+- **CI** `.github/workflows/spaceplan.yml`: `full` en cada push.
+- **`CLAUDE.md`** en la raíz: reglas, mapa, flujo y higiene de sesión (un chat por sub-paso).
 
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
