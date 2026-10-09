@@ -172,11 +172,13 @@ def test_files_follow_plan_table():
         "areas/lib": {"vertical_split", "building_indices", "area_budget", "area_matrix"},
         "areas/main": {"run_area_matrix", "contract"},
         "stacking/lib": {"stacking_catalog", "vertical_rules", "levels", "height_check", "cell_selection",
-                         "lot_vertical"},  # step 6.7a S0
-        "stacking/lib_aux": {"vertical_geometry"},
+                         "lot_vertical",  # step 6.7a S0
+                         "stair_rules", "lot_plan", "plan_levels", "stair", "roof_plane", "cell_geometry"},  # S1
+        "stacking/lib_aux": {"vertical_geometry", "plan_geometry"},
         "stacking/main": {"run_stacking", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",
-                    "area_matrix_plots"},  # tanda 3: visualize split by topic; tanda 4: facade removed
+                    "area_matrix_plots",  # tanda 3: visualize split by topic; tanda 4: facade removed
+                    "stack_plan_plots"},  # step 6.7a S1
         "viz/main": {"run_viz"},  # tanda 4: figures from contracts
     }
     for sub, names in planned.items():

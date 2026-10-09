@@ -103,4 +103,23 @@ def draw_area_matrix(area_matrix: dict, out_dir: str | Path, lang: str | None = 
                                lang or display["default_lang"])
 
 
-__all__ = ["area_matrix_figures", "draw_area_matrix", "draw_capacity", "draw_site", "draw_zoning", "package_view"]
+def stack_plan_sheets(stack_plan: dict, out_dir: str | Path, lang: str = "es",
+                      profiles: tuple[str, ...] = ("optimum",)) -> list[Path]:
+    """Stage S1 (step 6.7a): one stacked-plan sheet per lot with the drawn cells of the given profiles (all
+    drawn cells when none of those profiles was drawn)."""
+    from spaceplan.modules.viz.lib.stack_plan_plots import plot_stack_sheet
+
+    plan = read_contract(stack_plan, "stack_plan")
+    out = Path(out_dir)
+    figures = []
+    for lot in plan["lots"]:
+        drawn = [c for c in plan["cells"] if c["lot_id"] == lot["lot_id"] and (c.get("s1") or {}).get("status") == "drawn"]
+        if not drawn:
+            continue
+        chosen = [c for c in drawn if c["profile"] in profiles] or drawn
+        figures.append(plot_stack_sheet(lot, chosen, out / f"{lot['lot_id']}_stack_plan.png", lang))
+    return figures
+
+
+__all__ = ["area_matrix_figures", "draw_area_matrix", "draw_capacity", "draw_site", "draw_zoning", "package_view",
+           "stack_plan_sheets"]

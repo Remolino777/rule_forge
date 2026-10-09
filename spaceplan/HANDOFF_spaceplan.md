@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapa S0 hecha** (sección 4j: módulo `stacking`, contrato `stack_plan`) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · catálogo de apilamiento 0.1.0 · 1,113 pruebas
+Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0 y S1 hechas** (secciones 4j y 4k: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.1.0 · catálogo de apilamiento 0.2.0 · 1,142 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -668,6 +668,45 @@ CLI: `spaceplan stacking [LOTES] [--households ..] [--cells best|top2|all] [--ar
 del lote (113.0234 la pide por borde); el inicio del plano en 24 ft es lectura del diagrama; techo y entrepiso son
 hipótesis.
 
+## 4k. Paso 6.7a, etapa S1 (9 oct 2026): plantas dibujadas, escalera como objeto y techo contra 131.0444
+
+**Qué hace.** Para cada celda de dos pisos que S0 marcó `next_stage = S1`: planta baja = franja frontal del polígono
+realizable de la estrategia con el área bruta de la planta baja; garaje provisional en la línea frontal (área =
+IC − IC sin garaje, × base del FAR; si la planta es poco profunda se ensancha); planta alta = franja trasera o
+delantera de la planta baja, o rectángulo anclado al garaje (V4 lo prueba primero), contenida por construcción;
+**escalera** del CRC (R311.7) en la **junta** (borde de la planta alta que no está en el perímetro de la baja), mismo
+rectángulo en ambos niveles y fuera del garaje; polígono permitido por nivel (envolvente menos el plano a la altura del
+muro); **techo de la planta alta real** contra 131.0444 (por defecto, cumbrera girada, plano); cuarto sobre garaje con
+la nota R302.6 (cielo raso Type X). Celda dibujada → `next_stage = S2`.
+
+**Datos.** Reglas nuevas `data/rules/crc_2025_stairs.json` (S01–S06, todas `verified: false`: contrahuella ≤ 7¾ in,
+huella ≥ 10 in, ancho ≥ 36 in, altura libre ≥ 6 ft 8 in, descanso ≥ 36 in, separación garaje–vivienda). Catálogo de
+apilamiento 0.2.0: diseño de escalera en los mínimos, tipos recta/U/L, posiciones de la planta alta, garaje
+provisional, política de techo, modo por etapa (S1 usa `best` por defecto). Contrato `stack_plan`: bloque opcional
+`s1` por celda y `plan` por lote (aditivo dentro de 0.2.0); S0 no cambia (solo versión y hash del catálogo en el
+fixture).
+
+**Arquitectura.** `lib`: `stair_rules`, `lot_plan`, `plan_levels`, `stair`, `roof_plane`, `cell_geometry`;
+`lib_aux`: `plan_geometry`; `viz/lib/stack_plan_plots` (hojas de plantas apiladas desde el contrato). Solo lee
+contratos. CLI: `spaceplan stacking --stage S1 [--cells best|top2|all] [--tables DIR] [--plans DIR]` (piloto ≈ 25 s
+con contratos en disco). 29 pruebas nuevas.
+
+**Resultados del piloto (top2, 1,108 celdas de dos pisos).**
+1. **Todas se dibujan**: escalera recta en la junta en el 100 %; 46.5 sq ft por piso contra 60 del catálogo
+   (6.6 sobrestimó la escalera en 13.5 sq ft por piso). U y L nunca hicieron falta.
+2. **Plano 131.0444 con la planta alta real**: 44 celdas lo activan con el techo por defecto (S0: 67). 51 de las
+   de S0 quedan libres y aparecen 28 nuevas: la planta alta real es una franja ancha y poco profunda, el techo gira y
+   el hastial queda hacia el lindero lateral. **Las 44 se resuelven girando la cumbrera** (ninguna necesita techo plano
+   ni retranqueo). Todas son perfiles máximos (V1 42, V5 2); retranqueo evitado 0.03–1.57 ft.
+3. **Cuarto sobre garaje en 653 celdas (59 %)**: las plantas bajas son anchas y poco profundas (mediana 42 × 36 ft),
+   la franja trasera alcanza el garaje → R302.6 (Type X) es la regla CRC más frecuente del piso alto. V4 se ubica sobre
+   el garaje en 29 de 55 celdas.
+4. El garaje se ensancha por falta de fondo en 125 celdas; la planta alta mide en mediana 0.37 de la baja.
+
+**Limitaciones de S1.** Garaje provisional a la derecha (el lado de la entrada vehicular no está en los contratos);
+planta baja = franja de ancho completo (sin la variante con cuarto de equipos del sitio); techo sobre el rectángulo
+envolvente de la planta alta; reglas CRC sin verificar; la junta reemplaza a la circulación zonificada (S2).
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -727,7 +766,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; S1 escalera, polígono por nivel con 131.0444, contención; S2 zonificación de la planta alta | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; S2 zonificación de la planta alta | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
 | 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 

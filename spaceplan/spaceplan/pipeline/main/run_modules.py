@@ -100,14 +100,16 @@ def lot_capacity_contract_for(brief: dict, catalog_path: str | Path | None = Non
 
 def stack_plan_contract_for(area_matrix: dict | None = None, lot_capacities: list[dict] | None = None,
                             mode: str | None = None, lots: list[str] | None = None,
-                            households: list[tuple[str, str | None]] | None = None, **area_kwargs) -> dict:
-    """stack_plan (step 6.7): reads the given contracts, or produces them for `lots` (default: the pilot)."""
+                            households: list[tuple[str, str | None]] | None = None, stage: str = "S0",
+                            **area_kwargs) -> dict:
+    """stack_plan (step 6.7, stage S0 or S1): reads the given contracts, or produces them for `lots` (default:
+    the pilot)."""
     if area_matrix is None:
         area_matrix = area_matrix_contract_for(lots=lots, households=households, **area_kwargs)
     if lot_capacities is None:
         lot_capacities = [c for c in (lot_capacity_contract_for(load_lot_brief(n)) for n in (lots or PILOT_LOTS))
                           if c is not None]
-    result = run_stacking(area_matrix, lot_capacities, mode)
+    result = run_stacking(area_matrix, lot_capacities, mode, stage=stage)
     inputs = {"area_matrix": area_matrix["input_sha256"],
               "lot_capacity": sorted(c["input_sha256"] for c in lot_capacities), "meta": result["meta"]}
     return stack_plan_contract(result, inputs)

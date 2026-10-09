@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.1.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json.",
+  "catalog_version": "0.2.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy.",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -10,7 +10,11 @@
       "all": null
     },
     "default_mode": "top2",
-    "note": "Cells of the area matrix (step 6.6) taken to the stacking layer: rank <= k inside each (lot, household, profile); 'all' takes every ranked (feasible) cell."
+    "note": "Cells of the area matrix (step 6.6) taken to the stacking layer: rank <= k inside each (lot, household, profile); 'all' takes every ranked (feasible) cell. Stage S1 draws, by default, only the best cell (rank 1) of each (lot, household, profile); the CLI's --cells overrides it.",
+    "stage_default_modes": {
+      "S0": "top2",
+      "S1": "best"
+    }
   },
   "levels": {
     "floor_to_floor_ft": 10.0,
@@ -30,14 +34,20 @@
         "roof_id": "flat",
         "kind": "flat",
         "parapet_ft": 2.0,
-        "label": {"es": "Techo plano con pretil", "en": "Flat roof with parapet"}
+        "label": {
+          "es": "Techo plano con pretil",
+          "en": "Flat roof with parapet"
+        }
       },
       {
         "roof_id": "pitched_4_12",
         "kind": "pitched",
         "pitch_rise_per_run": 0.3333,
         "span": "short_side",
-        "label": {"es": "Techo inclinado 4:12", "en": "Pitched roof 4:12"}
+        "label": {
+          "es": "Techo inclinado 4:12",
+          "en": "Pitched roof 4:12"
+        }
       }
     ],
     "note": "A pitched roof spans the short side of the top floor (gable or hip ridge along the long side): ridge = plate + short side / 2 x pitch. The short side of a floor is estimated as min(street-facing width of the strategy, floor area / width) until step S1 draws the floor.",
@@ -49,16 +59,140 @@
   },
   "stair": {
     "space_type": "stair",
-    "note": "Stair area per level comes from the residential catalog (space type 'stair', target area), the same value step 6.6 used; S1 replaces it by the stair geometry.",
-    "consistency_tolerance_sqft": 1.0
+    "note": "Stage S0 used the residential catalog's stair area (space type 'stair', target area) per level; stage S1 draws the stair from the CRC stair rules (data/rules/crc_2025_stairs.json) with these design values and compares its area with that target.",
+    "consistency_tolerance_sqft": 1.0,
+    "design": {
+      "tread_in": 10.0,
+      "width_ft": 3.0,
+      "landing_ft": 3.0,
+      "u_turn_gap_ft": 0.0,
+      "note": "Design values at the code minimum (tread 10 in, width 36 in, landing 36 in): the smallest legal stair, so the S1 footprint is a lower bound. Risers: the fewest equal risers at or below the maximum riser of S01 for the floor-to-floor height.",
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined stair design at the CRC minimums, spaceplan step 6.7a S1 (2026-10)",
+        "status": "provisional"
+      }
+    },
+    "types": [
+      {
+        "stair_id": "straight",
+        "flights": 1,
+        "label": {
+          "es": "Recta",
+          "en": "Straight"
+        }
+      },
+      {
+        "stair_id": "u_turn",
+        "flights": 2,
+        "label": {
+          "es": "En U (ida y vuelta)",
+          "en": "U-turn (switchback)"
+        }
+      },
+      {
+        "stair_id": "l_turn",
+        "flights": 2,
+        "label": {
+          "es": "En L",
+          "en": "L-turn"
+        }
+      }
+    ],
+    "type_order": [
+      "straight",
+      "u_turn",
+      "l_turn"
+    ],
+    "placement": {
+      "search_step_ft": 1.0,
+      "note": "The stair is the same rectangle on both levels (hard rule). Candidates touch the joint (the edge of the upper floor that is not on the ground-floor perimeter, where the two-story part meets the one-story part), stay inside the upper floor and the ground floor and out of the garage; the first type in type_order that fits wins, then the position closest to the middle of the joint.",
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined placement rule, spaceplan step 6.7a S1 (2026-10); stage S2 replaces the joint by the zoned circulation",
+        "status": "provisional"
+      }
+    }
   },
   "below_grade": {
-    "probe_exposures_ft": [0.0, 3.0, 4.5, 6.0],
+    "probe_exposures_ft": [
+      0.0,
+      3.0,
+      4.5,
+      6.0
+    ],
     "note": "Exposures (grade to the finish floor above) reported per lot to show how the basement rules classify a level -1 on that lot; the basement options B1-B3 are step 6.7b.",
     "source": {
       "kind": "catalog",
       "citation": "Student-defined probe values, spaceplan step 6.7 (2026-10)",
       "status": "provisional"
     }
+  },
+  "upper_floor": {
+    "placements": [
+      "rear",
+      "front",
+      "over_garage"
+    ],
+    "scheme_order": {
+      "V4": [
+        "over_garage",
+        "rear",
+        "front"
+      ]
+    },
+    "labels": {
+      "rear": {
+        "es": "Atrás (hacia el jardín)",
+        "en": "Rear (garden side)"
+      },
+      "front": {
+        "es": "Adelante (hacia la calle)",
+        "en": "Front (street side)"
+      },
+      "over_garage": {
+        "es": "Sobre el garaje",
+        "en": "Over the garage"
+      }
+    },
+    "note": "The upper floor is a band of the ground floor cut parallel to the front (rear or front placement) or a rectangle anchored on the garage corner (over_garage), so it is contained in the ground floor by construction; the first placement in the order that holds the stair is chosen and every placement is reported. Partial upper floors (V4: guest, work) try the room over the garage first.",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined placement hypothesis (private floor toward the garden; room over the garage for partial upper floors), spaceplan step 6.7a S1 (2026-10)",
+      "status": "provisional"
+    }
+  },
+  "garage": {
+    "side": "right",
+    "single_width_ft": 12.0,
+    "double_width_ft": 20.0,
+    "double_from_sqft": 400.0,
+    "max_width_fraction": 0.6,
+    "note": "Stand-in garage on the ground floor until stage S2 zones it: a rectangle on the front line, on `side` of the footprint (right = the far end of the front edge in the lot frame, seen from the street); width by area (double from double_from_sqft unless it takes more than max_width_fraction of the footprint width, then a tandem single width); depth = area / width. Its area comes from the area matrix (IC minus the garage-excluded IC, times the FAR base area).",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined garage stand-in, spaceplan step 6.7a S1 (2026-10); the driveway side of the site layer is not in the contracts yet",
+      "status": "provisional"
+    }
+  },
+  "roof_orientation": {
+    "order": [
+      "default",
+      "rotated",
+      "flat"
+    ],
+    "flat_roof": "flat",
+    "note": "Stage S1 checks the roof of the drawn upper floor against the 131.0444 plane: first the default roof spanning the short side (as in S0), then the same roof with the ridge turned 90 degrees, then the flat roof; the first that stays inside the plane is kept. If none does, the upper floor must step in from the side setback by the reported inset.",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined roof policy, spaceplan step 6.7a S1 (2026-10)",
+      "status": "provisional"
+    }
+  },
+  "geometry": {
+    "area_tolerance_sqft": 1.0,
+    "round_ft": 3,
+    "bisection_rounds": 60,
+    "note": "Numerical settings of the S1 drawing (bands cut to an area by bisection; coordinates rounded in the contract)."
   }
 }

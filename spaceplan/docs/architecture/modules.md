@@ -25,7 +25,7 @@ graph LR
     areas -->|1| household
     areas -->|2| cost
     areas -->|1| profiles
-    stacking -->|7| core
+    stacking -->|11| core
     viz -->|4| core
     viz -->|3| lotcap
     pipeline -->|8| core
@@ -66,8 +66,8 @@ graph LR
 | `profiles` | `contract`, `run_profiles` | `program_profiles` | — |
 | `zoning` | `contract`, `run_corrections`, `run_zoning` | `band_enumeration`, `circulation`, `corrections`, `polygonal`, `realization`, `relation_matrix`, `space_layout`, `unit`, `zoning` | — |
 | `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `vertical_split` | — |
-| `stacking` | `contract`, `run_stacking` | `cell_selection`, `height_check`, `levels`, `lot_vertical`, `stacking_catalog`, `vertical_rules` | `vertical_geometry` |
-| `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `zoning_plots` | — |
+| `stacking` | `contract`, `run_stacking` | `cell_geometry`, `cell_selection`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `roof_plane`, `stacking_catalog`, `stair`, `stair_rules`, `vertical_rules` | `plan_geometry`, `vertical_geometry` |
+| `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `stack_plan_plots`, `zoning_plots` | — |
 | `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio` | `catalog_table`, `package` | — |
 
 ## Contratos (versión 0.2.0)
