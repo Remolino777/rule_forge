@@ -33,6 +33,7 @@ from spaceplan.modules.stacking.lib.floor_frame import (
     upper_frame,
 )
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
+from spaceplan.modules.stacking.lib.routes import route_lengths
 from spaceplan.modules.stacking.lib.stair_access import DEFERRED_S21, FAIL, NOT_EVALUATED, PASS, trace
 from spaceplan.modules.stacking.lib.zone_relations import ZoneMatrix, vertical_pairs
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
@@ -55,6 +56,7 @@ class S2Context:
     matrix: ZoneMatrix
     ground_rules: FloorRules
     upper_rules: FloorRules
+    routes: dict[str, Any] | None = None       # stage S1.2: route targets and passable zones (client step 7)
 
 
 def floor_rules(catalog, s2: dict[str, Any], floor: str) -> FloorRules:
@@ -77,8 +79,9 @@ def floor_rules(catalog, s2: dict[str, Any], floor: str) -> FloorRules:
 
 def s2_context(scat, catalog, client_rs, matrix: ZoneMatrix) -> S2Context:
     s2 = scat.s2
+    routes = (scat.data.get("access_core") or {}).get("comparison")
     return S2Context(scat, catalog, client_rs, matrix, floor_rules(catalog, s2, "ground"),
-                     floor_rules(catalog, s2, "upper"))
+                     floor_rules(catalog, s2, "upper"), routes)
 
 
 # ------------------------------------------------------------------ output helpers
@@ -264,6 +267,9 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
                           "ground": _floor_block(g_best.frame, g_best, summary, plan, nd, [g_best] + [
                               rz for rz in fit if rz is not g_best][: keep - 1]),
                           "_upper": u_best, "_ground": g_best})
+            if ctx.routes is not None and floors.door_area is not None:
+                entry["routes"] = route_lengths(g_best.frame, g_best.rects, ctx.matrix.roles, ctx.routes,
+                                                floors.door_area)
             break
         if not entry["feasible"]:
             summary, valid = g_runs[order[0]] if order[0] in g_runs else next(iter(g_runs.values()))

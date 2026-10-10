@@ -83,6 +83,16 @@ class StackingCatalog:
         return self.data["stair"]["design"]
 
     @property
+    def access_core(self) -> dict[str, Any]:
+        """Design values of stage S1.2 (access core: door, vestibule, walls, strategies, void)."""
+        if "access_core" not in self.data:
+            raise StackingCatalogError("stacking catalog has no access_core block (stage S1.2 needs >= 0.6.0)")
+        return self.data["access_core"]
+
+    def stair_type(self, stair_id: str) -> dict[str, Any]:
+        return next(t for t in self.data["stair"]["types"] if t["stair_id"] == stair_id)
+
+    @property
     def stair_types(self) -> list[dict[str, Any]]:
         """Enabled stair configurations (stage S1.1 compares all of them)."""
         by_id = {t["stair_id"]: t for t in self.data["stair"]["types"]}
@@ -142,7 +152,7 @@ class StackingCatalog:
         return self.data["s2"]
 
 
-STAIR_TYPES = ("straight", "straight_landing", "l_turn", "u_turn")
+STAIR_TYPES = ("straight", "straight_landing", "l_turn", "u_turn", "u_well")
 CHOICE_KEYS = ("net_ground_bucket", "half_bath_fit", "entry_distance_ft", "joint_offset_ft")
 BOTTOM_OPTIONS = ("A", "B", "C")
 PLACEMENTS = ("rear", "front", "over_garage", "compact")

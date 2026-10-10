@@ -67,7 +67,7 @@ graph LR
 | `profiles` | `contract`, `run_profiles` | `program_profiles` | — |
 | `zoning` | `contract`, `run_corrections`, `run_zoning` | `band_enumeration`, `circulation`, `corrections`, `polygonal`, `realization`, `relation_matrix`, `space_layout`, `unit`, `zoning` | — |
 | `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `floor_balance`, `lot_minimum`, `sensitivity`, `vertical_split` | — |
-| `stacking` | `contract`, `run_stacking` | `cell_geometry`, `cell_selection`, `core_zoning`, `floor_frame`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `roof_plane`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `vertical_rules`, `zone_cell`, `zone_relations` | `plan_geometry`, `stair_geometry`, `vertical_geometry`, `zone_grid` |
+| `stacking` | `contract`, `run_stacking` | `access_core`, `access_stair`, `cell_geometry`, `cell_selection`, `core_zoning`, `floor_frame`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `roof_plane`, `routes`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `vertical_rules`, `zone_cell`, `zone_relations` | `plan_geometry`, `stair_geometry`, `vertical_geometry`, `zone_grid` |
 | `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `sensitivity_plots`, `stack_plan_plots`, `zoning_plots` | — |
 | `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio`, `run_sensitivity` | `catalog_table`, `package` | — |
 

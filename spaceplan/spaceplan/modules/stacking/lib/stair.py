@@ -107,8 +107,8 @@ def stair_shape(stair_type: dict[str, Any], floor_to_floor_ft: float, limits: St
             parts = (f1, _landing((t1, 0, t1 + w, w), h_land, d),
                      _flight((t1, w, t1 + w, w + t2), "v", 1, w, h_land, r, t, d))
             bottom, top = End(((0, 0), (0, w)), (-1, 0)), End(((t1, w + t2), (t1 + w, w + t2)), (0, 1))
-        elif sid == "u_turn":
-            gap = design.get("u_turn_gap_ft", 0.0)
+        elif sid in ("u_turn", "u_well"):
+            gap = design.get("u_well_gap_ft" if sid == "u_well" else "u_turn_gap_ft", 0.0)
             span = 2 * w + gap
             parts = (f1, _landing((t1, 0, t1 + ld, span), h_land, d),
                      _flight((t1 - t2, w + gap, t1, span), "u", -1, t1, h_land, r, t, d))

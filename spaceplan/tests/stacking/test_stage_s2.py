@@ -77,7 +77,7 @@ def _zoned_cells(result):
 
 
 def test_catalog_has_s2_block_and_checks_it(scat):
-    assert scat.version == "0.5.0" and scat.s2["arrival_order"][0] == FAMILY_ROOM
+    assert scat.version == "0.6.0" and scat.s2["arrival_order"][0] == FAMILY_ROOM
     bad = copy.deepcopy(scat.data)
     bad["s2"]["grid_ft"] = 0
     bad["s2"]["arrival_order"] = ["hall"]

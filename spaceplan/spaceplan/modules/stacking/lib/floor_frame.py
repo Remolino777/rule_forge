@@ -33,6 +33,7 @@ CIRCULATION = "circulation"
 GARAGE_ZONE = "garage"
 HALF_BATH_USE, STORAGE_USE = "half_bath", "storage"
 FIXED_GARAGE, FIXED_STAIR, FIXED_HALF_BATH, FIXED_VESTIBULE = "garage", "stair", "half_bath", "vestibule"
+FIXED_ENTRY, FIXED_VOID = "entry_vestibule", "void"
 FAMILY_ROOM, VESTIBULE, HALL = "family_room", "upper_vestibule", "hall"
 
 
@@ -66,6 +67,7 @@ class FloorFrame:
     variant: str                                # ground: under-stair use; upper: "upper"
     scale: float                                # free area / sum of program targets
     notes: list[str] = field(default_factory=list)
+    landing_in_entry: bool = False              # S1.2: the stair starts inside the vestibule of the main door
 
     def unit_index(self, unit_id: str) -> int:
         return next(k for k, u in enumerate(self.units) if u.unit_id == unit_id)
@@ -83,6 +85,9 @@ class CellFloors:
     top_zone: BaseGeometry
     half_bath: BaseGeometry | None
     vestibule: BaseGeometry | None
+    entry_vestibule: BaseGeometry | None = None   # stage S1.2: vestibule behind the main door (fixed object)
+    void: BaseGeometry | None = None              # stage S1.2: interior void of strategy C (no floor upstairs)
+    door_area: BaseGeometry | None = None         # vestibule polygon, fixed or not (routes start there)
 
 
 def _local(plan: LotPlan, geo: dict | None) -> BaseGeometry | None:
@@ -90,13 +95,18 @@ def _local(plan: LotPlan, geo: dict | None) -> BaseGeometry | None:
 
 
 def cell_floors(s1: dict[str, Any], plan: LotPlan) -> CellFloors:
+    """`s1["access_core"]` (stage S1.2) adds the vestibule behind the main door (fixed unless `fixed` is false:
+    then it only marks where the routes start) and the interior void."""
+    ac = s1.get("access_core") or {}
     core = s1["stair_core"]
     us = core["under_stair"]
     return CellFloors(
         ground=_local(plan, s1["levels"][0]["polygon"]), upper=_local(plan, s1["levels"][1]["polygon"]),
         garage=_local(plan, s1["ground"].get("garage_polygon")), stair=_local(plan, core["footprint"]),
         bottom_zone=_local(plan, core["bottom_end"]["zone"]), top_zone=_local(plan, core["top_end"]["zone"]),
-        half_bath=_local(plan, us.get("half_bath")), vestibule=_local(plan, us.get("vestibule")))
+        half_bath=_local(plan, us.get("half_bath")), vestibule=_local(plan, us.get("vestibule")),
+        entry_vestibule=_local(plan, ac.get("vestibule")) if ac.get("fixed", True) else None,
+        void=_local(plan, ac.get("void")), door_area=_local(plan, ac.get("vestibule")))
 
 
 # ------------------------------------------------------------------ program per floor
@@ -252,19 +262,24 @@ def ground_frame(floors: CellFloors, units: list[ZoneUnit], res: float, use: str
     fixed = [(FIXED_GARAGE, floors.garage), (FIXED_STAIR, floors.stair)]
     if use == HALF_BATH_USE and floors.half_bath is not None:
         fixed += [(FIXED_HALF_BATH, floors.half_bath), (FIXED_VESTIBULE, floors.vestibule)]
+    if floors.entry_vestibule is not None:
+        fixed.append((FIXED_ENTRY, floors.entry_vestibule))
     grid = rasterize(floors.ground, fixed, res)
     taken = unary_union([g for _, g in fixed if g is not None])
     targets, total = _scaled(units, grid.free_cells)
+    landing = cells_of(grid, floors.bottom_zone)
+    in_entry = (floors.entry_vestibule is not None
+                and floors.bottom_zone.intersection(floors.entry_vestibule).area >= 0.5 * floors.bottom_zone.area)
     return FloorFrame(GROUND, floors.ground, floors.ground.difference(taken), dict(fixed), grid, tuple(units),
-                      targets, cells_of(grid, floors.bottom_zone), use, grid.free_cells * grid.cell_area / total,
-                      list(notes))
+                      targets, landing, use, grid.free_cells * grid.cell_area / total, list(notes), in_entry)
 
 
 def upper_frame(floors: CellFloors, units: list[ZoneUnit], res: float, notes: list[str]) -> FloorFrame:
-    fixed = [(FIXED_STAIR, floors.stair)]
+    fixed = [(FIXED_STAIR, floors.stair)] + ([(FIXED_VOID, floors.void)] if floors.void is not None else [])
     grid = rasterize(floors.upper, fixed, res)
     targets, total = _scaled(units, grid.free_cells)
-    return FloorFrame(UPPER, floors.upper, floors.upper.difference(floors.stair), dict(fixed), grid, tuple(units),
+    taken = unary_union([g for _, g in fixed if g is not None])
+    return FloorFrame(UPPER, floors.upper, floors.upper.difference(taken), dict(fixed), grid, tuple(units),
                       targets, cells_of(grid, floors.top_zone), "upper", grid.free_cells * grid.cell_area / total,
                       list(notes))
 
@@ -277,6 +292,6 @@ def upper_arrival(catalog, s2: dict[str, Any], access: dict[str, Any], rows: lis
     return {"receiving": kind, "upper_rooms": rooms, "family_room_upstairs": FAMILY_ROOM in types}
 
 
-__all__ = ["CIRCULATION", "FAMILY_ROOM", "FIXED_GARAGE", "FIXED_HALF_BATH", "FIXED_STAIR", "FIXED_VESTIBULE", "GROUND",
+__all__ = ["CIRCULATION", "FAMILY_ROOM", "FIXED_ENTRY", "FIXED_GARAGE", "FIXED_VOID", "FIXED_HALF_BATH", "FIXED_STAIR", "FIXED_VESTIBULE", "GROUND",
            "HALF_BATH_USE", "HALL", "STORAGE_USE", "UPPER", "VESTIBULE", "CellFloors", "FloorFrame", "ZoneUnit",
            "arrival_kind", "cell_floors", "floor_units", "ground_frame", "upper_arrival", "upper_frame"]

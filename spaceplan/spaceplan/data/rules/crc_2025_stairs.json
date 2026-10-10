@@ -1,6 +1,6 @@
 {
   "ruleset_id": "crc-2025-stairs",
-  "ruleset_version": "0.2.0",
+  "ruleset_version": "0.3.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "CRC-2025",
@@ -203,6 +203,50 @@
       "source": {
         "document": "CRC 2025",
         "section": "R305.1 exception (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S12-STAIR-LIGHTING",
+      "magnitude": "stair_artificial_lighting",
+      "operator": "==",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "required": true,
+        "covers": [
+          "treads",
+          "landings"
+        ],
+        "control": "switch at each floor level"
+      },
+      "text": [
+        "R303.7: interior stairways shall be provided with an artificial light source to illuminate the landings and treads; natural light does not replace it."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R303.7 (verify; IRC 2021 R303.7)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S13-EXTERIOR-WALL-OPENINGS",
+      "magnitude": "opening_by_fire_separation_distance",
+      "operator": "in",
+      "value": null,
+      "unit": "ft",
+      "parameters": {
+        "not_permitted_below_ft": 3.0,
+        "limited_below_ft": 5.0,
+        "limited_max_fraction": 0.25,
+        "unlimited_from_ft": 5.0
+      },
+      "text": [
+        "Table R302.1(1): openings in exterior walls are not permitted at a fire separation distance under 3 ft, limited to 25% of the wall area from 3 ft to under 5 ft, unlimited at 5 ft or more."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "Table R302.1(1) (verify values)"
       },
       "verified": false
     }

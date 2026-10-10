@@ -127,9 +127,13 @@ def _stair_cfg(ctx: S1Context, receiving: str) -> dict[str, Any]:
 
 def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy: tuple[str | None, int | None],
               ctx: S1Context, placements: list[str] | None = None,
-              stair_ids: list[str] | None = None) -> dict[str, Any]:
+              stair_ids: list[str] | None = None, picker=None, garage_side: str | None = None) -> dict[str, Any]:
     """Stage S1 of one cell. `placements` overrides the catalog's order of upper-floor placements and `stair_ids`
-    restricts the stair configurations compared (stage S2 uses both to redraw a cell it cannot zone)."""
+    restricts the stair configurations compared (stage S2 uses both to redraw a cell it cannot zone).
+
+    `picker(placement, upper, ground, garage, cfg) -> (candidates, chosen)` replaces the search at the joint (stage
+    S1.2 places the stair against the permitted walls from the main door); `garage_side` overrides the catalog's
+    stand-in side (S1.2 reads it from the site's driveway)."""
     scat, limits, stair_rs, vertical_rs = ctx.scat, ctx.limits, ctx.stair_rs, ctx.vertical_rs
     envelope, slope, stair_target_sqft = ctx.envelope, ctx.slope, ctx.stair_target_sqft
     geo = scat.geometry
@@ -147,7 +151,8 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
         return {**out, "status": GROUND_NOT_REALIZED, "next_stage": None}
 
     g_area = garage_area(cell, plan.far_base_sqft)
-    garage = garage_rect(ground, g_area, scat.garage)
+    g_cfg = scat.garage if garage_side is None else {**scat.garage, "side": garage_side}
+    garage = garage_rect(ground, g_area, g_cfg)
     shapes = [stair_shape(t, lv["floor_to_floor_ft"], limits, scat.stair_design) for t in scat.stair_types
               if stair_ids is None or t["stair_id"] in stair_ids]
     rooms = upper_rooms(list(cell.get("split", {}).get("upper_spaces") or s0.get("upper_spaces") or []),
@@ -157,10 +162,12 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
 
     upper_cands, chosen, stair, valid = [], None, None, []
     for placement in (placements or scat.upper_placements(cell.get("scheme_id"))):
-        cand = upper_floor(placement, ground, levels[1]["gross_sqft"], garage, scat.garage["side"], geo,
+        cand = upper_floor(placement, ground, levels[1]["gross_sqft"], garage, g_cfg["side"], geo,
                            scat.data["upper_floor"]["compact_min_depth_ft"])
         found, cands = None, []
-        if cand.polygon is not None:
+        if cand.polygon is not None and picker is not None:
+            cands, found = picker(placement, cand, ground, garage, cfg)
+        elif cand.polygon is not None:
             joints = list(cand.joints) or [s for s in segments_of(cand.polygon.exterior)]
             cands = candidates(shapes, joints, cand.polygon, ground, garage, cfg)
             found = choose(cands)

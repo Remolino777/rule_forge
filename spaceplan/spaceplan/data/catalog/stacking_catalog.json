@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.5.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights).",
+  "catalog_version": "0.6.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1.",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -110,6 +110,16 @@
         "label": {
           "es": "En U con descanso",
           "en": "U-turn with landing"
+        }
+      },
+      {
+        "stair_id": "u_well",
+        "flights": 2,
+        "turn_deg": 180,
+        "well_from": "access_core.void.well_ft",
+        "label": {
+          "es": "En U con vacío central",
+          "en": "U-turn around an interior void"
         }
       }
     ],
@@ -420,6 +430,125 @@
       ],
       "ground": [],
       "note": "Zones that may also be searched as two units (one on each side of the stair hall), split by the zone_parts scheme of s2.zone_parts or balanced by area; each unit needs a habitable room. The whole zone is always searched too."
+    }
+  },
+  "access_core": {
+    "door": {
+      "clear_width_in": 34,
+      "swing": "inward",
+      "hinge": "nearest_wall",
+      "placement": "entry_deck",
+      "note": "Main door on the street facade of the ground floor, centred on the site's entry deck measured from the inner edge of the driveway (the garage side follows the driveway); clear width as the accessible door of the residential catalog; leaf swings inward, hinged on the side nearer a wall."
+    },
+    "vestibule": {
+      "width_ft": 5.0,
+      "depth_ft": 5.0,
+      "note": "Arrival zone behind the main door (client definition step 2); fixed object the circulation zone must open onto."
+    },
+    "walls": {
+      "permitted": [
+        "side",
+        "rear",
+        "void"
+      ],
+      "excluded": [
+        "front",
+        "garage"
+      ],
+      "fallback": [
+        "joint"
+      ],
+      "note": "Walls the stair may sit against: exterior side and rear walls of the ground floor that continue on the upper floor, and the edge of the interior void; never the street facade of the door nor the garage wall; the joint (centre) only as the last resort. Structure not considered yet (client decision 2026-10-10)."
+    },
+    "strategies": {
+      "A": {
+        "walls": [
+          "side"
+        ],
+        "stair_ids": [
+          "u_turn",
+          "l_turn"
+        ]
+      },
+      "D": {
+        "walls": [
+          "rear"
+        ],
+        "stair_ids": [
+          "u_turn",
+          "l_turn"
+        ]
+      },
+      "C": {
+        "walls": [
+          "side",
+          "rear",
+          "joint"
+        ],
+        "stair_ids": [
+          "u_well"
+        ]
+      },
+      "B": {
+        "walls": [
+          "joint"
+        ],
+        "stair_ids": [
+          "u_turn",
+          "l_turn",
+          "straight",
+          "straight_landing"
+        ]
+      },
+      "fallback_stair_ids": [
+        "straight",
+        "straight_landing"
+      ]
+    },
+    "void": {
+      "well_ft": 3.0,
+      "skylight": true,
+      "counts_in_gfa": "variant (SDMC 113.0234, verify)",
+      "note": "Strategy C: interior void between the flights of a U, open from the ground floor to a skylight; it costs upper-floor area (no floor over it) and lights the ground floor below."
+    },
+    "comparison": {
+      "criteria": [
+        "occupied_sqft",
+        "route_ft"
+      ],
+      "rule": "pareto",
+      "tie": "route_ft",
+      "top_k_per_strategy": 2,
+      "route_targets": [
+        "living",
+        "dining",
+        "kitchen",
+        "stair"
+      ],
+      "passable_zones": [
+        "circulation",
+        "social",
+        "kitchen",
+        "service"
+      ],
+      "note": "Client step 7: alternatives compared by surface occupied (stair footprint, void and landing zones on both floors) and route length from the vestibule to living, dining, kitchen and the stair start; the Pareto front is kept and the shortest route breaks ties."
+    },
+    "positions": {
+      "max_positions": 40,
+      "note": "Positions along each permitted wall (search step of stair.placement); no limit around the middle of the joint."
+    },
+    "source": {
+      "kind": "client",
+      "citation": "Client definitions 2026-10-10 (entry procedure steps 0-7; walls; inward door; vestibule 5x5; interior void); values provisional",
+      "status": "provisional"
+    },
+    "light": {
+      "min_contact_ft": 2.0,
+      "note": "A window counts when the landing (else a flight) runs along a permitted exterior wall for at least min_contact_ft where S13 allows openings."
+    },
+    "circulation": {
+      "max_cut_off_fraction": 0.05,
+      "note": "The stair (and the void) may not cut off more than this share of the free floor from the vestibule (ground) or from the arrival (upper): client step 5, no interference with circulation."
     }
   }
 }

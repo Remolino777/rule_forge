@@ -191,3 +191,46 @@ def cells_of(grid: Grid, geom: BaseGeometry | None) -> tuple[np.ndarray, np.ndar
 
 __all__ = ["FREE", "OUTSIDE", "SIDES", "Grid", "Rect", "bounding_cells", "cells_in", "cells_of", "cut_index",
            "label_contact", "rasterize", "shared_contact"]
+
+
+# ------------------------------------------------------------------ routes and free rectangles (stage S1.2)
+
+
+def bfs_steps(passable: np.ndarray, sources: np.ndarray) -> np.ndarray:
+    """4-neighbour breadth-first steps from the source cells through the passable cells (-1 = unreachable)."""
+    from collections import deque
+
+    ny, nx = passable.shape
+    dist = np.full((ny, nx), -1, dtype=np.int64)
+    queue = deque()
+    for j, i in zip(*np.nonzero(sources & passable)):
+        dist[j, i] = 0
+        queue.append((j, i))
+    while queue:
+        j, i = queue.popleft()
+        d = dist[j, i] + 1
+        for jj, ii in ((j - 1, i), (j + 1, i), (j, i - 1), (j, i + 1)):
+            if 0 <= jj < ny and 0 <= ii < nx and passable[jj, ii] and dist[jj, ii] < 0:
+                dist[jj, ii] = d
+                queue.append((jj, ii))
+    return dist
+
+
+def largest_rectangle(mask: np.ndarray) -> int:
+    """Cells of the largest axis-aligned rectangle of True cells (histogram method)."""
+    best = 0
+    heights = np.zeros(mask.shape[1], dtype=np.int64)
+    for row in mask:
+        heights = np.where(row, heights + 1, 0)
+        stack: list[int] = []
+        for k in range(len(heights) + 1):
+            h = heights[k] if k < len(heights) else 0
+            while stack and heights[stack[-1]] >= h:
+                top = heights[stack.pop()]
+                left = stack[-1] + 1 if stack else 0
+                best = max(best, int(top) * (k - left))
+            stack.append(k)
+    return best
+
+
+__all__ += ["bfs_steps", "largest_rectangle"]

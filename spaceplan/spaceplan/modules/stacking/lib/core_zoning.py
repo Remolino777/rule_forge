@@ -32,6 +32,7 @@ import numpy as np
 from spaceplan.modules.stacking.lib.floor_frame import (
     CIRCULATION,
     FAMILY_ROOM,
+    FIXED_ENTRY,
     FIXED_GARAGE,
     FIXED_STAIR,
     FIXED_VESTIBULE,
@@ -111,7 +112,7 @@ class FloorSearch:
         self.pin = pin
         rows, cols = frame.landing
         self.span = ((int(cols.min()), int(cols.max()) + 1, int(rows.min()), int(rows.max()) + 1)
-                     if len(rows) else None)
+                     if len(rows) and not frame.landing_in_entry else None)
         if self.span is None:
             self.pin = None
         g = frame.grid
@@ -120,6 +121,7 @@ class FloorSearch:
         self.garage = g.mask_of(FIXED_GARAGE) if FIXED_GARAGE in g.label_ids else None
         self.vestibule = g.mask_of(FIXED_VESTIBULE) if FIXED_VESTIBULE in g.label_ids else None
         self.stair = g.mask_of(FIXED_STAIR) if FIXED_STAIR in g.label_ids else None
+        self.entry = g.mask_of(FIXED_ENTRY) if FIXED_ENTRY in g.label_ids else None
         self._cum: dict[tuple[str, int, int], np.ndarray] = {}
         self.units = frame.units
         self.types = [u.space_types for u in self.units]
@@ -231,6 +233,9 @@ class FloorSearch:
         b_lo, b_hi, c_lo, c_hi = (j0, j1, i0, i1) if axis == "y" else (i0, i1, j0, j1)
         band_profile, col_profile = ("y", "x") if axis == "y" else ("x", "y")
         pin, span = self.pin, self.span
+        if span is None:
+            pin = None
+            span = (0, 0, 0, 0)
         b_span, c_span = ((span[2], span[3]), (span[0], span[1])) if axis == "y" else \
             ((span[0], span[1]), (span[2], span[3]))
         if len(bands) == 1:
@@ -289,7 +294,9 @@ class FloorSearch:
         # landing of the stair on this floor
         landing = self.f.landing
         total = len(landing[0])
-        if total:
+        if self.f.landing_in_entry:
+            pass                                  # the start is in the vestibule: received by the entry zone below
+        elif total:
             inside = [cells_in(landing, r) for r in rects]
             best = int(np.argmax(inside))
             rz.landing_unit, rz.landing_share = best, inside[best] / total
@@ -313,6 +320,8 @@ class FloorSearch:
                 return rz
             rz.entry_unit, rz.entry_fallback = entry
             start = rz.entry_unit
+            if self.f.landing_in_entry:
+                rz.landing_unit, rz.landing_share = rz.entry_unit, 1.0
         else:
             start = rz.landing_unit
         reached = self._reach(start, links)
@@ -353,6 +362,14 @@ class FloorSearch:
 
     def _entry(self, rects) -> tuple[int, bool] | None:
         need = self.r.entry_min_overlap_ft - self.tol
+        if self.entry is not None and self.entry.any():
+            # stage S1.2: the main door and its vestibule are fixed; the entry zone is the one opening onto it
+            touching = [k for k, u in enumerate(self.units) if u.zone != PRIVATE
+                        and label_contact(self.f.grid, rects[k], self.entry) >= self.r.door_contact_ft - self.tol]
+            main = [k for k in touching if self.units[k].zone == self.r.entry_zone]
+            if main:
+                return main[0], False
+            return (touching[0], True) if touching else None
         main = [k for k, u in enumerate(self.units) if u.zone == self.r.entry_zone
                 and self._facade(rects[k], "main_street") >= need]
         if main:
