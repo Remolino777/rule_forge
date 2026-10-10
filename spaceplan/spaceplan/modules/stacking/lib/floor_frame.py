@@ -68,6 +68,7 @@ class FloorFrame:
     scale: float                                # free area / sum of program targets
     notes: list[str] = field(default_factory=list)
     landing_in_entry: bool = False              # S1.2: the stair starts inside the vestibule of the main door
+    arrival_order: tuple = ()                   # upper floor: receiving kinds by preference (K01)
 
     def unit_index(self, unit_id: str) -> int:
         return next(k for k, u in enumerate(self.units) if u.unit_id == unit_id)
@@ -284,14 +285,35 @@ def upper_frame(floors: CellFloors, units: list[ZoneUnit], res: float, notes: li
                       list(notes))
 
 
-def upper_arrival(catalog, s2: dict[str, Any], access: dict[str, Any], rows: list[dict]) -> dict[str, Any]:
+def upper_arrival(catalog, s2: dict[str, Any], access: dict[str, Any], rows: list[dict],
+                  k01: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Receiving spaces allowed at the top of the stair and the client's order of preference (K01, 2026-10-10:
+    a preference, scored): vestibule first in a small house, else hall; the family room last, and only when it is
+    upstairs. `receiving` is the most preferred one (the circulation kind S1 sized the arrival zone for)."""
     upper = [r for r in rows if r["floor"] > GROUND]
     types = {r["space_type"] for r in upper}
     rooms = upper_rooms([r["space_id"] for r in upper], catalog, access)
-    kind = arrival_kind(s2["arrival_order"], types, rooms, access["small_house_upper_rooms_max"])
-    return {"receiving": kind, "upper_rooms": rooms, "family_room_upstairs": FAMILY_ROOM in types}
+    small = rooms <= access["small_house_upper_rooms_max"]
+    pref = (k01 or {}).get("as_preference")
+    if pref:
+        order = list(pref["order_small_house"] if small else pref["order_default"])
+    else:
+        order = [arrival_kind(s2["arrival_order"], types, rooms, access["small_house_upper_rooms_max"])]
+    order = [k for k in order if k != FAMILY_ROOM or FAMILY_ROOM in types]
+    return {"receiving": order[0], "order": order, "small_house": small, "upper_rooms": rooms,
+            "family_room_upstairs": FAMILY_ROOM in types}
+
+
+def arrival_of(unit: ZoneUnit, order: list[str]) -> str | None:
+    """Which receiving kind a unit is: the family room's zone, or circulation (vestibule or hall, whichever the
+    order ranks first); None when the unit may not receive the stair."""
+    if FAMILY_ROOM in order and unit.hosts({FAMILY_ROOM}):
+        return FAMILY_ROOM
+    if unit.zone == CIRCULATION:
+        return next((k for k in order if k in (VESTIBULE, HALL)), None)
+    return None
 
 
 __all__ = ["CIRCULATION", "FAMILY_ROOM", "FIXED_ENTRY", "FIXED_GARAGE", "FIXED_VOID", "FIXED_HALF_BATH", "FIXED_STAIR", "FIXED_VESTIBULE", "GROUND",
            "HALF_BATH_USE", "HALL", "STORAGE_USE", "UPPER", "VESTIBULE", "CellFloors", "FloorFrame", "ZoneUnit",
-           "arrival_kind", "cell_floors", "floor_units", "ground_frame", "upper_arrival", "upper_frame"]
+           "arrival_kind", "arrival_of", "cell_floors", "floor_units", "ground_frame", "upper_arrival", "upper_frame"]

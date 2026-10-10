@@ -124,12 +124,27 @@ def uses_by_bottom_option(client: RuleSet, bottom: dict[str, Any], side: str, ha
     return out
 
 
+FT_PER_M = 1.0 / 0.3048           # unit conversion (exact by definition of the foot), not a design value
+U_WIDTH_RULE = "K08-U-STAIR-MIN-WIDTH"
+
+
+def u_min_span_ft(client: RuleSet) -> float:
+    """Least overall width of a U stair (client rule K08), in feet; 0 when the rule is absent."""
+    try:
+        rule = client.rule(U_WIDTH_RULE)
+    except (KeyError, StopIteration, AttributeError):
+        return 0.0
+    value = float(rule["value"] if isinstance(rule, dict) else rule.value)
+    unit = rule["unit"] if isinstance(rule, dict) else rule.unit
+    return value * FT_PER_M if unit == "m" else value
+
+
 def relations(client: RuleSet) -> dict[str, Any]:
     p = client.params(RELATIONS_RULE)
     return {"roles": p["roles"], "relations": p["relations"], "rule_id": RELATIONS_RULE}
 
 
 __all__ = ["BOTTOM_RULE", "CLIENT", "CLIENT_RULESET", "DEFERRED", "DEFERRED_S21", "FAIL", "NOT_EVALUATED", "HALF_BATH_RULE", "NORMATIVE", "PASS",
-           "RELATIONS_RULE", "TOP_RULE", "UNDER_KITCHEN_RULE", "access_side", "bottom_receiving", "check_receiving",
+           "RELATIONS_RULE", "TOP_RULE", "U_WIDTH_RULE", "u_min_span_ft", "UNDER_KITCHEN_RULE", "access_side", "bottom_receiving", "check_receiving",
            "load_client_ruleset", "relations", "rule_kind", "space_type_of", "top_receiving", "trace",
            "under_stair_use", "upper_rooms", "uses_by_bottom_option"]

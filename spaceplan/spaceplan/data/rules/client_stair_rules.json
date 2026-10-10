@@ -1,6 +1,6 @@
 {
   "ruleset_id": "client-stair-rules",
-  "ruleset_version": "0.3.0",
+  "ruleset_version": "0.4.0",
   "jurisdiction_id": "client",
   "zone": "*",
   "code_edition": "client decisions 2026-10-09 / 2026-10-10",
@@ -54,7 +54,20 @@
           "closet",
           "laundry",
           "laundry_closet"
-        ]
+        ],
+        "as_preference": {
+          "order_small_house": [
+            "upper_vestibule",
+            "hall",
+            "family_room"
+          ],
+          "order_default": [
+            "hall",
+            "upper_vestibule",
+            "family_room"
+          ],
+          "decided": "2026-10-10: the receiving space among the allowed ones is a preference (scored); arriving into a forbidden space is never allowed."
+        }
       },
       "text": [
         "The stair never arrives directly into a room upstairs: it arrives into a hall; in small houses into a vestibule; at most into a family room."
@@ -292,8 +305,7 @@
       "unit": null,
       "parameters": {
         "sources": [
-          "window",
-          "skylight"
+          "window"
         ],
         "window_part_order": [
           "landing",
@@ -309,7 +321,7 @@
         "window_rule": "S13-EXTERIOR-WALL-OPENINGS"
       },
       "text": [
-        "The stair receives natural light: a window on the landing (or a flight) where the exterior wall may have openings, or a skylight over an interior void. Required for strategies A, C and D, scored for B. It never replaces the artificial lighting the code requires (S12)."
+        "The stair receives natural light through a window on the landing (or a flight) where the exterior wall may have openings (no skylight over the stair, client decision 2026-10-10). Required for strategies A, C and D, scored for B. It never replaces the artificial lighting the code requires (S12)."
       ],
       "source": {
         "document": "Client decisions",
@@ -328,7 +340,7 @@
         "strategies": {
           "A": "side wall",
           "B": "centre (joint)",
-          "C": "interior void with skylight",
+          "C": "interior void between the flights of a U (lit by a window; no skylight)",
           "D": "rear facade band"
         },
         "preference": [
@@ -346,6 +358,49 @@
       "source": {
         "document": "Client decisions",
         "section": "2026-10-10, stair strategies A-D"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "K08-U-STAIR-MIN-WIDTH",
+      "kind": "client",
+      "magnitude": "u_stair_overall_width",
+      "operator": ">=",
+      "value": 2.5,
+      "unit": "m",
+      "parameters": {
+        "applies_to": [
+          "u_turn",
+          "u_well"
+        ],
+        "how": "both flights widened equally; the central void keeps its width"
+      },
+      "text": [
+        "A U stair is at least 2.5 m wide overall (both flights and the void between them)."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-10, U stair width"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "K09-HALF-BATH-PREFERENCE",
+      "kind": "client",
+      "magnitude": "half_bath_under_stair",
+      "operator": "==",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "kind": "preference",
+        "note": "A half bath under the stair adds to the score of a candidate; it never discards one."
+      },
+      "text": [
+        "The half bath under the stair is a preference, not a requirement (client decision 2026-10-10)."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-10, half bath"
       },
       "verified": true
     }

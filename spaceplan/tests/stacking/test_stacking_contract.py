@@ -95,7 +95,7 @@ def test_lot_facts(result):
 def test_meta_traces_rules_and_catalogs(result):
     meta = result["meta"]
     assert meta["vertical_ruleset"] == "sdmc-rs-1-7-vertical" and len(meta["vertical_ruleset_sha256"]) == 64
-    assert meta["stacking_catalog_version"] == "0.6.0" and meta["stair_sqft_per_level"] == 44.0
+    assert meta["stacking_catalog_version"] == "0.7.0" and meta["stair_sqft_per_level"] == 44.0
     assert meta["garage_counts_in_gfa"] is True and meta["lots"] == ["interior-50x100"]
 
 

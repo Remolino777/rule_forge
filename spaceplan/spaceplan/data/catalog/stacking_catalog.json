@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.6.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1.",
+  "catalog_version": "0.7.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule.",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -364,7 +364,7 @@
       "upper_vestibule",
       "hall"
     ],
-    "arrival_note": "Receiving space at the top of the stair (client rule K01): the family room when it is upstairs (balanced_up or the scheme), else a vestibule when the upper floor serves at most stair_access.small_house_upper_rooms_max rooms, else a hall.",
+    "arrival_note": "Receiving space at the top of the stair (client rule K01): the allowed receivers (hall, upper vestibule, family room when upstairs) are all searched; K01's order is a preference scored by the weight 'arrival'. Superseded order kept for reference in arrival_order.",
     "receiving_min_share": 0.5,
     "zone_doors": {
       "private_opens_to": [
@@ -387,7 +387,8 @@
       "vertical": 0.15,
       "shape": 0.25,
       "anchors": 0.15,
-      "stair_access": 0.1
+      "stair_access": 0.1,
+      "arrival": 0.1
     },
     "keep_alternatives": 3,
     "source": {
@@ -482,8 +483,7 @@
       "C": {
         "walls": [
           "side",
-          "rear",
-          "joint"
+          "rear"
         ],
         "stair_ids": [
           "u_well"
@@ -507,18 +507,23 @@
     },
     "void": {
       "well_ft": 3.0,
-      "skylight": true,
+      "skylight": false,
       "counts_in_gfa": "variant (SDMC 113.0234, verify)",
-      "note": "Strategy C: interior void between the flights of a U, open from the ground floor to a skylight; it costs upper-floor area (no floor over it) and lights the ground floor below."
+      "note": "Strategy C: interior void between the flights of a U; no floor over it upstairs. No skylight over the stair (client decision 2026-10-10): the void is lit only through a window like the other strategies."
     },
     "comparison": {
       "criteria": [
-        "occupied_sqft",
-        "route_ft"
+        "route_ft",
+        "occupied_sqft"
       ],
       "rule": "pareto",
-      "tie": "route_ft",
-      "top_k_per_strategy": 2,
+      "route_tolerance_ft": 6.0,
+      "preferences": [
+        "strategy",
+        "arrival",
+        "half_bath"
+      ],
+      "top_k_per_strategy": 3,
       "route_targets": [
         "living",
         "dining",
@@ -531,11 +536,15 @@
         "kitchen",
         "service"
       ],
-      "note": "Client step 7: alternatives compared by surface occupied (stair footprint, void and landing zones on both floors) and route length from the vestibule to living, dining, kitchen and the stair start; the Pareto front is kept and the shortest route breaks ties."
+      "note": "Three levels: hard filters (geometry, door, circulation, light K06, allowed arrival, stair hall); the Pareto front of route length and occupied area; among the front, the candidates within route_tolerance_ft of the shortest route are ordered by the client preferences (strategy K07, arrival K01, half bath K09), then by route and area."
     },
     "positions": {
-      "max_positions": 40,
-      "note": "Positions along each permitted wall (search step of stair.placement); no limit around the middle of the joint."
+      "coarse_step_ft": 2.0,
+      "fine_step_ft": 0.5,
+      "refine_window_ft": 2.0,
+      "seeds_per_wall": 2,
+      "max_positions": 30,
+      "note": "Two-level search along each permitted wall: every coarse_step_ft (at most max_positions per wall, nearest the wall's middle first), then every fine_step_ft within refine_window_ft of the seeds_per_wall best placements of each wall and configuration (by occupied area, then distance to the vestibule). The half bath (a preference, client rule K09) is looked for only in the candidates preselected for S2."
     },
     "source": {
       "kind": "client",
@@ -549,6 +558,16 @@
     "circulation": {
       "max_cut_off_fraction": 0.05,
       "note": "The stair (and the void) may not cut off more than this share of the free floor from the vestibule (ground) or from the arrival (upper): client step 5, no interference with circulation."
+    },
+    "stair_hall": {
+      "min_circulation_contact_ft": 3.0,
+      "max_open_zone_share": 0.5,
+      "open_zones": [
+        "social",
+        "kitchen"
+      ],
+      "note": "Stage S2, both floors: the stair borders the circulation zone along at least min_circulation_contact_ft (a full stair width); the open room zones (living, kitchen: no walls inside) take no more than max_open_zone_share of its edge; a single private zone no more than max_private_unit_share (not enclosed on three sides; bedrooms on both sides behind walls are fine). The stair never stands inside a room.",
+      "max_private_unit_share": 0.75
     }
   }
 }

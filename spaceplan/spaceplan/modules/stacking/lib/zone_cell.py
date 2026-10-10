@@ -21,6 +21,7 @@ from spaceplan.modules.stacking.lib.core_zoning import FloorRules, FloorSearch, 
 from spaceplan.modules.stacking.lib.floor_frame import (
     CIRCULATION,
     FAMILY_ROOM,
+    arrival_of,
     GROUND,
     HALF_BATH_USE,
     STORAGE_USE,
@@ -59,7 +60,7 @@ class S2Context:
     routes: dict[str, Any] | None = None       # stage S1.2: route targets and passable zones (client step 7)
 
 
-def floor_rules(catalog, s2: dict[str, Any], floor: str) -> FloorRules:
+def floor_rules(catalog, s2: dict[str, Any], floor: str, stair_hall: dict[str, Any] | None = None) -> FloorRules:
     prof = catalog.data["zoning_profiles"]["house"]
     topo = s2["topology"][floor]
     return FloorRules(
@@ -74,14 +75,15 @@ def floor_rules(catalog, s2: dict[str, Any], floor: str) -> FloorRules:
         max_aspect=float(catalog.data["zoning"]["max_aspect_ratio"]),
         weights={k: float(v) for k, v in s2["weights"].items()},
         axes=tuple(topo["axes"]), max_bands=int(topo["max_bands"]),
-        max_topologies=int(s2["topology"]["max_topologies_per_floor"]))
+        max_topologies=int(s2["topology"]["max_topologies_per_floor"]), stair_hall=stair_hall)
 
 
 def s2_context(scat, catalog, client_rs, matrix: ZoneMatrix) -> S2Context:
     s2 = scat.s2
-    routes = (scat.data.get("access_core") or {}).get("comparison")
-    return S2Context(scat, catalog, client_rs, matrix, floor_rules(catalog, s2, "ground"),
-                     floor_rules(catalog, s2, "upper"), routes)
+    access = scat.data.get("access_core") or {}
+    hall = access.get("stair_hall")
+    return S2Context(scat, catalog, client_rs, matrix, floor_rules(catalog, s2, "ground", hall),
+                     floor_rules(catalog, s2, "upper", hall), access.get("comparison"))
 
 
 # ------------------------------------------------------------------ output helpers
@@ -123,6 +125,7 @@ def _floor_block(frame: FloorFrame, rz: Realization, summary: dict[str, Any], pl
         "units": _unit_blocks(frame, rz, plan, nd),
         "topology": {"axis": axis, "bands": [[units[u].unit_id for u in band] for band in bands]},
         "landing_unit": units[rz.landing_unit].unit_id,
+        "arrival_kind": arrival_of(units[rz.landing_unit], list(frame.arrival_order)) if frame.level else None,
         "landing_share": round(rz.landing_share, 3),
         "entry_unit": units[rz.entry_unit].unit_id if rz.entry_unit is not None else None,
         "entry_fallback": rz.entry_fallback,
@@ -210,14 +213,15 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
     n_floors = 1 + max(r["floor"] for r in rows)
 
     # upper floor
-    arrival = upper_arrival(catalog, s2, scat.stair_access, rows)
+    arrival = upper_arrival(catalog, s2, scat.stair_access, rows, client.params(TOP_RULE))
     u_frames = [upper_frame(floors, units, res, notes) for _, units, notes in
                 floor_units(catalog, s2, rows, UPPER, n_floors, stair_type, False, arrival["receiving"])]
-    u_rules = replace(ctx.upper_rules, arrival=arrival["receiving"])
+    for f in u_frames:
+        f.arrival_order = tuple(arrival["order"])
+    u_rules = replace(ctx.upper_rules, arrival=arrival["receiving"], arrival_order=tuple(arrival["order"]))
 
     def arrival_pins(frame: FloorFrame) -> list[int | None]:
-        pins = [k for k, u in enumerate(frame.units)
-                if (u.hosts({FAMILY_ROOM}) if arrival["receiving"] == FAMILY_ROOM else u.zone == CIRCULATION)]
+        pins = [k for k, u in enumerate(frame.units) if arrival_of(u, arrival["order"]) is not None]
         return pins or [None]
 
     u_valid, u_summary = _search(u_frames, u_rules, ctx.matrix, arrival_pins)
@@ -309,8 +313,10 @@ def _traces(client, out, arrival, portfolio, chosen, u_valid, u_summary, has_hb,
     traces = []
     kind = arrival["receiving"]
     if u_valid:
-        traces.append(trace(client, TOP_RULE, PASS, f"the stair arrives into the {kind} "
-                                                    f"({out['upper']['landing_unit'] if chosen else 'upper'})"))
+        got = out["upper"]["arrival_kind"] if chosen else kind
+        traces.append(trace(client, TOP_RULE, PASS,
+                            f"the stair arrives into the {got} ({out['upper']['landing_unit'] if chosen else 'upper'}); "
+                            f"preference {arrival['order']}" + ("" if got == kind else " (not the first: scored)")))
     elif u_summary["first_violations"].get("K01"):
         traces.append(trace(client, TOP_RULE, FAIL, f"no upper zoning lands the stair in a {kind}"))
     else:

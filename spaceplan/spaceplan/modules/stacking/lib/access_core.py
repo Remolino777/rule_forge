@@ -28,6 +28,7 @@ from shapely.ops import unary_union
 from spaceplan.modules.stacking.lib_aux.plan_geometry import is_axis_aligned, joint_lines, lines_of, segments_of
 
 TOL = 1e-3
+IN_PER_FT = 12.0                     # unit conversion
 SIDE, REAR, FRONT, JOINT = "side", "rear", "front", "joint"
 WINDOW, SKYLIGHT, NONE = "window", "skylight", "none"
 OPENINGS_RULE, LIGHTING_RULE = "S13-EXTERIOR-WALL-OPENINGS", "S12-STAIR-LIGHTING"
@@ -78,7 +79,7 @@ def entry_door(ground: BaseGeometry, garage: BaseGeometry | None, garage_side: s
                deck_offset: tuple[float, float] | None, cfg: dict[str, Any]) -> EntryDoor | None:
     """Main door on the street facade (front edge of the ground floor), its inward swing and the vestibule."""
     x0, y0, x1, y1 = ground.bounds
-    width = cfg["door"]["clear_width_in"] / 12.0
+    width = cfg["door"]["clear_width_in"] / IN_PER_FT
     vw, vd = cfg["vestibule"]["width_ft"], cfg["vestibule"]["depth_ft"]
     lo, hi = x0, x1
     if garage is not None and not garage.is_empty:
@@ -113,6 +114,30 @@ class Wall:
     fire_separation_ft: float | None
 
 
+def fire_separation_ft(wall: LineString, ground: BaseGeometry, lot: BaseGeometry, samples=(0.1, 0.5, 0.9),
+                       reach_ft: float = 1000.0) -> float | None:
+    """Fire separation distance of an exterior wall: measured at right angles to its face, from points along it, to
+    the lot line it faces (the least of the samples). The nearest point of the lot would give 0 ft for any wall whose
+    end meets a side lot line."""
+    (x0, y0), (x1, y1) = wall.coords[0], wall.coords[-1]
+    length = wall.length or 1.0
+    nx, ny = (y1 - y0) / length, -(x1 - x0) / length          # a unit normal; flipped below to point outside
+    mid = wall.interpolate(0.5, normalized=True)
+    probe = 10 * TOL                                          # a point just off the face, to tell inside from outside
+    if ground.contains(Point(mid.x + nx * probe, mid.y + ny * probe)):
+        nx, ny = -nx, -ny
+    best = None
+    for f in samples:
+        p = wall.interpolate(f, normalized=True)
+        ray = LineString([(p.x, p.y), (p.x + nx * reach_ft, p.y + ny * reach_ft)])
+        hit = ray.intersection(lot.exterior)
+        if hit.is_empty:
+            continue
+        d = p.distance(hit)
+        best = d if best is None else min(best, d)
+    return best
+
+
 def _common_exterior(ground: BaseGeometry, upper: BaseGeometry) -> list[LineString]:
     shared = ground.boundary.intersection(upper.boundary.buffer(TOL)).intersection(ground.boundary)
     return [s for line in lines_of(shared, 10 * TOL) for s in segments_of(line)]
@@ -141,7 +166,7 @@ def permitted_walls(ground: BaseGeometry, upper: BaseGeometry, garage: BaseGeome
                 kind = SIDE
             if kind in cfg["walls"]["excluded"] or kind not in cfg["walls"]["permitted"]:
                 continue
-            walls.append(Wall(part, kind, part.distance(lot.exterior)))
+            walls.append(Wall(part, kind, fire_separation_ft(part, ground, lot)))
     if JOINT in cfg["walls"]["fallback"]:
         walls += [Wall(j, JOINT, None) for j in joint_lines(upper, ground)]
     return walls
@@ -169,9 +194,10 @@ class StairLight:
     contact_ft: float = 0.0
 
 
-def stair_light(geom, walls: list[Wall], stair_rs, min_contact_ft: float, well: BaseGeometry | None) -> StairLight:
+def stair_light(geom, walls: list[Wall], stair_rs, min_contact_ft: float, well: BaseGeometry | None,
+                skylight: bool = False) -> StairLight:
     """Window on the landing, else on a flight, along an exterior wall that may have openings; else the skylight of
-    the void; else none."""
+    the void when the catalog allows one (no skylight since 2026-10-10); else none."""
     for kind in ("landing", "flight"):
         best = None
         for part in (p for p in geom.parts if p.kind == kind):
@@ -187,7 +213,7 @@ def stair_light(geom, walls: list[Wall], stair_rs, min_contact_ft: float, well: 
                     best = StairLight(WINDOW, kind, w.kind, allowed, round(contact, 2))
         if best is not None:
             return best
-    if well is not None and not well.is_empty:
+    if skylight and well is not None and not well.is_empty:
         return StairLight(SKYLIGHT, None, None, None)
     return StairLight(NONE, None, None, None)
 
@@ -217,5 +243,5 @@ def well_of(geom, min_side_ft: float) -> BaseGeometry | None:
 
 
 __all__ = ["FRONT", "JOINT", "LIGHTING_RULE", "NONE", "OPENINGS_RULE", "REAR", "SIDE", "SKYLIGHT", "WINDOW",
-           "EntryDoor", "StairLight", "Wall", "entry_door", "free_cut_off", "openings_allowed", "permitted_walls",
+           "EntryDoor", "StairLight", "Wall", "entry_door", "fire_separation_ft", "free_cut_off", "openings_allowed", "permitted_walls",
            "site_entry", "stair_light", "well_of"]

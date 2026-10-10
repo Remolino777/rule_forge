@@ -230,7 +230,7 @@ def _check_s1(data: dict[str, Any]) -> list[str]:
 
 
 S2_AXES = ("x", "y")
-S2_WEIGHTS = ("relations", "vertical", "shape", "anchors", "stair_access")
+S2_WEIGHTS = ("relations", "vertical", "shape", "anchors", "stair_access", "arrival")
 ARRIVALS = ("family_room", "upper_vestibule", "hall")
 
 

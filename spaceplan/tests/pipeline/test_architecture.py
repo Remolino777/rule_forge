@@ -177,7 +177,7 @@ def test_files_follow_plan_table():
                          "stair_rules", "lot_plan", "plan_levels", "stair", "roof_plane", "cell_geometry",  # S1
                          "stair_access",  # S1.1
                          "floor_frame", "core_zoning", "zone_relations", "zone_cell",  # S2
-                         "access_core", "access_stair", "routes"},  # S1.2 (short test)
+                         "access_core", "access_stair", "access_rank", "routes"},  # S1.2
         "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry", "zone_grid"},
         "stacking/main": {"run_stacking", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",

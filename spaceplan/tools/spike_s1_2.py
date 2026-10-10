@@ -24,14 +24,15 @@ from shapely.ops import unary_union
 
 from spaceplan.core.lib.catalog import load_catalog
 from spaceplan.modules.stacking.lib.access_core import JOINT, entry_door, permitted_walls, site_entry
-from spaceplan.modules.stacking.lib.access_stair import access_candidates, preselect
+from spaceplan.modules.stacking.lib.access_rank import rank_stair_candidates
+from spaceplan.modules.stacking.lib.access_stair import access_candidates, preselect, with_half_bath
 from spaceplan.modules.stacking.lib.cell_geometry import DRAWN, S1Context, draw_cell
 from spaceplan.modules.stacking.lib.cell_selection import select_cells
 from spaceplan.modules.stacking.lib.lot_plan import lot_plan, strategy_key
 from spaceplan.modules.stacking.lib.lot_vertical import lot_envelope
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
 from spaceplan.modules.stacking.lib.stair import stair_shape
-from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations
+from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations, u_min_span_ft
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
 from spaceplan.modules.stacking.lib.vertical_rules import load_vertical_ruleset
 from spaceplan.modules.stacking.lib.zone_cell import ZONED, s2_context, zone_cell
@@ -106,7 +107,7 @@ def main(argv=None) -> int:
     stair_sqft = float(catalog.space_type(scat.stair_space_type)["area"]["target"])
     required = crs.params("K06-STAIR-NATURAL-LIGHT")["required_by_strategy"]
     preference = crs.params("K07-STAIR-STRATEGY")["preference"]
-    design = {**scat.stair_design, "u_well_gap_ft": acc["void"]["well_ft"]}
+    design = {**scat.stair_design, "u_well_gap_ft": acc["void"]["well_ft"], "u_min_span_ft": u_min_span_ft(crs)}
     ftf = scat.levels["floor_to_floor_ft"]
     shapes = {t["stair_id"]: stair_shape(t, ftf, limits, design) for t in scat.data["stair"]["types"]}
     top_k = int(acc["comparison"]["top_k_per_strategy"])
@@ -162,7 +163,7 @@ def main(argv=None) -> int:
                 found, st = access_candidates(upper_cand.polygon, ground, garage, door, walls, shapes, cfg, acc,
                                               srs, required)
                 stats.update(st)
-                pool[placement] = preselect(found, top_k)
+                pool[placement] = with_half_bath(preselect(found, top_k), ground, garage, door, cfg)
                 doors[placement] = door
                 return [a.cand for a in found], None
 
@@ -185,13 +186,17 @@ def main(argv=None) -> int:
                     trials.append({"s1": s1n, "s2": s2n, "strategy": a.strategy, "light": a.light.source,
                                    "occupied": a.occupied_sqft, "placement": placement})
             zoned = [t for t in trials if chosen(t["s2"]) and (chosen(t["s2"]).get("routes") or {}).get("total_ft")]
-            pick, front = None, []
-            if zoned:
-                pts = [(t["occupied"], chosen(t["s2"])["routes"]["total_ft"]) for t in zoned]
-                front = [t for t, p in zip(zoned, pts)
-                         if not any(q[0] <= p[0] and q[1] <= p[1] and q != p for q in pts)]
-                pick = min(front, key=lambda t: (chosen(t["s2"])["routes"]["total_ft"],
-                                                 preference.index(t["strategy"]), t["occupied"]))
+            for t in zoned:
+                opt = chosen(t["s2"])
+                t.update({"route_ft": opt["routes"]["total_ft"], "occupied_sqft": t["occupied"],
+                          "arrival_kind": t["s2"]["upper"].get("arrival_kind"),
+                          "half_bath": opt.get("half_bath") == "under_stair"})
+            order = (zoned[0]["s2"].get("arrival") or {}).get("order") if zoned else None
+            ranked = rank_stair_candidates(zoned, float(acc["comparison"]["route_tolerance_ft"]), preference, order)
+            pick = ranked[0].trial if ranked else None
+            front = [r.trial for r in ranked if r.pareto]
+            if pick is not None:
+                pick["reason"] = ranked[0].reason
             # ---------------- metrics
             def metrics(tag, rec):
                 if rec is None:
@@ -214,6 +219,8 @@ def main(argv=None) -> int:
                    "scheme_id": c["scheme_id"], "rank": c["rank"], "candidates_kept": len(trials),
                    "zoned_candidates": len(zoned), "pareto": len(front),
                    "strategies_zoned": ",".join(sorted({t["strategy"] for t in zoned})),
+                   "pick_reason": (pick or {}).get("reason"),
+                   "new_arrival": (pick or {}).get("arrival_kind"), "new_half_bath": (pick or {}).get("half_bath"),
                    "discards": json.dumps({k: v for k, v in sorted(stats.items()) if not k.endswith("placed")})}
             row.update(metrics("cur", base))
             row.update(metrics("new", pick))

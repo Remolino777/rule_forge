@@ -30,7 +30,7 @@ from spaceplan.modules.stacking.lib.access_core import (
     stair_light,
     well_of,
 )
-from spaceplan.modules.stacking.lib.stair import StairCandidate, StairShape, candidates
+from spaceplan.modules.stacking.lib.stair import StairCandidate, StairShape, candidates, half_bath_spot
 
 TOL = 1e-3
 U_WELL = "u_well"
@@ -81,7 +81,8 @@ def _evaluate(c: StairCandidate, strategy: str, wall: Wall, walls: list[Wall], u
     taken_u = fp if well is None else unary_union([fp, well])
     if free_cut_off(upper, taken_u, c.top_zone) > limit:
         return None, "circulation"
-    light = stair_light(c.geom, walls, stair_rs, acc["light"]["min_contact_ft"], well)
+    light = stair_light(c.geom, walls, stair_rs, acc["light"]["min_contact_ft"], well,
+                        bool(acc["void"].get("skylight", False)))
     if required.get(strategy, False) and light.source == NONE:
         return None, "K06"
     net_ground = c.under["footprint_sqft"] - c.under["recovered_sqft"]
@@ -91,13 +92,60 @@ def _evaluate(c: StairCandidate, strategy: str, wall: Wall, walls: list[Wall], u
     return AccessCandidate(c, strategy, wall, light, well, occupied, entry, stacked, fallback), None
 
 
+def _sub_line(line, bounds, window: float):
+    """Piece of an axis-aligned wall around a placed footprint, `window` beyond each end (fine search)."""
+    from shapely.geometry import LineString
+
+    from spaceplan.modules.stacking.lib_aux.plan_geometry import is_axis_aligned
+
+    (x0, y0), (x1, y1) = line.coords[0], line.coords[-1]
+    bx0, by0, bx1, by1 = bounds
+    if is_axis_aligned(line) == "x":
+        lo, hi = sorted((x0, x1))
+        a, b = max(lo, bx0 - window), min(hi, bx1 + window)
+        return LineString([(a, y0), (b, y0)]) if b > a else None
+    lo, hi = sorted((y0, y1))
+    a, b = max(lo, by0 - window), min(hi, by1 + window)
+    return LineString([(x0, a), (x0, b)]) if b > a else None
+
+
+def _signature(c: StairCandidate) -> tuple:
+    return (c.shape.stair_id, tuple(round(v, 2) for v in c.geom.footprint.bounds),
+            tuple(round(v, 2) for v in c.bottom_zone.centroid.coords[0]))
+
+
 def access_candidates(upper, ground, garage, door: EntryDoor, walls: list[Wall], shapes: dict[str, StairShape],
                       cfg: dict[str, Any], acc: dict[str, Any], stair_rs,
                       required: dict[str, bool]) -> tuple[list[AccessCandidate], Counter]:
-    """Valid candidates of every strategy on one upper-floor placement, and the count of discards by cause."""
+    """Valid candidates of every strategy on one upper-floor placement, and the count of discards by cause.
+
+    Two-level search per wall and configuration: every coarse step along the wall, then every fine step within
+    the refine window of the best seeds (by occupied area, then distance to the vestibule). The half bath (a
+    preference, client rule K09) is looked for afterwards, in the preselected candidates (`with_half_bath`)."""
+    pos = acc["positions"]
+    coarse = {**cfg, "step": float(pos["coarse_step_ft"]), "max_positions": int(pos["max_positions"]),
+              "half_bath_trials": 0}             # the half bath is looked for after the preselection (K09)
+    fine = {**coarse, "step": float(pos["fine_step_ft"])}
     stats: Counter = Counter()
     out: list[AccessCandidate] = []
-    search = {**cfg, "max_positions": int(acc["positions"]["max_positions"])}
+    seen: set = set()
+
+    def take(found, strategy, wall, fallback) -> list[AccessCandidate]:
+        kept = []
+        for c in found:
+            sig = _signature(c)
+            if sig in seen:
+                continue
+            seen.add(sig)
+            stats[f"{strategy}:placed"] += 1
+            a, why = _evaluate(c, strategy, wall, walls, upper, ground, garage, door, acc, stair_rs, required,
+                               fallback)
+            if a is None:
+                stats[f"{strategy}:{why}"] += 1
+            else:
+                kept.append(a)
+        return kept
+
     for strategy, spec in acc["strategies"].items():
         if strategy == "fallback_stair_ids":
             continue
@@ -108,40 +156,69 @@ def access_candidates(upper, ground, garage, door: EntryDoor, walls: list[Wall],
         for ids, fallback in ((spec["stair_ids"], False), (acc["strategies"]["fallback_stair_ids"], True)):
             if fallback and (strategy == "C" or any(a.strategy == strategy for a in out)):
                 break
-            chosen = [shapes[sid] for sid in ids if sid in shapes]
-            found = candidates(chosen, [w.line for w in lines], upper, ground, garage, search)
-            stats[f"{strategy}:placed"] += len(found)
-            for c in found:
-                a, why = _evaluate(c, strategy, lines[c.joint_index], walls, upper, ground, garage, door, acc,
-                                   stair_rs, required, fallback)
-                if a is None:
-                    stats[f"{strategy}:{why}"] += 1
-                else:
-                    out.append(a)
+            for wall in lines:
+                for sid in ids:
+                    if sid not in shapes:
+                        continue
+                    shape = shapes[sid]
+                    kept = take(candidates([shape], [wall.line], upper, ground, garage, coarse), strategy, wall,
+                                fallback)
+                    seeds = sorted(kept, key=lambda a: (round(a.occupied_sqft), a.entry_ft))[: int(pos["seeds_per_wall"])]
+                    for seed in seeds:
+                        sub = _sub_line(wall.line, seed.cand.geom.footprint.bounds, float(pos["refine_window_ft"]))
+                        if sub is not None:
+                            kept += take(candidates([shape], [sub], upper, ground, garage, fine), strategy, wall,
+                                         fallback)
+                    out += kept
     return out, stats
 
 
 def preselect(cands: list[AccessCandidate], top_k: int) -> list[AccessCandidate]:
-    """Best few of each strategy by occupied area, then distance from the vestibule to the start (distinct
-    stair configurations first, so a strategy offers its U and its L when both fit)."""
+    """Few candidates of each strategy for S2: the least occupied, the nearest start to the vestibule, then other
+    configurations (so a strategy offers its U and its L) and the half bath under the stair when one fits."""
     out = []
     for strategy in sorted({a.strategy for a in cands}):
-        mine = sorted((a for a in cands if a.strategy == strategy),
-                      key=lambda a: (round(a.occupied_sqft), round(a.entry_ft, 1), a.cand.key))
-        picked, seen = [], set()
-        for a in mine:
-            if a.stair_id not in seen:
+        mine = [a for a in cands if a.strategy == strategy]
+        orders = [sorted(mine, key=lambda a: (round(a.occupied_sqft), a.entry_ft, a.cand.key)),
+                  sorted(mine, key=lambda a: (a.entry_ft, a.occupied_sqft, a.cand.key))]
+        picked: list[AccessCandidate] = []
+
+        def add(a):
+            if a not in picked and len(picked) < top_k:
                 picked.append(a)
-                seen.add(a.stair_id)
-            if len(picked) >= top_k:
-                break
-        for a in mine:
-            if len(picked) >= top_k:
-                break
-            if a not in picked:
-                picked.append(a)
+
+        for order in orders:
+            if order:
+                add(order[0])
+        for sid in sorted({a.stair_id for a in mine}):
+            add(next(a for a in orders[0] if a.stair_id == sid))
+        hb = [a for a in orders[0] if a.cand.half_bath is not None]
+        if hb:
+            add(hb[0])
+        for a in orders[0]:
+            add(a)
         out += picked
     return out
 
 
-__all__ = ["AccessCandidate", "access_candidates", "preselect"]
+def with_half_bath(cands: list[AccessCandidate], ground, garage, door: EntryDoor,
+                   cfg: dict[str, Any]) -> list[AccessCandidate]:
+    """The same candidates with a vestibulated half bath under the stair where one fits clear of the main door
+    (same search as S1.1)."""
+    from dataclasses import replace
+
+    no_garage = ground if garage is None else ground.difference(garage)
+    blocked = unary_union([door.swing, door.vestibule])
+    out = []
+    for a in cands:
+        c = a.cand
+        free = no_garage.difference(c.geom.footprint).difference(c.bottom_zone).difference(blocked)
+        hb = half_bath_spot(c.geom, cfg["half_bath_ft"], cfg["half_bath_sqft"], cfg["half_bath_side_ft"],
+                            cfg["extension_ft"], free.union(c.bottom_zone), cfg["vestibule_ft"], cfg["step"])
+        if hb is not None and unary_union([hb["half_bath"], hb["vestibule"]]).intersection(blocked).area > TOL:
+            hb = None
+        out.append(replace(a, cand=replace(c, half_bath=hb)) if hb is not None else a)
+    return out
+
+
+__all__ = ["AccessCandidate", "access_candidates", "preselect", "with_half_bath"]

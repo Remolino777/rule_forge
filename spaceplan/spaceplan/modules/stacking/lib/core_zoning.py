@@ -33,6 +33,7 @@ from spaceplan.modules.stacking.lib.floor_frame import (
     CIRCULATION,
     FAMILY_ROOM,
     FIXED_ENTRY,
+    arrival_of,
     FIXED_GARAGE,
     FIXED_STAIR,
     FIXED_VESTIBULE,
@@ -57,11 +58,12 @@ from spaceplan.modules.stacking.lib_aux.zone_grid import (
     cells_in,
     cut_index,
     label_contact,
+    label_contact_mask,
     shared_contact,
 )
 
 PRIVATE = "private"
-VIOLATION_ORDER = ("width", "area", "landing", "doors", "entry", "K04", "K01", "anchors", "matrix")
+VIOLATION_ORDER = ("width", "area", "landing", "doors", "entry", "K04", "K01", "hall", "anchors", "matrix")
 
 
 @dataclass(frozen=True)
@@ -82,7 +84,9 @@ class FloorRules:
     axes: tuple[str, ...]
     max_bands: int
     max_topologies: int
-    arrival: str | None = None               # upper floor: K01 receiving kind
+    arrival: str | None = None               # upper floor: K01 most preferred receiving kind
+    arrival_order: tuple[str, ...] = ()      # upper floor: allowed receiving kinds by preference (K01)
+    stair_hall: dict[str, Any] | None = None  # both floors: stair bordered by circulation, not inside a room
 
 
 @dataclass
@@ -343,6 +347,10 @@ class FloorSearch:
         if self.f.level != GROUND and not self._arrival_ok(rz.landing_unit):
             rz.violation = f"K01:{self.r.arrival}"
             return rz
+        hall = self._stair_hall(rects)
+        if hall:
+            rz.violation = hall
+            return rz
         anchor_score, anchor_fail = self._anchors(rects)
         if anchor_fail:
             rz.violation = f"anchors:{anchor_fail}"
@@ -356,6 +364,8 @@ class FloorSearch:
                     "stair_access": self._stair_access(rz)}
         if self.f.level == GROUND:
             rz.parts["anchors"] = anchor_score
+        elif self._order():
+            rz.parts["arrival"] = self._arrival_score(rz.landing_unit)
         w = self.r.weights
         rz.score = sum(w[k] * v for k, v in rz.parts.items()) / (sum(w[k] for k in rz.parts) or 1.0)
         return rz
@@ -394,13 +404,39 @@ class FloorSearch:
                     stack.append(y)
         return seen
 
+    def _order(self) -> tuple[str, ...]:
+        return self.r.arrival_order or ((self.r.arrival,) if self.r.arrival else ())
+
     def _arrival_ok(self, unit: int | None) -> bool:
-        if unit is None:
-            return False
-        u = self.units[unit]
-        if self.r.arrival == FAMILY_ROOM:
-            return u.hosts({FAMILY_ROOM})
-        return u.zone == CIRCULATION
+        return unit is not None and arrival_of(self.units[unit], list(self._order())) is not None
+
+    def _arrival_score(self, unit: int) -> float:
+        """K01 as a preference: 1 for the most preferred receiving kind, less down the order."""
+        order = list(self._order())
+        kind = arrival_of(self.units[unit], order)
+        return (len(order) - order.index(kind)) / len(order) if kind in order else 0.0
+
+    def _stair_hall(self, rects) -> str | None:
+        """The stair borders the circulation (or the entry vestibule) along at least a stair width, and the living
+        or kitchen zones along no more than the catalog share of its edge: never in the middle of a room."""
+        cfg = self.r.stair_hall
+        if not cfg or self.stair is None or not self.stair.any():
+            return None
+        g = self.f.grid
+        contact = [label_contact(g, r, self.stair) for r in rects]
+        total = sum(contact) + (label_contact_mask(g, self.entry, self.stair) if self.entry is not None else 0.0)
+        circ = sum(c for c, u in zip(contact, self.units) if u.zone == CIRCULATION)
+        circ += label_contact_mask(g, self.entry, self.stair) if self.entry is not None else 0.0
+        open_ = sum(c for c, u in zip(contact, self.units) if u.zone in cfg["open_zones"])
+        if circ < cfg["min_circulation_contact_ft"] - self.tol:
+            return "hall:no_circulation"
+        if total and open_ / total > cfg["max_open_zone_share"] + 1e-9:
+            return "hall:inside_room"
+        private_max = cfg.get("max_private_unit_share")
+        if total and private_max is not None and any(
+                c / total > private_max + 1e-9 for c, u in zip(contact, self.units) if u.zone == PRIVATE):
+            return "hall:inside_private"
+        return None
 
     def _anchors(self, rects) -> tuple[float, str | None]:
         if self.f.level != GROUND or not self.r.anchors:

@@ -171,6 +171,13 @@ def label_contact(grid: Grid, r: Rect, mask: np.ndarray, sides: tuple[str, ...] 
     return total * grid.res
 
 
+def label_contact_mask(grid: Grid, a: np.ndarray, b: np.ndarray) -> float:
+    """Length of wall between the cells of two boolean masks (4-neighbour sides)."""
+    total = int((a[:, 1:] & b[:, :-1]).sum() + (a[:, :-1] & b[:, 1:]).sum()
+                + (a[1:, :] & b[:-1, :]).sum() + (a[:-1, :] & b[1:, :]).sum())
+    return total * grid.res
+
+
 def cells_in(points: tuple[np.ndarray, np.ndarray], r: Rect) -> int:
     """How many of the cells (rows, cols) lie inside a rectangle."""
     rows, cols = points
@@ -190,7 +197,7 @@ def cells_of(grid: Grid, geom: BaseGeometry | None) -> tuple[np.ndarray, np.ndar
 
 
 __all__ = ["FREE", "OUTSIDE", "SIDES", "Grid", "Rect", "bounding_cells", "cells_in", "cells_of", "cut_index",
-           "label_contact", "rasterize", "shared_contact"]
+           "label_contact", "label_contact_mask", "rasterize", "shared_contact"]
 
 
 # ------------------------------------------------------------------ routes and free rectangles (stage S1.2)

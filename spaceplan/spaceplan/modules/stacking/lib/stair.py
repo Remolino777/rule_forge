@@ -109,7 +109,11 @@ def stair_shape(stair_type: dict[str, Any], floor_to_floor_ft: float, limits: St
             bottom, top = End(((0, 0), (0, w)), (-1, 0)), End(((t1, w + t2), (t1 + w, w + t2)), (0, 1))
         elif sid in ("u_turn", "u_well"):
             gap = design.get("u_well_gap_ft" if sid == "u_well" else "u_turn_gap_ft", 0.0)
+            # client rule K08: a U is at least u_min_span_ft wide overall; both flights widen equally
+            w = max(w, (design.get("u_min_span_ft", 0.0) - gap) / 2.0)
+            ld = max(ld, w)
             span = 2 * w + gap
+            f1 = _flight((0, 0, t1, w), "u", 1, 0.0, 0.0, r, t, d)
             parts = (f1, _landing((t1, 0, t1 + ld, span), h_land, d),
                      _flight((t1 - t2, w + gap, t1, span), "u", -1, t1, h_land, r, t, d))
             bottom, top = End(((0, 0), (0, w)), (-1, 0)), End(((t1 - t2, w + gap), (t1 - t2, span)), (-1, 0))

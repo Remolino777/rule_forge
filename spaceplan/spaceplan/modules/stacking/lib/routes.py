@@ -1,7 +1,8 @@
 """Routes of the ground floor from the main door (stage S1.2, client steps 3 and 7).
 
 Walking distance on the zoning grid (4-neighbour steps times the cell size) from the vestibule behind the main door
-to the nearest cell of the zone holding each target role (living, dining, kitchen) and to the stair start. Only the
+to the centre of the zone holding each target role (living, dining, kitchen: the reachable cell closest to the
+zone's centroid; the nearest edge would reward any zone that merely touches the vestibule) and to the stair start. Only the
 zones the catalog lists as passable are crossed (circulation, social, kitchen, service: never bedrooms or the
 garage), plus the vestibule and the stair's arrival zone. A target that cannot be reached is reported as None.
 """
@@ -16,6 +17,19 @@ from spaceplan.modules.stacking.lib.floor_frame import FIXED_ENTRY, FloorFrame
 from spaceplan.modules.stacking.lib_aux.zone_grid import bfs_steps, cells_of
 
 STAIR = "stair"
+
+
+def _centre_cell(mask: np.ndarray, dist: np.ndarray) -> np.ndarray:
+    """The reachable cell of a zone closest to the zone's centroid (a one-cell mask)."""
+    rows, cols = np.nonzero(mask & (dist >= 0))
+    if not len(rows):
+        return mask
+    cr, cc = np.nonzero(mask)
+    r0, c0 = cr.mean(), cc.mean()
+    k = int(np.argmin((rows - r0) ** 2 + (cols - c0) ** 2))
+    out = np.zeros_like(mask)
+    out[rows[k], cols[k]] = True
+    return out
 
 
 def route_lengths(frame: FloorFrame, rects, roles: dict[str, frozenset[str]], cfg: dict[str, Any],
@@ -55,6 +69,8 @@ def route_lengths(frame: FloorFrame, rects, roles: dict[str, frozenset[str]], cf
                     mask |= m
         if not mask.any():
             continue                                  # role absent from this floor
+        if target != STAIR:
+            mask = _centre_cell(mask, dist)           # walk into the room: to its centre, not to its edge
         reach = dist[mask & (dist >= 0)]
         out[target] = round(float(reach.min()) * g.res, 2) if reach.size else None
     known = [v for v in out.values() if v is not None]

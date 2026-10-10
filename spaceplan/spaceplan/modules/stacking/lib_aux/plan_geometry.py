@@ -117,15 +117,20 @@ def rects_along_line(line: LineString, along: float, across: float, step: float,
     n = int((b - a - along) // step) if b - a > along else 0
     starts = sorted({a + k * step for k in range(n + 1)} | {b - along, mid - along / 2})
     holder = prep(inside.buffer(tol))
+    ix0, iy0, ix1, iy1 = inside.bounds
     out = []
     for s in starts:
         if s < a - tol or s + along > b + tol:
             continue
         if direction == "x":
-            rects = (box(s, y0, s + along, y0 + across), box(s, y0 - across, s + along, y0))
+            coords = ((s, y0, s + along, y0 + across), (s, y0 - across, s + along, y0))
         else:
-            rects = (box(x0, s, x0 + across, s + along), box(x0 - across, s, x0, s + along))
-        for r in rects:
+            coords = ((x0, s, x0 + across, s + along), (x0 - across, s, x0, s + along))
+        for c in coords:
+            # cheap bounds test before building the polygon (same result, far fewer geometries)
+            if c[0] < ix0 - tol or c[1] < iy0 - tol or c[2] > ix1 + tol or c[3] > iy1 + tol:
+                continue
+            r = box(*c)
             if holder.contains(r):
                 out.append(Placed(r, abs(s + along / 2 - mid), along, across))
     return sorted(out, key=lambda p: (round(p.offset_ft, OFFSET_DIGITS), p.rect.bounds))

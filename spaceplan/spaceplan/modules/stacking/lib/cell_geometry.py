@@ -42,6 +42,7 @@ from spaceplan.modules.stacking.lib.stair_access import (
     top_receiving,
     trace,
     under_stair_use,
+    u_min_span_ft,
     upper_rooms,
     uses_by_bottom_option,
 )
@@ -153,7 +154,8 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
     g_area = garage_area(cell, plan.far_base_sqft)
     g_cfg = scat.garage if garage_side is None else {**scat.garage, "side": garage_side}
     garage = garage_rect(ground, g_area, g_cfg)
-    shapes = [stair_shape(t, lv["floor_to_floor_ft"], limits, scat.stair_design) for t in scat.stair_types
+    design = {**scat.stair_design, "u_min_span_ft": u_min_span_ft(ctx.client_rs)}   # client rule K08
+    shapes = [stair_shape(t, lv["floor_to_floor_ft"], limits, design) for t in scat.stair_types
               if stair_ids is None or t["stair_id"] in stair_ids]
     rooms = upper_rooms(list(cell.get("split", {}).get("upper_spaces") or s0.get("upper_spaces") or []),
                         ctx.catalog, scat.stair_access)

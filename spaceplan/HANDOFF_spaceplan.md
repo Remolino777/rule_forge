@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 10 de octubre de 2026 · Estado: **paso 6.7a etapa S2 hecha (sección 4o: zonificación de ambas plantas alrededor del `stair_core`, portafolio de arranque A/B/C, retroceso a S1)**; pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0, S1 y S1.1 hechas y lógica de áreas con FOS/FOT del cliente** (secciones 4j, 4k, 4l y 4m: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo; S1.1 compara configuraciones de escalera, espacio bajo ella, llegada y arranque) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.13.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.2.0 · reglas de cliente de escalera 0.2.0 · variables de diseño del cliente 0.1.0 · catálogo de apilamiento 0.5.0 · 1,263 pruebas
+Fecha: 10 de octubre de 2026 · Estado: **paso 6.7a S1.2 en prueba (sección 4p: escalera desde la puerta, luz, U de 2.5 m)**; **paso 6.7a etapa S2 hecha (sección 4o: zonificación de ambas plantas alrededor del `stair_core`, portafolio de arranque A/B/C, retroceso a S1)**; pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0, S1 y S1.1 hechas y lógica de áreas con FOS/FOT del cliente** (secciones 4j, 4k, 4l y 4m: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo; S1.1 compara configuraciones de escalera, espacio bajo ella, llegada y arranque) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.13.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.3.0 · variables de diseño del cliente 0.1.0 · catálogo de apilamiento 0.7.0 · reglas de cliente de escalera 0.4.0 · 1,291 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -846,6 +846,38 @@ zonifica, S2 pide a S1 redibujarla con otra colocación de la planta alta o con 
 reubicado quedan para S2.1; los pares N sin escalera (medio baño sin puerta directa a sala/cocina) y un clóset de
 lavandería en el hall de llegada quedan `deferred_to_S2.1`; garaje provisional a la derecha; área ±25 % y demás valores
 de diseño provisionales.
+
+## 4p. Paso 6.7a, S1.2 (10 oct 2026): escalera desde la puerta principal, luz, U de 2.5 m, selector en tres niveles
+
+**Rama:** `stacking/6.7a-s1.2-spike` (prueba corta y cierre; aún fuera del flujo `--stage S2`). Script de comparación:
+`tools/spike_s1_2.py CONTRACTS OUT --cells best` (necesita `site_plan_<brief>.json` además de los contratos de áreas).
+
+**Decisiones del cliente.** Entrada en 7 pasos: la fachada a la calle, la puerta sobre el deck del `site_plan` (abre
+hacia dentro, bisagra al muro cercano), un vestíbulo de 5×5 ft, recorridos y escaleras U y L contra los muros
+permitidos. Los muros permitidos son los laterales y el posterior que siguen arriba; la junta solo como último recurso.
+Se descartan las interferencias; sin estructura por ahora. Estrategias: A muro lateral, D fachada posterior, C U con
+vacío central, B centro. **Sin claraboya.** Luz en dos capas: S12 (R303.7, luz artificial, siempre) y K06 (ventana
+según S13 / Tabla R302.1, sin verificar; obligatoria en A, C y D). K08: **U ≥ 2.5 m** de ancho total (afecta también a
+S1). Llegada arriba (K01) y medio baño (K09) como **preferencias**. Regla de hall: la escalera toca la circulación al
+menos un ancho de escalera; sala y cocina no pasan de la mitad de su borde; una sola zona privada no pasa de 3/4.
+Selector en tres niveles: obligatorio → recorrido dentro de una tolerancia sobre el mejor → preferencias (estrategia,
+llegada, medio baño).
+
+**Código.** `lib/access_core.py`: puerta, giro, vestíbulo, muros, distancia de separación perpendicular y luz.
+`lib/access_stair.py`: candidatas por estrategia con búsqueda en dos niveles, descartes, preselección y medio baño
+posterior. `lib/access_rank.py`: selector. `lib/routes.py`: recorridos hasta el centro de cada zona. S2: vestíbulo y
+vacío fijos, llegada por preferencia, regla de hall. `draw_cell(..., picker, garage_side)`. Catálogo 0.7.0 (bloque
+`access_core`, escalera `u_well`), reglas de cliente 0.4.0 (K06–K09), CRC escaleras 0.3.0 (S12, S13). 13 pruebas
+nuevas (T1–T8 y el hall); 1,291 pasan; golden sin cambios.
+
+**Resultados (3 lotes, 100 celdas best; versión actual también con la regla de hall).** Zonificadas 76 → 96; con luz
+0 → 58; mayor rectángulo libre PB 787 → 871 sq ft y PA 552 → 618; recorrido a sala, comedor, cocina y escalera
+98.5 → 79.2 ft; puerta → arranque 6.5 → 3.0 ft; U 4 → 14. Con tolerancia 6 ft: A 27, D 26, C 5, B 38. **Simulación de
+tolerancias:** 12 ft → A 49, B 22, luz 74; 20 ft → A 55, B 11, luz 85, recorrido +7 ft. ≈ 7 s por celda.
+
+**Pendiente.** Fijar la tolerancia de recorrido (decisión del cliente); integrar S1.2 en `--stage S2` y correr los 10
+lotes; bajar el tiempo (reutilizar la huella para todas las posiciones); verificar S13 (R302.1) y si el vacío cuenta
+en el FAR; la estructura.
 
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
