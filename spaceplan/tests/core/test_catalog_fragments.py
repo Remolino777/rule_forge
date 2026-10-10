@@ -27,9 +27,13 @@ FRAGMENTS = CATALOG_DIR / "fragments"
 
 
 # SHA-256 (canonical JSON) of the pre-split residential_catalog.json (catalog 0.11.0), frozen when the file was
-# removed (refactor tanda 4, 2026-10-09); tanda 1 proved the merged fragments identical to it.
-REFERENCE_SHA256 = "450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e"
-REFERENCE_VERSION = "0.11.0"
+# removed (refactor tanda 4, 2026-10-09); tanda 1 proved the merged fragments identical to it:
+#   0.11.0  450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e
+# Catalog 0.12.0 (2026-10-09, step 6.7a area logic, client-approved): stair area per floor from the CRC stair
+# geometry of S1.1 (37.5 / 44 / 53 sq ft instead of 40 / 60 / 90) and the lot-minimum typology h1_basic. Any other
+# change to the fragments must bump the version and the hash here.
+REFERENCE_SHA256 = "17ca8654495722031b6a01da2c3a9affd868f10c2e67ad7edff397eb3996f6b9"
+REFERENCE_VERSION = "0.12.0"
 
 
 @pytest.fixture(scope="module")

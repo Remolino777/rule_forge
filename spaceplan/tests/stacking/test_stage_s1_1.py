@@ -69,8 +69,10 @@ def shapes(scat, srs):
 
 @pytest.fixture(scope="module")
 def s1():
-    am, lc = load_fixture("area_matrix", SUBJECT), load_fixture("lot_capacity", "interior_50x100")
-    return run_stacking(am, [lc], mode="all", stage="S1")
+    from spaceplan.pipeline.main.run_modules import area_matrix_contract_for
+
+    am = area_matrix_contract_for(lots=["interior_50x100"], households=[("shared_adults", "anglo")], zone_top=0)
+    return run_stacking(am, [load_fixture("lot_capacity", "interior_50x100")], mode="all", stage="S1")
 
 
 def _cfg(scat, srs, receiving="hall"):
@@ -181,6 +183,8 @@ def test_small_house_arrives_into_a_vestibule(client):
                        catalog, acc)
     assert (two, four) == (2, 4)
     assert top_receiving(client, two, 2)["receiving"] == "upper_vestibule"
+    assert load_stacking_catalog().stair_access["small_house_upper_rooms_max"] == 1
+    assert top_receiving(client, two, 1)["receiving"] == "hall"
     top = top_receiving(client, four, 2)
     assert top["receiving"] == "hall" and top["max"] == "family_room" and "bedroom" in top["forbidden"]
 

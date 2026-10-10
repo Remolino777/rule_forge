@@ -77,6 +77,7 @@ def household_cells(
     mean_slope: float | None = None,
     profiles_two_floors: dict | None = None,
     forced_schemes: tuple[str, ...] = (),
+    floors_policy: str | None = None,
 ) -> list[dict[str, Any]]:
     """Every (profile, scheme) cell of one household on one lot.
 
@@ -162,17 +163,28 @@ def household_cells(
                 "score_parts": {k: round(v, 4) for k, v in parts.items()},
                 "degenerate_schemes": degenerate,
             })
-    rank_schemes(cells)
+    rank_schemes(cells, floors_policy)
     return cells
 
 
-def rank_schemes(cells: list[dict]) -> None:
-    """Rank feasible schemes inside each (household, profile); name the metric that decides #1 vs #2."""
+ONE_FLOOR_FIRST = "one_floor_first"
+
+
+def rank_schemes(cells: list[dict], floors_policy: str | None = None) -> None:
+    """Rank feasible schemes inside each (household, profile); name the metric that decides #1 vs #2.
+
+    floors_policy "one_floor_first" (client rule D03): when a one-floor scheme is feasible, two-floor schemes are
+    kept (scored) but not ranked - the second floor exists only when the program does not fit on one floor."""
     groups: dict[tuple, list[dict]] = {}
     for c in cells:
         groups.setdefault((c["lot_id"], c["household_id"], c["profile"]), []).append(c)
     for group in groups.values():
-        ok = sorted((c for c in group if c["score"] is not None), key=lambda c: -c["score"])
+        one_floor_ok = any(c["floors"] == 1 and c["score"] is not None for c in group)
+        for c in group:
+            c["policy_excluded"] = (floors_policy == ONE_FLOOR_FIRST and one_floor_ok and c["floors"] > 1
+                                    and c["score"] is not None)
+        ok = sorted((c for c in group if c["score"] is not None and not c["policy_excluded"]),
+                    key=lambda c: -c["score"])
         for i, c in enumerate(ok):
             c["rank"] = i + 1
         for c in group:
@@ -210,5 +222,5 @@ def compact(cell: dict) -> dict:
     return row
 
 
-__all__ = ["FEASIBLE", "compact", "household_cells", "lot_metrics", "pareto_cells", "profile_program",
+__all__ = ["FEASIBLE", "ONE_FLOOR_FIRST", "compact", "household_cells", "lot_metrics", "pareto_cells", "profile_program",
            "rank_schemes"]

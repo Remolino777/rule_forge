@@ -333,6 +333,7 @@ def _add_module_parsers(sub) -> None:
     p_stack.add_argument("--stage", choices=("S0", "S1"), default="S0",
                          help="S0 levels and height (default); S1 also draws floors, stair and roof")
     p_stack.add_argument("--plans", help="directory for the S1 stacked-plan sheets (one PNG per lot)")
+    _add_design_args(p_stack)
     p_stack.add_argument("--area-matrix", help="read this area_matrix contract instead of computing it")
     p_stack.add_argument("--lot-capacity", action="append", default=[],
                          help="lot_capacity contract of a lot (repeat); default: computed from the lot briefs")
@@ -423,6 +424,52 @@ def _stack_lines(contract: dict) -> list[str]:
     return lines
 
 
+def _add_design_args(p) -> None:
+    """Client design variables (data/rules/client_design_variables.json), overridable per run."""
+    g = p.add_argument_group("design variables (client, editable)")
+    g.add_argument("--fos", type=float, help="design FOS (default from the design variables file: 0.60)")
+    g.add_argument("--fos-base", choices=("envelope", "lot"), help="area the FOS applies to")
+    g.add_argument("--fot-source", choices=("sdmc", "fixed"), help="sdmc: Table 131-04J; fixed: --fot as a scenario")
+    g.add_argument("--fot", type=float, help="fixed FOT value (with --fot-source fixed; default 0.85)")
+    g.add_argument("--floors-policy", choices=("one_floor_first", "score"))
+    g.add_argument("--optimum-policy", choices=("footprint", "knee"))
+    g.add_argument("--legacy-areas", action="store_true", help="step-6.6 logic without the design variables")
+
+
+def _design_from_args(args):
+    from spaceplan.core.lib.design_variables import load_design_variables
+
+    if getattr(args, "legacy_areas", False):
+        return False
+    return load_design_variables(fos=args.fos, fos_base=args.fos_base, fot_source=args.fot_source,
+                                 fot_fixed=args.fot, floors_policy=args.floors_policy,
+                                 optimum_policy=args.optimum_policy)
+
+
+def _grid(text: str) -> list[float]:
+    a, b, step = (float(x) for x in text.split(":"))
+    n = int(round((b - a) / step)) + 1
+    return [round(a + i * step, 4) for i in range(n)]
+
+
+def _run_sensitivity_command(args) -> int:
+    from spaceplan.pipeline.main.run_sensitivity import run_sensitivity, sensitivity_lines, write_sensitivity
+
+    design = _design_from_args(args)
+    result = run_sensitivity(
+        area_matrix=load_contract(args.area_matrix, "area_matrix") if args.area_matrix else None,
+        lots=args.lots or None, households=_parse_households(args.households),
+        design=None if design is False else design, fos_grid=_grid(args.fos_grid), fot_grid=_grid(args.fot_grid))
+    if args.tables:
+        write_sensitivity(result, args.tables)
+    if args.figure:
+        from spaceplan.modules.viz.main.run_viz import draw_sensitivity
+
+        draw_sensitivity(result, args.figure)
+    print(json.dumps(result, indent=2) if args.json else "\n".join(sensitivity_lines(result)))
+    return 0
+
+
 def _run_stacking_command(args) -> int:
     from spaceplan.modules.stacking.main.contract import from_contract
     from spaceplan.modules.stacking.main.run_stacking import write_tables
@@ -432,7 +479,7 @@ def _run_stacking_command(args) -> int:
         area_matrix=load_contract(args.area_matrix, "area_matrix") if args.area_matrix else None,
         lot_capacities=[load_contract(p, "lot_capacity") for p in args.lot_capacity] or None,
         mode=args.cells, lots=args.lots or None, households=_parse_households(args.households), zone_top=0,
-        stage=args.stage)
+        stage=args.stage, design=_design_from_args(args))
     if args.out:
         write_contract(contract, args.out)
     if args.tables:
@@ -520,6 +567,18 @@ def main(argv: list[str] | None = None) -> int:
                         help="vertical scheme fixed by the client (V0-V5); evaluated even if not applicable")
     p_area.add_argument("--json", action="store_true")
     p_area.add_argument("--contract", help="write the area_matrix contract")
+    _add_design_args(p_area)
+    p_sens = sub.add_parser("sensitivity", help="normative sensitivity: FOS x FOT grid per lot (one or two floors, "
+                                                "which ceiling governs)")
+    p_sens.add_argument("lots", nargs="*", help="pilot lot names or brief paths (default: the 10 pilot lots)")
+    p_sens.add_argument("--households", help="comma list archetype.culture (culture: none|latino|anglo)")
+    p_sens.add_argument("--area-matrix", help="read the lot budgets from this area_matrix contract")
+    p_sens.add_argument("--fos-grid", default="0.40:0.80:0.05", help="start:stop:step of the FOS sweep")
+    p_sens.add_argument("--fot-grid", default="0.45:1.20:0.05", help="start:stop:step of the fixed-FOT sweep")
+    p_sens.add_argument("--tables", help="directory for sensitivity.json and sensitivity_grid.csv")
+    p_sens.add_argument("--figure", help="PNG of the sensitivity curves")
+    p_sens.add_argument("--json", action="store_true")
+    _add_design_args(p_sens)
     _add_module_parsers(sub)
     args = parser.parse_args(argv)
     try:
@@ -596,7 +655,7 @@ def main(argv: list[str] | None = None) -> int:
 
             result = run_area_matrix(args.lots or None, _parse_households(args.households), args.cost_model,
                                      not args.no_site, args.zone_top, args.sheets, args.lang,
-                                     forced_schemes=tuple(args.scheme))
+                                     forced_schemes=tuple(args.scheme), design=_design_from_args(args))
             if args.tables:
                 write_tables(result, args.tables)
             if args.contract:
@@ -605,6 +664,8 @@ def main(argv: list[str] | None = None) -> int:
                 write_contract(to_contract(result), args.contract)
             print(json.dumps(result, indent=2, default=str) if args.json else "\n".join(_area_lines(result)))
             return 0
+        if args.command == "sensitivity":
+            return _run_sensitivity_command(args)
         if args.command == "catalog":
             table = parameter_table()
             if args.markdown:

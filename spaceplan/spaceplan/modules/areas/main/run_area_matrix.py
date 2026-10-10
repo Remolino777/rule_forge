@@ -25,6 +25,7 @@ from typing import Any
 from spaceplan.core.lib_aux.json_io import dump_json, load_json, load_resource_json
 from spaceplan.modules.areas.lib.area_budget import SiteMeasurer, lot_budget
 from spaceplan.modules.areas.lib.area_matrix import compact, household_cells, pareto_cells
+from spaceplan.modules.areas.lib.lot_minimum import lot_minimum
 from spaceplan.modules.cost.lib.quantities import reference_sheet
 from spaceplan.modules.household.lib.household_catalog import load_household_catalog
 from spaceplan.modules.profiles.lib.program_profiles import profile_programs
@@ -55,6 +56,7 @@ def household_id(archetype: str, culture: str | None) -> str:
 
 def lot_summary(cells: list[dict]) -> dict[str, Any]:
     best = [c for c in cells if c["best"]]
+    excluded = sum(1 for c in cells if c.get("policy_excluded"))
     status = Counter(c["status"] for c in cells)
     governing = Counter(c["governing"] for c in cells if c["governing"])
     by_floors = {}
@@ -69,38 +71,58 @@ def lot_summary(cells: list[dict]) -> dict[str, Any]:
         "best_scheme_counts": dict(Counter(c["scheme_id"] for c in best)),
         "decisive_metric_counts": dict(Counter(c.get("decisive_metric") for c in best)),
         "variant_sensitive_cells": sum(bool(c["variant_sensitive"]) for c in cells),
+        "best_two_floor": sum(1 for c in best if c["floors"] > 1),
+        "two_floor_excluded_by_policy": excluded,
     }
 
 
-def matrix_meta(catalog, rs, model_name: str, stages: dict, lots: list[str]) -> dict[str, Any]:
+def matrix_meta(catalog, rs, model_name: str, stages: dict, lots: list[str], design=None) -> dict[str, Any]:
     ci = catalog.data["cost_index"]
-    return {"step": "6.6", "model": model_name, "legend": ci["legend"], "ruleset": rs.version,
+    meta = {"step": "6.6", "model": model_name, "legend": ci["legend"], "ruleset": rs.version,
             "catalog": catalog.data["catalog_version"], "households": list(stages), "lots": lots,
             "score_note": catalog.data["vertical_schemes"]["scoring"]["note"]}
+    if design is not None:
+        meta["design_variables"] = design.to_dict()
+        meta["normative"] = design.normative
+    return meta
 
 
 def analyze_lot(catalog, rs, body: dict, setup, flag: dict | None, stages: dict, model, measure_site: bool = True,
-                forced_schemes: tuple[str, ...] = ()) -> tuple[Any, Any, list[dict], dict]:
+                forced_schemes: tuple[str, ...] = (), design=None) -> tuple[Any, Any, list[dict], dict]:
     """Cells of one lot (stages E0 and E1) for every household: (lot budget, site measurer or None, cells,
     program profiles per household). `body` is the brief after the flag-lot transform; `setup` is lotcap's
-    LotSetup of the body."""
+    LotSetup of the body.
+
+    With the client's design variables (`design`, core.lib.design_variables): the construction-index ceiling is
+    the effective FOT, the ground floor is capped by the design footprint, the optimum is the largest program that
+    fits one floor within that footprint (policy "footprint"), the two-floor maximum is the effective maximum
+    (FOT, or floors x footprint) net of the stair on both floors, the second floor is ranked only when one floor
+    does not fit (policy "one_floor_first") and the lot minimum (one bedroom) is reported."""
     ci = catalog.data["cost_index"]
     stair_two_floors = 2 * catalog.space_type(ci["estimates"]["stair_space_type"])["area"]["target"]
-    budget = lot_budget(catalog, rs, body, setup, flag)
+    budget = lot_budget(catalog, rs, body, setup, flag, design)
     measurer = SiteMeasurer(catalog, rs, body, setup, budget) if measure_site else None
     reference = reference_sheet(catalog, budget.limits.gross_area_max_sqft, "lot_normative_max")
     slope = (body.get("terrain") or {}).get("mean_slope")
+    far = budget.limits.gross_area_max_sqft
+    two_floor_max = (budget.design["maximum_sqft"] if design is not None else far) - stair_two_floors
+    opt_policy = design.optimum_policy if design is not None else None
+    opt_cap = budget.footprint_design_sqft if design is not None else None
+    floors_policy = design.floors_policy if design is not None else None
+    if design is not None:
+        budget.lot_minimum = lot_minimum(catalog, design.lot_minimum, budget)
     cells, profiles_by_h = [], {}
     for hid, st in stages.items():
-        _, profiles = profile_programs(st, catalog, model, reference,
-                                       far_sqft=budget.limits.gross_area_max_sqft,
-                                       strategy=budget.strategies[0].strategy, mean_slope=slope)
-        _, profiles_2f = profile_programs(st, catalog, model, reference,
-                                          far_sqft=budget.limits.gross_area_max_sqft - stair_two_floors,
-                                          strategy=budget.strategies[0].strategy, mean_slope=slope)
+        _, profiles = profile_programs(st, catalog, model, reference, far_sqft=far,
+                                       strategy=budget.strategies[0].strategy, mean_slope=slope,
+                                       optimum_policy=opt_policy, optimum_cap_sqft=opt_cap)
+        _, profiles_2f = profile_programs(st, catalog, model, reference, far_sqft=two_floor_max,
+                                          strategy=budget.strategies[0].strategy, mean_slope=slope,
+                                          optimum_policy=opt_policy, optimum_cap_sqft=opt_cap)
         profiles_by_h[hid] = profiles
         hc = household_cells(catalog, rs, budget, measurer, hid, st, profiles, model, reference, slope,
-                             profiles_two_floors=profiles_2f, forced_schemes=tuple(forced_schemes))
+                             profiles_two_floors=profiles_2f, forced_schemes=tuple(forced_schemes),
+                             floors_policy=floors_policy)
         front = {id(c) for c in pareto_cells(hc)}
         for c in hc:
             c["pareto"] = id(c) in front

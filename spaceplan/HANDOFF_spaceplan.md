@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0, S1 y S1.1 hechas** (secciones 4j, 4k y 4l: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo; S1.1 compara configuraciones de escalera, espacio bajo ella, llegada y arranque) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.2.0 · reglas de cliente de escalera 0.1.0 · catálogo de apilamiento 0.3.0 · 1,155 pruebas
+Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0, S1 y S1.1 hechas y lógica de áreas con FOS/FOT del cliente** (secciones 4j, 4k, 4l y 4m: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo; S1.1 compara configuraciones de escalera, espacio bajo ella, llegada y arranque) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.12.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.2.0 · reglas de cliente de escalera 0.1.0 · variables de diseño del cliente 0.1.0 · catálogo de apilamiento 0.4.0 · 1,214 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -746,6 +746,41 @@ configuración, extensión D/I/N) y **`rule_traces`** (normativa vs cliente). Pl
 
 **Limitaciones.** El tiempo del piloto subió a ≈ 8 min (top2); espacios receptores no asignados hasta S2; el lado del
 garaje sigue provisional; el umbral de "casa pequeña" no lo fijó el cliente.
+
+## 4m. Lógica de áreas con las variables de diseño del cliente (9 oct 2026): FOS, FOT, un piso primero, sensibilidad
+
+**Decisiones del cliente.** (1) FOS de diseño 0.60 sobre la **envolvente** (área dentro de los retiros); cuenta interior
+y garaje, no deck ni jardín (SDMC 113.0240). En RS-1-7 el SDMC no fija ocupación salvo ladera empinada (131.0445(a)):
+el FOS es una variable de diseño. (2) FOT: por defecto **SDMC 131.0446 (Tabla 131-04J)**; un FOT fijo (0.85, valor de
+zonas RT) es un **escenario** editable y queda marcado como no normativo. (3) **Un piso primero**: el segundo piso solo
+si el programa no cabe en un piso dentro de la huella y el FOT lo permite. (4) Mínimo del **lote** (casa básica de un
+dormitorio, tipología `h1_basic`) y mínimo del **hogar**; óptimo = el mayor programa de la curva que cabe en un piso
+dentro de la huella (el codo queda como lente); máximo = 100 % del FOT efectivo (o pisos por altura × huella).
+(5) Escalera: 44 sq ft por piso en el FAR (catálogo 0.12.0). (6) Casa pequeña = 1 cuarto arriba. Investigación:
+`spaceplan_FOS_investigacion.md` y `spaceplan_FOT_investigacion.md` (proyecto).
+
+**Datos y código.** `data/rules/client_design_variables.json` (D01 FOS, D02 FOT, D03 pisos, D04 perfiles; editables, y
+por corrida con `--fos`, `--fos-base`, `--fot-source`, `--fot`, `--floors-policy`, `--optimum-policy`; `--legacy-areas`
+reproduce 6.6). `core/lib/design_variables.py` (carga, validación, `design_limits` con el límite que manda).
+`areas`: presupuesto con huella de diseño y FOT efectivo, estado `exceeds_design_footprint`, política de pisos en el
+ranking (`policy_excluded`), `lib/lot_minimum.py`, `lib/sensitivity.py`. `profiles`: óptimo "footprint".
+`pipeline/main/run_sensitivity.py` + CLI `spaceplan sensitivity` + `viz/lib/sensitivity_plots.py`. Golden y fixtures
+congelados de nuevo con informe: `docs/refactor/log/golden_refresh_2026-10-09_area_logic.md`. 17 pruebas nuevas.
+
+**Resultados del piloto.**
+1. Huella de diseño 1,777–2,246 sq ft (0.36–0.39 del lote); FOT del SDMC 2,850–3,540 sq ft; mínimo del lote 808 sq ft.
+2. Mejores de dos pisos: **245** (antes 519): máximos 140, accesibles 81, por etapas 24; **todos los óptimos son de un
+   piso**. S1.1 dibuja las 371 de dos pisos de top2; la llegada es a pasillo en el 78 %.
+3. **El máximo no tiene celda factible en 64 de 210 hogares**: el reparto por esquema deja la planta baja sobre la huella.
+   Hace falta un reparto equilibrado (paso 9, QP).
+4. Escenario FOT 0.85: **no agrega casas de dos pisos (229) y empeora el máximo (85 sin celda)**; manda el FOS con el
+   reparto, no el FOT.
+5. Sensibilidad (`spaceplan sensitivity`, 5 s): con FOS 0.60 casi ningún programa completo cabe en un piso en lotes
+   rectangulares; con el FOT del SDMC entre 5 % y 43 % no cabe ni en dos pisos (el lote poco profundo, el peor); en FOT
+   altos manda la altura (2 pisos × huella).
+
+**Limitaciones.** El reparto por esquema no equilibra los pisos; la demanda de la sensibilidad es el programa completo
+sin techo; el caso de los áticos ≥ 5 ft (113.0234) y la condición de desnivel de la ladera empinada quedan por verificar.
 
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 

@@ -121,5 +121,12 @@ def stack_plan_sheets(stack_plan: dict, out_dir: str | Path, lang: str = "es",
     return figures
 
 
-__all__ = ["area_matrix_figures", "draw_area_matrix", "draw_capacity", "draw_site", "draw_zoning", "package_view",
-           "stack_plan_sheets"]
+def draw_sensitivity(result: dict, out_path: str | Path, lang: str = "es") -> Path:
+    """Normative sensitivity figure (FOS x FOT per lot) from the sensitivity result."""
+    from spaceplan.modules.viz.lib.sensitivity_plots import plot_sensitivity
+
+    return plot_sensitivity(result, out_path, lang)
+
+
+__all__ = ["area_matrix_figures", "draw_area_matrix", "draw_capacity", "draw_sensitivity", "draw_site", "draw_zoning",
+           "package_view", "stack_plan_sheets"]

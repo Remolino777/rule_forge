@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from spaceplan.core.lib.catalog import load_catalog
+from spaceplan.core.lib.design_variables import load_design_variables
 from spaceplan.core.lib.rules import load_ruleset
 from spaceplan.core.lib.schema_validation import validate_brief
 from spaceplan.modules.areas.lib.area_matrix import profile_program
@@ -109,8 +110,15 @@ def run_area_matrix(
     catalog_path: str | Path | None = None,
     household_catalog_path: str | Path | None = None,
     forced_schemes: tuple[str, ...] = (),
+    design=None,
 ) -> dict[str, Any]:
+    """`design`: the client's design variables (core.lib.design_variables); None loads the defaults of
+    data/rules/client_design_variables.json, False runs the step-6.6 logic without them (legacy)."""
     rs = load_ruleset(rules_path)
+    if design is None:
+        design = load_design_variables()
+    elif design is False:
+        design = None
     catalog = load_catalog(catalog_path)
     display = catalog.data["display"]
     lang = lang or display["default_lang"]
@@ -122,7 +130,8 @@ def run_area_matrix(
     zone_top = catalog.data["area_analysis"]["e2_top_k_per_lot"] if zone_top is None else zone_top
     stages = {household_id(a, c): household_stages({"archetype_id": a, "cultural_profile": c},
                                                    household_catalog_path) for a, c in households}
-    result: dict[str, Any] = {"meta": matrix_meta(catalog, rs, model_name, stages, lots), "lots": [], "cells": []}
+    result: dict[str, Any] = {"meta": matrix_meta(catalog, rs, model_name, stages, lots, design), "lots": [],
+                              "cells": []}
     for name in lots:
         t0 = time.time()
         brief = load_lot_brief(name)
@@ -130,7 +139,7 @@ def run_area_matrix(
         body, flag = flag_lot_body(brief)
         setup = prepare_lot(body, rs, catalog)
         budget, measurer, cells, profiles_by_h = analyze_lot(catalog, rs, body, setup, flag, stages, model,
-                                                             measure_site, forced_schemes)
+                                                             measure_site, forced_schemes, design)
         e2 = []
         if zone_top:
             e2 = _e2(catalog_path, body, cells, profiles_by_h, zone_top, sheets_dir, lang, display,

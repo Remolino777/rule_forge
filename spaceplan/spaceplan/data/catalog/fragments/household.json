@@ -43,6 +43,43 @@
     },
     "typologies": [
       {
+        "typology_id": "h1_basic",
+        "label": "1 bedroom, 1 bath (lot minimum reference, client decision 2026-10-09)",
+        "bedrooms": 1,
+        "gross_factor": 1.15,
+        "spaces": [
+          {
+            "space_type": "living_dining",
+            "count": 1
+          },
+          {
+            "space_type": "kitchen",
+            "count": 1
+          },
+          {
+            "space_type": "primary_suite",
+            "count": 1
+          },
+          {
+            "space_type": "bathroom",
+            "count": 1
+          },
+          {
+            "space_type": "laundry_closet",
+            "count": 1
+          },
+          {
+            "space_type": "foyer",
+            "count": 1
+          },
+          {
+            "space_type": "closet",
+            "count": 1
+          }
+        ],
+        "dwelling_type": "house"
+      },
+      {
         "typology_id": "t2_compact",
         "label": "2 bedrooms, 1 bath",
         "bedrooms": 2,

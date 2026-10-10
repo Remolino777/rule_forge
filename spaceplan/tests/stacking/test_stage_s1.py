@@ -68,9 +68,16 @@ def limits():
     return stair_limits(load_stair_ruleset())
 
 
+TWO_FLOOR_HOUSEHOLDS = [("shared_adults", "anglo"), ("teens_family", "anglo")]
+
+
 @pytest.fixture(scope="module")
 def inputs():
-    return load_fixture("area_matrix", SUBJECT), load_fixture("lot_capacity", "interior_50x100")
+    """Households whose winners need two floors on the interior lot (one floor first, design FOS 0.60)."""
+    from spaceplan.pipeline.main.run_modules import area_matrix_contract_for
+
+    am = area_matrix_contract_for(lots=["interior_50x100"], households=TWO_FLOOR_HOUSEHOLDS, zone_top=0)
+    return am, load_fixture("lot_capacity", "interior_50x100")
 
 
 @pytest.fixture(scope="module")
@@ -228,7 +235,7 @@ def test_s1_geometry_is_consistent(s1):
         garage = b["ground"]["garage_polygon"]
         if garage:
             assert stair.intersection(shape(garage)).area < 1e-3
-        assert b["stair"]["area_delta_sqft"] == pytest.approx(b["stair"]["area_sqft"] - 60.0)
+        assert b["stair"]["area_delta_sqft"] == pytest.approx(b["stair"]["area_sqft"] - 44.0)
         assert b["roof"]["kept"] is not None or b["roof"]["inset_needed_ft"] > 0
         assert all(lv["within_allowed"] for lv in b["levels"])
 
@@ -263,9 +270,11 @@ def test_s1_table_and_default_mode(s1, inputs, scat):
 
 def test_cli_stacking_stage_s1(tmp_path):
     from spaceplan.pipeline.main.cli import main
+    from spaceplan.pipeline.main.run_modules import area_matrix_contract_for
 
     am, lc = tmp_path / "am.json", tmp_path / "lc.json"
-    am.write_text(json.dumps(load_fixture("area_matrix", SUBJECT)))
+    am.write_text(json.dumps(area_matrix_contract_for(lots=["interior_50x100"], households=TWO_FLOOR_HOUSEHOLDS,
+                                                      zone_top=0)))
     lc.write_text(json.dumps(load_fixture("lot_capacity", "interior_50x100")))
     out = tmp_path / "sp.json"
     assert main(["stacking", "--stage", "S1", "--cells", "all", "--area-matrix", str(am), "--lot-capacity", str(lc),

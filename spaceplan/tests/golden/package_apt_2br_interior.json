@@ -22,8 +22,8 @@
  "program_review": {
   "buildable_as_stated": true,
   "catalog_id": "spaceplan-residential-catalog",
-  "catalog_sha256": "450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e",
-  "catalog_version": "0.11.0",
+  "catalog_sha256": "17ca8654495722031b6a01da2c3a9affd868f10c2e67ad7edff397eb3996f6b9",
+  "catalog_version": "0.12.0",
   "counts": {
    "error": 0,
    "info": 0,

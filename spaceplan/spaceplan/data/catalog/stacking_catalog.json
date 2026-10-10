@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.3.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold.",
+  "catalog_version": "0.4.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision).",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -258,7 +258,7 @@
     "note": "Numerical settings of the S1 drawing (bands cut to an area by bisection; coordinates rounded in the contract)."
   },
   "stair_access": {
-    "small_house_upper_rooms_max": 2,
+    "small_house_upper_rooms_max": 1,
     "room_zones": [
       "private"
     ],
@@ -301,7 +301,7 @@
     "note": "Receiving spaces at the stair ends (client rules K01-K02). A house is small when its upper floor serves at most small_house_upper_rooms_max rooms (habitable spaces of the private zone, plus study and flex rooms): the stair then arrives into an upper vestibule instead of a hall. Arrival zones: the hall or vestibule rectangle in front of the top step; at the bottom, the landing of the CRC (S05) times the stair width. Option C (kitchen) stays available for every scheme (client decision); the preferred option is what S2 tries first.",
     "source": {
       "kind": "catalog",
-      "citation": "Student-defined small-house threshold and arrival zones, spaceplan step 6.7a S1.1 (2026-10); the receiving spaces are client decisions (client_stair_rules.json)",
+      "citation": "Small-house threshold = 1 room upstairs (client decision 2026-10-09); arrival zones student-defined, spaceplan step 6.7a S1.1 (2026-10)",
       "status": "provisional"
     }
   }

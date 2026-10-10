@@ -38,10 +38,10 @@
      "headroom": 0.2627
     },
     "n2": {
-     "index": 0.7773,
+     "index": 0.7667,
      "within_normative": true,
      "within_budget": null,
-     "headroom": 0.2227
+     "headroom": 0.2333
     }
    },
    "suggestions": []
@@ -147,21 +147,21 @@
    {
     "label": "n2",
     "kind": "site_option",
-    "index": 0.7773,
+    "index": 0.7667,
     "by_model": {
-     "base": 0.7773,
-     "weighted": 0.8859,
-     "shape": 0.8416
+     "base": 0.7667,
+     "weighted": 0.8762,
+     "shape": 0.8323
     },
     "breakdown": {
-     "gross_area_sqft": 2332.0
+     "gross_area_sqft": 2300.0
     },
     "quantities": {
      "label": "n2",
-     "gross_area_sqft": 2332.0,
+     "gross_area_sqft": 2300.0,
      "area_by_class": {
       "circulation": {
-       "value": 267.467,
+       "value": 235.467,
        "unit": "sq_ft",
        "basis": "derived",
        "note": "includes the stair repeated on 2 floors"
@@ -203,12 +203,12 @@
      "floors": 2,
      "area_by_floor": [
       {
-       "value": 1166.0,
+       "value": 1150.0,
        "unit": "sq_ft",
        "basis": "estimated"
       },
       {
-       "value": 1166.0,
+       "value": 1150.0,
        "unit": "sq_ft",
        "basis": "estimated"
       }
@@ -243,7 +243,7 @@
      "confidence": "derived",
      "notes": [
       "class areas scaled to the declared gross 2212 sq ft",
-      "stair added: 120 sq ft over 2 floors"
+      "stair added: 88 sq ft over 2 floors"
      ]
     },
     "site_feasible": true
@@ -254,86 +254,86 @@
    "quantity": "index_b_minus_a",
    "a": "n1",
    "b": "n2",
-   "base": -0.00786,
+   "base": -0.01709,
    "rows": [
     {
      "parameter": "form:two_floors",
      "low_input": 0.9,
      "high_input": 1.02,
-     "at_low": -0.05215,
-     "at_high": 0.05415,
-     "swing": 0.1063,
-     "base": -0.00786,
+     "at_low": -0.06089,
+     "at_high": 0.04424,
+     "swing": 0.10514,
+     "base": -0.01709,
      "crosses_zero": true
     },
     {
      "parameter": "coef:circulation",
      "low_input": 0.8,
      "high_input": 1.0,
-     "at_low": -0.01155,
-     "at_high": -0.00422,
-     "swing": 0.00732,
-     "base": -0.00786,
+     "at_low": -0.01982,
+     "at_high": -0.0144,
+     "swing": 0.00542,
+     "base": -0.01709,
      "crosses_zero": false
     },
     {
      "parameter": "coef:wet",
      "low_input": 1.3,
      "high_input": 2.0,
-     "at_low": -0.00596,
-     "at_high": -0.01018,
-     "swing": 0.00422,
-     "base": -0.00786,
+     "at_low": -0.01554,
+     "at_high": -0.01898,
+     "swing": 0.00345,
+     "base": -0.01709,
      "crosses_zero": false
     },
     {
      "parameter": "coef:backyard",
      "low_input": 0.25,
      "high_input": 0.6,
-     "at_low": -0.00647,
-     "at_high": -0.0097,
+     "at_low": -0.01571,
+     "at_high": -0.01893,
      "swing": 0.00322,
-     "base": -0.00786,
+     "base": -0.01709,
      "crosses_zero": false
     },
     {
      "parameter": "coef:garage",
      "low_input": 0.45,
      "high_input": 0.75,
-     "at_low": -0.0068,
-     "at_high": -0.00886,
-     "swing": 0.00206,
-     "base": -0.00786,
+     "at_low": -0.01629,
+     "at_high": -0.01784,
+     "swing": 0.00155,
+     "base": -0.01709,
      "crosses_zero": false
     },
     {
      "parameter": "coef:paving",
      "low_input": 0.05,
      "high_input": 0.15,
-     "at_low": -0.0076,
-     "at_high": -0.00811,
+     "at_low": -0.01683,
+     "at_high": -0.01734,
      "swing": 0.00051,
-     "base": -0.00786,
+     "base": -0.01709,
      "crosses_zero": false
     },
     {
      "parameter": "coef:deck",
      "low_input": 0.2,
      "high_input": 0.45,
-     "at_low": -0.00776,
-     "at_high": -0.00801,
+     "at_low": -0.01699,
+     "at_high": -0.01724,
      "swing": 0.00025,
-     "base": -0.00786,
+     "base": -0.01709,
      "crosses_zero": false
     },
     {
      "parameter": "coef:service",
      "low_input": 0.8,
      "high_input": 1.0,
-     "at_low": -0.00789,
-     "at_high": -0.00782,
-     "swing": 6e-05,
-     "base": -0.00786,
+     "at_low": -0.01716,
+     "at_high": -0.01702,
+     "swing": 0.00014,
+     "base": -0.01709,
      "crosses_zero": false
     }
    ],
@@ -344,7 +344,7 @@
   },
   "sources": {
    "catalog_id": "spaceplan-residential-catalog",
-   "catalog_version": "0.11.0",
+   "catalog_version": "0.12.0",
    "status": "provisional",
    "citation": "Student-defined relative cost hypothesis, spaceplan step 6.5b (2026-10); dimensionless, never a price; validate ratios with local builders and public data before use"
   }

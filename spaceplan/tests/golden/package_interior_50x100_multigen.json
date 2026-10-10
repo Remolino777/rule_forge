@@ -489,8 +489,8 @@
      "within_normative": false
     },
     "desirable@2f": {
-     "headroom": -0.1766,
-     "index": 1.1766,
+     "headroom": -0.1659,
+     "index": 1.1659,
      "within_budget": null,
      "within_normative": false
     },
@@ -501,8 +501,8 @@
      "within_normative": false
     },
     "preferred@2f": {
-     "headroom": -0.0654,
-     "index": 1.0654,
+     "headroom": -0.0547,
+     "index": 1.0547,
      "within_budget": null,
      "within_normative": false
     },
@@ -513,8 +513,8 @@
      "within_normative": true
     },
     "required@2f": {
-     "headroom": 0.4521,
-     "index": 0.5479,
+     "headroom": 0.4627,
+     "index": 0.5373,
      "within_budget": null,
      "within_normative": true
     }
@@ -619,14 +619,14 @@
    },
    {
     "breakdown": {
-     "gross_area_sqft": 1643.75
+     "gross_area_sqft": 1611.75
     },
     "by_model": {
-     "base": 0.5479,
-     "shape": 0.5372,
-     "weighted": 0.5655
+     "base": 0.5373,
+     "shape": 0.528,
+     "weighted": 0.5557
     },
-    "index": 0.5479,
+    "index": 0.5373,
     "kind": "household_tier",
     "label": "required@2f",
     "quantities": {
@@ -635,7 +635,7 @@
        "basis": "derived",
        "note": "includes the stair repeated on 2 floors",
        "unit": "sq_ft",
-       "value": 252.25
+       "value": 220.25
       },
       "garage": {
        "basis": "derived",
@@ -657,12 +657,12 @@
       {
        "basis": "estimated",
        "unit": "sq_ft",
-       "value": 821.875
+       "value": 805.875
       },
       {
        "basis": "estimated",
        "unit": "sq_ft",
-       "value": 821.875
+       "value": 805.875
       }
      ],
      "confidence": "estimated",
@@ -687,27 +687,27 @@
       "basis": "estimated",
       "note": "rectangle with aspect ratio 1.5",
       "unit": "ft",
-      "value": 117.038
+      "value": 115.893
      },
      "floors": 2,
      "footprint": {
       "basis": "estimated",
       "note": "gross area split evenly by floor",
       "unit": "sq_ft",
-      "value": 821.875
+      "value": 805.875
      },
      "footprint_form": "rectangle",
-     "gross_area_sqft": 1643.75,
+     "gross_area_sqft": 1611.75,
      "label": "required@2f",
      "mean_slope": 0.03,
      "notes": [
-      "stair added: 120 sq ft over 2 floors"
+      "stair added: 88 sq ft over 2 floors"
      ],
      "roof": {
       "basis": "estimated",
       "note": "flat-plate assumption: roof = footprint",
       "unit": "sq_ft",
-      "value": 821.875
+      "value": 805.875
      },
      "stairs": 1,
      "wet_cores": {
@@ -820,14 +820,14 @@
    },
    {
     "breakdown": {
-     "gross_area_sqft": 3196.25
+     "gross_area_sqft": 3164.25
     },
     "by_model": {
-     "base": 1.0654,
-     "shape": 1.0523,
-     "weighted": 1.1077
+     "base": 1.0547,
+     "shape": 1.0431,
+     "weighted": 1.098
     },
-    "index": 1.0654,
+    "index": 1.0547,
     "kind": "household_tier",
     "label": "preferred@2f",
     "quantities": {
@@ -836,7 +836,7 @@
        "basis": "derived",
        "note": "includes the stair repeated on 2 floors",
        "unit": "sq_ft",
-       "value": 281.0
+       "value": 249.0
       },
       "garage": {
        "basis": "derived",
@@ -863,12 +863,12 @@
       {
        "basis": "estimated",
        "unit": "sq_ft",
-       "value": 1598.125
+       "value": 1582.125
       },
       {
        "basis": "estimated",
        "unit": "sq_ft",
-       "value": 1598.125
+       "value": 1582.125
       }
      ],
      "confidence": "estimated",
@@ -893,27 +893,27 @@
       "basis": "estimated",
       "note": "rectangle with aspect ratio 1.5",
       "unit": "ft",
-      "value": 163.204
+      "value": 162.385
      },
      "floors": 2,
      "footprint": {
       "basis": "estimated",
       "note": "gross area split evenly by floor",
       "unit": "sq_ft",
-      "value": 1598.125
+      "value": 1582.125
      },
      "footprint_form": "rectangle",
-     "gross_area_sqft": 3196.25,
+     "gross_area_sqft": 3164.25,
      "label": "preferred@2f",
      "mean_slope": 0.03,
      "notes": [
-      "stair added: 120 sq ft over 2 floors"
+      "stair added: 88 sq ft over 2 floors"
      ],
      "roof": {
       "basis": "estimated",
       "note": "flat-plate assumption: roof = footprint",
       "unit": "sq_ft",
-      "value": 1598.125
+      "value": 1582.125
      },
      "stairs": 1,
      "wet_cores": {
@@ -1026,14 +1026,14 @@
    },
    {
     "breakdown": {
-     "gross_area_sqft": 3529.75
+     "gross_area_sqft": 3497.75
     },
     "by_model": {
-     "base": 1.1766,
-     "shape": 1.157,
-     "weighted": 1.2179
+     "base": 1.1659,
+     "shape": 1.1477,
+     "weighted": 1.2081
     },
-    "index": 1.1766,
+    "index": 1.1659,
     "kind": "household_tier",
     "label": "desirable@2f",
     "quantities": {
@@ -1042,7 +1042,7 @@
        "basis": "derived",
        "note": "includes the stair repeated on 2 floors",
        "unit": "sq_ft",
-       "value": 281.0
+       "value": 249.0
       },
       "garage": {
        "basis": "derived",
@@ -1069,12 +1069,12 @@
       {
        "basis": "estimated",
        "unit": "sq_ft",
-       "value": 1764.875
+       "value": 1748.875
       },
       {
        "basis": "estimated",
        "unit": "sq_ft",
-       "value": 1764.875
+       "value": 1748.875
       }
      ],
      "confidence": "estimated",
@@ -1099,27 +1099,27 @@
       "basis": "estimated",
       "note": "rectangle with aspect ratio 1.5",
       "unit": "ft",
-      "value": 171.507
+      "value": 170.728
      },
      "floors": 2,
      "footprint": {
       "basis": "estimated",
       "note": "gross area split evenly by floor",
       "unit": "sq_ft",
-      "value": 1764.875
+      "value": 1748.875
      },
      "footprint_form": "rectangle",
-     "gross_area_sqft": 3529.75,
+     "gross_area_sqft": 3497.75,
      "label": "desirable@2f",
      "mean_slope": 0.03,
      "notes": [
-      "stair added: 120 sq ft over 2 floors"
+      "stair added: 88 sq ft over 2 floors"
      ],
      "roof": {
       "basis": "estimated",
       "note": "flat-plate assumption: roof = footprint",
       "unit": "sq_ft",
-      "value": 1764.875
+      "value": 1748.875
      },
      "stairs": 1,
      "wet_cores": {
@@ -1147,7 +1147,7 @@
   },
   "sources": {
    "catalog_id": "spaceplan-residential-catalog",
-   "catalog_version": "0.11.0",
+   "catalog_version": "0.12.0",
    "citation": "Student-defined relative cost hypothesis, spaceplan step 6.5b (2026-10); dimensionless, never a price; validate ratios with local builders and public data before use",
    "status": "provisional"
   },
@@ -1856,8 +1856,8 @@
  "program_review": {
   "buildable_as_stated": true,
   "catalog_id": "spaceplan-residential-catalog",
-  "catalog_sha256": "450545922efa135daa6dbbaa4be83de38705801976a09bf632285072631b034e",
-  "catalog_version": "0.11.0",
+  "catalog_sha256": "17ca8654495722031b6a01da2c3a9affd868f10c2e67ad7edff397eb3996f6b9",
+  "catalog_version": "0.12.0",
   "counts": {
    "error": 0,
    "info": 0,

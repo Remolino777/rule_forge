@@ -13,6 +13,9 @@ One expansion curve per household and lot:
     optimum = knee of quality vs cost (lib_aux.knee), staged = minimum today + expansion to the
     optimum of the next stage, accessible = optimum with a ground-floor bedroom and full bath.
 
+    Client design variables (2026-10-09, optimum policy "footprint"): the optimum is the last point of the curve
+    whose gross area fits one floor within the design footprint; the knee stays reported as a lens.
+
 Quality is a program-level proxy (catalog program_quality, provisional) until the geometric score of
 step 6.8. Nothing here reads money: the cost axis is the relative index of step 6.5b.
 """
@@ -298,20 +301,39 @@ def describe(ctx: ProfileContext, s: State, label: str) -> dict:
     }
 
 
-def expansion_profiles(ctx: ProfileContext) -> dict:
+FOOTPRINT_OPTIMUM = "footprint"
+
+
+def footprint_index(gross: list[float], cap: float) -> tuple[int, bool]:
+    """Last point whose gross area fits the footprint cap (first point when none does), and whether it fits."""
+    fit = [i for i, g in enumerate(gross) if g <= cap + 1e-6]
+    return (fit[-1], True) if fit else (0, False)
+
+
+def expansion_profiles(ctx: ProfileContext, optimum_policy: str | None = None,
+                       optimum_cap_sqft: float | None = None) -> dict:
     """Minimum, optimum and maximum from the expansion curve, with the curve itself."""
     start = ctx.start()
     ok, why = ctx.feasible(start)
     path, stop = ctx.curve() if ok else ([(start, None, ctx.index(start), ctx.gain(start))], why)
     xs = [p[2] for p in path]
     ys = [p[3] for p in path]
-    knee = knee_index(xs, ys, ctx.hcat.data["program_quality"]["knee_min_gain"])
+    knee_step = knee_index(xs, ys, ctx.hcat.data["program_quality"]["knee_min_gain"])
+    knee, opt_note = knee_step, None
+    if optimum_policy == FOOTPRINT_OPTIMUM and optimum_cap_sqft is not None:
+        knee, fits = footprint_index([ctx.gross(p[0]) for p in path], optimum_cap_sqft)
+        if not fits:
+            opt_note = (f"the minimum program ({ctx.gross(path[0][0]):.0f} sq ft) exceeds the design footprint "
+                        f"({optimum_cap_sqft:.0f} sq ft): it needs two floors")
     points = [{"step": i, "move": None if m is None else f"{m[0]}:{m[1]}", "index": round(c, 4),
                "quality": round(g, 4), "gross_area_sqft": round(ctx.gross(s), 1)} for i, (s, m, c, g) in enumerate(path)]
     return {
         "minimum": {**describe(ctx, path[0][0], "minimum"), "note": None if ok else
                     f"the minimum program already exceeds the {why} ceiling"},
-        "optimum": {**describe(ctx, path[knee][0], "optimum"), "curve_step": knee},
+        "optimum": {**describe(ctx, path[knee][0], "optimum"), "curve_step": knee, "knee_step": knee_step,
+                    "optimum_policy": optimum_policy or "knee",
+                    "optimum_cap_sqft": None if optimum_cap_sqft is None else round(optimum_cap_sqft, 1),
+                    "note": opt_note},
         "maximum": {**describe(ctx, path[-1][0], "maximum"), "governing": stop if ok else why},
         "curve": points,
         "_states": {"minimum": path[0][0], "optimum": path[knee][0], "maximum": path[-1][0]},
@@ -427,7 +449,8 @@ def describe_curve_moves(points: list[dict]) -> list[str]:
 
 def profile_programs(stages: dict, catalog, model, reference, far_sqft: float | None = None,
                      budget_fraction: float | None = None, strategy: str | None = None,
-                     mean_slope: float | None = None) -> tuple[dict, dict]:
+                     mean_slope: float | None = None, optimum_policy: str | None = None,
+                     optimum_cap_sqft: float | None = None) -> tuple[dict, dict]:
     """Expansion curve and the five program profiles of a household on one reading (shared with step 6.6).
 
     Moved from spaceplan.modules.profiles.main.run_profiles in refactor tanda 3 without changes, so the area
@@ -439,7 +462,7 @@ def profile_programs(stages: dict, catalog, model, reference, far_sqft: float | 
     later_ctx = ProfileContext(derivation=stages["later"]["derivation"], needs=stages["later"]["needs"], **common)
     ctx = ProfileContext(derivation=stages["now"]["derivation"], needs=stages["now"]["needs"],
                          next_needs=stages["later"]["needs"], **common)
-    exp = expansion_profiles(ctx)
+    exp = expansion_profiles(ctx, optimum_policy, optimum_cap_sqft)
     states = exp["_states"]
     profiles = {k: exp[k] for k in ("minimum", "optimum", "maximum")}
 
@@ -461,6 +484,7 @@ __all__ = [
     "accessible_program",
     "expansion_profiles",
     "floor_feasibility",
+    "footprint_index",
     "get_cost_model",
     "profile_programs",
     "program_delta",

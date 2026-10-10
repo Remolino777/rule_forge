@@ -580,6 +580,10 @@
     "gross_factor": 1.15
    },
    "curve_step": 9,
+   "knee_step": 9,
+   "optimum_policy": "knee",
+   "optimum_cap_sqft": null,
+   "note": null,
    "feasibility": "no_lot",
    "review": {
     "buildable_as_stated": true,
@@ -885,6 +889,10 @@
    "substitutions": [
     "split_social"
    ],
+   "knee_step": 9,
+   "optimum_policy": "knee",
+   "optimum_cap_sqft": null,
+   "note": null,
    "program": {
     "spaces": [
      {

@@ -19,23 +19,23 @@ graph LR
     profiles -->|2| cost
     zoning -->|9| core
     zoning -->|2| site
-    areas -->|6| core
+    areas -->|8| core
     areas -->|1| lotcap
     areas -->|1| site
-    areas -->|1| household
+    areas -->|2| household
     areas -->|2| cost
     areas -->|1| profiles
     stacking -->|12| core
     viz -->|4| core
     viz -->|3| lotcap
-    pipeline -->|8| core
-    pipeline -->|4| lotcap
+    pipeline -->|9| core
+    pipeline -->|5| lotcap
     pipeline -->|1| site
-    pipeline -->|7| household
-    pipeline -->|4| cost
-    pipeline -->|3| profiles
+    pipeline -->|8| household
+    pipeline -->|5| cost
+    pipeline -->|4| profiles
     pipeline -->|1| zoning
-    pipeline -->|3| areas
+    pipeline -->|4| areas
     pipeline -->|2| stacking
     pipeline -->|4| viz
 ```
@@ -58,17 +58,17 @@ graph LR
 
 | Módulo | `main/` | `lib/` | `lib_aux/` |
 |---|---|---|---|
-| `core` | — | `catalog`, `contracts`, `enums`, `relation_graph`, `rules`, `schema_validation` | `allocation`, `geometry`, `hashing`, `json_io`, `knee`, `pareto`, `predicates`, `quantity`, `section`, `tolerances`, `weighted` |
+| `core` | — | `catalog`, `contracts`, `design_variables`, `enums`, `relation_graph`, `rules`, `schema_validation` | `allocation`, `geometry`, `hashing`, `json_io`, `knee`, `pareto`, `predicates`, `quantity`, `section`, `tolerances`, `weighted` |
 | `lotcap` | `contract`, `run_lotcap` | `boundaries`, `capacity`, `flag_lot`, `lot`, `lot_metrics`, `rule_variants`, `scope` | — |
 | `site` | `contract`, `run_site` | `backyard`, `orientation`, `site_partition` | — |
 | `household` | `contract`, `run_household`, `run_program` | `culture`, `household`, `household_catalog`, `household_rules`, `program_builder`, `program_review` | — |
 | `cost` | `contract`, `run_cost` | `budget`, `cost_models`, `cost_sensitivity`, `quantities` | — |
 | `profiles` | `contract`, `run_profiles` | `program_profiles` | — |
 | `zoning` | `contract`, `run_corrections`, `run_zoning` | `band_enumeration`, `circulation`, `corrections`, `polygonal`, `realization`, `relation_matrix`, `space_layout`, `unit`, `zoning` | — |
-| `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `vertical_split` | — |
+| `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `lot_minimum`, `sensitivity`, `vertical_split` | — |
 | `stacking` | `contract`, `run_stacking` | `cell_geometry`, `cell_selection`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `roof_plane`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `vertical_rules` | `plan_geometry`, `stair_geometry`, `vertical_geometry` |
-| `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `stack_plan_plots`, `zoning_plots` | — |
-| `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio` | `catalog_table`, `package` | — |
+| `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `sensitivity_plots`, `stack_plan_plots`, `zoning_plots` | — |
+| `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio`, `run_sensitivity` | `catalog_table`, `package` | — |
 
 ## Contratos (versión 0.2.0)
 

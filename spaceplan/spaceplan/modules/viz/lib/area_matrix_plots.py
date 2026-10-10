@@ -13,9 +13,9 @@ SCHEME_COLORS = {"V0": "#2a78d6", "V1": "#eb6834", "V2": "#1baf7a", "V3": "#eda1
                  "V5": "#008300"}  # categorical slots 1-6 in fixed order (validated, light surface)
 SCHEME_MARKERS = {"V0": "o", "V1": "s", "V2": "^", "V3": "D", "V4": "v", "V5": "P"}
 STATUS_FILL = {"fits": "#0ca30c", "fits_small_garden": "#fab219", "exceeds_far": "#d03b3b",
-               "exceeds_coverage": "#d03b3b", "upper_exceeds_ground": "#ec835a", "exceeds_strategy": "#ec835a",
+               "exceeds_coverage": "#d03b3b", "exceeds_design_footprint": "#ec835a", "upper_exceeds_ground": "#ec835a", "exceeds_strategy": "#ec835a",
                "frontage_short": "#ec835a", "site_fails": "#ec835a"}
-STATUS_CODE = {"fits": "", "fits_small_garden": "J", "exceeds_far": "IC", "exceeds_coverage": "IO",
+STATUS_CODE = {"fits": "", "fits_small_garden": "J", "exceeds_far": "IC", "exceeds_coverage": "IO", "exceeds_design_footprint": "FOS",
                "upper_exceeds_ground": "PA", "exceeds_strategy": "H", "frontage_short": "Fr", "site_fails": "S"}
 INK, INK2, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#fcfcfb"
 EMPTY_FILL = "#f0efec"

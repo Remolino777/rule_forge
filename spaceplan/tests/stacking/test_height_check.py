@@ -47,10 +47,10 @@ def _levels(*areas, ground_ff=1.0, f2f=10.0):
 def test_levels_of_one_and_two_floor_cells(cells, scat, vrs):
     one = next(c for c in cells if c["floors"] == 1)
     two = next(c for c in cells if c["floors"] == 2)
-    levels, warnings = build_levels(one, scat.levels, vrs, 60.0, scat.stair_tolerance_sqft)
+    levels, warnings = build_levels(one, scat.levels, vrs, 44.0, scat.stair_tolerance_sqft)
     assert [lv["kind"] for lv in levels] == ["ground"] and warnings == []
     assert levels[0]["stair_sqft"] == 0.0 and levels[0]["counts_in_io"]
-    levels, warnings = build_levels(two, scat.levels, vrs, 60.0, scat.stair_tolerance_sqft)
+    levels, warnings = build_levels(two, scat.levels, vrs, 44.0, scat.stair_tolerance_sqft)
     assert [lv["kind"] for lv in levels] == ["ground", "upper"] and warnings == []
     assert levels[1]["finish_floor_ft"] - levels[0]["finish_floor_ft"] == scat.levels["floor_to_floor_ft"]
     assert levels[1]["spaces"] == two["split"]["upper_spaces"] and not levels[1]["counts_in_io"]
@@ -62,7 +62,7 @@ def test_levels_warn_on_stair_mismatch_and_high_ground_floor(cells, scat, vrs):
     two = copy.deepcopy(next(c for c in cells if c["floors"] == 2))
     _, warnings = build_levels(two, scat.levels, vrs, 90.0, scat.stair_tolerance_sqft)
     assert any("stair area" in w for w in warnings)
-    _, warnings = build_levels(two, {**scat.levels, "ground_floor_above_grade_ft": 3.0}, vrs, 60.0,
+    _, warnings = build_levels(two, {**scat.levels, "ground_floor_above_grade_ft": 3.0}, vrs, 44.0,
                                scat.stair_tolerance_sqft)
     assert any("first-story" in w for w in warnings)
 

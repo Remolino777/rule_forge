@@ -8,8 +8,12 @@ E1 (measured, a few ms): access, front paving and garden of the ground footprint
 holds it, through the site layer (lib.site_partition.measure_footprint), cached by footprint.
 
 Statuses, in the order used to name the governing constraint:
-    exceeds_far > exceeds_coverage > upper_exceeds_ground > exceeds_strategy > frontage_short > site_fails
-    otherwise fits, or fits_small_garden below the indicative garden threshold.
+    exceeds_far > exceeds_coverage > exceeds_design_footprint > upper_exceeds_ground > exceeds_strategy >
+    frontage_short > site_fails; otherwise fits, or fits_small_garden below the indicative garden threshold.
+
+With the client's design variables (core.lib.design_variables, 2026-10-09) the ceiling of the construction index is
+the effective FOT (SDMC FAR, or a fixed FOT as a scenario) and the ground floor may not exceed the design
+footprint (FOS x envelope or lot): exceeds_design_footprint.
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from spaceplan.core.lib.catalog import Catalog
+from spaceplan.core.lib.design_variables import DesignVariables, design_limits
 from spaceplan.core.lib.enums import Strategy
 from spaceplan.core.lib.rules import RuleSet
 from spaceplan.modules.areas.lib.building_indices import IndexLimits, indices_all_variants
@@ -28,8 +33,8 @@ from spaceplan.modules.site.lib.site_partition import (
     site_context,
 )
 
-STATUS_ORDER = ("exceeds_far", "exceeds_coverage", "upper_exceeds_ground", "exceeds_strategy", "frontage_short",
-                "site_fails")
+STATUS_ORDER = ("exceeds_far", "exceeds_coverage", "exceeds_design_footprint", "upper_exceeds_ground",
+                "exceeds_strategy", "frontage_short", "site_fails")
 FITS, FITS_SMALL_GARDEN = "fits", "fits_small_garden"
 TOL = 1e-6
 
@@ -59,6 +64,9 @@ class LotBudget:
     flag: dict | None = None
     far_alternatives: dict = field(default_factory=dict)
     lot_facts: dict = field(default_factory=dict)
+    footprint_design_sqft: float | None = None
+    design: dict = field(default_factory=dict)
+    lot_minimum: dict | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -79,6 +87,9 @@ class LotBudget:
             "flag": self.flag,
             "far_alternatives": self.far_alternatives,
             "lot_facts": self.lot_facts,
+            "footprint_design_sqft": None if self.footprint_design_sqft is None else round(self.footprint_design_sqft, 1),
+            "design": self.design,
+            "lot_minimum": self.lot_minimum,
             "notes": self.notes,
         }
 
@@ -88,13 +99,20 @@ def _front_width_b(profile) -> float:
     return xr - xl
 
 
-def lot_budget(catalog: Catalog, rs: RuleSet, brief: dict, setup, flag: dict | None = None) -> LotBudget:
-    """Lot-level limits from the layer-0 objects (`setup` is modules.lotcap.main.run_lotcap.LotSetup)."""
+def lot_budget(catalog: Catalog, rs: RuleSet, brief: dict, setup, flag: dict | None = None,
+               design: DesignVariables | None = None) -> LotBudget:
+    """Lot-level limits from the layer-0 objects (`setup` is modules.lotcap.main.run_lotcap.LotSetup); with the
+    client's design variables, the effective FOT and the design footprint."""
     aa = catalog.data["area_analysis"]
     cap = setup.capacity.capacity
     lot_area = setup.lot.polygon.area
     coverage = cap["coverage_max"].value
-    limits = IndexLimits(lot_area, cap["gross_area_max"].value, coverage)
+    dlim = None
+    if design is not None:
+        dlim = design_limits(design, lot_area, cap["envelope"]["area"].value, cap["footprint_max_normative"].value,
+                             cap["gross_area_max"].value, cap["far_base_area"].value,
+                             int(cap["floors_max_height"].value))
+    limits = IndexLimits(lot_area, dlim["fot_area_sqft"] if dlim else cap["gross_area_max"].value, coverage)
     realizable = setup.capacity.realizable
     strategies = []
     for spec in aa["strategies"]:
@@ -117,6 +135,10 @@ def lot_budget(catalog: Catalog, rs: RuleSet, brief: dict, setup, flag: dict | N
         notes.append("all strategies hold the same footprint: the strategy dimension collapses to A")
     if coverage is not None:
         notes.append(f"occupancy index limited to {coverage:.0%} (hillside, 131.0445(a))")
+    if dlim is not None:
+        notes.append(f"design footprint {dlim['footprint_sqft']:.0f} sq ft (FOS {design.fos:g} x {design.fos_base}, "
+                     f"{dlim['footprint_governing']}); FOT area {dlim['fot_area_sqft']:.0f} sq ft ({dlim['fot_source']})"
+                     + ("" if dlim["normative"] else " - scenario, not normative"))
     terrain = brief.get("terrain", {})
     lot_facts = {"steep_hillside_fraction": terrain.get("steep_hillside_fraction", 0.0),
                  "view_side": terrain.get("view_side", "none")}
@@ -137,7 +159,8 @@ def lot_budget(catalog: Catalog, rs: RuleSet, brief: dict, setup, flag: dict | N
         envelope_sqft=cap["envelope"]["area"].value, strategies=strategies, strategies_equal=equal,
         garden_min_sqft=aa["garden_min_fraction_of_lot"] * lot_area,
         front_yard_sqft=0.0, extra_paving_sqft=extra_paving, notes=notes, flag=flag,
-        far_alternatives=far_alt, lot_facts=lot_facts)
+        far_alternatives=far_alt, lot_facts=lot_facts,
+        footprint_design_sqft=dlim["footprint_sqft"] if dlim else None, design=dlim or {})
 
 
 # ---------------------------------------------------------------------------------------- frontage
@@ -204,6 +227,8 @@ def evaluate_split(catalog: Catalog, rs: RuleSet, budget: LotBudget, program: di
         common.append("exceeds_far")
     if not io["passes"]:
         common.append("exceeds_coverage")
+    if budget.footprint_design_sqft is not None and split.ground > budget.footprint_design_sqft + TOL:
+        common.append("exceeds_design_footprint")
     if split.floors > 1 and split.upper > split.ground + TOL:
         common.append("upper_exceeds_ground")
 

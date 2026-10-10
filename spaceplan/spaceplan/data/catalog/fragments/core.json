@@ -2,7 +2,7 @@
   "fragment": "core",
   "entries": {
     "catalog_id": "spaceplan-residential-catalog",
-    "catalog_version": "0.11.0",
+    "catalog_version": "0.12.0",
     "units": "sq_ft",
     "default_source": {
       "kind": "catalog",
@@ -468,11 +468,11 @@
         "habitable": false,
         "wet": false,
         "area": {
-          "min": 40,
-          "target": 60,
-          "max": 90
+          "min": 37.5,
+          "target": 44,
+          "max": 53
         },
-        "note": "added per floor by the stacking layer (step 7), not by typologies",
+        "note": "added per floor by the stacking layer; area per floor = stair footprint (it counts in the gross floor area on every floor it serves, SDMC 113.0234(a)). Catalog 0.12.0: derived from the CRC stair geometry of step 6.7a S1.1 (straight 37.5, L-turn 44 - the configuration chosen most often -, U-turn 53 sq ft at a 10 ft floor-to-floor); the net ground-floor cost after the usable space under the stair is reported by the stacking layer (16.8 sq ft).",
         "passable": true,
         "min_side_ft": 3.5
       },

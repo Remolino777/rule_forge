@@ -169,7 +169,8 @@ def test_files_follow_plan_table():
         "zoning/lib": {"zoning", "space_layout", "circulation", "relation_matrix", "realization", "polygonal",
                        "corrections", "unit", "band_enumeration"},  # band_enumeration: tanda 3 (cycle broken)
         "zoning/main": {"run_corrections", "run_zoning", "contract"},  # run_zoning: tanda 3
-        "areas/lib": {"vertical_split", "building_indices", "area_budget", "area_matrix"},
+        "areas/lib": {"vertical_split", "building_indices", "area_budget", "area_matrix",
+                      "lot_minimum", "sensitivity"},  # 2026-10-09: design variables, normative sensitivity
         "areas/main": {"run_area_matrix", "contract"},
         "stacking/lib": {"stacking_catalog", "vertical_rules", "levels", "height_check", "cell_selection",
                          "lot_vertical",  # step 6.7a S0
@@ -179,7 +180,8 @@ def test_files_follow_plan_table():
         "stacking/main": {"run_stacking", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",
                     "area_matrix_plots",  # tanda 3: visualize split by topic; tanda 4: facade removed
-                    "stack_plan_plots"},  # step 6.7a S1
+                    "stack_plan_plots",  # step 6.7a S1
+                    "sensitivity_plots"},  # 2026-10-09
         "viz/main": {"run_viz"},  # tanda 4: figures from contracts
     }
     for sub, names in planned.items():

@@ -2,7 +2,7 @@
  "contract": "area_matrix",
  "version": "0.2.0",
  "produced_by": "areas",
- "input_sha256": "0517d50ecc4342c0ce44e898ddea183c95438d6daae3d99d0674c48fb02e2b59",
+ "input_sha256": "5720826a5663d282f8714529b212981689de1ed0feee1604b6b4e9d6d0b02403",
  "brief_id": null,
  "consumers": [
   "viz",
@@ -13,14 +13,33 @@
   "model": "base",
   "legend": "Comparative relative index, not a cost estimate or quote",
   "ruleset": "0.4.0",
-  "catalog": "0.11.0",
+  "catalog": "0.12.0",
   "households": [
    "empty_nest.anglo"
   ],
   "lots": [
    "interior_50x100"
   ],
-  "score_note": "Provisional indicator of a vertical scheme until the common quality score of step 6.8. Metrics in [0, 1]; household facts multiply weights; the trajectory takes the larger multiplier of the current and next stage. Open-area metric = open area (lot - footprint - paving - deck, the complement of the occupancy index) / (reference fraction x lot area), capped at 1; frontage metric = 0.5 + margin / (2 x margin scale), clipped; cost metric = 1 - relative index."
+  "score_note": "Provisional indicator of a vertical scheme until the common quality score of step 6.8. Metrics in [0, 1]; household facts multiply weights; the trajectory takes the larger multiplier of the current and next stage. Open-area metric = open area (lot - footprint - paving - deck, the complement of the occupancy index) / (reference fraction x lot area), capped at 1; frontage metric = 0.5 + margin / (2 x margin scale), clipped; cost metric = 1 - relative index.",
+  "design_variables": {
+   "fos": 0.6,
+   "fos_base": "envelope",
+   "fot_source": "sdmc",
+   "fot_fixed": 0.85,
+   "floors_policy": "one_floor_first",
+   "optimum_policy": "footprint",
+   "lot_minimum": {
+    "typology_id": "h1_basic",
+    "garage_cars": 0,
+    "size_profile": "compact"
+   },
+   "normative": true,
+   "ruleset_id": "client-design-variables",
+   "version": "0.1.0",
+   "sha256": "8fbb575910eb6eb1f6cc86c322dbf04d1c19aec365b083e12c8cc6cc0c7a0aed",
+   "overridden": []
+  },
+  "normative": true
  },
  "lots": [
   {
@@ -72,39 +91,84 @@
      "steep_hillside_fraction": 0.0,
      "view_side": "none"
     },
+    "footprint_design_sqft": 1814.4,
+    "design": {
+     "fos": 0.6,
+     "fos_base": "envelope",
+     "fos_base_sqft": 3024.0,
+     "design_footprint_sqft": 1814.4,
+     "legal_footprint_sqft": 3024.0,
+     "footprint_sqft": 1814.4,
+     "footprint_governing": "design_fos",
+     "fot_source": "sdmc",
+     "fot": 0.6,
+     "far_base_sqft": 5000.0,
+     "lot_area_sqft": 5000.0,
+     "envelope_sqft": 3024.0,
+     "fot_area_sqft": 3000.0,
+     "legal_far_area_sqft": 3000.0,
+     "floors_by_height": 2,
+     "floors_x_footprint_sqft": 3628.8,
+     "maximum_sqft": 3000.0,
+     "maximum_governing": "sdmc_far",
+     "normative": true,
+     "exceeds_legal_far": false
+    },
+    "lot_minimum": {
+     "typology_id": "h1_basic",
+     "garage_cars": 0,
+     "spaces": [
+      "living_dining",
+      "kitchen",
+      "primary_suite",
+      "bathroom",
+      "laundry_closet",
+      "foyer",
+      "closet"
+     ],
+     "net_sqft": 703.0,
+     "gross_sqft": 808.4,
+     "IC": 0.1617,
+     "fits_one_floor": true,
+     "within_fot": true
+    },
     "notes": [
-     "all strategies hold the same footprint: the strategy dimension collapses to A"
+     "all strategies hold the same footprint: the strategy dimension collapses to A",
+     "design footprint 1814 sq ft (FOS 0.6 x envelope, design_fos); FOT area 3000 sq ft (sdmc)"
     ]
    },
    "summary": {
-    "cells": 8,
+    "cells": 11,
     "status_counts": {
-     "fits": 8
+     "fits": 8,
+     "exceeds_design_footprint": 3
     },
-    "governing_counts": {},
+    "governing_counts": {
+     "exceeds_design_footprint": 3
+    },
     "by_floors": {
      "1": {
       "cells": 5,
-      "feasible": 5
+      "feasible": 4
      },
      "2": {
-      "cells": 3,
-      "feasible": 3
+      "cells": 6,
+      "feasible": 4
      }
     },
     "best_scheme_counts": {
-     "V0": 5
+     "V0": 4
     },
     "decisive_metric_counts": {
-     "stair_independence": 1,
-     "only_feasible": 3,
-     "upper_efficiency": 1
+     "only_feasible": 4
     },
-    "variant_sensitive_cells": 0
+    "variant_sensitive_cells": 0,
+    "best_two_floor": 0,
+    "two_floor_excluded_by_policy": 4
    },
    "e2": [],
-   "site_calls": 7,
-   "seconds": 0.2,
+   "site_calls": 11,
+   "seconds": 0.3,
    "lot_polygon": [
     [
      0,
@@ -230,11 +294,12 @@
     "cost": 0.0984
    },
    "degenerate_schemes": [],
+   "policy_excluded": false,
    "rank": 1,
    "best": true,
-   "decisive_metric": "stair_independence",
-   "runner_up": "V1",
-   "margin": 0.0789,
+   "decisive_metric": "only_feasible",
+   "runner_up": null,
+   "margin": null,
    "pareto": true
   },
   {
@@ -248,21 +313,21 @@
    "equivalent_schemes": [],
    "forced": false,
    "floors": 2,
-   "gross_sqft": 1275.8,
-   "ground_sqft": 979.6,
-   "upper_sqft": 296.1,
+   "gross_sqft": 1243.8,
+   "ground_sqft": 963.6,
+   "upper_sqft": 280.1,
    "split": {
     "scheme_id": "V1",
     "floors": 2,
     "gross_by_floor_sqft": [
-     979.6,
-     296.1
+     963.6,
+     280.1
     ],
     "net_by_floor_sqft": [
      799.7,
      205.3
     ],
-    "stair_sqft_per_floor": 60,
+    "stair_sqft_per_floor": 44,
     "upper_spaces": [
      "bathroom",
      "bedroom_primary",
@@ -271,18 +336,18 @@
     ],
     "exceptions": []
    },
-   "IC": 0.2551,
+   "IC": 0.2487,
    "IC_max": 0.6,
-   "IO": 0.1959,
+   "IO": 0.1927,
    "IO_max": null,
    "IC_by_floor": [
-    0.1959,
-    0.0592
+    0.1927,
+    0.056
    ],
    "IC_alternatives": {
     "garage_excluded": {
-     "IC": 0.1976,
-     "IO": 0.1959,
+     "IC": 0.1913,
+     "IO": 0.1927,
      "passes": true
     }
    },
@@ -298,8 +363,8 @@
      "strategy_id": "A",
      "status": "fits",
      "fails": [],
-     "garden_sqft": 2994.1,
-     "open_area_sqft": 3810.4,
+     "garden_sqft": 3014.6,
+     "open_area_sqft": 3826.4,
      "paving_sqft": 150.0,
      "deck_sqft": 60.0,
      "front_paving_fraction": 0.28,
@@ -312,10 +377,10 @@
     "soft_ft": 25.0,
     "living_on_ground": true
    },
-   "garden_sqft": 2994.1,
-   "open_area_sqft": 3810.4,
-   "open_area_ratio": 0.7621,
-   "index": 0.4253,
+   "garden_sqft": 3014.6,
+   "open_area_sqft": 3826.4,
+   "open_area_ratio": 0.7653,
+   "index": 0.4146,
    "metrics": {
     "stair_independence": 0.7692,
     "supervision": 1.0,
@@ -323,7 +388,7 @@
     "upper_efficiency": 0.7871,
     "open_area": 1.0,
     "frontage": 1.0,
-    "cost": 0.5747
+    "cost": 0.5854
    },
    "weights": {
     "open_area": 1.25,
@@ -338,7 +403,7 @@
     "VS01",
     "VS04"
    ],
-   "score": 0.8595,
+   "score": 0.8612,
    "score_parts": {
     "open_area": 0.2,
     "stair_independence": 0.1846,
@@ -346,10 +411,11 @@
     "separation": 0.08,
     "upper_efficiency": 0.063,
     "frontage": 0.08,
-    "cost": 0.092
+    "cost": 0.0937
    },
    "degenerate_schemes": [],
-   "rank": 2,
+   "policy_excluded": true,
+   "rank": null,
    "best": false,
    "pareto": true
   },
@@ -359,38 +425,38 @@
    "archetype_id": "empty_nest",
    "culture": "anglo",
    "profile": "optimum",
-   "program_quality": 0.7813,
+   "program_quality": 0.8554,
    "scheme_id": "V0",
    "equivalent_schemes": [],
    "forced": false,
    "floors": 1,
-   "gross_sqft": 1558.2,
-   "ground_sqft": 1558.2,
+   "gross_sqft": 1684.7,
+   "ground_sqft": 1684.7,
    "upper_sqft": 0,
    "split": {
     "scheme_id": "V0",
     "floors": 1,
     "gross_by_floor_sqft": [
-     1558.2
+     1684.7
     ],
     "net_by_floor_sqft": [
-     1355.0
+     1465.0
     ],
     "stair_sqft_per_floor": 0.0,
     "upper_spaces": [],
     "exceptions": []
    },
-   "IC": 0.3116,
+   "IC": 0.3369,
    "IC_max": 0.6,
-   "IO": 0.3116,
+   "IO": 0.3369,
    "IO_max": null,
    "IC_by_floor": [
-    0.3116
+    0.3369
    ],
    "IC_alternatives": {
     "garage_excluded": {
-     "IC": 0.2541,
-     "IO": 0.3116,
+     "IC": 0.2794,
+     "IO": 0.3369,
      "passes": true
     }
    },
@@ -406,8 +472,8 @@
      "strategy_id": "A",
      "status": "fits",
      "fails": [],
-     "garden_sqft": 2252.2,
-     "open_area_sqft": 3231.8,
+     "garden_sqft": 2090.1,
+     "open_area_sqft": 3105.2,
      "paving_sqft": 150.0,
      "deck_sqft": 60.0,
      "front_paving_fraction": 0.28,
@@ -420,18 +486,18 @@
     "soft_ft": 25.0,
     "living_on_ground": true
    },
-   "garden_sqft": 2252.2,
-   "open_area_sqft": 3231.8,
-   "open_area_ratio": 0.6464,
-   "index": 0.5194,
+   "garden_sqft": 2090.1,
+   "open_area_sqft": 3105.2,
+   "open_area_ratio": 0.621,
+   "index": 0.5616,
    "metrics": {
     "stair_independence": 1.0,
     "supervision": 1.0,
     "separation": 1.0,
     "upper_efficiency": 1.0,
-    "open_area": 0.9234,
+    "open_area": 0.8872,
     "frontage": 1.0,
-    "cost": 0.4806
+    "cost": 0.4384
    },
    "weights": {
     "open_area": 1.25,
@@ -446,25 +512,267 @@
     "VS01",
     "VS04"
    ],
-   "score": 0.9016,
+   "score": 0.8876,
    "score_parts": {
-    "open_area": 0.1847,
+    "open_area": 0.1774,
     "stair_independence": 0.24,
     "supervision": 0.16,
     "separation": 0.08,
     "upper_efficiency": 0.08,
     "frontage": 0.08,
-    "cost": 0.0769
+    "cost": 0.0701
    },
-   "degenerate_schemes": [
-    "V1"
-   ],
+   "degenerate_schemes": [],
+   "policy_excluded": false,
    "rank": 1,
    "best": true,
    "decisive_metric": "only_feasible",
    "runner_up": null,
    "margin": null,
    "pareto": true
+  },
+  {
+   "lot_id": "interior-50x100",
+   "household_id": "empty_nest.anglo",
+   "archetype_id": "empty_nest",
+   "culture": "anglo",
+   "profile": "optimum",
+   "program_quality": 0.8554,
+   "scheme_id": "V1",
+   "equivalent_schemes": [
+    "V2"
+   ],
+   "forced": false,
+   "floors": 2,
+   "gross_sqft": 1772.8,
+   "ground_sqft": 1540.9,
+   "upper_sqft": 231.9,
+   "split": {
+    "scheme_id": "V1",
+    "floors": 2,
+    "gross_by_floor_sqft": [
+     1540.9,
+     231.9
+    ],
+    "net_by_floor_sqft": [
+     1301.6,
+     163.4
+    ],
+    "stair_sqft_per_floor": 44,
+    "upper_spaces": [
+     "bathroom",
+     "flex_room_guest"
+    ],
+    "exceptions": [
+     {
+      "space_id": "primary_bath",
+      "group": "primary",
+      "to_floor": 0,
+      "moved": [
+       "bedroom_primary",
+       "primary_bath",
+       "walk_in_closet_primary"
+      ],
+      "reason": "floor_preference (household rule: mobility or garage); the suite stays together"
+     }
+    ]
+   },
+   "IC": 0.3545,
+   "IC_max": 0.6,
+   "IO": 0.3082,
+   "IO_max": null,
+   "IC_by_floor": [
+    0.3082,
+    0.0464
+   ],
+   "IC_alternatives": {
+    "garage_excluded": {
+     "IC": 0.297,
+     "IO": 0.3082,
+     "passes": true
+    }
+   },
+   "variant_sensitive": [],
+   "status": "fits",
+   "governing": null,
+   "strategy_used": "A",
+   "strategies_ok": [
+    "A"
+   ],
+   "strategies": [
+    {
+     "strategy_id": "A",
+     "status": "fits",
+     "fails": [],
+     "garden_sqft": 2274.5,
+     "open_area_sqft": 3249.1,
+     "paving_sqft": 150.0,
+     "deck_sqft": 60.0,
+     "front_paving_fraction": 0.28,
+     "site_failed_checks": [],
+     "frontage_margin_ft": 17.0
+    }
+   ],
+   "frontage": {
+    "hard_ft": 16.0,
+    "soft_ft": 25.0,
+    "living_on_ground": true
+   },
+   "garden_sqft": 2274.5,
+   "open_area_sqft": 3249.1,
+   "open_area_ratio": 0.6498,
+   "index": 0.5909,
+   "metrics": {
+    "stair_independence": 1.0,
+    "supervision": 1.0,
+    "separation": 1.0,
+    "upper_efficiency": 0.6262,
+    "open_area": 0.9283,
+    "frontage": 1.0,
+    "cost": 0.4091
+   },
+   "weights": {
+    "open_area": 1.25,
+    "stair_independence": 1.5,
+    "supervision": 1.0,
+    "separation": 0.5,
+    "upper_efficiency": 0.5,
+    "frontage": 0.5,
+    "cost": 1.0
+   },
+   "weight_rules": [
+    "VS01",
+    "VS04"
+   ],
+   "score": 0.8612,
+   "score_parts": {
+    "open_area": 0.1857,
+    "stair_independence": 0.24,
+    "supervision": 0.16,
+    "separation": 0.08,
+    "upper_efficiency": 0.0501,
+    "frontage": 0.08,
+    "cost": 0.0655
+   },
+   "degenerate_schemes": [],
+   "policy_excluded": true,
+   "rank": null,
+   "best": false,
+   "pareto": true
+  },
+  {
+   "lot_id": "interior-50x100",
+   "household_id": "empty_nest.anglo",
+   "archetype_id": "empty_nest",
+   "culture": "anglo",
+   "profile": "optimum",
+   "program_quality": 0.8554,
+   "scheme_id": "V4",
+   "equivalent_schemes": [],
+   "forced": false,
+   "floors": 2,
+   "gross_sqft": 1772.7,
+   "ground_sqft": 1595.4,
+   "upper_sqft": 177.3,
+   "split": {
+    "scheme_id": "V4",
+    "floors": 2,
+    "gross_by_floor_sqft": [
+     1595.4,
+     177.3
+    ],
+    "net_by_floor_sqft": [
+     1349.1,
+     115.9
+    ],
+    "stair_sqft_per_floor": 44,
+    "upper_spaces": [
+     "flex_room_guest"
+    ],
+    "exceptions": []
+   },
+   "IC": 0.3545,
+   "IC_max": 0.6,
+   "IO": 0.3191,
+   "IO_max": null,
+   "IC_by_floor": [
+    0.3191,
+    0.0355
+   ],
+   "IC_alternatives": {
+    "garage_excluded": {
+     "IC": 0.297,
+     "IO": 0.3191,
+     "passes": true
+    }
+   },
+   "variant_sensitive": [],
+   "status": "fits",
+   "governing": null,
+   "strategy_used": "A",
+   "strategies_ok": [
+    "A"
+   ],
+   "strategies": [
+    {
+     "strategy_id": "A",
+     "status": "fits",
+     "fails": [],
+     "garden_sqft": 2204.6,
+     "open_area_sqft": 3194.6,
+     "paving_sqft": 150.0,
+     "deck_sqft": 60.0,
+     "front_paving_fraction": 0.28,
+     "site_failed_checks": [],
+     "frontage_margin_ft": 17.0
+    }
+   ],
+   "frontage": {
+    "hard_ft": 16.0,
+    "soft_ft": 25.0,
+    "living_on_ground": true
+   },
+   "garden_sqft": 2204.6,
+   "open_area_sqft": 3194.6,
+   "open_area_ratio": 0.6389,
+   "index": 0.5909,
+   "metrics": {
+    "stair_independence": 1.0,
+    "supervision": 1.0,
+    "separation": 1.0,
+    "upper_efficiency": 0.4444,
+    "open_area": 0.9127,
+    "frontage": 1.0,
+    "cost": 0.4091
+   },
+   "weights": {
+    "open_area": 1.25,
+    "stair_independence": 1.5,
+    "supervision": 1.0,
+    "separation": 0.5,
+    "upper_efficiency": 0.5,
+    "frontage": 0.5,
+    "cost": 1.0
+   },
+   "weight_rules": [
+    "VS01",
+    "VS04"
+   ],
+   "score": 0.8436,
+   "score_parts": {
+    "open_area": 0.1825,
+    "stair_independence": 0.24,
+    "supervision": 0.16,
+    "separation": 0.08,
+    "upper_efficiency": 0.0356,
+    "frontage": 0.08,
+    "cost": 0.0655
+   },
+   "degenerate_schemes": [],
+   "policy_excluded": true,
+   "rank": null,
+   "best": false,
+   "pareto": false
   },
   {
    "lot_id": "interior-50x100",
@@ -508,17 +816,17 @@
     }
    },
    "variant_sensitive": [],
-   "status": "fits",
-   "governing": null,
-   "strategy_used": "A",
-   "strategies_ok": [
-    "A"
-   ],
+   "status": "exceeds_design_footprint",
+   "governing": "exceeds_design_footprint",
+   "strategy_used": null,
+   "strategies_ok": [],
    "strategies": [
     {
      "strategy_id": "A",
-     "status": "fits",
-     "fails": [],
+     "status": "exceeds_design_footprint",
+     "fails": [
+      "exceeds_design_footprint"
+     ],
      "garden_sqft": 1330.8,
      "open_area_sqft": 2363.0,
      "paving_sqft": 300.0,
@@ -559,7 +867,7 @@
     "VS01",
     "VS04"
    ],
-   "score": 0.8056,
+   "score": null,
    "score_parts": {
     "open_area": 0.135,
     "stair_independence": 0.24,
@@ -570,12 +878,10 @@
     "cost": 0.0386
    },
    "degenerate_schemes": [],
-   "rank": 1,
-   "best": true,
-   "decisive_metric": "upper_efficiency",
-   "runner_up": "V1",
-   "margin": 0.0216,
-   "pareto": true
+   "policy_excluded": false,
+   "rank": null,
+   "best": false,
+   "pareto": false
   },
   {
    "lot_id": "interior-50x100",
@@ -590,21 +896,21 @@
    ],
    "forced": false,
    "floors": 2,
-   "gross_sqft": 2397.0,
-   "ground_sqft": 2126.2,
-   "upper_sqft": 270.8,
+   "gross_sqft": 2365.0,
+   "ground_sqft": 2110.2,
+   "upper_sqft": 254.8,
    "split": {
     "scheme_id": "V1",
     "floors": 2,
     "gross_by_floor_sqft": [
-     2126.2,
-     270.8
+     2110.2,
+     254.8
     ],
     "net_by_floor_sqft": [
      1796.7,
      183.3
     ],
-    "stair_sqft_per_floor": 60,
+    "stair_sqft_per_floor": 44,
     "upper_spaces": [
      "bathroom",
      "flex_room_guest"
@@ -623,35 +929,35 @@
      }
     ]
    },
-   "IC": 0.4794,
+   "IC": 0.473,
    "IC_max": 0.6,
-   "IO": 0.4252,
+   "IO": 0.422,
    "IO_max": null,
    "IC_by_floor": [
-    0.4252,
-    0.0542
+    0.422,
+    0.051
    ],
    "IC_alternatives": {
     "garage_excluded": {
-     "IC": 0.3828,
-     "IO": 0.4252,
+     "IC": 0.3764,
+     "IO": 0.422,
      "passes": true
     }
    },
    "variant_sensitive": [],
-   "status": "fits",
-   "governing": null,
-   "strategy_used": "A",
-   "strategies_ok": [
-    "A"
-   ],
+   "status": "exceeds_design_footprint",
+   "governing": "exceeds_design_footprint",
+   "strategy_used": null,
+   "strategies_ok": [],
    "strategies": [
     {
      "strategy_id": "A",
-     "status": "fits",
-     "fails": [],
-     "garden_sqft": 1524.1,
-     "open_area_sqft": 2513.8,
+     "status": "exceeds_design_footprint",
+     "fails": [
+      "exceeds_design_footprint"
+     ],
+     "garden_sqft": 1544.7,
+     "open_area_sqft": 2529.8,
      "paving_sqft": 300.0,
      "deck_sqft": 60.0,
      "front_paving_fraction": 0.48,
@@ -664,18 +970,18 @@
     "soft_ft": 34.0,
     "living_on_ground": true
    },
-   "garden_sqft": 1524.1,
-   "open_area_sqft": 2513.8,
-   "open_area_ratio": 0.5028,
-   "index": 0.799,
+   "garden_sqft": 1544.7,
+   "open_area_sqft": 2529.8,
+   "open_area_ratio": 0.506,
+   "index": 0.7883,
    "metrics": {
     "stair_independence": 1.0,
     "supervision": 1.0,
     "separation": 1.0,
     "upper_efficiency": 0.7028,
-    "open_area": 0.7182,
+    "open_area": 0.7228,
     "frontage": 0.9,
-    "cost": 0.201
+    "cost": 0.2117
    },
    "weights": {
     "open_area": 1.25,
@@ -690,20 +996,21 @@
     "VS01",
     "VS04"
    ],
-   "score": 0.784,
+   "score": null,
    "score_parts": {
-    "open_area": 0.1436,
+    "open_area": 0.1446,
     "stair_independence": 0.24,
     "supervision": 0.16,
     "separation": 0.08,
     "upper_efficiency": 0.0562,
     "frontage": 0.072,
-    "cost": 0.0322
+    "cost": 0.0339
    },
    "degenerate_schemes": [],
-   "rank": 2,
+   "policy_excluded": false,
+   "rank": null,
    "best": false,
-   "pareto": true
+   "pareto": false
   },
   {
    "lot_id": "interior-50x100",
@@ -716,55 +1023,55 @@
    "equivalent_schemes": [],
    "forced": false,
    "floors": 2,
-   "gross_sqft": 2397.0,
-   "ground_sqft": 2192.4,
-   "upper_sqft": 204.6,
+   "gross_sqft": 2365.0,
+   "ground_sqft": 2176.4,
+   "upper_sqft": 188.6,
    "split": {
     "scheme_id": "V4",
     "floors": 2,
     "gross_by_floor_sqft": [
-     2192.4,
-     204.6
+     2176.4,
+     188.6
     ],
     "net_by_floor_sqft": [
      1854.3,
      125.7
     ],
-    "stair_sqft_per_floor": 60,
+    "stair_sqft_per_floor": 44,
     "upper_spaces": [
      "flex_room_guest"
     ],
     "exceptions": []
    },
-   "IC": 0.4794,
+   "IC": 0.473,
    "IC_max": 0.6,
-   "IO": 0.4385,
+   "IO": 0.4353,
    "IO_max": null,
    "IC_by_floor": [
-    0.4385,
-    0.0409
+    0.4353,
+    0.0377
    ],
    "IC_alternatives": {
     "garage_excluded": {
-     "IC": 0.3828,
-     "IO": 0.4385,
+     "IC": 0.3764,
+     "IO": 0.4353,
      "passes": true
     }
    },
    "variant_sensitive": [],
-   "status": "fits",
-   "governing": null,
-   "strategy_used": "A",
-   "strategies_ok": [
-    "A"
-   ],
+   "status": "exceeds_design_footprint",
+   "governing": "exceeds_design_footprint",
+   "strategy_used": null,
+   "strategies_ok": [],
    "strategies": [
     {
      "strategy_id": "A",
-     "status": "fits",
-     "fails": [],
-     "garden_sqft": 1439.2,
-     "open_area_sqft": 2447.6,
+     "status": "exceeds_design_footprint",
+     "fails": [
+      "exceeds_design_footprint"
+     ],
+     "garden_sqft": 1459.7,
+     "open_area_sqft": 2463.6,
      "paving_sqft": 300.0,
      "deck_sqft": 60.0,
      "front_paving_fraction": 0.48,
@@ -777,18 +1084,18 @@
     "soft_ft": 34.0,
     "living_on_ground": true
    },
-   "garden_sqft": 1439.2,
-   "open_area_sqft": 2447.6,
-   "open_area_ratio": 0.4895,
-   "index": 0.799,
+   "garden_sqft": 1459.7,
+   "open_area_sqft": 2463.6,
+   "open_area_ratio": 0.4927,
+   "index": 0.7883,
    "metrics": {
     "stair_independence": 1.0,
     "supervision": 1.0,
     "separation": 1.0,
     "upper_efficiency": 0.4819,
-    "open_area": 0.6993,
+    "open_area": 0.7039,
     "frontage": 0.9,
-    "cost": 0.201
+    "cost": 0.2117
    },
    "weights": {
     "open_area": 1.25,
@@ -803,18 +1110,19 @@
     "VS01",
     "VS04"
    ],
-   "score": 0.7626,
+   "score": null,
    "score_parts": {
-    "open_area": 0.1399,
+    "open_area": 0.1408,
     "stair_independence": 0.24,
     "supervision": 0.16,
     "separation": 0.08,
     "upper_efficiency": 0.0386,
     "frontage": 0.072,
-    "cost": 0.0322
+    "cost": 0.0339
    },
    "degenerate_schemes": [],
-   "rank": 3,
+   "policy_excluded": false,
+   "rank": null,
    "best": false,
    "pareto": false
   },
@@ -824,38 +1132,38 @@
    "archetype_id": "empty_nest",
    "culture": "anglo",
    "profile": "accessible",
-   "program_quality": 0.7813,
+   "program_quality": 0.8554,
    "scheme_id": "V0",
    "equivalent_schemes": [],
    "forced": false,
    "floors": 1,
-   "gross_sqft": 1588.1,
-   "ground_sqft": 1588.1,
+   "gross_sqft": 1714.6,
+   "ground_sqft": 1714.6,
    "upper_sqft": 0,
    "split": {
     "scheme_id": "V0",
     "floors": 1,
     "gross_by_floor_sqft": [
-     1588.1
+     1714.6
     ],
     "net_by_floor_sqft": [
-     1381.0
+     1491.0
     ],
     "stair_sqft_per_floor": 0.0,
     "upper_spaces": [],
     "exceptions": []
    },
-   "IC": 0.3176,
+   "IC": 0.3429,
    "IC_max": 0.6,
-   "IO": 0.3176,
+   "IO": 0.3429,
    "IO_max": null,
    "IC_by_floor": [
-    0.3176
+    0.3429
    ],
    "IC_alternatives": {
     "garage_excluded": {
-     "IC": 0.2601,
-     "IO": 0.3176,
+     "IC": 0.2854,
+     "IO": 0.3429,
      "passes": true
     }
    },
@@ -871,8 +1179,8 @@
      "strategy_id": "A",
      "status": "fits",
      "fails": [],
-     "garden_sqft": 2213.9,
-     "open_area_sqft": 3201.9,
+     "garden_sqft": 2051.7,
+     "open_area_sqft": 3075.4,
      "paving_sqft": 150.0,
      "deck_sqft": 60.0,
      "front_paving_fraction": 0.28,
@@ -885,18 +1193,18 @@
     "soft_ft": 25.0,
     "living_on_ground": true
    },
-   "garden_sqft": 2213.9,
-   "open_area_sqft": 3201.9,
-   "open_area_ratio": 0.6404,
-   "index": 0.5294,
+   "garden_sqft": 2051.7,
+   "open_area_sqft": 3075.4,
+   "open_area_ratio": 0.6151,
+   "index": 0.5716,
    "metrics": {
     "stair_independence": 1.0,
     "supervision": 1.0,
     "separation": 1.0,
     "upper_efficiency": 1.0,
-    "open_area": 0.9148,
+    "open_area": 0.8787,
     "frontage": 1.0,
-    "cost": 0.4706
+    "cost": 0.4284
    },
    "weights": {
     "open_area": 1.25,
@@ -911,24 +1219,161 @@
     "VS01",
     "VS04"
    ],
-   "score": 0.8983,
+   "score": 0.8843,
    "score_parts": {
-    "open_area": 0.183,
+    "open_area": 0.1757,
     "stair_independence": 0.24,
     "supervision": 0.16,
     "separation": 0.08,
     "upper_efficiency": 0.08,
     "frontage": 0.08,
-    "cost": 0.0753
+    "cost": 0.0686
    },
-   "degenerate_schemes": [
-    "V1"
-   ],
+   "degenerate_schemes": [],
+   "policy_excluded": false,
    "rank": 1,
    "best": true,
    "decisive_metric": "only_feasible",
    "runner_up": null,
    "margin": null,
+   "pareto": false
+  },
+  {
+   "lot_id": "interior-50x100",
+   "household_id": "empty_nest.anglo",
+   "archetype_id": "empty_nest",
+   "culture": "anglo",
+   "profile": "accessible",
+   "program_quality": 0.8554,
+   "scheme_id": "V1",
+   "equivalent_schemes": [
+    "V2",
+    "V4"
+   ],
+   "forced": false,
+   "floors": 2,
+   "gross_sqft": 1802.6,
+   "ground_sqft": 1625.4,
+   "upper_sqft": 177.2,
+   "split": {
+    "scheme_id": "V1",
+    "floors": 2,
+    "gross_by_floor_sqft": [
+     1625.4,
+     177.2
+    ],
+    "net_by_floor_sqft": [
+     1375.2,
+     115.8
+    ],
+    "stair_sqft_per_floor": 44,
+    "upper_spaces": [
+     "flex_room_guest"
+    ],
+    "exceptions": [
+     {
+      "space_id": "bedroom_primary",
+      "group": "primary",
+      "to_floor": 0,
+      "moved": [
+       "bedroom_primary",
+       "primary_bath",
+       "walk_in_closet_primary"
+      ],
+      "reason": "floor_preference (household rule: mobility or garage); the suite stays together"
+     },
+     {
+      "space_id": "bathroom",
+      "group": "private_shared",
+      "to_floor": 0,
+      "moved": [
+       "bathroom"
+      ],
+      "reason": "floor_preference (household rule: mobility or garage)"
+     }
+    ]
+   },
+   "IC": 0.3605,
+   "IC_max": 0.6,
+   "IO": 0.3251,
+   "IO_max": null,
+   "IC_by_floor": [
+    0.3251,
+    0.0354
+   ],
+   "IC_alternatives": {
+    "garage_excluded": {
+     "IC": 0.303,
+     "IO": 0.3251,
+     "passes": true
+    }
+   },
+   "variant_sensitive": [],
+   "status": "fits",
+   "governing": null,
+   "strategy_used": "A",
+   "strategies_ok": [
+    "A"
+   ],
+   "strategies": [
+    {
+     "strategy_id": "A",
+     "status": "fits",
+     "fails": [],
+     "garden_sqft": 2166.1,
+     "open_area_sqft": 3164.6,
+     "paving_sqft": 150.0,
+     "deck_sqft": 60.0,
+     "front_paving_fraction": 0.28,
+     "site_failed_checks": [],
+     "frontage_margin_ft": 17.0
+    }
+   ],
+   "frontage": {
+    "hard_ft": 16.0,
+    "soft_ft": 25.0,
+    "living_on_ground": true
+   },
+   "garden_sqft": 2166.1,
+   "open_area_sqft": 3164.6,
+   "open_area_ratio": 0.6329,
+   "index": 0.6009,
+   "metrics": {
+    "stair_independence": 1.0,
+    "supervision": 1.0,
+    "separation": 1.0,
+    "upper_efficiency": 0.444,
+    "open_area": 0.9042,
+    "frontage": 1.0,
+    "cost": 0.3991
+   },
+   "weights": {
+    "open_area": 1.25,
+    "stair_independence": 1.5,
+    "supervision": 1.0,
+    "separation": 0.5,
+    "upper_efficiency": 0.5,
+    "frontage": 0.5,
+    "cost": 1.0
+   },
+   "weight_rules": [
+    "VS01",
+    "VS04"
+   ],
+   "score": 0.8402,
+   "score_parts": {
+    "open_area": 0.1808,
+    "stair_independence": 0.24,
+    "supervision": 0.16,
+    "separation": 0.08,
+    "upper_efficiency": 0.0355,
+    "frontage": 0.08,
+    "cost": 0.0639
+   },
+   "degenerate_schemes": [],
+   "policy_excluded": true,
+   "rank": null,
+   "best": false,
    "pareto": false
   },
   {
@@ -1037,12 +1482,13 @@
    "degenerate_schemes": [
     "V1"
    ],
+   "policy_excluded": false,
    "rank": 1,
    "best": true,
    "decisive_metric": "only_feasible",
    "runner_up": null,
    "margin": null,
-   "pareto": false
+   "pareto": true
   }
  ]
 }

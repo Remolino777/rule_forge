@@ -1,0 +1,83 @@
+{
+  "ruleset_id": "client-design-variables",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "client",
+  "zone": "*",
+  "code_edition": "client decisions 2026-10-09",
+  "transcribed_from": "Client (student) decisions of 2026-10-09 on the area logic of spaceplan (project docs spaceplan_FOS_investigacion.md and spaceplan_FOT_investigacion.md). Editable: change a value here, or override it per run (CLI --fos, --fos-base, --fot-source, --fot, --floors-policy, --optimum-policy).",
+  "verification_note": "Design variables, not code. verified=true means the client set them. In RS-1-7 the SDMC has no general lot coverage (only 50 percent on steep-hillside premises, 131.0445(a)); the design FOS is the client's footprint cap. The FOT follows the SDMC (131.0446, Table 131-04J) by default; a fixed FOT is a scenario and its results are marked non-normative.",
+  "kind": "client",
+  "scope": {"excluded_overlays": [], "source": {"document": "Client decisions", "section": "2026-10-09"}},
+  "lot_measurement": {"width_methods": [], "depth_methods": [], "default_width_method": null, "default_depth_method": null,
+                      "setback_distance_semantics": null, "verified": true,
+                      "source": {"document": "Client decisions", "section": "n/a"}},
+  "rules": [
+    {
+      "rule_id": "D01-DESIGN-FOS",
+      "kind": "client",
+      "magnitude": "design_lot_coverage",
+      "operator": "<=",
+      "value": 0.6,
+      "unit": "ratio",
+      "parameters": {
+        "base": "envelope",
+        "bases": ["envelope", "lot"],
+        "counts": "enclosed building and garage footprint, measured to the outer face of exterior walls (SDMC 113.0240)",
+        "excludes": "decks, open porches, stoops, terraces and stairways (113.0240(a)-(b)), garden and paving"
+      },
+      "text": ["Design occupancy (FOS): the ground footprint of the house (interior and garage) may cover at most this fraction of the base area; base 'envelope' = area inside the required setbacks, 'lot' = lot area (the SDMC and Colombian convention)."],
+      "source": {"document": "Client decisions", "section": "2026-10-09, FOS"},
+      "verified": true
+    },
+    {
+      "rule_id": "D02-FOT",
+      "kind": "client",
+      "magnitude": "floor_area_ratio_source",
+      "operator": "<=",
+      "value": null,
+      "unit": "ratio",
+      "parameters": {
+        "source": "sdmc",
+        "sources": ["sdmc", "fixed"],
+        "fixed_value": 0.85,
+        "fixed_note": "Scenario value from RT-type zones (townhouses), not RS-1-7: results with source 'fixed' exceed the SDMC FAR by about 42 percent on the pilot and are marked non-normative."
+      },
+      "text": ["Construction factor (FOT): 'sdmc' applies SDMC 131.0446 (Table 131-04J by lot area, hillside rule (a)(2)); 'fixed' replaces it by fixed_value as a scenario."],
+      "source": {"document": "Client decisions", "section": "2026-10-09, FOT"},
+      "verified": true
+    },
+    {
+      "rule_id": "D03-FLOORS-POLICY",
+      "kind": "client",
+      "magnitude": "floors_policy",
+      "operator": "in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "policy": "one_floor_first",
+        "policies": ["one_floor_first", "score"],
+        "note": "one_floor_first: a second floor is built only when the program does not fit in one floor within the design footprint and the FOT allows it; 'score' keeps the step-6.6 ranking by household-weighted score."
+      },
+      "text": ["A second floor exists only if the program does not fit on the ground floor and the construction factor allows it."],
+      "source": {"document": "Client decisions", "section": "2026-10-09, floors"},
+      "verified": true
+    },
+    {
+      "rule_id": "D04-PROFILES",
+      "kind": "client",
+      "magnitude": "program_profiles",
+      "operator": "in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "optimum": "footprint",
+        "optimums": ["footprint", "knee"],
+        "lot_minimum": {"typology_id": "h1_basic", "garage_cars": 0, "size_profile": "compact"},
+        "note": "Minimum of the lot: a basic one-bedroom house (reference, same for every household); minimum of the household: its required program. Optimum 'footprint': the largest program on the household's expansion curve that fits one floor within the design footprint ('knee' keeps the step-6.5d quality-cost knee as a lens). Maximum: 100 percent of the effective FOT, capped by the floors the height allows times the design footprint."
+      },
+      "text": ["Profiles: lot minimum (one bedroom) and household minimum; optimum at the design footprint on one floor; maximum at 100 percent of the FOT."],
+      "source": {"document": "Client decisions", "section": "2026-10-09, profiles"},
+      "verified": true
+    }
+  ]
+}
