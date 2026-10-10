@@ -132,6 +132,15 @@ class StackingCatalog:
     def geometry(self) -> dict[str, Any]:
         return self.data["geometry"]
 
+    # ----------------------------------------------------------------- stage S2
+
+    @property
+    def s2(self) -> dict[str, Any]:
+        """Design values of stage S2 (zoning around the stair core)."""
+        if "s2" not in self.data:
+            raise StackingCatalogError("stacking catalog has no s2 block (stage S2 needs catalog >= 0.5.0)")
+        return self.data["s2"]
+
 
 STAIR_TYPES = ("straight", "straight_landing", "l_turn", "u_turn")
 CHOICE_KEYS = ("net_ground_bucket", "half_bath_fit", "entry_distance_ft", "joint_offset_ft")
@@ -210,6 +219,54 @@ def _check_s1(data: dict[str, Any]) -> list[str]:
     return problems
 
 
+S2_AXES = ("x", "y")
+S2_WEIGHTS = ("relations", "vertical", "shape", "anchors", "stair_access")
+ARRIVALS = ("family_room", "upper_vestibule", "hall")
+
+
+def _check_s2(data: dict[str, Any]) -> list[str]:
+    """Structural problems of the stage-S2 block (optional before catalog 0.5.0)."""
+    s2 = data.get("s2")
+    if s2 is None:
+        return []
+    problems = []
+    if not isinstance(s2.get("grid_ft"), (int, float)) or s2["grid_ft"] <= 0:
+        problems.append("s2.grid_ft must be a number > 0")
+    topo = s2.get("topology", {})
+    for floor in ("ground", "upper"):
+        t = topo.get(floor, {})
+        if not t.get("axes") or any(a not in S2_AXES for a in t["axes"]):
+            problems.append(f"s2.topology.{floor}.axes must be drawn from {S2_AXES}")
+        if t.get("max_bands") not in (1, 2):
+            problems.append(f"s2.topology.{floor}.max_bands must be 1 or 2")
+    if not isinstance(topo.get("max_topologies_per_floor"), int) or topo["max_topologies_per_floor"] < 1:
+        problems.append("s2.topology.max_topologies_per_floor must be an integer >= 1")
+    if sorted(s2.get("arrival_order", [])) != sorted(ARRIVALS):
+        problems.append(f"s2.arrival_order must order {ARRIVALS}")
+    if set(s2.get("weights", {})) != set(S2_WEIGHTS) or any(v < 0 for v in s2.get("weights", {}).values()):
+        problems.append(f"s2.weights must give a number >= 0 for each of {S2_WEIGHTS}")
+    share = s2.get("receiving_min_share")
+    if not isinstance(share, (int, float)) or not 0 < share <= 1:
+        problems.append("s2.receiving_min_share must be in (0, 1]")
+    for key in ("D", "I"):
+        if not isinstance(s2.get("vertical_depth_ok", {}).get(key), int):
+            problems.append(f"s2.vertical_depth_ok.{key} must be an integer")
+    for key in ("hall", "upper_vestibule"):
+        if not isinstance(s2.get("circulation_min_sqft", {}).get(key), (int, float)):
+            problems.append(f"s2.circulation_min_sqft.{key} must be a number")
+    doors = s2.get("zone_doors", {})
+    for key in ("private_opens_to", "garage_opens_to"):
+        if not isinstance(doors.get(key), list):
+            problems.append(f"s2.zone_doors.{key} must be a list of zones")
+    if not isinstance(s2.get("keep_alternatives"), int) or s2["keep_alternatives"] < 0:
+        problems.append("s2.keep_alternatives must be an integer >= 0")
+    if s2.get("unit_min_width", {}).get("rule") not in ("space_sides", "zone"):
+        problems.append("s2.unit_min_width.rule must be 'space_sides' or 'zone'")
+    if "source" not in s2:
+        problems.append("s2.source is missing")
+    return problems
+
+
 def check_stacking_catalog(data: dict[str, Any]) -> list[str]:
     """Structural problems of a stacking catalog (empty list = valid)."""
     problems = []
@@ -248,7 +305,7 @@ def check_stacking_catalog(data: dict[str, Any]) -> list[str]:
             problems.append(f"roof {roof['roof_id']!r}: pitched roof needs pitch_rise_per_run")
     if not data["below_grade"].get("probe_exposures_ft"):
         problems.append("below_grade.probe_exposures_ft is empty")
-    return problems + _check_s1(data)
+    return problems + _check_s1(data) + _check_s2(data)
 
 
 def load_stacking_catalog(path: str | Path | None = None) -> StackingCatalog:

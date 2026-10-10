@@ -7,10 +7,13 @@
       -> S1 per two-floor cell marked next_stage = "S1": ground floor from the strategy's footprint, stand-in
          garage, upper-floor placement, stair at the joint (CRC R311.7), allowed polygon per level, roof of the
          drawn upper floor against the plane (default, ridge turned, flat), room over the garage (R302.6)
+      -> S2 per cell drawn by S1 (next_stage = "S2"): zoning of both floors around the stair core (zone units from
+         the area matrix's space split), receiving space at the top (K01), A/B/C start portfolio (K02), half bath
+         under the stair or relocated (K03, K04), relation matrix with K05 over the base; when the upper floor
+         cannot be zoned, S1 is redrawn with the next upper-floor placement that held the stair (backtrack)
       -> result {meta, lots, cells} (contract stack_plan)
 
-Stage S2 (upper-floor zoning) reads the cells marked next_stage = "S2". The workflow only reads contracts: no
-lotcap, site or areas code runs here.
+The workflow only reads contracts: no lotcap, site or areas code runs here.
 """
 
 from __future__ import annotations
@@ -38,15 +41,18 @@ from spaceplan.modules.stacking.lib.levels import build_levels
 from spaceplan.modules.stacking.lib.lot_plan import lot_plan, strategy_key
 from spaceplan.modules.stacking.lib.lot_vertical import lot_envelope, lot_vertical_facts
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
-from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset
+from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
+from spaceplan.modules.stacking.lib.zone_cell import S2_STATUSES, ZONED, s2_context, zone_cell
+from spaceplan.modules.stacking.lib.zone_relations import build_matrix
 from spaceplan.modules.stacking.lib.vertical_rules import (
     garage_counts_in_gfa,
     load_vertical_ruleset,
 )
 
 STEP, STAGE = "6.7a", "S0"
-STAGES = ("S0", "S1")
+STAGES = ("S0", "S1", "S2")
+DRAWING_STAGES = ("S1", "S2")
 CELL_KEYS = ("lot_id", "household_id", "archetype_id", "culture", "profile", "scheme_id", "floors", "rank",
              "strategy_used")
 
@@ -102,6 +108,64 @@ def _s1_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
             "to_s2": sum(1 for c in cells if c.get("s1") and c["s1"]["next_stage"] == "S2")}
 
 
+def backtrack_order(s1: dict[str, Any], stair_ids: list[str]) -> list[tuple[str, str]]:
+    """Redraws stage S2 asks S1 for when it cannot zone a cell: every upper placement that held the stair (the drawn
+    one first) times every enabled stair configuration (the drawn one first, then the catalog order), minus the
+    drawn pair. A configuration that does not fit a placement is reported by S1 and skipped."""
+    placements = [s1["upper_placement"]] + [c["placement"] for c in s1.get("upper_candidates", [])
+                                            if c["stair_fits"] and c["placement"] != s1["upper_placement"]]
+    stairs = [s1["stair"]["stair_id"]] + [sid for sid in stair_ids if sid != s1["stair"]["stair_id"]]
+    pairs = [(p, sid) for p in placements for sid in stairs]
+    return pairs[1:]
+
+
+def stage_s2(c: dict[str, Any], out: dict[str, Any], plan, strategy, ctx: S1Context, s2ctx) -> None:
+    """Zone a drawn cell; when it does not zone, redraw S1 with the next upper placement or stair configuration
+    (backtrack across stages: S2 is the first stage that knows the widths of the rooms)."""
+    s1 = out["s1"]
+    s2 = zone_cell(c, s1, plan, s2ctx)
+    tried = []
+    if s2["status"] not in (ZONED, "no_space_split"):
+        for placement, stair_id in backtrack_order(s1, [t["stair_id"] for t in ctx.scat.stair_types]):
+            redraw = draw_cell(c, out, plan, strategy, ctx, placements=[placement], stair_ids=[stair_id])
+            if redraw["status"] != DRAWN:
+                tried.append({"placement": placement, "stair_id": stair_id, "s1_status": redraw["status"]})
+                continue
+            alt = zone_cell(c, redraw, plan, s2ctx)
+            tried.append({"placement": placement, "stair_id": stair_id, "s2_status": alt["status"]})
+            if alt["status"] == ZONED:
+                redraw["upper_candidates"] = s1["upper_candidates"]
+                redraw["redrawn_by_s2"] = {"from_placement": s1["upper_placement"], "to_placement": placement,
+                                           "from_stair": s1["stair"]["stair_id"], "to_stair": stair_id,
+                                           "reason": f"{s2['status']} with the {s1['upper_placement']} placement and "
+                                                     f"the {s1['stair']['stair_id']} stair"}
+                out["s1"], s2 = redraw, alt
+                break
+    s2["backtrack"] = {"tried": tried, "placement": out["s1"]["upper_placement"],
+                       "stair_id": out["s1"]["stair"]["stair_id"], "redrawn": "redrawn_by_s2" in out["s1"]}
+    out["s2"] = s2
+    out["next_stage"] = s2["next_stage"]
+
+
+def _s2_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
+    zoned = [c["s2"] for c in cells if c.get("s2") and c["s2"]["status"] == ZONED]
+    return {"cells": sum(1 for c in cells if c.get("s2")),
+            "status_counts": dict(sorted(Counter(c["s2"]["status"] for c in cells if c.get("s2")).items())),
+            "arrival_counts": dict(sorted(Counter(z["arrival"]["receiving"] for z in zoned).items())),
+            "chosen_option_counts": dict(sorted(Counter(z["chosen_option"] for z in zoned).items())),
+            "feasible_option_counts": {o: sum(1 for z in zoned if o in z["feasible_options"]) for o in "ABC"},
+            "half_bath_counts": dict(sorted(Counter(str(z["options"][z["chosen_option"]].get("half_bath"))
+                                                    for z in zoned).items())),
+            "redrawn_by_s2": sum(1 for c in cells if c.get("s2") and c["s2"]["backtrack"]["redrawn"]),
+            "redrawn_stair_changed": sum(1 for c in cells if c.get("s2") and c["s2"]["backtrack"]["redrawn"]
+                                         and c["s1"]["redrawn_by_s2"]["from_stair"] != c["s1"]["redrawn_by_s2"]["to_stair"]),
+            "stair_type_counts": dict(sorted(Counter(c["s1"]["stair"]["stair_id"] for c in cells
+                                                     if c.get("s2") and c["s2"]["status"] == ZONED).items())),
+            "upper_placement_counts": dict(sorted(Counter(c["s1"]["upper_placement"] for c in cells
+                                                          if c.get("s2") and c["s2"]["status"] == ZONED).items())),
+            "to_s2_1": sum(1 for c in cells if c.get("s2") and c["s2"]["next_stage"])}
+
+
 def _lot_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
     return {"cells": len(cells),
             "by_floors": dict(sorted(Counter(str(c["floors"]) for c in cells).items())),
@@ -128,9 +192,12 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
     stair_sqft = float(catalog.space_type(scat.stair_space_type)["area"]["target"])
     mode = mode or scat.stage_default_mode(stage)
     selected = select_cells(am["cells"], scat.selection_k(mode))
-    srs = load_stair_ruleset(stair_rules_path) if stage == "S1" else None
+    drawing = stage in DRAWING_STAGES
+    srs = load_stair_ruleset(stair_rules_path) if drawing else None
     limits = stair_limits(srs) if srs is not None else None
-    crs = load_client_ruleset(client_rules_path) if stage == "S1" else None
+    crs = load_client_ruleset(client_rules_path) if drawing else None
+    s2ctx = (s2_context(scat, catalog, crs, build_matrix(catalog, relations(crs), scat.s2["pair_default_weights"]))
+             if stage == "S2" else None)
 
     lots_out, cells_out, missing = [], [], []
     for lot in am["lots"]:
@@ -140,7 +207,7 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
             missing.append(lot_id)
             continue
         lot_cells = []
-        plan = lot_plan(lc) if stage == "S1" else None
+        plan = lot_plan(lc) if drawing else None
         for c in selected:
             if c["lot_id"] != lot_id:
                 continue
@@ -148,16 +215,21 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
             if plan is not None and out["next_stage"] == "S1":
                 ctx = S1Context(scat, limits, srs, rs, crs, catalog, lot_envelope(rs, lc),
                                 (lc.get("terrain") or {}).get("mean_slope"), stair_sqft)
-                s1 = draw_cell(c, out, plan, strategy_key(lot["budget"], c.get("strategy_used")), ctx)
+                strategy = strategy_key(lot["budget"], c.get("strategy_used"))
+                s1 = draw_cell(c, out, plan, strategy, ctx)
                 out["s1"] = s1
                 out["next_stage"] = s1["next_stage"]
+                if s2ctx is not None and s1["next_stage"] == "S2":
+                    stage_s2(c, out, plan, strategy, ctx, s2ctx)
             lot_cells.append(out)
         cells_out += lot_cells
         summary = _lot_summary(lot_cells)
         facts = lot_vertical_facts(rs, scat, lc)
-        if stage == "S1":
+        if drawing:
             summary["s1"] = _s1_summary(lot_cells)
             facts["plan"] = {"lot_polygon": lc["lot"]["polygon"], "envelope_polygon": lc["capacity"]["envelope"]["polygon"]}
+        if s2ctx is not None:
+            summary["s2"] = _s2_summary(lot_cells)
         lots_out.append({**facts, "summary": summary})
     if missing:
         raise ValueError(f"stacking: no lot_capacity contract for lot(s) {', '.join(missing)}")
@@ -170,6 +242,15 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                     "or front band of the ground floor or a garage-anchored rectangle; stair at the joint, same "
                     "rectangle on both levels; roof of the drawn upper floor checked against 131.0444. All design "
                     "values provisional; CRC stair rules unverified.")}
+    if s2ctx is not None:
+        meta_s1.update({
+            "s2": _s2_summary(cells_out),
+            "relation_overrides": list(s2ctx.matrix.overrides),
+            "note_s2": ("Stage S2: zone units of each floor from the area matrix's space split, placed by a band/column "
+                        "enumerator around the stair core (grid cuts by area, the receiving unit pinned on the stair's "
+                        "arrival zone); zone-level doors, entry, K01 arrival, K04 vestibule, house anchors and hard "
+                        "matrix pairs (K05 over the base) are hard; relations, shape, anchors and stair access are "
+                        "scored. Start options A/B/C kept as a portfolio. Design values provisional.")})
     return {
         "meta": {
             "step": STEP,
@@ -247,6 +328,47 @@ def s1_table_rows(result: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+S2_TABLE_FIELDS = ("lot_id", "household_id", "profile", "scheme_id", "rank", "s2_status", "next_stage", "arrival",
+                   "upper_rooms", "chosen_option", "feasible_options", "A", "B", "C", "half_bath", "upper_placement",
+                   "redrawn", "upper_units", "upper_topology", "upper_landing_unit", "ground_units", "ground_topology",
+                   "ground_landing_unit", "entry_unit", "score", "upper_score", "ground_score", "vertical_score",
+                   "upper_first_violations")
+
+
+def _topology_label(block: dict[str, Any] | None) -> str | None:
+    if not block:
+        return None
+    t = block["topology"]
+    return t["axis"] + ":" + " / ".join("|".join(band) for band in t["bands"])
+
+
+def s2_table_rows(result: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for c in result["cells"]:
+        s2 = c.get("s2")
+        if not s2:
+            continue
+        chosen = s2.get("chosen_option")
+        g = s2["options"][chosen]["ground"] if chosen else None
+        u = s2.get("upper")
+        rows.append({
+            "lot_id": c["lot_id"], "household_id": c["household_id"], "profile": c["profile"],
+            "scheme_id": c["scheme_id"], "rank": c["rank"], "s2_status": s2["status"], "next_stage": c["next_stage"],
+            "arrival": (s2.get("arrival") or {}).get("receiving"), "upper_rooms": (s2.get("arrival") or {}).get("upper_rooms"),
+            "chosen_option": chosen, "feasible_options": ",".join(s2.get("feasible_options") or []),
+            **{o: (s2.get("options", {}).get(o) or {}).get("feasible") for o in ("A", "B", "C")},
+            "half_bath": s2["options"][chosen].get("half_bath") if chosen else None,
+            "upper_placement": c["s1"]["upper_placement"], "redrawn": s2.get("backtrack", {}).get("redrawn"),
+            "upper_units": len(u["units"]) if u else None, "upper_topology": _topology_label(u),
+            "upper_landing_unit": u["landing_unit"] if u else None,
+            "ground_units": len(g["units"]) if g else None, "ground_topology": _topology_label(g),
+            "ground_landing_unit": g["landing_unit"] if g else None, "entry_unit": g["entry_unit"] if g else None,
+            "score": s2.get("score"), "upper_score": u["score"] if u else None, "ground_score": g["score"] if g else None,
+            "vertical_score": (s2.get("vertical") or {}).get("score"),
+            "upper_first_violations": None if u else str((s2.get("upper_search") or {}).get("first_violations"))})
+    return rows
+
+
 def write_tables(result: dict[str, Any], out_dir: str | Path) -> list[Path]:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -264,8 +386,17 @@ def write_tables(result: dict[str, Any], out_dir: str | Path) -> list[Path]:
             writer.writeheader()
             writer.writerows(rows)
         paths.append(path)
+    rows = s2_table_rows(result)
+    if rows:
+        path = out / "stack_plan_s2.csv"
+        with path.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=S2_TABLE_FIELDS)
+            writer.writeheader()
+            writer.writerows(rows)
+        paths.append(path)
     return paths
 
 
-__all__ = ["S1_STATUSES", "S1_TABLE_FIELDS", "STAGE", "STAGES", "STEP", "TABLE_FIELDS", "run_stacking", "s1_table_rows",
+__all__ = ["S1_STATUSES", "S1_TABLE_FIELDS", "S2_STATUSES", "S2_TABLE_FIELDS", "backtrack_order", "s2_table_rows",
+           "stage_s2", "STAGE", "STAGES", "STEP", "TABLE_FIELDS", "run_stacking", "s1_table_rows",
            "stack_cell", "table_rows", "write_tables"]

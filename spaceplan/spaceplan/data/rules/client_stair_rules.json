@@ -1,9 +1,9 @@
 {
   "ruleset_id": "client-stair-rules",
-  "ruleset_version": "0.1.0",
+  "ruleset_version": "0.2.0",
   "jurisdiction_id": "client",
   "zone": "*",
-  "code_edition": "client decisions 2026-10-09",
+  "code_edition": "client decisions 2026-10-09 / 2026-10-10",
   "transcribed_from": "Client (student) design decisions for the stair of step 6.7a S1.1, recorded on 2026-10-09 in the project chat (spaceplan_6_7a_S1_1_plan.md).",
   "verification_note": "Design rules decided by the client, not code: verified=true means the client stated them; they are kept apart from the CRC and SDMC rulesets so a check can tell a normative failure from a client-rule failure (RuleForge case). Thresholds that the client did not fix live in the stacking catalog as provisional design values.",
   "kind": "client",
@@ -266,10 +266,16 @@
             "kind": "hard",
             "note": "no direct door: vestibulated (K04)"
           }
-        ]
+        ],
+        "precedence": {
+          "over_base_matrix": true,
+          "decided": "2026-10-10 (step 6.7a S2 plan, decision D4)",
+          "semantics": "A K05 pair replaces the pair of the same roles in the base relation matrix (e.g. living-social_bath D soft becomes N hard: no direct door, vestibulated); the replaced pair is reported as overridden_by K05."
+        }
       },
       "text": [
-        "Extension of the D/I/N relation matrix that stage S2 merges when it zones around the stair core (roles of the relation_matrix in the zoning catalog; @ marks the stair ends and the under-stair space)."
+        "Extension of the D/I/N relation matrix that stage S2 merges when it zones around the stair core (roles of the relation_matrix in the zoning catalog; @ marks the stair ends and the under-stair space).",
+        "Where a K05 pair and the base relation matrix disagree, K05 governs (client decision 2026-10-10)."
       ],
       "source": {
         "document": "Client decisions",

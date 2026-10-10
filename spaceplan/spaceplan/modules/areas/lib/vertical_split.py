@@ -74,6 +74,21 @@ class FloorSplit:
         }
 
 
+SPACE_SPLIT_KEYS = ("space_id", "space_type", "zone", "household_role", "host_space_id")
+
+
+def space_split(program: dict, split: FloorSplit) -> list[dict[str, Any]]:
+    """Every space of the program with its floor and its target area (step 6.7a S2 reads it to zone each floor).
+
+    The list reflects the split actually evaluated (balanced or trimmed program), which the portfolio does not."""
+    out = []
+    for s in program["spaces"]:
+        sid = s["space_id"]
+        out.append({**{k: s.get(k) for k in SPACE_SPLIT_KEYS}, "floor": split.floor_of.get(sid, ENTRY_FLOOR),
+                    "area_sqft": round(float(s["target_area_sqft"]), 1)})
+    return sorted(out, key=lambda r: (r["floor"], r["space_id"]))
+
+
 def space_matches(match: dict, space: dict) -> bool:
     for key in ("household_role", "space_type", "zone"):
         if key in match and space.get(key) not in match[key]:
@@ -303,6 +318,7 @@ __all__ = [
     "group_of_space",
     "has_empty_upper",
     "metric_weights",
+    "space_split",
     "program_group_facts",
     "space_matches",
     "split_program",

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://municipal-permit-intelligence/spaceplan/contracts/stack_plan/0.2.0",
   "title": "Stack plan per lot (step 6.7)",
-  "description": "Levels relative to grade, height budget against the angled envelope plane and the stage each selected area-matrix cell reached (S0 levels and height; S1 stair and plane-limited polygons; S2 upper-floor zoning). Stage S1 adds the optional `s1` block per two-floor cell (additive within contract 0.2.0); stage S1.1 adds the stair core and the rule traces.",
+  "description": "Levels relative to grade, height budget against the angled envelope plane and the stage each selected area-matrix cell reached (S0 levels and height; S1 stair and plane-limited polygons; S2 upper-floor zoning). Stage S1 adds the optional `s1` block per two-floor cell (additive within contract 0.2.0); stage S1.1 adds the stair core and the rule traces. Stage S2 adds the optional `s2` block per drawn cell: zoning of both floors around the stair core, the A/B/C start portfolio and the client-rule traces (additive within 0.2.0).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -769,7 +769,9 @@
           "enum": [
             "pass",
             "fail",
-            "deferred_to_S2"
+            "deferred_to_S2",
+            "deferred_to_S2.1",
+            "not_evaluated"
           ]
         },
         "status": {
@@ -786,6 +788,342 @@
             "string",
             "null"
           ]
+        }
+      }
+    },
+    "s2_unit": {
+      "type": "object",
+      "required": [
+        "unit_id",
+        "zone",
+        "space_ids",
+        "target_sqft",
+        "area_sqft",
+        "polygon"
+      ],
+      "properties": {
+        "unit_id": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "string"
+        },
+        "space_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "target_sqft": {
+          "type": "number",
+          "minimum": 0
+        },
+        "area_sqft": {
+          "type": "number",
+          "minimum": 0
+        },
+        "width_ft": {
+          "type": "number"
+        },
+        "depth_ft": {
+          "type": "number"
+        },
+        "polygon": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/polygon"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "s2_floor": {
+      "type": "object",
+      "required": [
+        "level",
+        "variant",
+        "units",
+        "topology",
+        "landing_unit",
+        "score",
+        "score_parts",
+        "search"
+      ],
+      "properties": {
+        "level": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "variant": {
+          "type": "string"
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/s2_unit"
+          }
+        },
+        "topology": {
+          "type": "object",
+          "required": [
+            "axis",
+            "bands"
+          ],
+          "properties": {
+            "axis": {
+              "enum": [
+                "x",
+                "y"
+              ]
+            },
+            "bands": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "landing_unit": {
+          "type": "string"
+        },
+        "landing_share": {
+          "type": "number"
+        },
+        "entry_unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "entry_fallback": {
+          "type": "boolean"
+        },
+        "links": {
+          "type": "array"
+        },
+        "score": {
+          "type": "number"
+        },
+        "score_parts": {
+          "type": "object"
+        },
+        "matrix_deferred": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scale": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "search": {
+          "type": "object"
+        },
+        "alternatives": {
+          "type": "array"
+        }
+      }
+    },
+    "s2_option": {
+      "type": "object",
+      "required": [
+        "option",
+        "label",
+        "receiving",
+        "under_stair_use",
+        "feasible"
+      ],
+      "properties": {
+        "option": {
+          "enum": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "receiving": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "under_stair_use": {
+          "type": "string"
+        },
+        "feasible": {
+          "type": "boolean"
+        },
+        "variant": {
+          "type": "string"
+        },
+        "half_bath": {
+          "enum": [
+            "under_stair",
+            "relocated",
+            null
+          ]
+        },
+        "score": {
+          "type": "number"
+        },
+        "vertical": {
+          "type": "object"
+        },
+        "ground": {
+          "$ref": "#/$defs/s2_floor"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "ground_search": {
+          "type": "object"
+        }
+      }
+    },
+    "s2": {
+      "type": "object",
+      "required": [
+        "stage",
+        "status",
+        "next_stage",
+        "warnings"
+      ],
+      "description": "Stage S2: zoning of both floors around the stair core. status zoned -> next_stage S2.1 (space level, planned).",
+      "properties": {
+        "stage": {
+          "const": "S2"
+        },
+        "status": {
+          "enum": [
+            "zoned",
+            "upper_not_zoned",
+            "ground_not_zoned",
+            "not_zoned",
+            "no_space_split"
+          ]
+        },
+        "next_stage": {
+          "enum": [
+            "S2.1",
+            null
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "arrival": {
+          "type": "object",
+          "required": [
+            "receiving"
+          ],
+          "properties": {
+            "receiving": {
+              "enum": [
+                "family_room",
+                "upper_vestibule",
+                "hall"
+              ]
+            },
+            "upper_rooms": {
+              "type": "integer"
+            },
+            "family_room_upstairs": {
+              "type": "boolean"
+            }
+          }
+        },
+        "preferred_option": {
+          "enum": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        "chosen_option": {
+          "enum": [
+            "A",
+            "B",
+            "C",
+            null
+          ]
+        },
+        "feasible_options": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "A",
+              "B",
+              "C"
+            ]
+          }
+        },
+        "upper": {
+          "$ref": "#/$defs/s2_floor"
+        },
+        "upper_search": {
+          "type": "object"
+        },
+        "score": {
+          "type": "number"
+        },
+        "vertical": {
+          "type": "object"
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/s2_option"
+          }
+        },
+        "matrix_overrides": {
+          "type": "array"
+        },
+        "rule_traces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule_trace"
+          }
+        },
+        "backtrack": {
+          "type": "object",
+          "required": [
+            "tried",
+            "placement",
+            "redrawn"
+          ],
+          "properties": {
+            "tried": {
+              "type": "array"
+            },
+            "placement": {
+              "type": "string"
+            },
+            "redrawn": {
+              "type": "boolean"
+            },
+            "stair_id": {
+              "type": "string"
+            }
+          }
         }
       }
     }
@@ -1040,6 +1378,7 @@
             "enum": [
               "S1",
               "S2",
+              "S2.1",
               null
             ]
           },
@@ -1051,6 +1390,9 @@
           },
           "s1": {
             "$ref": "#/$defs/s1"
+          },
+          "s2": {
+            "$ref": "#/$defs/s2"
           }
         }
       }

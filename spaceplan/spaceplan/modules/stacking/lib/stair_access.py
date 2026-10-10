@@ -22,6 +22,7 @@ HALF_BATH_RULE = "K04-HALF-BATH-VESTIBULE"
 RELATIONS_RULE = "K05-STAIR-RELATIONS"
 NORMATIVE, CLIENT = "normative", "client"
 PASS, FAIL, DEFERRED = "pass", "fail", "deferred_to_S2"
+DEFERRED_S21, NOT_EVALUATED = "deferred_to_S2.1", "not_evaluated"   # stage S2: door level next; cell not zoned
 
 
 def load_client_ruleset(path: str | Path | None = None) -> RuleSet:
@@ -128,7 +129,7 @@ def relations(client: RuleSet) -> dict[str, Any]:
     return {"roles": p["roles"], "relations": p["relations"], "rule_id": RELATIONS_RULE}
 
 
-__all__ = ["BOTTOM_RULE", "CLIENT", "CLIENT_RULESET", "DEFERRED", "FAIL", "HALF_BATH_RULE", "NORMATIVE", "PASS",
+__all__ = ["BOTTOM_RULE", "CLIENT", "CLIENT_RULESET", "DEFERRED", "DEFERRED_S21", "FAIL", "NOT_EVALUATED", "HALF_BATH_RULE", "NORMATIVE", "PASS",
            "RELATIONS_RULE", "TOP_RULE", "UNDER_KITCHEN_RULE", "access_side", "bottom_receiving", "check_receiving",
            "load_client_ruleset", "relations", "rule_kind", "space_type_of", "top_receiving", "trace",
            "under_stair_use", "upper_rooms", "uses_by_bottom_option"]

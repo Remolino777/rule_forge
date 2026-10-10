@@ -90,7 +90,7 @@ ALLOWED = {  # plan 3.2: module -> modules it may import (besides itself)
     "profiles": {"core", "household", "cost"},
     "zoning": {"core", "lotcap", "site"},
     "areas": {"core", "lotcap", "site", "household", "cost", "profiles"},
-    "stacking": {"core", "lotcap", "site", "cost", "zoning", "areas"},  # step 6.7 (S0 uses core only)
+    "stacking": {"core", "lotcap", "site", "cost", "zoning", "areas"},  # step 6.7 (S0-S1 core only; S2 zoning)
     "viz": {"core", "lotcap"},  # contracts, plus lotcap types to draw the lot
     "pipeline": {"core", *MODULES},
 }
@@ -175,8 +175,9 @@ def test_files_follow_plan_table():
         "stacking/lib": {"stacking_catalog", "vertical_rules", "levels", "height_check", "cell_selection",
                          "lot_vertical",  # step 6.7a S0
                          "stair_rules", "lot_plan", "plan_levels", "stair", "roof_plane", "cell_geometry",  # S1
-                         "stair_access"},  # S1.1
-        "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry"},
+                         "stair_access",  # S1.1
+                         "floor_frame", "core_zoning", "zone_relations", "zone_cell"},  # S2
+        "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry", "zone_grid"},
         "stacking/main": {"run_stacking", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",
                     "area_matrix_plots",  # tanda 3: visualize split by topic; tanda 4: facade removed

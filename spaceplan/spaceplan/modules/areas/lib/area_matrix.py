@@ -35,6 +35,7 @@ from spaceplan.modules.areas.lib.vertical_split import (
     has_empty_upper,
     metric_weights,
     program_group_facts,
+    space_split,
     split_program,
     vertical_metrics,
     weighted_score,
@@ -145,6 +146,7 @@ def household_cells(
                 "upper_sqft": round(sp.upper, 1),
                 "split": sp.to_dict(),
                 "balanced_up": balanced(sp),
+                "space_split": space_split(program, sp) if sp.floors > 1 else None,  # step 6.7a S2
                 "maximum_trim": p.get("trim") if prof == "maximum" else None,
                 "IC": ic["value"], "IC_max": ic["limit"], "IO": io["value"], "IO_max": io["limit"],
                 "IC_by_floor": ev["indices"]["by_floor"],

@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.4.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision).",
+  "catalog_version": "0.5.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights).",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -13,7 +13,8 @@
     "note": "Cells of the area matrix (step 6.6) taken to the stacking layer: rank <= k inside each (lot, household, profile); 'all' takes every ranked (feasible) cell. Stage S1 draws, by default, only the best cell (rank 1) of each (lot, household, profile); the CLI's --cells overrides it.",
     "stage_default_modes": {
       "S0": "top2",
-      "S1": "best"
+      "S1": "best",
+      "S2": "best"
     }
   },
   "levels": {
@@ -303,6 +304,122 @@
       "kind": "catalog",
       "citation": "Small-house threshold = 1 room upstairs (client decision 2026-10-09); arrival zones student-defined, spaceplan step 6.7a S1.1 (2026-10)",
       "status": "provisional"
+    }
+  },
+  "s2": {
+    "grid_ft": 0.5,
+    "topology": {
+      "ground": {
+        "axes": [
+          "y"
+        ],
+        "max_bands": 2
+      },
+      "upper": {
+        "axes": [
+          "x",
+          "y"
+        ],
+        "max_bands": 2
+      },
+      "max_topologies_per_floor": 6000,
+      "note": "Each floor is cut into bands along an axis (y: access side / far side; x: along the front) and each band into a row of columns, one zone per column, like strategy A of the zoning module. Cuts are placed where the free area of each band and column equals its target (grid prefix sums), so polygonal floors are handled by clipping."
+    },
+    "zone_parts": {
+      "upper": {
+        "private": "by_bedroom"
+      },
+      "note": "Parts used to split a zone in two (split_zones); without a scheme the rooms are balanced by area."
+    },
+    "merge_small": {
+      "zone": "service",
+      "into": {
+        "ground": [
+          "kitchen",
+          "circulation"
+        ],
+        "upper": [
+          "circulation"
+        ]
+      },
+      "note": "A service zone smaller than zoning.merge_options.service.max_area_sqft (residential catalog) joins the first zone listed that exists on its floor (laundry off the kitchen downstairs, laundry closet off the hall upstairs)."
+    },
+    "circulation_min_sqft": {
+      "hall": 30.0,
+      "upper_vestibule": 16.0,
+      "note": "Least circulation area on the upper floor by receiving space (arrival zone plus a short hall), used when the prorated halls of the program are smaller."
+    },
+    "arrival_order": [
+      "family_room",
+      "upper_vestibule",
+      "hall"
+    ],
+    "arrival_note": "Receiving space at the top of the stair (client rule K01): the family room when it is upstairs (balanced_up or the scheme), else a vestibule when the upper floor serves at most stair_access.small_house_upper_rooms_max rooms, else a hall.",
+    "receiving_min_share": 0.5,
+    "zone_doors": {
+      "private_opens_to": [
+        "circulation"
+      ],
+      "garage_opens_to": [
+        "circulation",
+        "service",
+        "kitchen"
+      ],
+      "note": "Zone-level door rules read from step 5 (rev. 2): private terminal rooms open only onto circulation; the garage opens to circulation or to its service group. Two zones are linked when they share at least zoning.min_contact_ft of wall and the door is allowed."
+    },
+    "vertical_depth_ok": {
+      "D": 2,
+      "I": 3,
+      "note": "Steps through the zone graph (stair counted as one) under which a matrix pair whose roles sit on different floors counts as met."
+    },
+    "weights": {
+      "relations": 0.35,
+      "vertical": 0.15,
+      "shape": 0.25,
+      "anchors": 0.15,
+      "stair_access": 0.1
+    },
+    "keep_alternatives": 3,
+    "source": {
+      "kind": "catalog",
+      "citation": "Student design decisions 2026-10-10 (step 6.7a S2 plan: core-anchored lightweight enumerator, A/B/C bottom portfolio, K05 over the base matrix); values provisional",
+      "status": "provisional"
+    },
+    "area_tolerance_fraction": 0.25,
+    "facade_sides": {
+      "main_street": [
+        "low_y"
+      ],
+      "garden": [
+        "high_y"
+      ],
+      "street_view": [
+        "low_x",
+        "high_x"
+      ],
+      "note": "Facade roles of the zoning profile read on the drawn ground floor: the front (low y) faces the main street, the rear (high y) the garden, the sides are street views."
+    },
+    "pair_default_weights": {
+      "D": 1.0,
+      "I": 0.5,
+      "N": 1.0,
+      "note": "Weights of client relation pairs (K05) that give none, as the base matrix does by type."
+    },
+    "unit_min_width": {
+      "rule": "space_sides",
+      "options": [
+        "space_sides",
+        "zone"
+      ],
+      "note": "Least width of a zone unit: the largest min_side_ft of its spaces (space_sides, default) or the zone's min_width_ft (zone, the convention of the one-floor zoning). On the upper floor a social zone of study and flex rooms is not held to the width of a living room."
+    },
+    "split_zones": {
+      "upper": [
+        "private",
+        "social"
+      ],
+      "ground": [],
+      "note": "Zones that may also be searched as two units (one on each side of the stair hall), split by the zone_parts scheme of s2.zone_parts or balanced by area; each unit needs a habitable room. The whole zone is always searched too."
     }
   }
 }

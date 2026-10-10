@@ -26,6 +26,7 @@ graph LR
     areas -->|2| cost
     areas -->|1| profiles
     stacking -->|12| core
+    stacking -->|1| zoning
     viz -->|4| core
     viz -->|3| lotcap
     pipeline -->|9| core
@@ -48,9 +49,9 @@ graph LR
 | `household` | core | profiles, areas, pipeline |
 | `cost` | core | profiles, areas, pipeline |
 | `profiles` | core, household, cost | areas, pipeline |
-| `zoning` | core, site | pipeline |
+| `zoning` | core, site | stacking, pipeline |
 | `areas` | core, lotcap, site, household, cost, profiles | pipeline |
-| `stacking` | core | pipeline |
+| `stacking` | core, zoning | pipeline |
 | `viz` | core, lotcap | pipeline |
 | `pipeline` | core, lotcap, site, household, cost, profiles, zoning, areas, stacking, viz | — |
 
@@ -66,7 +67,7 @@ graph LR
 | `profiles` | `contract`, `run_profiles` | `program_profiles` | — |
 | `zoning` | `contract`, `run_corrections`, `run_zoning` | `band_enumeration`, `circulation`, `corrections`, `polygonal`, `realization`, `relation_matrix`, `space_layout`, `unit`, `zoning` | — |
 | `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `floor_balance`, `lot_minimum`, `sensitivity`, `vertical_split` | — |
-| `stacking` | `contract`, `run_stacking` | `cell_geometry`, `cell_selection`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `roof_plane`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `vertical_rules` | `plan_geometry`, `stair_geometry`, `vertical_geometry` |
+| `stacking` | `contract`, `run_stacking` | `cell_geometry`, `cell_selection`, `core_zoning`, `floor_frame`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `roof_plane`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `vertical_rules`, `zone_cell`, `zone_relations` | `plan_geometry`, `stair_geometry`, `vertical_geometry`, `zone_grid` |
 | `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `sensitivity_plots`, `stack_plan_plots`, `zoning_plots` | — |
 | `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio`, `run_sensitivity` | `catalog_table`, `package` | — |
 

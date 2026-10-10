@@ -116,4 +116,97 @@ def plot_stack_sheet(lot: dict, cells: list[dict], out_path: str | Path, lang: s
     return out
 
 
-__all__ = ["WORDS", "plot_stack_sheet"]
+# ------------------------------------------------------------------ stage S2: zones around the stair core
+
+S2_WORDS = {
+    "es": {"title": "Zonificación alrededor de la escalera (6.7a S2)", "ground": "Planta baja", "upper": "Planta alta",
+           "option": "arranque", "arrival": "llegada", "family_room": "family room", "hall": "pasillo",
+           "upper_vestibule": "vestíbulo", "relocated": "medio baño reubicado", "under_stair": "medio baño bajo escalera",
+           "None": "sin medio baño", "redrawn": "redibujada", "more": "celdas más no mostradas", "stair": "Escalera",
+           "garage": "Garaje", "start": "Arranque", "top": "Llegada"},
+    "en": {"title": "Zoning around the stair core (6.7a S2)", "ground": "Ground floor", "upper": "Upper floor",
+           "option": "start", "arrival": "arrival", "family_room": "family room", "hall": "hall",
+           "upper_vestibule": "vestibule", "relocated": "half bath relocated", "under_stair": "half bath under stair",
+           "None": "no half bath", "redrawn": "redrawn", "more": "more cells not shown", "stair": "Stair",
+           "garage": "Garage", "start": "Stair start", "top": "Stair arrival"},
+}
+
+
+def _zone_panel(ax, floor_poly, units, colors, stair, landing, garage=None, extra=None):
+    _fill(ax, floor_poly, color="#ffffff", ec=INK2, lw=0.6)
+    for u in units:
+        _fill(ax, u["polygon"], color=colors.get(u["zone"], "#eeeeee"), ec="#ffffff", lw=1.0)
+        ring = _rings(u["polygon"])
+        if ring:
+            xs, ys = zip(*ring[0])
+            ax.text(sum(xs[:-1]) / (len(xs) - 1), sum(ys[:-1]) / (len(ys) - 1), u["unit_id"].replace(":", " "),
+                    fontsize=4.5, color=INK, ha="center", va="center")
+    if garage:
+        _fill(ax, garage, color=GARAGE_FILL, ec=INK2, lw=0.5, hatch="///")
+    for poly in extra or []:
+        _fill(ax, poly, color=HALF_BATH_FILL, alpha=0.7, ec=HALF_BATH_FILL, lw=0.5)
+    _fill(ax, stair, color=STAIR_FILL, ec=STAIR_FILL)
+    _line(ax, landing[0], color=landing[1], lw=1.1)
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_color(GRID)
+
+
+def plot_zoning_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors: dict[str, str], lang: str = "es",
+                      max_cells: int = 12) -> Path:
+    """One sheet per lot: for each zoned cell, the ground floor of the chosen start option and the upper floor."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Patch
+
+    w = S2_WORDS.get(lang, S2_WORDS["en"])
+    shown = cells[:max_cells]
+    ncol = 4                                     # two cells per row, two panels each
+    nrow = max(1, math.ceil(len(shown) / 2))
+    fig, axes = plt.subplots(nrow, ncol, figsize=(2.4 * ncol, 2.9 * nrow + 0.8), squeeze=False)
+    fig.patch.set_facecolor(SURFACE)
+    for ax in axes.flat:
+        ax.set_axis_off()
+    for k, c in enumerate(shown):
+        s1, s2 = c["s1"], c["s2"]
+        opt = s2["options"][s2["chosen_option"]]
+        core = s1["stair_core"]
+        ax_g, ax_u = axes.flat[2 * k], axes.flat[2 * k + 1]
+        for ax in (ax_g, ax_u):
+            ax.set_axis_on()
+        hb = [core["under_stair"].get("half_bath"), core["under_stair"].get("vestibule")] \
+            if opt.get("half_bath") == "under_stair" else []
+        _zone_panel(ax_g, s1["levels"][0]["polygon"], opt["ground"]["units"], colors, s1["stair"]["polygon"],
+                    (core["bottom_end"]["zone"], BOTTOM_EDGE), s1["ground"].get("garage_polygon"), hb)
+        _zone_panel(ax_u, s1["levels"][1]["polygon"], s2["upper"]["units"], colors, s1["stair"]["polygon"],
+                    (core["top_end"]["zone"], TOP_EDGE))
+        redrawn = f" · {w['redrawn']}" if s2["backtrack"]["redrawn"] else ""
+        ax_g.set_title(f"{c['household_id']} · {c['profile']} · {c['scheme_id']}\n{w['ground']}: {w['option']} "
+                       f"{s2['chosen_option']} ({'/'.join(s2['feasible_options'])}) · {w[str(opt.get('half_bath'))]}",
+                       fontsize=5.5, color=INK, loc="left")
+        ax_u.set_title(f"score {s2['score']:.2f}{redrawn}\n{w['upper']}: {w['arrival']} "
+                       f"{w[s2['arrival']['receiving']]}", fontsize=5.5, color=INK, loc="left")
+    s = lot["summary"].get("s2", {})
+    header = f"{w['title']} — {lot['lot_id']}   {s.get('status_counts', {})}   {s.get('chosen_option_counts', {})}"
+    if len(cells) > len(shown):
+        header += f"   (+{len(cells) - len(shown)} {w['more']})"
+    fig.text(0.01, 0.995, header, fontsize=8, color=INK, va="top")
+    zones = sorted({u["zone"] for c in shown for f in (c["s2"]["upper"], c["s2"]["options"][c["s2"]["chosen_option"]]["ground"])
+                    for u in f["units"]})
+    handles = [Patch(color=colors.get(z, "#eeeeee"), label=z) for z in zones]
+    handles += [Patch(color=STAIR_FILL, label=w["stair"]), Patch(color=GARAGE_FILL, label=w["garage"]),
+                Patch(fill=False, ec=BOTTOM_EDGE, label=w["start"]), Patch(fill=False, ec=TOP_EDGE, label=w["top"])]
+    fig.legend(handles=handles, loc="lower center", ncol=len(handles), fontsize=6.5, frameon=False)
+    fig.tight_layout(rect=(0, 0.03, 1, 0.97))
+    out = Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=170, facecolor=SURFACE)
+    plt.close(fig)
+    return out
+
+
+__all__ = ["S2_WORDS", "WORDS", "plot_stack_sheet", "plot_zoning_sheet"]

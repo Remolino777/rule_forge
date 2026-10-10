@@ -329,15 +329,17 @@ def _add_module_parsers(sub) -> None:
     p_stack.add_argument("lots", nargs="*", help="pilot lot names or brief paths (default: the 10 pilot lots)")
     p_stack.add_argument("--households", help="comma list archetype.culture (culture: none|latino|anglo)")
     p_stack.add_argument("--cells", choices=("best", "top2", "all"),
-                         help="area-matrix cells taken (default: top2 in S0, best in S1)")
-    p_stack.add_argument("--stage", choices=("S0", "S1"), default="S0",
-                         help="S0 levels and height (default); S1 also draws floors, stair and roof")
-    p_stack.add_argument("--plans", help="directory for the S1 stacked-plan sheets (one PNG per lot)")
+                         help="area-matrix cells taken (default: top2 in S0, best in S1 and S2)")
+    p_stack.add_argument("--stage", choices=("S0", "S1", "S2"), default="S0",
+                         help="S0 levels and height (default); S1 also draws floors, stair and roof; S2 also zones "
+                              "both floors around the stair core")
+    p_stack.add_argument("--plans", help="directory for the S1 stacked-plan sheets (and the S2 zoning sheets)")
     _add_design_args(p_stack)
     p_stack.add_argument("--area-matrix", help="read this area_matrix contract instead of computing it")
     p_stack.add_argument("--lot-capacity", action="append", default=[],
                          help="lot_capacity contract of a lot (repeat); default: computed from the lot briefs")
-    p_stack.add_argument("--tables", help="directory for stack_plan_cells.csv (and stack_plan_s1.csv in S1)")
+    p_stack.add_argument("--tables", help="directory for stack_plan_cells.csv (and stack_plan_s1.csv, "
+                                          "stack_plan_s2.csv by stage)")
     p_stack.add_argument("-o", "--out", help="write the stack_plan contract")
     p_stack.add_argument("--json", action="store_true")
     p_viz = sub.add_parser("viz", help="viz module: figures from contracts")
@@ -421,6 +423,11 @@ def _stack_lines(contract: dict) -> list[str]:
             lines.append(f"  {'':<26} S1 {s1['status_counts']}  upper {s1['upper_placement_counts']}  "
                          f"stair {s1['stair_type_counts']}  roof default {s1['roof_default_counts']} kept "
                          f"{s1['roof_kept_counts']}  over garage {s1['room_over_garage']}  to S2: {s1['to_s2']}")
+        if "s2" in s:
+            s2 = s["s2"]
+            lines.append(f"  {'':<26} S2 {s2['status_counts']}  arrival {s2['arrival_counts']}  start "
+                         f"{s2['chosen_option_counts']} feasible {s2['feasible_option_counts']}  half bath "
+                         f"{s2['half_bath_counts']}  redrawn {s2['redrawn_by_s2']}")
     return lines
 
 
@@ -487,6 +494,9 @@ def _run_stacking_command(args) -> int:
     if args.plans:
         from spaceplan.modules.viz.main.run_viz import stack_plan_sheets
         stack_plan_sheets(contract, args.plans)
+        if args.stage == "S2":
+            from spaceplan.modules.viz.main.run_viz import stack_zoning_sheets
+            stack_zoning_sheets(contract, args.plans)
     print(json.dumps(contract, indent=2) if args.json else "\n".join(_stack_lines(contract)))
     return 0
 
