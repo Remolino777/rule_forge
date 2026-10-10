@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.2.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy.",
+  "catalog_version": "0.3.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold.",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -66,50 +66,105 @@
       "width_ft": 3.0,
       "landing_ft": 3.0,
       "u_turn_gap_ft": 0.0,
-      "note": "Design values at the code minimum (tread 10 in, width 36 in, landing 36 in): the smallest legal stair, so the S1 footprint is a lower bound. Risers: the fewest equal risers at or below the maximum riser of S01 for the floor-to-floor height.",
+      "note": "Design values at the code minimum (tread 10 in, width 36 in, landing 36 in): the smallest legal stair. Risers: the fewest equal risers at or below the maximum riser of S01. structure_depth_ft: stringer and finish under the treads (10 in), subtracted from the nosing line to get the clear height under the stair.",
       "source": {
         "kind": "catalog",
         "citation": "Student-defined stair design at the CRC minimums, spaceplan step 6.7a S1 (2026-10)",
         "status": "provisional"
-      }
+      },
+      "structure_depth_ft": 0.8333
     },
     "types": [
       {
         "stair_id": "straight",
         "flights": 1,
+        "turn_deg": 0,
         "label": {
-          "es": "Recta",
-          "en": "Straight"
+          "es": "Recta de un tiro",
+          "en": "Straight, one flight"
         }
       },
       {
-        "stair_id": "u_turn",
+        "stair_id": "straight_landing",
         "flights": 2,
+        "turn_deg": 0,
         "label": {
-          "es": "En U (ida y vuelta)",
-          "en": "U-turn (switchback)"
+          "es": "Recta con descanso intermedio",
+          "en": "Straight with mid landing"
         }
       },
       {
         "stair_id": "l_turn",
         "flights": 2,
+        "turn_deg": 90,
         "label": {
-          "es": "En L",
-          "en": "L-turn"
+          "es": "En L con descanso",
+          "en": "L-turn with landing"
+        }
+      },
+      {
+        "stair_id": "u_turn",
+        "flights": 2,
+        "turn_deg": 180,
+        "label": {
+          "es": "En U con descanso",
+          "en": "U-turn with landing"
         }
       }
     ],
-    "type_order": [
-      "straight",
-      "u_turn",
-      "l_turn"
-    ],
     "placement": {
       "search_step_ft": 1.0,
-      "note": "The stair is the same rectangle on both levels (hard rule). Candidates touch the joint (the edge of the upper floor that is not on the ground-floor perimeter, where the two-story part meets the one-story part), stay inside the upper floor and the ground floor and out of the garage; the first type in type_order that fits wins, then the position closest to the middle of the joint.",
+      "max_positions": 7,
+      "half_bath_trials": 6,
+      "note": "Every enabled configuration is tried along each joint, in both orientations of its bounding box and the four directions/hands that keep that box, at the positions closest to the joint's middle. A candidate is valid when its footprint lies in the upper and the ground floor and out of the garage, and its arrival zones fit: bottom zone in the ground floor (out of the garage and the stair), top zone in the upper floor (out of the stair opening). The half bath under the stair is searched in the best half_bath_trials placements of each configuration (by the rest of the key); the bottom arrival zone may serve as the half bath's vestibule. Arrival zones wider than the stair are centred on its end or aligned with either side.",
+      "choice": [
+        "net_ground_bucket",
+        "half_bath_fit",
+        "entry_distance_ft",
+        "joint_offset_ft"
+      ],
+      "net_ground_bucket_sqft": 5.0,
+      "choice_note": "Lexicographic choice among valid candidates: smallest net ground-floor cost (footprint minus usable space under the stair, in buckets), then a half bath fits under the stair (vestibulated), then the bottom zone closest to the front (entry), then the position closest to the joint's middle.",
       "source": {
         "kind": "catalog",
-        "citation": "Student-defined placement rule, spaceplan step 6.7a S1 (2026-10); stage S2 replaces the joint by the zoned circulation",
+        "citation": "Student-defined comparison of stair configurations, spaceplan step 6.7a S1.1 (2026-10)",
+        "status": "provisional"
+      }
+    },
+    "enabled": [
+      "straight",
+      "straight_landing",
+      "l_turn",
+      "u_turn"
+    ],
+    "future": {
+      "l_winder": "L with winder treads (R311.7.5.2.1): registered as a future option, no geometry yet"
+    },
+    "under_stair": {
+      "bands": [
+        {
+          "band": "low",
+          "min_ft": 0.0,
+          "use": "dead_or_low_storage"
+        },
+        {
+          "band": "storage",
+          "min_ft": 4.0,
+          "use": "storage_closet_pantry"
+        },
+        {
+          "band": "half_bath",
+          "min_from_rule": "S11-FIXTURE-HEADROOM",
+          "use": "half_bath"
+        }
+      ],
+      "usable_from_band": "storage",
+      "half_bath_extension_max_ft": 3.0,
+      "vestibule_ft": 3.0,
+      "note": "Clear height under the stair = nosing line - structure depth. Space with at least the storage height counts as recovered ground-floor area. A half bath sits in the half-bath band (fixture headroom, S11) and may extend beyond the stair end by up to half_bath_extension_max_ft to reach the half_bath minimum area of the residential catalog; it needs a vestibule square of vestibule_ft beside it (client rule K04).",
+      "source": {
+        "kind": "catalog",
+        "citation": "Student-defined under-stair bands, spaceplan step 6.7a S1.1 (2026-10)",
         "status": "provisional"
       }
     }
@@ -132,13 +187,15 @@
     "placements": [
       "rear",
       "front",
-      "over_garage"
+      "over_garage",
+      "compact"
     ],
     "scheme_order": {
       "V4": [
         "over_garage",
         "rear",
-        "front"
+        "front",
+        "compact"
       ]
     },
     "labels": {
@@ -153,9 +210,14 @@
       "over_garage": {
         "es": "Sobre el garaje",
         "en": "Over the garage"
+      },
+      "compact": {
+        "es": "Compacta (atrás, centrada)",
+        "en": "Compact (rear, centred)"
       }
     },
-    "note": "The upper floor is a band of the ground floor cut parallel to the front (rear or front placement) or a rectangle anchored on the garage corner (over_garage), so it is contained in the ground floor by construction; the first placement in the order that holds the stair is chosen and every placement is reported. Partial upper floors (V4: guest, work) try the room over the garage first.",
+    "compact_min_depth_ft": 12.0,
+    "note": "The upper floor is a band of the ground floor cut parallel to the front (rear or front placement) or a rectangle anchored on the garage corner (over_garage), so it is contained in the ground floor by construction; the first placement in the order that holds the stair is chosen and every placement is reported. Partial upper floors (V4: guest, work) try the room over the garage first. Compact (S1.1): a rectangle at the rear of the ground floor, centred, at least compact_min_depth_ft deep (stair plus arrival zone), for small upper floors where a full-width band would be a few feet deep.",
     "source": {
       "kind": "catalog",
       "citation": "Student-defined placement hypothesis (private floor toward the garden; room over the garage for partial upper floors), spaceplan step 6.7a S1 (2026-10)",
@@ -194,5 +256,53 @@
     "round_ft": 3,
     "bisection_rounds": 60,
     "note": "Numerical settings of the S1 drawing (bands cut to an area by bisection; coordinates rounded in the contract)."
+  },
+  "stair_access": {
+    "small_house_upper_rooms_max": 2,
+    "room_zones": [
+      "private"
+    ],
+    "room_space_types_extra": [
+      "study",
+      "flex_room"
+    ],
+    "top_zone": {
+      "hall": {
+        "depth_ft": 3.0,
+        "width_ft": 3.5
+      },
+      "upper_vestibule": {
+        "depth_ft": 4.0,
+        "width_ft": 4.0
+      }
+    },
+    "bottom_options_by_scheme": {
+      "default": [
+        "A",
+        "B",
+        "C"
+      ],
+      "V3": [
+        "A",
+        "B",
+        "C"
+      ],
+      "V5": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "bottom_preferred_by_scheme": {
+      "default": "A",
+      "V3": "A",
+      "V5": "A"
+    },
+    "note": "Receiving spaces at the stair ends (client rules K01-K02). A house is small when its upper floor serves at most small_house_upper_rooms_max rooms (habitable spaces of the private zone, plus study and flex rooms): the stair then arrives into an upper vestibule instead of a hall. Arrival zones: the hall or vestibule rectangle in front of the top step; at the bottom, the landing of the CRC (S05) times the stair width. Option C (kitchen) stays available for every scheme (client decision); the preferred option is what S2 tries first.",
+    "source": {
+      "kind": "catalog",
+      "citation": "Student-defined small-house threshold and arrival zones, spaceplan step 6.7a S1.1 (2026-10); the receiving spaces are client decisions (client_stair_rules.json)",
+      "status": "provisional"
+    }
   }
 }

@@ -17,7 +17,7 @@ from shapely.geometry.base import BaseGeometry
 
 from spaceplan.modules.stacking.lib_aux.plan_geometry import HIGH, LOW, cut_band, joint_lines
 
-REAR, FRONT, OVER_GARAGE = "rear", "front", "over_garage"
+REAR, FRONT, OVER_GARAGE, COMPACT = "rear", "front", "over_garage", "compact"
 
 
 def ground_floor(footprint: BaseGeometry, gross_sqft: float, geometry: dict[str, Any]) -> BaseGeometry | None:
@@ -61,7 +61,7 @@ class UpperCandidate:
 
 
 def upper_floor(placement: str, ground: BaseGeometry, gross_sqft: float, garage: BaseGeometry | None,
-                garage_side: str, geometry: dict[str, Any]) -> UpperCandidate:
+                garage_side: str, geometry: dict[str, Any], compact_min_depth_ft: float = 0.0) -> UpperCandidate:
     rounds, tol = int(geometry["bisection_rounds"]), geometry["area_tolerance_sqft"]
     if gross_sqft > ground.area + tol:
         return UpperCandidate(placement, None, (), "upper floor larger than the ground floor")
@@ -81,10 +81,18 @@ def upper_floor(placement: str, ground: BaseGeometry, gross_sqft: float, garage:
         poly = rect.intersection(ground)
         if width > x1 - x0 + 1e-6 or poly.area < gross_sqft - tol:
             return UpperCandidate(placement, None, (), "garage-anchored rectangle leaves the ground floor")
+    elif placement == COMPACT:
+        x0, y0, x1, y1 = ground.bounds
+        depth = min(y1 - y0, max(compact_min_depth_ft, gross_sqft ** 0.5))
+        width = gross_sqft / depth
+        cx = 0.5 * (x0 + x1)
+        poly = box(cx - width / 2, y1 - depth, cx + width / 2, y1).intersection(ground)
+        if poly.area < gross_sqft - tol:
+            return UpperCandidate(placement, None, (), "compact rectangle leaves the ground floor")
     else:
         raise ValueError(f"unknown upper-floor placement {placement!r}")
     return UpperCandidate(placement, poly, tuple(joint_lines(poly, ground)))
 
 
-__all__ = ["FRONT", "OVER_GARAGE", "REAR", "UpperCandidate", "garage_area", "garage_rect", "ground_floor",
+__all__ = ["COMPACT", "FRONT", "OVER_GARAGE", "REAR", "UpperCandidate", "garage_area", "garage_rect", "ground_floor",
            "upper_floor"]

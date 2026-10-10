@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0 y S1 hechas** (secciones 4j y 4k: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.1.0 · catálogo de apilamiento 0.2.0 · 1,142 pruebas
+Fecha: 9 de octubre de 2026 · Estado: pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0, S1 y S1.1 hechas** (secciones 4j, 4k y 4l: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo; S1.1 compara configuraciones de escalera, espacio bajo ella, llegada y arranque) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.11.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.2.0 · reglas de cliente de escalera 0.1.0 · catálogo de apilamiento 0.3.0 · 1,155 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -693,7 +693,8 @@ con contratos en disco). 29 pruebas nuevas.
 
 **Resultados del piloto (top2, 1,108 celdas de dos pisos).**
 1. **Todas se dibujan**: escalera recta en la junta en el 100 %; 46.5 sq ft por piso contra 60 del catálogo
-   (6.6 sobrestimó la escalera en 13.5 sq ft por piso). U y L nunca hicieron falta.
+   (6.6 sobrestimó la escalera en 13.5 sq ft por piso). *Corregido en S1.1 (sección 4l): S1 elegía por orden, no
+   por comparación; "U y L nunca hicieron falta" era efecto del orden.*
 2. **Plano 131.0444 con la planta alta real**: 44 celdas lo activan con el techo por defecto (S0: 67). 51 de las
    de S0 quedan libres y aparecen 28 nuevas: la planta alta real es una franja ancha y poco profunda, el techo gira y
    el hastial queda hacia el lindero lateral. **Las 44 se resuelven girando la cumbrera** (ninguna necesita techo plano
@@ -706,6 +707,45 @@ con contratos en disco). 29 pruebas nuevas.
 **Limitaciones de S1.** Garaje provisional a la derecha (el lado de la entrada vehicular no está en los contratos);
 planta baja = franja de ancho completo (sin la variante con cuarto de equipos del sitio); techo sobre el rectángulo
 envolvente de la planta alta; reglas CRC sin verificar; la junta reemplaza a la circulación zonificada (S2).
+
+## 4l. Paso 6.7a, corrección S1.1 (9 oct 2026): configuraciones de escalera, espacio bajo ella, llegada y arranque
+
+**Por qué.** S1 elegía la escalera por orden (recta primero), no tenía recta con descanso intermedio, cobraba la huella
+entera en planta baja sin recuperar el espacio de abajo y no definía la dirección ni qué espacio recibe cada extremo
+(nada impedía llegar a un dormitorio). Plan y decisiones del cliente: `spaceplan_6_7a_S1_1_plan.md` (proyecto).
+
+**Reglas.** CRC 0.2.0 (sin verificar): S07 tramo ≤ 151 in, S08 puerta en el tope, S09 protección bajo escalera ½ in,
+S10 holguras de inodoro, S11 altura 6'8" sobre aparatos. **Reglas de cliente** en archivo aparte
+`data/rules/client_stair_rules.json` (`kind: client`): K01 llegada a pasillo, vestíbulo en casa pequeña o family room
+como máximo, nunca a cuartos; K02 arranque A vestibulado, B sala, C cocina (siempre disponible); K03 bajo escalera hacia
+la cocina = solo almacenamiento; K04 medio baño siempre vestibulado; K05 extensión de la matriz D/I/N para S2.
+
+**Qué hace.** Cuatro configuraciones (recta, recta con descanso, L, U; L compensada registrada como futura) en todas sus
+direcciones y lados sobre la junta; válidas si la huella cabe en ambas plantas fuera del garaje y caben las zonas de
+llegada (abajo descanso × ancho en planta baja; arriba pasillo 3 × 3.5 ft o vestíbulo 4 × 4 ft en la planta alta).
+Altura libre bajo la escalera = línea de nariz − estructura (10 in): franjas < 4 ft, almacenamiento, ≥ 6'8" (medio
+baño, extensible hasta 3 ft más allá del extremo, con vestíbulo de 3 × 3 ft). Elección lexicográfica: costo neto en
+planta baja, medio baño, arranque cerca de la entrada, centro de la junta. Salida: bloque **`stair_core`** fijo para S2
+(huella, extremos con zona y espacios receptores, bajo escalera con uso por opción de arranque, alternativas por
+configuración, extensión D/I/N) y **`rule_traces`** (normativa vs cliente). Planta alta **compacta** (rectángulo atrás,
+≥ 12 ft de fondo) para plantas altas pequeñas. Catálogo de apilamiento 0.3.0. 13 pruebas nuevas (S1.1).
+
+**Resultados del piloto (top2, 1,108 celdas).**
+1. **Las 1,108 se dibujan con escalera, llegada y arranque válidos** (6 en el lote bandera solo con la planta alta
+   compacta: la franja de ancho completo medía 62 × 3 ft).
+2. **El costo neto en planta baja es igual en las cuatro configuraciones: 16.8 sq ft** (la cuña baja del primer tramo,
+   < 4 ft). Lo demás se recupera como almacenamiento o medio baño. Contra los 60 sq ft de 6.6, la planta baja tiene
+   ≈ 43 sq ft más de lo calculado.
+3. Elegidas: L 787, recta con descanso 225, recta 71, U 25. La L gana porque el arranque queda más cerca de la entrada
+   (mediana 19.5 ft desde el frente).
+4. **Medio baño vestibulado bajo la escalera en el 100 %** de las elegidas (extensión 2.7 ft). En las 25 en U el espacio
+   de abajo abre junto al arranque: si se arranca desde la cocina (opción C) pasa a almacenamiento (K03).
+5. **Llegada a vestíbulo en 768 celdas (69 %)**: la planta alta sirve a ≤ 2 cuartos (umbral provisional del catálogo).
+6. Trazas: normativas todas pasan; de cliente K01, K02 y K04 quedan diferidas a S2 (el espacio receptor se asigna al
+   zonificar); K03 se aplica en 25.
+
+**Limitaciones.** El tiempo del piloto subió a ≈ 8 min (top2); espacios receptores no asignados hasta S2; el lado del
+garaje sigue provisional; el umbral de "casa pequeña" no lo fijó el cliente.
 
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
@@ -766,7 +806,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; S2 zonificación de la planta alta | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; S2 zonificación de la planta alta | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
 | 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 

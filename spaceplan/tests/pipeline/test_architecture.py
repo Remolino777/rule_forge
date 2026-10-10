@@ -173,8 +173,9 @@ def test_files_follow_plan_table():
         "areas/main": {"run_area_matrix", "contract"},
         "stacking/lib": {"stacking_catalog", "vertical_rules", "levels", "height_check", "cell_selection",
                          "lot_vertical",  # step 6.7a S0
-                         "stair_rules", "lot_plan", "plan_levels", "stair", "roof_plane", "cell_geometry"},  # S1
-        "stacking/lib_aux": {"vertical_geometry", "plan_geometry"},
+                         "stair_rules", "lot_plan", "plan_levels", "stair", "roof_plane", "cell_geometry",  # S1
+                         "stair_access"},  # S1.1
+        "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry"},
         "stacking/main": {"run_stacking", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",
                     "area_matrix_plots",  # tanda 3: visualize split by topic; tanda 4: facade removed

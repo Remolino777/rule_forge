@@ -19,6 +19,11 @@ WIDTH_RULE = "S03-STAIR-WIDTH"
 HEADROOM_RULE = "S04-STAIR-HEADROOM"
 LANDING_RULE = "S05-STAIR-LANDING"
 GARAGE_SEPARATION_RULE = "S06-GARAGE-SEPARATION"
+FLIGHT_RISE_RULE = "S07-STAIR-FLIGHT-RISE"
+TOP_DOOR_RULE = "S08-STAIR-TOP-DOOR"
+UNDER_STAIR_RULE = "S09-UNDER-STAIR-PROTECTION"
+HALF_BATH_CLEARANCE_RULE = "S10-HALF-BATH-CLEARANCE"
+FIXTURE_HEADROOM_RULE = "S11-FIXTURE-HEADROOM"
 STAIR_RULES = (RISER_RULE, TREAD_RULE, WIDTH_RULE, HEADROOM_RULE, LANDING_RULE)
 INCH_FT = 1.0 / 12.0
 
@@ -68,6 +73,25 @@ def stair_limits(rs: RuleSet) -> StairLimits:
     )
 
 
+def flight_rise_max_ft(rs: RuleSet) -> float:
+    return _inches(rs, FLIGHT_RISE_RULE)
+
+
+def fixture_headroom_ft(rs: RuleSet) -> float:
+    """Clear height a half bath needs over its fixture clearances (R305.1 exception)."""
+    return _inches(rs, FIXTURE_HEADROOM_RULE)
+
+
+def half_bath_width_min_ft(rs: RuleSet) -> float:
+    """Narrowest room that holds a water closet: twice its centre-to-side clearance (R307)."""
+    return 2.0 * rs.params(HALF_BATH_CLEARANCE_RULE)["wc_center_to_side_in"] * INCH_FT
+
+
+def under_stair_protection(rs: RuleSet) -> dict[str, Any]:
+    return {"rule_id": UNDER_STAIR_RULE, "requirement": rs.params(UNDER_STAIR_RULE)["requirement"],
+            "status": rs.status(UNDER_STAIR_RULE), "source": rs.source_tag(UNDER_STAIR_RULE)}
+
+
 def garage_separation(rs: RuleSet, habitable_above: bool) -> dict[str, Any]:
     """What R302.6 asks of the garage-dwelling separation (a construction note, not a planning limit)."""
     params = rs.params(GARAGE_SEPARATION_RULE)
@@ -79,16 +103,25 @@ def garage_separation(rs: RuleSet, habitable_above: bool) -> dict[str, Any]:
 
 
 __all__ = [
+    "FIXTURE_HEADROOM_RULE",
+    "FLIGHT_RISE_RULE",
     "GARAGE_SEPARATION_RULE",
+    "HALF_BATH_CLEARANCE_RULE",
     "HEADROOM_RULE",
     "LANDING_RULE",
     "RISER_RULE",
     "STAIR_RULES",
     "STAIR_RULESET",
+    "TOP_DOOR_RULE",
     "TREAD_RULE",
+    "UNDER_STAIR_RULE",
     "WIDTH_RULE",
     "StairLimits",
+    "fixture_headroom_ft",
+    "flight_rise_max_ft",
     "garage_separation",
+    "half_bath_width_min_ft",
     "load_stair_ruleset",
     "stair_limits",
+    "under_stair_protection",
 ]

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://municipal-permit-intelligence/spaceplan/contracts/stack_plan/0.2.0",
   "title": "Stack plan per lot (step 6.7)",
-  "description": "Levels relative to grade, height budget against the angled envelope plane and the stage each selected area-matrix cell reached (S0 levels and height; S1 stair and plane-limited polygons; S2 upper-floor zoning). Stage S1 adds the optional `s1` block per two-floor cell (additive within contract 0.2.0).",
+  "description": "Levels relative to grade, height budget against the angled envelope plane and the stage each selected area-matrix cell reached (S0 levels and height; S1 stair and plane-limited polygons; S2 upper-floor zoning). Stage S1 adds the optional `s1` block per two-floor cell (additive within contract 0.2.0); stage S1.1 adds the stair core and the rule traces.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -252,7 +252,8 @@
           "enum": [
             "rear",
             "front",
-            "over_garage"
+            "over_garage",
+            "compact"
           ]
         },
         "upper_candidates": {
@@ -285,6 +286,10 @@
               },
               "over_garage_sqft": {
                 "type": "number"
+              },
+              "stair_candidates": {
+                "type": "integer",
+                "minimum": 0
               }
             }
           }
@@ -370,8 +375,9 @@
             "stair_id": {
               "enum": [
                 "straight",
-                "u_turn",
-                "l_turn"
+                "straight_landing",
+                "l_turn",
+                "u_turn"
               ]
             },
             "risers": {
@@ -429,6 +435,15 @@
             },
             "rules": {
               "type": "object"
+            },
+            "net_ground_sqft": {
+              "type": "number"
+            },
+            "net_ground_delta_sqft": {
+              "type": "number"
+            },
+            "max_flight_rise_in": {
+              "type": "number"
             }
           }
         },
@@ -557,6 +572,220 @@
           "items": {
             "type": "string"
           }
+        },
+        "stair_core": {
+          "$ref": "#/$defs/stair_core"
+        },
+        "rule_traces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule_trace"
+          }
+        }
+      }
+    },
+    "stair_core": {
+      "type": "object",
+      "description": "Stage S1.1: the stair as the fixed core stage S2 zones around: configuration, footprint, ends with their arrival zones and receiving spaces (client rules K01, K02), the space under the stair and its use per bottom option (K03, K04), the alternatives per configuration and the D/I/N extension (K05).",
+      "required": [
+        "fixed",
+        "stair_id",
+        "footprint",
+        "bottom_end",
+        "top_end",
+        "under_stair",
+        "alternatives",
+        "valid_candidates",
+        "relations"
+      ],
+      "properties": {
+        "fixed": {
+          "const": true
+        },
+        "stair_id": {
+          "enum": [
+            "straight",
+            "straight_landing",
+            "l_turn",
+            "u_turn"
+          ]
+        },
+        "footprint": {
+          "$ref": "#/$defs/polygon"
+        },
+        "bottom_end": {
+          "type": "object",
+          "required": [
+            "edge",
+            "zone",
+            "receiving"
+          ],
+          "properties": {
+            "edge": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "zone": {
+              "$ref": "#/$defs/polygon"
+            },
+            "receiving": {
+              "type": "object"
+            },
+            "entry_distance_ft": {
+              "type": "number"
+            }
+          }
+        },
+        "top_end": {
+          "type": "object",
+          "required": [
+            "edge",
+            "zone",
+            "receiving"
+          ],
+          "properties": {
+            "edge": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "zone": {
+              "$ref": "#/$defs/polygon"
+            },
+            "receiving": {
+              "type": "object"
+            },
+            "entry_distance_ft": {
+              "type": "number"
+            }
+          }
+        },
+        "under_stair": {
+          "type": "object",
+          "required": [
+            "low_sqft",
+            "storage_sqft",
+            "half_bath_band_sqft",
+            "recovered_sqft",
+            "net_ground_sqft",
+            "half_bath_fit",
+            "access_side",
+            "use_default",
+            "use_by_bottom_option"
+          ],
+          "properties": {
+            "low_sqft": {
+              "type": "number"
+            },
+            "storage_sqft": {
+              "type": "number"
+            },
+            "half_bath_band_sqft": {
+              "type": "number"
+            },
+            "recovered_sqft": {
+              "type": "number"
+            },
+            "net_ground_sqft": {
+              "type": "number"
+            },
+            "half_bath_fit": {
+              "type": "boolean"
+            },
+            "half_bath": {
+              "$ref": "#/$defs/polygon"
+            },
+            "vestibule": {
+              "$ref": "#/$defs/polygon"
+            },
+            "half_bath_extension_ft": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "access_side": {
+              "enum": [
+                "bottom",
+                "apart",
+                "none"
+              ]
+            },
+            "use_default": {
+              "enum": [
+                "half_bath",
+                "storage",
+                "pantry"
+              ]
+            },
+            "use_by_bottom_option": {
+              "type": "object",
+              "additionalProperties": {
+                "enum": [
+                  "half_bath",
+                  "storage",
+                  "pantry"
+                ]
+              }
+            },
+            "protection": {
+              "type": "object"
+            }
+          }
+        },
+        "alternatives": {
+          "type": "object"
+        },
+        "valid_candidates": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "relations": {
+          "type": "object"
+        }
+      }
+    },
+    "rule_trace": {
+      "type": "object",
+      "required": [
+        "rule_id",
+        "kind",
+        "result",
+        "status",
+        "source"
+      ],
+      "properties": {
+        "rule_id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "normative",
+            "client"
+          ]
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "fail",
+            "deferred_to_S2"
+          ]
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "provisional"
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "detail": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     }

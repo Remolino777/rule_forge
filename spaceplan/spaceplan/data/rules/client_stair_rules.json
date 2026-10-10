@@ -1,0 +1,281 @@
+{
+  "ruleset_id": "client-stair-rules",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "client",
+  "zone": "*",
+  "code_edition": "client decisions 2026-10-09",
+  "transcribed_from": "Client (student) design decisions for the stair of step 6.7a S1.1, recorded on 2026-10-09 in the project chat (spaceplan_6_7a_S1_1_plan.md).",
+  "verification_note": "Design rules decided by the client, not code: verified=true means the client stated them; they are kept apart from the CRC and SDMC rulesets so a check can tell a normative failure from a client-rule failure (RuleForge case). Thresholds that the client did not fix live in the stacking catalog as provisional design values.",
+  "kind": "client",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "Client decisions",
+      "section": "2026-10-09"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [],
+    "depth_methods": [],
+    "default_width_method": null,
+    "default_depth_method": null,
+    "setback_distance_semantics": null,
+    "verified": true,
+    "source": {
+      "document": "Client decisions",
+      "section": "n/a"
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "K01-STAIR-TOP-ARRIVAL",
+      "kind": "client",
+      "magnitude": "stair_top_receiving_space",
+      "operator": "in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "default": "hall",
+        "small_house": "upper_vestibule",
+        "max": "family_room",
+        "allowed": [
+          "hall",
+          "upper_vestibule",
+          "family_room"
+        ],
+        "forbidden": [
+          "bedroom",
+          "primary_suite",
+          "flex_room",
+          "study",
+          "primary_bath",
+          "bathroom",
+          "walk_in_closet",
+          "closet",
+          "laundry",
+          "laundry_closet"
+        ]
+      },
+      "text": [
+        "The stair never arrives directly into a room upstairs: it arrives into a hall; in small houses into a vestibule; at most into a family room."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-09, stair arrival"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "K02-STAIR-BOTTOM-START",
+      "kind": "client",
+      "magnitude": "stair_bottom_receiving_space",
+      "operator": "in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "options": [
+          {
+            "option": "A",
+            "label": "vestibulated",
+            "receiving": [
+              "foyer",
+              "hall"
+            ]
+          },
+          {
+            "option": "B",
+            "label": "living",
+            "receiving": [
+              "living_room",
+              "living_dining",
+              "family_room"
+            ]
+          },
+          {
+            "option": "C",
+            "label": "kitchen",
+            "receiving": [
+              "kitchen",
+              "dining_room",
+              "breakfast_nook"
+            ]
+          }
+        ],
+        "forbidden": [
+          "garage_1car",
+          "garage_2car",
+          "garage_2car_tandem",
+          "bedroom",
+          "primary_suite",
+          "primary_bath",
+          "bathroom",
+          "laundry",
+          "laundry_closet"
+        ]
+      },
+      "text": [
+        "Downstairs the stair starts vestibulated to a circulation, from the living room or, as a third option always available, from the kitchen; never from the garage, a bedroom, a bathroom or the laundry."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-09, stair start"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "K03-UNDER-STAIR-KITCHEN",
+      "kind": "client",
+      "magnitude": "under_stair_use",
+      "operator": "in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "opens_to": [
+          "kitchen",
+          "dining_room",
+          "breakfast_nook"
+        ],
+        "uses": [
+          "storage",
+          "pantry"
+        ]
+      },
+      "text": [
+        "If the space under the stair opens toward the kitchen it is storage only, never a half bath."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-09, under-stair space"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "K04-HALF-BATH-VESTIBULE",
+      "kind": "client",
+      "magnitude": "half_bath_door",
+      "operator": "in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "space_types": [
+          "half_bath"
+        ],
+        "door_to_allowed": [
+          "foyer",
+          "hall",
+          "vestibule"
+        ],
+        "door_to_forbidden": [
+          "living_room",
+          "living_dining",
+          "family_room",
+          "dining_room",
+          "kitchen",
+          "breakfast_nook"
+        ]
+      },
+      "text": [
+        "A half bath is always vestibulated: its door opens to a circulation, never directly to a living room or a kitchen."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-09, half bath"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "K05-STAIR-RELATIONS",
+      "kind": "client",
+      "magnitude": "relation_matrix_extension",
+      "operator": "==",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "roles": {
+          "stair_top": [
+            "@stair_top"
+          ],
+          "stair_bottom": [
+            "@stair_bottom"
+          ],
+          "under_stair": [
+            "@under_stair"
+          ]
+        },
+        "relations": [
+          {
+            "a": "stair_top",
+            "b": "bedroom",
+            "type": "N",
+            "kind": "hard"
+          },
+          {
+            "a": "stair_top",
+            "b": "primary_bedroom",
+            "type": "N",
+            "kind": "hard"
+          },
+          {
+            "a": "stair_top",
+            "b": "private_bath",
+            "type": "N",
+            "kind": "hard"
+          },
+          {
+            "a": "stair_top",
+            "b": "laundry",
+            "type": "N",
+            "kind": "hard"
+          },
+          {
+            "a": "stair_bottom",
+            "b": "access",
+            "type": "I",
+            "kind": "soft"
+          },
+          {
+            "a": "stair_bottom",
+            "b": "bedroom",
+            "type": "N",
+            "kind": "hard"
+          },
+          {
+            "a": "stair_bottom",
+            "b": "private_bath",
+            "type": "N",
+            "kind": "hard"
+          },
+          {
+            "a": "social_bath",
+            "b": "living",
+            "type": "N",
+            "kind": "hard",
+            "note": "no direct door: vestibulated (K04)"
+          },
+          {
+            "a": "social_bath",
+            "b": "kitchen",
+            "type": "N",
+            "kind": "hard",
+            "note": "no direct door: vestibulated (K04)"
+          },
+          {
+            "a": "social_bath",
+            "b": "dining",
+            "type": "N",
+            "kind": "hard",
+            "note": "no direct door: vestibulated (K04)"
+          }
+        ]
+      },
+      "text": [
+        "Extension of the D/I/N relation matrix that stage S2 merges when it zones around the stair core (roles of the relation_matrix in the zoning catalog; @ marks the stair ends and the under-stair space)."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-09"
+      },
+      "verified": true
+    }
+  ]
+}

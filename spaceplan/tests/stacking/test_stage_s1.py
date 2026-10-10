@@ -33,7 +33,7 @@ from spaceplan.modules.stacking.lib.stacking_catalog import (
     check_stacking_catalog,
     load_stacking_catalog,
 )
-from spaceplan.modules.stacking.lib.stair import place_stair, risers_for, stair_shape
+from spaceplan.modules.stacking.lib.stair import risers_for, stair_shape
 from spaceplan.modules.stacking.lib.stair_rules import (
     garage_separation,
     load_stair_ruleset,
@@ -43,7 +43,6 @@ from spaceplan.modules.stacking.lib.vertical_rules import load_vertical_ruleset
 from spaceplan.modules.stacking.lib_aux.plan_geometry import (
     cut_band,
     inset_from_lines,
-    joint_lines,
     polygon_json,
     rects_along_line,
     segments_of,
@@ -96,31 +95,18 @@ def test_stair_rules_in_feet_and_provisional(limits):
 def test_risers_and_stair_shapes(scat, limits):
     assert risers_for(10.0, 7.75 / 12) == 16 and risers_for(9.0, 7.75 / 12) == 14
     shapes = {t["stair_id"]: stair_shape(t, 10.0, limits, scat.stair_design) for t in scat.stair_types}
+    assert list(shapes) == ["straight", "straight_landing", "l_turn", "u_turn"]
     st = shapes["straight"]
     assert (st.risers, st.treads) == (16, 15) and st.riser_ft * 12 == pytest.approx(7.5)
     assert st.riser_ft <= limits.riser_max_ft and st.tread_ft >= limits.tread_min_ft
-    assert (st.length_ft, st.span_ft, st.area_sqft) == pytest.approx((15.5, 3.0, 46.5))
+    assert (st.length_ft, st.span_ft, st.area_sqft) == pytest.approx((12.5, 3.0, 37.5))  # flight only
+    sl = shapes["straight_landing"]
+    assert sl.treads == 14 and sl.length_ft == pytest.approx(14 * 10 / 12 + 3) and sl.span_ft == pytest.approx(3.0)
     u = shapes["u_turn"]
     assert u.treads == 14 and u.span_ft == pytest.approx(6.0) and u.length_ft == pytest.approx(7 * 10 / 12 + 3)
     lt = shapes["l_turn"]
     assert lt.area_sqft < lt.length_ft * lt.span_ft  # an L takes less than its bounding rectangle
-    assert [stair_shape(t, 10.0, limits, scat.stair_design).stair_id for t in scat.stair_types] \
-        == ["straight", "u_turn", "l_turn"]
-
-
-def test_stair_placed_at_the_joint_out_of_the_garage(scat, limits):
-    ground = box(0, 0, 40, 30)
-    upper = box(0, 15, 40, 30)
-    garage = box(28, 0, 40, 24)
-    shapes = [stair_shape(t, 10.0, limits, scat.stair_design) for t in scat.stair_types]
-    joints = joint_lines(upper, ground)
-    assert len(joints) == 1 and joints[0].length == pytest.approx(40.0, abs=0.01)
-    p = place_stair(shapes, joints, upper, ground, garage, 1.0)
-    assert p is not None and p.shape.stair_id == "straight" and p.run_along_joint
-    r = p.placed.rect
-    assert upper.buffer(1e-6).contains(r) and r.intersection(garage).area == pytest.approx(0.0)
-    assert r.bounds[1] == pytest.approx(15.0)  # touches the joint
-    assert place_stair(shapes, joints, box(0, 15, 2, 30), ground, None, 1.0) is None  # too narrow for any type
+    assert lt.max_flight_rise_ft == pytest.approx(5.0) and st.max_flight_rise_ft == pytest.approx(10.0)
 
 
 # ------------------------------------------------------------------ plan geometry (lib_aux)
@@ -296,10 +282,10 @@ def test_catalog_s1_blocks_are_checked():
     data = json.loads((STACKING.parents[1] / "data" / "catalog" / "stacking_catalog.json").read_text())
     assert check_stacking_catalog(data) == []
     bad = copy.deepcopy(data)
-    bad["stair"]["type_order"] = ["spiral"]
+    bad["stair"]["enabled"] = ["spiral"]
     bad["garage"]["side"] = "middle"
     problems = check_stacking_catalog(bad)
-    assert any("type_order" in p for p in problems) and any("garage.side" in p for p in problems)
+    assert any("stair.enabled" in p for p in problems) and any("garage.side" in p for p in problems)
     missing = copy.deepcopy(data)
     del missing["roof_orientation"]
     assert any("roof_orientation" in p for p in check_stacking_catalog(missing))

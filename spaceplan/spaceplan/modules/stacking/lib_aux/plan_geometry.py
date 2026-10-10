@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from shapely.geometry import LineString, MultiLineString, Polygon, box
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
+from shapely.prepared import prep
 
 TOL = 1e-6
 LOW, HIGH = "low", "high"
@@ -111,29 +112,22 @@ def rects_along_line(line: LineString, along: float, across: float, step: float,
     if direction is None or along > line.length + tol:
         return []
     (x0, y0), (x1, y1) = line.coords[0], line.coords[-1]
+    a, b = sorted((x0, x1)) if direction == "x" else sorted((y0, y1))
+    mid = 0.5 * (a + b)
+    n = int((b - a - along) // step) if b - a > along else 0
+    starts = sorted({a + k * step for k in range(n + 1)} | {b - along, mid - along / 2})
+    holder = prep(inside.buffer(tol))
     out = []
-    if direction == "x":
-        a, b = sorted((x0, x1))
-        mid = 0.5 * (a + b)
-        n = int((b - a - along) // step) if b - a > along else 0
-        starts = sorted({a + k * step for k in range(n + 1)} | {b - along, mid - along / 2})
-        for s in starts:
-            if s < a - tol or s + along > b + tol:
-                continue
-            for r in (box(s, y0, s + along, y0 + across), box(s, y0 - across, s + along, y0)):
-                if inside.buffer(tol).contains(r):
-                    out.append(Placed(r, abs(s + along / 2 - mid), along, across))
-    else:
-        a, b = sorted((y0, y1))
-        mid = 0.5 * (a + b)
-        n = int((b - a - along) // step) if b - a > along else 0
-        starts = sorted({a + k * step for k in range(n + 1)} | {b - along, mid - along / 2})
-        for s in starts:
-            if s < a - tol or s + along > b + tol:
-                continue
-            for r in (box(x0, s, x0 + across, s + along), box(x0 - across, s, x0, s + along)):
-                if inside.buffer(tol).contains(r):
-                    out.append(Placed(r, abs(s + along / 2 - mid), along, across))
+    for s in starts:
+        if s < a - tol or s + along > b + tol:
+            continue
+        if direction == "x":
+            rects = (box(s, y0, s + along, y0 + across), box(s, y0 - across, s + along, y0))
+        else:
+            rects = (box(x0, s, x0 + across, s + along), box(x0 - across, s, x0, s + along))
+        for r in rects:
+            if holder.contains(r):
+                out.append(Placed(r, abs(s + along / 2 - mid), along, across))
     return sorted(out, key=lambda p: (round(p.offset_ft, OFFSET_DIGITS), p.rect.bounds))
 
 

@@ -1,14 +1,17 @@
 {
   "ruleset_id": "crc-2025-stairs",
-  "ruleset_version": "0.1.0",
+  "ruleset_version": "0.2.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "CRC-2025",
-  "transcribed_from": "IRC/CRC model-code values for dwelling stairways and garage separation (R311.7, R302.6), transcribed for step 6.7a stage S1 (2026-10-09) from the model-code text as known to the student; the CRC 2025 adoption text was not read.",
+  "transcribed_from": "IRC/CRC model-code values for dwelling stairways and garage separation (R311.7, R302.6), transcribed for step 6.7a stage S1 (2026-10-09) from the model-code text as known to the student; the CRC 2025 adoption text was not read. Version 0.2.0 (stage S1.1, 2026-10-09) adds the flight rise limit, the door at the top of a stair, the protection of enclosed space under a stair and the half-bath clearances.",
   "verification_note": "Separate ruleset for the vertical layer (step 6.7 S1) so the habitability ruleset and the golden packages stay unchanged. All entries verified=false until checked against the CRC 2025 text (California amendments and renumbering of the 2025 cycle).",
   "scope": {
     "excluded_overlays": [],
-    "source": {"document": "CRC 2025", "section": "R311.7, R302.6"}
+    "source": {
+      "document": "CRC 2025",
+      "section": "R311.7, R302.6, R302.7, R305, R307"
+    }
   },
   "lot_measurement": {
     "width_methods": [],
@@ -17,7 +20,10 @@
     "default_depth_method": null,
     "setback_distance_semantics": null,
     "verified": false,
-    "source": {"document": "CRC 2025", "section": "n/a"}
+    "source": {
+      "document": "CRC 2025",
+      "section": "n/a"
+    }
   },
   "rules": [
     {
@@ -26,8 +32,13 @@
       "operator": "<=",
       "value": 7.75,
       "unit": "in",
-      "text": ["R311.7.5.1: the maximum riser height shall be 7 3/4 inches."],
-      "source": {"document": "CRC 2025", "section": "R311.7.5.1 (verify)"},
+      "text": [
+        "R311.7.5.1: the maximum riser height shall be 7 3/4 inches."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.7.5.1 (verify)"
+      },
       "verified": false
     },
     {
@@ -36,8 +47,13 @@
       "operator": ">=",
       "value": 10.0,
       "unit": "in",
-      "text": ["R311.7.5.2: the minimum tread depth shall be 10 inches."],
-      "source": {"document": "CRC 2025", "section": "R311.7.5.2 (verify)"},
+      "text": [
+        "R311.7.5.2: the minimum tread depth shall be 10 inches."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.7.5.2 (verify)"
+      },
       "verified": false
     },
     {
@@ -46,8 +62,13 @@
       "operator": ">=",
       "value": 36.0,
       "unit": "in",
-      "text": ["R311.7.1: stairways shall be not less than 36 inches in clear width above the handrail height."],
-      "source": {"document": "CRC 2025", "section": "R311.7.1 (verify)"},
+      "text": [
+        "R311.7.1: stairways shall be not less than 36 inches in clear width above the handrail height."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.7.1 (verify)"
+      },
       "verified": false
     },
     {
@@ -56,8 +77,13 @@
       "operator": ">=",
       "value": 80.0,
       "unit": "in",
-      "text": ["R311.7.2: the minimum headroom in all parts of the stairway shall be 6 feet 8 inches."],
-      "source": {"document": "CRC 2025", "section": "R311.7.2 (verify)"},
+      "text": [
+        "R311.7.2: the minimum headroom in all parts of the stairway shall be 6 feet 8 inches."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.7.2 (verify)"
+      },
       "verified": false
     },
     {
@@ -66,8 +92,13 @@
       "operator": ">=",
       "value": 36.0,
       "unit": "in",
-      "text": ["R311.7.6: a floor or landing at the top and bottom of each stairway; its depth in the direction of travel not less than 36 inches."],
-      "source": {"document": "CRC 2025", "section": "R311.7.6 (verify)"},
+      "text": [
+        "R311.7.6: a floor or landing at the top and bottom of each stairway; its depth in the direction of travel not less than 36 inches."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.7.6 (verify)"
+      },
       "verified": false
     },
     {
@@ -80,8 +111,99 @@
         "under_habitable_room": "5/8 in Type X gypsum board or equivalent on the garage ceiling, with the supporting structure protected by 1/2 in gypsum board",
         "otherwise": "1/2 in gypsum board on the garage side"
       },
-      "text": ["R302.6 / Table R302.6: a garage beneath habitable rooms needs a 5/8 in Type X gypsum ceiling; the separation is a construction requirement, not a planning limit."],
-      "source": {"document": "CRC 2025", "section": "R302.6, Table R302.6 (verify)"},
+      "text": [
+        "R302.6 / Table R302.6: a garage beneath habitable rooms needs a 5/8 in Type X gypsum ceiling; the separation is a construction requirement, not a planning limit."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R302.6, Table R302.6 (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S07-STAIR-FLIGHT-RISE",
+      "magnitude": "stair_flight_rise",
+      "operator": "<=",
+      "value": 151.0,
+      "unit": "in",
+      "text": [
+        "R311.7.3: a flight of stairs shall not have a vertical rise larger than 151 inches between floor levels or landings."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.7.3 (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S08-STAIR-TOP-DOOR",
+      "magnitude": "door_at_top_of_stair",
+      "operator": "==",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "door_may_swing_over_stairs": false
+      },
+      "text": [
+        "R311.7.6 exception: a door at the top of an interior flight is permitted without a landing if it does not swing over the stairs."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.7.6 exception (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S09-UNDER-STAIR-PROTECTION",
+      "magnitude": "under_stair_enclosure",
+      "operator": "==",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "requirement": "enclosed accessible space under stairs: walls, under-stair surface and soffits protected on the enclosed side with 1/2 in gypsum board"
+      },
+      "text": [
+        "R302.7: enclosed accessible space under stairs shall have walls, under-stair surface and any soffits protected on the enclosed side with 1/2-inch gypsum board."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R302.7 (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S10-HALF-BATH-CLEARANCE",
+      "magnitude": "water_closet_clearance",
+      "operator": ">=",
+      "value": null,
+      "unit": "in",
+      "parameters": {
+        "wc_center_to_side_in": 15.0,
+        "wc_front_clearance_in": 21.0,
+        "lavatory_front_clearance_in": 21.0
+      },
+      "text": [
+        "R307.1 / Figure R307.2: water closet centerline at least 15 in from a side wall and 21 in clear in front; 21 in clear in front of a lavatory."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R307.1, Figure R307.2 (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S11-FIXTURE-HEADROOM",
+      "magnitude": "bathroom_fixture_headroom",
+      "operator": ">=",
+      "value": 80.0,
+      "unit": "in",
+      "text": [
+        "R305.1 exception: in bathrooms and toilet rooms the ceiling height over the fixture clearance area (and at the centre of the front clearance of the water closet) shall be not less than 6 ft 8 in."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R305.1 exception (verify)"
+      },
       "verified": false
     }
   ]

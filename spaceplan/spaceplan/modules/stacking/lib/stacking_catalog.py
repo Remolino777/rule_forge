@@ -84,13 +84,32 @@ class StackingCatalog:
 
     @property
     def stair_types(self) -> list[dict[str, Any]]:
-        """Stair types in the order stage S1 tries them."""
+        """Enabled stair configurations (stage S1.1 compares all of them)."""
         by_id = {t["stair_id"]: t for t in self.data["stair"]["types"]}
-        return [by_id[i] for i in self.data["stair"]["type_order"]]
+        return [by_id[i] for i in self.data["stair"]["enabled"]]
 
     @property
     def stair_search_step(self) -> float:
         return float(self.data["stair"]["placement"]["search_step_ft"])
+
+    @property
+    def stair_placement(self) -> dict[str, Any]:
+        return self.data["stair"]["placement"]
+
+    @property
+    def under_stair(self) -> dict[str, Any]:
+        return self.data["stair"]["under_stair"]
+
+    @property
+    def stair_access(self) -> dict[str, Any]:
+        return self.data["stair_access"]
+
+    def bottom_options(self, scheme_id: str | None) -> tuple[list[str], str]:
+        """Bottom-start options allowed for a vertical scheme and the one stage S2 tries first."""
+        acc = self.data["stair_access"]
+        opts = acc["bottom_options_by_scheme"]
+        pref = acc["bottom_preferred_by_scheme"]
+        return list(opts.get(scheme_id or "", opts["default"])), pref.get(scheme_id or "", pref["default"])
 
     def upper_placements(self, scheme_id: str | None) -> list[str]:
         """Upper-floor placements in the order stage S1 tries them for a vertical scheme."""
@@ -114,10 +133,12 @@ class StackingCatalog:
         return self.data["geometry"]
 
 
-STAIR_TYPES = ("straight", "u_turn", "l_turn")
-PLACEMENTS = ("rear", "front", "over_garage")
+STAIR_TYPES = ("straight", "straight_landing", "l_turn", "u_turn")
+CHOICE_KEYS = ("net_ground_bucket", "half_bath_fit", "entry_distance_ft", "joint_offset_ft")
+BOTTOM_OPTIONS = ("A", "B", "C")
+PLACEMENTS = ("rear", "front", "over_garage", "compact")
 ROOF_STEPS = ("default", "rotated", "flat")
-S1_BLOCKS = ("upper_floor", "garage", "roof_orientation", "geometry")
+S1_BLOCKS = ("upper_floor", "garage", "roof_orientation", "geometry", "stair_access")
 
 
 def _check_s1(data: dict[str, Any]) -> list[str]:
@@ -127,25 +148,50 @@ def _check_s1(data: dict[str, Any]) -> list[str]:
         if key not in data:
             problems.append(f"missing block {key!r}")
     stair = data["stair"]
-    for key in ("design", "types", "type_order", "placement"):
+    for key in ("design", "types", "enabled", "placement", "under_stair"):
         if key not in stair:
             problems.append(f"missing stair.{key}")
     if problems:
         return problems
-    for key in ("tread_in", "width_ft", "landing_ft", "u_turn_gap_ft"):
+    for key in ("tread_in", "width_ft", "landing_ft", "u_turn_gap_ft", "structure_depth_ft"):
         if not isinstance(stair["design"].get(key), (int, float)) or stair["design"][key] < 0:
             problems.append(f"stair.design.{key} must be a number >= 0")
     ids = [t.get("stair_id") for t in stair["types"]]
     if any(i not in STAIR_TYPES for i in ids):
         problems.append(f"stair.types: stair_id must be one of {STAIR_TYPES}")
-    if not stair["type_order"] or any(i not in ids for i in stair["type_order"]):
-        problems.append("stair.type_order must list declared stair types")
+    if not stair["enabled"] or any(i not in ids for i in stair["enabled"]):
+        problems.append("stair.enabled must list declared stair types")
+    if any(k not in CHOICE_KEYS for k in stair["placement"].get("choice", [])) or not stair["placement"].get("choice"):
+        problems.append(f"stair.placement.choice must be drawn from {CHOICE_KEYS}")
+    us = stair["under_stair"]
+    if not us.get("bands") or us.get("usable_from_band") not in {b.get("band") for b in us["bands"]}:
+        problems.append("stair.under_stair: bands missing or usable_from_band undeclared")
+    if not isinstance(stair["placement"].get("half_bath_trials"), int) or stair["placement"]["half_bath_trials"] < 0:
+        problems.append("stair.placement.half_bath_trials must be an integer >= 0")
+    for key in ("half_bath_extension_max_ft", "vestibule_ft"):
+        if not isinstance(us.get(key), (int, float)) or us[key] < 0:
+            problems.append(f"stair.under_stair.{key} must be a number >= 0")
+    acc = data["stair_access"]
+    if not isinstance(acc.get("small_house_upper_rooms_max"), int) or acc["small_house_upper_rooms_max"] < 0:
+        problems.append("stair_access.small_house_upper_rooms_max must be an integer >= 0")
+    for key in ("bottom_options_by_scheme", "bottom_preferred_by_scheme"):
+        if "default" not in acc.get(key, {}):
+            problems.append(f"stair_access.{key} needs a default")
+    for opts in acc.get("bottom_options_by_scheme", {}).values():
+        if not opts or any(o not in BOTTOM_OPTIONS for o in opts):
+            problems.append(f"stair_access.bottom_options_by_scheme must be drawn from {BOTTOM_OPTIONS}")
+    for kind in ("hall", "upper_vestibule"):
+        z = acc.get("top_zone", {}).get(kind, {})
+        if not all(isinstance(z.get(k), (int, float)) and z[k] > 0 for k in ("depth_ft", "width_ft")):
+            problems.append(f"stair_access.top_zone.{kind} needs depth_ft and width_ft > 0")
     if not isinstance(stair["placement"].get("search_step_ft"), (int, float)) or stair["placement"]["search_step_ft"] <= 0:
         problems.append("stair.placement.search_step_ft must be > 0")
     uf = data["upper_floor"]
     orders = [uf.get("placements", [])] + list(uf.get("scheme_order", {}).values())
     if not uf.get("placements") or any(p not in PLACEMENTS for order in orders for p in order):
         problems.append(f"upper_floor placements must be drawn from {PLACEMENTS}")
+    if not isinstance(uf.get("compact_min_depth_ft"), (int, float)) or uf["compact_min_depth_ft"] <= 0:
+        problems.append("upper_floor.compact_min_depth_ft must be a number > 0")
     g = data["garage"]
     if g.get("side") not in ("left", "right"):
         problems.append("garage.side must be 'left' or 'right'")
@@ -213,5 +259,5 @@ def load_stacking_catalog(path: str | Path | None = None) -> StackingCatalog:
     return StackingCatalog(data=data, sha256=sha256_of(data))
 
 
-__all__ = ["PLACEMENTS", "ROOF_STEPS", "STACKING_CATALOG", "STAIR_TYPES", "StackingCatalog", "StackingCatalogError",
+__all__ = ["BOTTOM_OPTIONS", "CHOICE_KEYS", "PLACEMENTS", "ROOF_STEPS", "STACKING_CATALOG", "STAIR_TYPES", "StackingCatalog", "StackingCatalogError",
            "check_stacking_catalog", "load_stacking_catalog"]

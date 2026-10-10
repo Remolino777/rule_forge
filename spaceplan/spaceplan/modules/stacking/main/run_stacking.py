@@ -22,7 +22,7 @@ from typing import Any
 
 from spaceplan.core.lib.catalog import load_catalog
 from spaceplan.core.lib.contracts import read_contract
-from spaceplan.modules.stacking.lib.cell_geometry import DRAWN, S1_STATUSES, draw_cell
+from spaceplan.modules.stacking.lib.cell_geometry import DRAWN, S1_STATUSES, S1Context, draw_cell
 from spaceplan.modules.stacking.lib.cell_selection import (
     select_cells,
     selection_counts,
@@ -38,6 +38,7 @@ from spaceplan.modules.stacking.lib.levels import build_levels
 from spaceplan.modules.stacking.lib.lot_plan import lot_plan, strategy_key
 from spaceplan.modules.stacking.lib.lot_vertical import lot_envelope, lot_vertical_facts
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
+from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
 from spaceplan.modules.stacking.lib.vertical_rules import (
     garage_counts_in_gfa,
@@ -112,7 +113,7 @@ def _lot_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
 
 def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict], mode: str | None = None,
                  catalog_path=None, rules_path=None, stacking_catalog_path=None, stage: str = STAGE,
-                 stair_rules_path=None) -> dict[str, Any]:
+                 stair_rules_path=None, client_rules_path=None) -> dict[str, Any]:
     """Stage S0 (and S1 when `stage` is "S1") over an area_matrix contract and the lot_capacity contracts of its
     lots (by brief_id)."""
     if stage not in STAGES:
@@ -129,6 +130,7 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
     selected = select_cells(am["cells"], scat.selection_k(mode))
     srs = load_stair_ruleset(stair_rules_path) if stage == "S1" else None
     limits = stair_limits(srs) if srs is not None else None
+    crs = load_client_ruleset(client_rules_path) if stage == "S1" else None
 
     lots_out, cells_out, missing = [], [], []
     for lot in am["lots"]:
@@ -144,8 +146,9 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                 continue
             out = stack_cell(c, lot, lc, rs, scat, stair_sqft)
             if plan is not None and out["next_stage"] == "S1":
-                s1 = draw_cell(c, out, plan, strategy_key(lot["budget"], c.get("strategy_used")), scat, limits, srs,
-                               rs, lot_envelope(rs, lc), (lc.get("terrain") or {}).get("mean_slope"), stair_sqft)
+                ctx = S1Context(scat, limits, srs, rs, crs, catalog, lot_envelope(rs, lc),
+                                (lc.get("terrain") or {}).get("mean_slope"), stair_sqft)
+                s1 = draw_cell(c, out, plan, strategy_key(lot["budget"], c.get("strategy_used")), ctx)
                 out["s1"] = s1
                 out["next_stage"] = s1["next_stage"]
             lot_cells.append(out)
@@ -160,6 +163,7 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
         raise ValueError(f"stacking: no lot_capacity contract for lot(s) {', '.join(missing)}")
     meta_s1 = {} if srs is None else {
         "stair_ruleset": srs.ruleset_id, "stair_ruleset_version": srs.version, "stair_ruleset_sha256": srs.sha256,
+        "client_ruleset": crs.ruleset_id, "client_ruleset_version": crs.version, "client_ruleset_sha256": crs.sha256,
         "stair_limits": limits.to_dict(), "s1": _s1_summary(cells_out),
         "note_s1": ("Stage S1: ground floor = front band of the strategy's realizable footprint holding the ground "
                     "gross area; stand-in garage on the front line (area from the area matrix); upper floor = rear "
