@@ -2,8 +2,8 @@
 
 Left: share of the households' complete programs that do not fit one floor (two floors or more), as the design FOS
 changes (SDMC FOT).
-Right: share of complete programs that no two-floor house holds, as a fixed FOT changes (base FOS); the SDMC FOT of
-each lot is marked. Magnitude is sequential (one hue, light to dark); values are written in the cells.
+Right: share of complete programs that no two-floor house holds (beyond the maximum, or no balanced split inside the
+footprint, step 9a), as a fixed FOT changes (base FOS); the SDMC FOT of each lot is marked. Magnitude is sequential (one hue, light to dark); values are written in the cells.
 """
 
 from __future__ import annotations
@@ -43,7 +43,9 @@ def plot_sensitivity(result: dict, out_path: str | Path, lang: str = "es") -> Pa
     fot_x = sorted({r["fot"] for r in fot_rows})
     left = [[None if math.isnan(v) else round(1.0 - v, 4) for v in row]
             for row in _matrix(fos_rows, lots, "fos", fos_x, "complete_one_floor_share")]
-    right = _matrix(fot_rows, lots, "fot", fot_x, "complete_exceeds_share")
+    right = [[a + b for a, b in zip(ra, rb)]  # step 9a: no area, or no balanced split
+             for ra, rb in zip(_matrix(fot_rows, lots, "fot", fot_x, "complete_exceeds_share"),
+                               _matrix(fot_rows, lots, "fot", fot_x, "complete_split_fails_share"))]
     sdmc = {r["lot_id"]: r["fot"] for r in fos_rows}
 
     fig, axes = plt.subplots(1, 2, figsize=(15, 0.42 * len(lots) + 2.2),

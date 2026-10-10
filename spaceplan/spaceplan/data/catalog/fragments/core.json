@@ -2,7 +2,7 @@
   "fragment": "core",
   "entries": {
     "catalog_id": "spaceplan-residential-catalog",
-    "catalog_version": "0.12.0",
+    "catalog_version": "0.13.0",
     "units": "sq_ft",
     "default_source": {
       "kind": "catalog",

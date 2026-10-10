@@ -782,6 +782,22 @@ congelados de nuevo con informe: `docs/refactor/log/golden_refresh_2026-10-09_ar
 **Limitaciones.** El reparto por esquema no equilibra los pisos; la demanda de la sensibilidad es el programa completo
 sin techo; el caso de los áticos ≥ 5 ft (113.0234) y la condición de desnivel de la ladera empinada quedan por verificar.
 
+## 4n. Paso 9a (10 oct 2026): reparto balanceado entre pisos y máximo recortado
+
+**Problema.** Con un piso primero, 64 de 210 máximos quedaban sin esquema viable. El área total sí cabía bajo el FOT; lo que no cabía era la planta baja dentro de la huella de diseño (FOS 0.6 × envolvente), porque V1–V5 asignan grupos fijos sin mirar áreas. Subir el FOT no ayuda: no es el límite que falla.
+
+**Solución (catálogo 0.13.0, regla del cliente `vertical_schemes.ground_balance`, VB01).**
+- `areas/lib/floor_balance.py`: `balance_split` sube espacios uno a uno en el orden del catálogo (family room → study → flex room → storage) hasta que la planta baja entra en la huella. Nunca sube garaje, cocina, sala, comedor, foyer, mudroom ni medio baño. Respeta `floor_preference` y los grupos cohesivos, los espacios alojados siguen a su anfitrión y la planta alta nunca supera a la baja. Cada movimiento queda en `exceptions` (`kind: ground_balance`) y en la celda como `balanced_up`.
+- Máximo recortado: `profile_programs(..., maximum_fits=...)` retrocede por la curva de expansión hasta el último paso cuyo programa tiene un reparto en dos pisos que cabe (`two_floor_fits`); si ninguno cabe, el máximo es el mayor programa de un piso dentro de la huella (`one_floor_fits`). Gobierna `design_footprint_ground` y la celda lleva `maximum_trim`.
+- `vertical_split.build_split` (cola de `split_program`) y `space_matches` quedan públicos.
+- Sensibilidad: clase nueva `split_fails` (el área cabe en dos pisos pero la planta baja mínima balanceada, `min_ground`, no cabe en la huella). Umbral nuevo `fos_for_every_split`. La figura derecha suma `exceeds + split_fails`.
+
+**Resultado del piloto.** Máximos sin esquema: 64 → 18. Los 18 son todos del lote fan-curve-35-80x100 por `site_fails`. Ningún máximo queda inviable por la huella de diseño. 42 se resuelven subiendo el family room y 12 se recortan (empty nest con la suite abajo por movilidad). Mejores de dos pisos: 245 → 291. Óptimos: siguen todos en un piso.
+
+**Diagnóstico de los `site_fails` (fan-curve).** Lo decide SDMC 131.0447, pavimento del antejardín ≤ 60 %. Con garaje de 2 autos, el acceso (300 sq ft) más el deck de entrada (60) sobre un antejardín curvo de 575.6 sq ft da 62.5 %. Sin el deck daría 52 % y pasaría. El resultado depende de la variante pendiente `deck_counts_as_paving` (conservadora). El garaje de 1 auto pasa (36 %).
+
+**Pruebas.** `tests/areas/test_floor_balance.py` (9 pruebas). Golden congelado de nuevo con `docs/refactor/log/golden_refresh_2026-10-10_floor_balance.md`. 1,226 pruebas pasan.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -812,7 +828,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 
 - Altura 24/30 ft: leída en 6.7a como 24 ft en el retiro lateral → 30 ft total (Diagrama 131-04L, provisional; V01). Medición 113.0270, sótanos 113.0234(a)(2), pisos 113.0261 y garaje en el FAR **verificados** (reglas V02–V05). Pendiente: definición de *steep hillsides*, mapa C-1041, retiros de estructuras subterráneas y si el sótano cuenta en el IO.
 - Ancho y profundidad de lote irregular y posterior en lotes triangulares (Cap. 11).
-- Si el deck cuenta como pavimento (131.0447); si garaje/deck/bodega cuentan en el FAR.
+- Si el deck cuenta como pavimento (131.0447): **decide los 18 máximos inviables del lote fan-curve** (62.5 % con deck, 52 % sin él; sección 4n). Si garaje/deck/bodega cuentan en el FAR.
 - Piscina/jacuzzi: separaciones a linderos y vivienda (valores *placeholder* 5/3/5 ft) y barrera de seguridad (CA H&SC).
 - Estructuras accesorias en zonas RS (placeholder 3 ft).
 - CRC 2025: numeración y valores de habitabilidad (70 sq ft, 7 ft, 8 %/4 %), pasillo 36 in, separación garaje–vivienda.

@@ -25,6 +25,11 @@ from typing import Any
 from spaceplan.core.lib_aux.json_io import dump_json, load_json, load_resource_json
 from spaceplan.modules.areas.lib.area_budget import SiteMeasurer, lot_budget
 from spaceplan.modules.areas.lib.area_matrix import compact, household_cells, pareto_cells
+from spaceplan.modules.areas.lib.floor_balance import (
+    DESIGN_FOOTPRINT_GROUND,
+    one_floor_fits,
+    two_floor_fits,
+)
 from spaceplan.modules.areas.lib.lot_minimum import lot_minimum
 from spaceplan.modules.cost.lib.quantities import reference_sheet
 from spaceplan.modules.household.lib.household_catalog import load_household_catalog
@@ -116,9 +121,23 @@ def analyze_lot(catalog, rs, body: dict, setup, flag: dict | None, stages: dict,
         _, profiles = profile_programs(st, catalog, model, reference, far_sqft=far,
                                        strategy=budget.strategies[0].strategy, mean_slope=slope,
                                        optimum_policy=opt_policy, optimum_cap_sqft=opt_cap)
+        fits2 = (two_floor_fits(catalog, {**st["now"]["derivation"].facts, **budget.lot_facts}, opt_cap)
+                 if opt_cap is not None else None)
         _, profiles_2f = profile_programs(st, catalog, model, reference, far_sqft=two_floor_max,
                                           strategy=budget.strategies[0].strategy, mean_slope=slope,
-                                          optimum_policy=opt_policy, optimum_cap_sqft=opt_cap)
+                                          optimum_policy=opt_policy, optimum_cap_sqft=opt_cap,
+                                          maximum_fits=fits2, maximum_trim_label=DESIGN_FOOTPRINT_GROUND)
+        trim = profiles_2f["maximum"].get("trim")
+        if trim and not trim["fits"]:
+            # step 9a: no two-floor split fits the design footprint (e.g. the primary suite pinned to the ground
+            # floor by mobility): the maximum is the largest program that fits one floor
+            _, one = profile_programs(st, catalog, model, reference, far_sqft=far,
+                                      strategy=budget.strategies[0].strategy, mean_slope=slope,
+                                      optimum_policy=opt_policy, optimum_cap_sqft=opt_cap,
+                                      maximum_fits=one_floor_fits(catalog, opt_cap),
+                                      maximum_trim_label=DESIGN_FOOTPRINT_GROUND)
+            profiles["maximum"] = {**one["maximum"], "trim": {**(one["maximum"].get("trim") or {}),
+                                                              "two_floors": trim}}
         profiles_by_h[hid] = profiles
         hc = household_cells(catalog, rs, budget, measurer, hid, st, profiles, model, reference, slope,
                              profiles_two_floors=profiles_2f, forced_schemes=tuple(forced_schemes),

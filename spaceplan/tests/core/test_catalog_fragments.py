@@ -32,8 +32,11 @@ FRAGMENTS = CATALOG_DIR / "fragments"
 # Catalog 0.12.0 (2026-10-09, step 6.7a area logic, client-approved): stair area per floor from the CRC stair
 # geometry of S1.1 (37.5 / 44 / 53 sq ft instead of 40 / 60 / 90) and the lot-minimum typology h1_basic. Any other
 # change to the fragments must bump the version and the hash here.
-REFERENCE_SHA256 = "17ca8654495722031b6a01da2c3a9affd868f10c2e67ad7edff397eb3996f6b9"
-REFERENCE_VERSION = "0.12.0"
+#   0.12.0  17ca8654495722031b6a01da2c3a9affd868f10c2e67ad7edff397eb3996f6b9
+# Catalog 0.13.0 (2026-10-10, step 9a, client-approved): rule vertical_schemes.ground_balance (balanced split between
+# floors: family room, study, flex room, storage go up until the ground floor fits the design footprint).
+REFERENCE_SHA256 = "7825fa60c315e6d1b0cc933cbe19020a1ec96f0455794fd37f2d0e97e8b626a6"
+REFERENCE_VERSION = "0.13.0"
 
 
 @pytest.fixture(scope="module")

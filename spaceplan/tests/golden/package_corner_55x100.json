@@ -564,7 +564,7 @@
   },
   "sources": {
    "catalog_id": "spaceplan-residential-catalog",
-   "catalog_version": "0.12.0",
+   "catalog_version": "0.13.0",
    "citation": "Student-defined relative cost hypothesis, spaceplan step 6.5b (2026-10); dimensionless, never a price; validate ratios with local builders and public data before use",
    "status": "provisional"
   },
@@ -738,8 +738,8 @@
  "program_review": {
   "buildable_as_stated": true,
   "catalog_id": "spaceplan-residential-catalog",
-  "catalog_sha256": "17ca8654495722031b6a01da2c3a9affd868f10c2e67ad7edff397eb3996f6b9",
-  "catalog_version": "0.12.0",
+  "catalog_sha256": "7825fa60c315e6d1b0cc933cbe19020a1ec96f0455794fd37f2d0e97e8b626a6",
+  "catalog_version": "0.13.0",
   "counts": {
    "error": 0,
    "info": 0,

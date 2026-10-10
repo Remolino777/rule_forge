@@ -74,7 +74,7 @@ class FloorSplit:
         }
 
 
-def _matches(match: dict, space: dict) -> bool:
+def space_matches(match: dict, space: dict) -> bool:
     for key in ("household_role", "space_type", "zone"):
         if key in match and space.get(key) not in match[key]:
             return False
@@ -83,7 +83,7 @@ def _matches(match: dict, space: dict) -> bool:
 
 def group_of_space(vs: dict, space: dict) -> str:
     for g in vs["groups"]:
-        if _matches(g["match"], space):
+        if space_matches(g["match"], space):
             return g["group"]
     raise KeyError(f"space {space['space_id']!r} matches no vertical group")
 
@@ -169,8 +169,15 @@ def split_program(catalog: Catalog, program: dict, scheme: dict, aspects: dict[s
             floor_of[sid] = floor_of[host]
         else:
             floor_of[sid] = ENTRY_FLOOR
+    return build_split(catalog, program, scheme["scheme_id"], floors, floor_of, group_of, exceptions)
 
-    # circulation split in proportion to the other net area of each floor
+
+def build_split(catalog: Catalog, program: dict, scheme_id: str, floors: int, floor_of: dict[str, int],
+                group_of: dict[str, str], exceptions: list[dict] | tuple[dict, ...]) -> FloorSplit:
+    """Areas per floor of a given assignment: circulation split in proportion to the other net area of each
+    floor, gross factor of the program, a stair on every floor of a multi-floor split."""
+    spaces = {s["space_id"]: s for s in program["spaces"]}
+    areas = {sid: float(s["target_area_sqft"]) for sid, s in spaces.items()}
     circ = [sid for sid in spaces if group_of[sid] == "circulation"]
     net = [0.0] * floors
     for sid, f in floor_of.items():
@@ -191,7 +198,7 @@ def split_program(catalog: Catalog, program: dict, scheme: dict, aspects: dict[s
         by_zone[s["zone"]] = by_zone.get(s["zone"], 0.0) + areas[sid] * scale
     if stair:
         by_zone["circulation"] = by_zone.get("circulation", 0.0) + stair * floors
-    return FloorSplit(scheme["scheme_id"], floors, floor_of, group_of, tuple(net), gross, by_zone, stair,
+    return FloorSplit(scheme_id, floors, dict(floor_of), group_of, tuple(net), gross, by_zone, stair,
                       tuple(exceptions))
 
 
@@ -291,11 +298,13 @@ def dedupe_splits(splits: list[FloorSplit]) -> tuple[list[FloorSplit], dict[str,
 __all__ = [
     "FloorSplit",
     "applicable_schemes",
+    "build_split",
     "dedupe_splits",
     "group_of_space",
     "has_empty_upper",
     "metric_weights",
     "program_group_facts",
+    "space_matches",
     "split_program",
     "vertical_metrics",
     "weighted_score",

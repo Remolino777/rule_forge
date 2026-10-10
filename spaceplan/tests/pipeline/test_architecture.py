@@ -170,7 +170,7 @@ def test_files_follow_plan_table():
                        "corrections", "unit", "band_enumeration"},  # band_enumeration: tanda 3 (cycle broken)
         "zoning/main": {"run_corrections", "run_zoning", "contract"},  # run_zoning: tanda 3
         "areas/lib": {"vertical_split", "building_indices", "area_budget", "area_matrix",
-                      "lot_minimum", "sensitivity"},  # 2026-10-09: design variables, normative sensitivity
+                      "lot_minimum", "sensitivity", "floor_balance"},  # 2026-10-09: design variables, normative sensitivity; 2026-10-10: step 9a
         "areas/main": {"run_area_matrix", "contract"},
         "stacking/lib": {"stacking_catalog", "vertical_rules", "levels", "height_check", "cell_selection",
                          "lot_vertical",  # step 6.7a S0

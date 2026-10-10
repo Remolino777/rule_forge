@@ -21,6 +21,7 @@ from spaceplan.core.lib.rules import load_ruleset
 from spaceplan.core.lib.schema_validation import validate_brief
 from spaceplan.core.lib_aux.json_io import dump_json
 from spaceplan.modules.areas.lib.area_budget import lot_budget
+from spaceplan.modules.areas.lib.floor_balance import min_ground
 from spaceplan.modules.areas.lib.sensitivity import sweep, thresholds
 from spaceplan.modules.areas.main.run_area_matrix import (
     PILOT_LOTS,
@@ -50,15 +51,20 @@ def lot_budgets(lots: list[str], design: DesignVariables, catalog, rs) -> list[d
 
 
 def household_demands(households, catalog) -> dict[str, dict[str, float]]:
-    """Minimum and complete program (expansion curve without ceilings) of every household: lot-independent."""
+    """Minimum and complete program (expansion curve without ceilings) of every household, with the smallest ground
+    floor a balanced two-floor split of each reaches (step 9a): lot-independent."""
     model = get_cost_model(catalog.data["cost_index"]["default_model"])
     reference = reference_sheet(catalog, 3000.0, "lot_normative_max")
     out = {}
     for a, c in households:
         st = household_stages({"archetype_id": a, "cultural_profile": c})
         _, profiles = profile_programs(st, catalog, model, reference)
-        out[household_id(a, c)] = {"minimum": profiles["minimum"]["gross_area_sqft"],
-                                   "complete": profiles["maximum"]["gross_area_sqft"]}
+        facts = st["now"]["derivation"].facts
+        out[household_id(a, c)] = {
+            "minimum": profiles["minimum"]["gross_area_sqft"],
+            "complete": profiles["maximum"]["gross_area_sqft"],
+            "minimum_ground_min": min_ground(catalog, profiles["minimum"]["program"], facts),
+            "complete_ground_min": min_ground(catalog, profiles["maximum"]["program"], facts)}
     return out
 
 
@@ -83,7 +89,8 @@ def run_sensitivity(area_matrix: dict | None = None, lots: list[str] | None = No
                      "lots": [b["budget"]["lot_id"] for b in budgets],
                      "note": "FOS sweep with the SDMC FOT; FOT sweep with fixed values (scenario) at the base FOS. "
                              "Classes: one_floor (demand <= footprint), two_floors (demand + stair on both floors "
-                             "<= effective maximum), exceeds."},
+                             "<= effective maximum), split_fails (two floors hold the area but the smallest balanced "
+                             "ground floor exceeds the footprint, step 9a), exceeds."},
             "demands": demands, "rows": rows, "thresholds": thresholds(rows, demands)}
 
 
@@ -106,7 +113,7 @@ def sensitivity_lines(result: dict[str, Any]) -> list[str]:
     for t in result["thresholds"]:
         lines.append(f"  {t['lot_id']:<26} median complete {t['median_complete_sqft']:.0f} sq ft  one floor from FOS "
                      f"{t['fos_for_median_one_floor']}  all complete programs fit from FOT {t['fot_for_all_complete']}"
-                     f"  (high FOT capped by {t['governing_at_high_fot']})")
+                     f"  every split from FOS {t.get('fos_for_every_split')}  (high FOT capped by {t['governing_at_high_fot']})")
     return lines
 
 

@@ -473,7 +473,70 @@
       "cohesive_groups": [
         "primary",
         "accessible"
-      ]
+      ],
+      "ground_balance": {
+        "rule_id": "VB01-GROUND-BALANCE",
+        "applies_when": "the ground floor of a two-floor split exceeds the design footprint (FOS x base, client variable D01)",
+        "order": [
+          {
+            "step": "family_room",
+            "match": {
+              "space_type": [
+                "family_room"
+              ]
+            },
+            "why": "the upper family room is the stair arrival room of step 6.7a S1.1"
+          },
+          {
+            "step": "study",
+            "match": {
+              "space_type": [
+                "study"
+              ]
+            }
+          },
+          {
+            "step": "flex_room",
+            "match": {
+              "space_type": [
+                "flex_room"
+              ]
+            }
+          },
+          {
+            "step": "storage",
+            "match": {
+              "space_type": [
+                "storage"
+              ]
+            }
+          }
+        ],
+        "never_move": {
+          "zone": [
+            "garage",
+            "kitchen"
+          ],
+          "space_type": [
+            "living_room",
+            "living_dining",
+            "dining_room",
+            "foyer",
+            "mudroom",
+            "half_bath"
+          ]
+        },
+        "keeps": [
+          "floor_preference (mobility, garage) and cohesive groups stay where the hard rules put them",
+          "hosted spaces move with their host",
+          "the upper floor never becomes larger than the ground floor"
+        ],
+        "source": {
+          "kind": "client",
+          "citation": "Client decision 2026-10-10 (step 9a): balanced split between floors before S2; order family room, study, flex, storage",
+          "status": "provisional"
+        }
+      }
     }
   }
 }

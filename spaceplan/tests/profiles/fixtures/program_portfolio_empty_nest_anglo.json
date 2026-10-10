@@ -864,7 +864,9 @@
     "required_gross_area_sqft": null,
     "gross_factor": 1.15
    },
+   "curve_step": 17,
    "governing": "program_complete",
+   "trim": null,
    "feasibility": "no_lot",
    "review": {
     "buildable_as_stated": true,

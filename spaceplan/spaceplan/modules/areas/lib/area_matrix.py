@@ -28,6 +28,7 @@ from spaceplan.modules.areas.lib.area_budget import (
     SiteMeasurer,
     evaluate_split,
 )
+from spaceplan.modules.areas.lib.floor_balance import balance_split, balanced
 from spaceplan.modules.areas.lib.vertical_split import (
     applicable_schemes,
     dedupe_splits,
@@ -108,7 +109,8 @@ def household_cells(
             if scheme in applicable and scheme["floors"] > 1 and pp is not p1 and not applicable_schemes(
                     vs, {**facts_now, **g2, **budget.lot_facts}).count(scheme):
                 continue
-            sp = split_program(catalog, pp["program"], scheme, facts)
+            sp = balance_split(catalog, pp["program"], split_program(catalog, pp["program"], scheme, facts),
+                               budget.footprint_design_sqft)
             splits.append(sp)
             source[sp.scheme_id] = pp
         forced_ids = {s["scheme_id"] for s in forced}
@@ -142,6 +144,8 @@ def household_cells(
                 "ground_sqft": round(sp.ground, 1),
                 "upper_sqft": round(sp.upper, 1),
                 "split": sp.to_dict(),
+                "balanced_up": balanced(sp),
+                "maximum_trim": p.get("trim") if prof == "maximum" else None,
                 "IC": ic["value"], "IC_max": ic["limit"], "IO": io["value"], "IO_max": io["limit"],
                 "IC_by_floor": ev["indices"]["by_floor"],
                 "IC_alternatives": ev["indices"]["alternatives"],
@@ -219,6 +223,9 @@ def compact(cell: dict) -> dict:
     row["IC_garage_excluded"] = (cell["IC_alternatives"].get("garage_excluded") or {}).get("IC")
     row["variant_sensitive"] = ",".join(cell["variant_sensitive"])
     row["equivalent_schemes"] = ",".join(cell["equivalent_schemes"])
+    row["balanced_up"] = ",".join(cell.get("balanced_up") or [])  # step 9a
+    trim = cell.get("maximum_trim")
+    row["maximum_trimmed"] = bool(trim and trim.get("fits"))
     return row
 
 

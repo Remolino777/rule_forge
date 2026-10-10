@@ -19,7 +19,7 @@ graph LR
     profiles -->|2| cost
     zoning -->|9| core
     zoning -->|2| site
-    areas -->|8| core
+    areas -->|9| core
     areas -->|1| lotcap
     areas -->|1| site
     areas -->|2| household
@@ -65,7 +65,7 @@ graph LR
 | `cost` | `contract`, `run_cost` | `budget`, `cost_models`, `cost_sensitivity`, `quantities` | — |
 | `profiles` | `contract`, `run_profiles` | `program_profiles` | — |
 | `zoning` | `contract`, `run_corrections`, `run_zoning` | `band_enumeration`, `circulation`, `corrections`, `polygonal`, `realization`, `relation_matrix`, `space_layout`, `unit`, `zoning` | — |
-| `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `lot_minimum`, `sensitivity`, `vertical_split` | — |
+| `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `floor_balance`, `lot_minimum`, `sensitivity`, `vertical_split` | — |
 | `stacking` | `contract`, `run_stacking` | `cell_geometry`, `cell_selection`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `roof_plane`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `vertical_rules` | `plan_geometry`, `stair_geometry`, `vertical_geometry` |
 | `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `sensitivity_plots`, `stack_plan_plots`, `zoning_plots` | — |
 | `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio`, `run_sensitivity` | `catalog_table`, `package` | — |

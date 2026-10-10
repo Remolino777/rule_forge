@@ -6,6 +6,8 @@ household demand (gross area of a program) is classified:
 
     one_floor   demand <= effective footprint
     two_floors  footprint < demand <= effective maximum (FOT, or floors allowed by height x footprint)
+    split_fails the area fits two floors, but no balanced split keeps the ground floor inside the footprint
+                (step 9a: the smallest ground floor of the program, every movable space upstairs, is larger)
     exceeds     demand > effective maximum: no two-floor house holds it (basement, third floor or less program)
 
 Demands are household programs that do not depend on the lot (the household minimum and the complete program of its
@@ -21,15 +23,19 @@ from typing import Any
 
 from spaceplan.core.lib.design_variables import FIXED, SDMC, DesignVariables, design_limits
 
-ONE, TWO, EXCEEDS = "one_floor", "two_floors", "exceeds"
-CLASSES = (ONE, TWO, EXCEEDS)
+ONE, TWO, SPLIT, EXCEEDS = "one_floor", "two_floors", "split_fails", "exceeds"
+CLASSES = (ONE, TWO, SPLIT, EXCEEDS)
 
 
-def classify(demand_sqft: float, footprint_sqft: float, maximum_sqft: float, stair_two_floors_sqft: float) -> str:
-    """One floor, two floors (the stair counts on both) or beyond the effective maximum."""
+def classify(demand_sqft: float, footprint_sqft: float, maximum_sqft: float, stair_two_floors_sqft: float,
+             ground_min_sqft: float | None = None) -> str:
+    """One floor, two floors (the stair counts on both), two floors whose ground floor cannot fit the footprint
+    (`ground_min_sqft`, step 9a) or beyond the effective maximum."""
     if demand_sqft <= footprint_sqft + 1e-6:
         return ONE
     if demand_sqft + stair_two_floors_sqft <= maximum_sqft + 1e-6:
+        if ground_min_sqft is not None and ground_min_sqft > footprint_sqft + 1e-6:
+            return SPLIT
         return TWO
     return EXCEEDS
 
@@ -49,7 +55,8 @@ def grid_point(dv: DesignVariables, lot: dict[str, Any], demands: dict[str, dict
            "maximum_sqft": lim["maximum_sqft"], "maximum_governing": lim["maximum_governing"],
            "normative": lim["normative"], "exceeds_legal_far": lim["exceeds_legal_far"]}
     for level in ("minimum", "complete"):
-        counts = Counter(classify(d[level], lim["footprint_sqft"], lim["maximum_sqft"], stair_two_floors_sqft)
+        counts = Counter(classify(d[level], lim["footprint_sqft"], lim["maximum_sqft"], stair_two_floors_sqft,
+                                  d.get(f"{level}_ground_min"))
                          for d in demands.values())
         n = max(1, len(demands))
         for cls in CLASSES:
@@ -72,8 +79,9 @@ def sweep(dv: DesignVariables, lots: list[dict[str, Any]], demands: dict[str, di
 
 
 def thresholds(rows: list[dict[str, Any]], demands: dict[str, dict[str, float]]) -> list[dict[str, Any]]:
-    """Per lot: the smallest FOS at which the median complete program fits one floor (SDMC FOT), and the smallest
-    fixed FOT at which every complete program fits within the effective maximum (at the base FOS)."""
+    """Per lot: the smallest FOS at which the median complete program fits one floor (SDMC FOT), the smallest FOS
+    at which every complete program that needs two floors has a balanced split (step 9a), and the smallest fixed FOT
+    at which every complete program fits within the effective maximum (at the base FOS)."""
     med = median(d["complete"] for d in demands.values()) if demands else None
     out = []
     for lot_id in sorted({r["lot_id"] for r in rows}):
@@ -82,10 +90,12 @@ def thresholds(rows: list[dict[str, Any]], demands: dict[str, dict[str, float]])
         fos_one = next((r["fos"] for r in fos_rows if med is not None and med <= r["footprint_sqft"] + 1e-6), None)
         fot_all = next((r["fot"] for r in fot_rows if r["complete_exceeds_share"] == 0.0), None)
         cap = next((r["maximum_governing"] for r in reversed(fot_rows)), None)
+        fos_split = next((r["fos"] for r in fos_rows if r.get("complete_split_fails_share", 0.0) == 0.0), None)
         out.append({"lot_id": lot_id, "median_complete_sqft": None if med is None else round(med, 1),
                     "fos_for_median_one_floor": fos_one, "fot_for_all_complete": fot_all,
+                    "fos_for_every_split": fos_split,
                     "governing_at_high_fot": cap})
     return out
 
 
-__all__ = ["CLASSES", "EXCEEDS", "ONE", "TWO", "classify", "grid_point", "lot_limits", "sweep", "thresholds"]
+__all__ = ["CLASSES", "EXCEEDS", "ONE", "SPLIT", "TWO", "classify", "grid_point", "lot_limits", "sweep", "thresholds"]

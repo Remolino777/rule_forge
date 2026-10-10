@@ -2,7 +2,7 @@
  "contract": "stack_plan",
  "version": "0.2.0",
  "produced_by": "stacking",
- "input_sha256": "57aa58ff44d98a27607621aa72e51efe6c18b16b3bf171b27953da63d531bd44",
+ "input_sha256": "9998b1fd34c1d6d93885af046220ca63a1a9c82971828cffbbf0946538150aab",
  "brief_id": null,
  "consumers": [
   "viz",
@@ -14,9 +14,9 @@
   "selection_mode": "all",
   "selection": {
    "matrix_cells": 11,
-   "ranked_cells": 4,
-   "selected_cells": 4,
-   "selected_two_floor": 0
+   "ranked_cells": 6,
+   "selected_cells": 6,
+   "selected_two_floor": 2
   },
   "area_matrix_step": "6.6",
   "vertical_ruleset": "sdmc-rs-1-7-vertical",
@@ -24,7 +24,7 @@
   "vertical_ruleset_sha256": "749a3d0711c2621546a62883ba318585fb69c5ca8cfbfc63a5123ffd7e0e65cc",
   "stacking_catalog_version": "0.4.0",
   "stacking_catalog_sha256": "c7b100de55989cfb8a927cc4188547fb5b37d41dc1e9ec5e848883556e6e7fb6",
-  "catalog": "0.12.0",
+  "catalog": "0.13.0",
   "stair_sqft_per_level": 44.0,
   "garage_counts_in_gfa": true,
   "households": [
@@ -117,14 +117,15 @@
     }
    ],
    "summary": {
-    "cells": 4,
+    "cells": 6,
     "by_floors": {
-     "1": 4
+     "1": 4,
+     "2": 2
     },
     "status_counts": {
-     "within_plane": 4
+     "within_plane": 6
     },
-    "to_s1": 0,
+    "to_s1": 2,
     "max_side_inset_ft": 0.0
    }
   }
@@ -260,6 +261,170 @@
    "status_worst_roof": "within_plane",
    "governing": null,
    "next_stage": null,
+   "warnings": []
+  },
+  {
+   "lot_id": "interior-50x100",
+   "household_id": "empty_nest.anglo",
+   "archetype_id": "empty_nest",
+   "culture": "anglo",
+   "profile": "maximum",
+   "scheme_id": "V1",
+   "floors": 2,
+   "rank": 1,
+   "strategy_used": "A",
+   "selection": "best",
+   "area_status": "fits",
+   "upper_spaces": [
+    "bathroom",
+    "flex_room_guest"
+   ],
+   "levels": [
+    {
+     "level": 0,
+     "kind": "ground",
+     "finish_floor_ft": 1.0,
+     "gross_sqft": 1742.7,
+     "stair_sqft": 44.0,
+     "spaces": null,
+     "counts_in_gfa": true,
+     "is_story": true,
+     "counts_in_io": true
+    },
+    {
+     "level": 1,
+     "kind": "upper",
+     "finish_floor_ft": 11.0,
+     "gross_sqft": 242.8,
+     "stair_sqft": 44.0,
+     "spaces": [
+      "bathroom",
+      "flex_room_guest"
+     ],
+     "counts_in_gfa": true,
+     "is_story": true,
+     "counts_in_io": false
+    }
+   ],
+   "height": [
+    {
+     "roof_id": "flat",
+     "status": "within_plane",
+     "plate_ft": 20.0,
+     "top_ft": 22.0,
+     "side_wall": "parapet",
+     "side_inset_ft": 0.0,
+     "front_plane_required": false,
+     "top_floor_width_ft": 15.677,
+     "top_floor_depth_ft": 15.4877,
+     "grade_differential_ft": 1.2448,
+     "overall_height_ft": 23.2448,
+     "overall_limit_ft": 31.2448,
+     "headroom_ft": 8.0
+    },
+    {
+     "roof_id": "pitched_4_12",
+     "status": "within_plane",
+     "plate_ft": 20.0,
+     "top_ft": 22.581,
+     "side_wall": "gable",
+     "side_inset_ft": 0.0,
+     "front_plane_required": false,
+     "top_floor_width_ft": 15.677,
+     "top_floor_depth_ft": 15.4877,
+     "grade_differential_ft": 1.2448,
+     "overall_height_ft": 23.8258,
+     "overall_limit_ft": 31.2448,
+     "headroom_ft": 7.419
+    }
+   ],
+   "default_roof": "pitched_4_12",
+   "status": "within_plane",
+   "status_best_roof": "within_plane",
+   "status_worst_roof": "within_plane",
+   "governing": null,
+   "next_stage": "S1",
+   "warnings": []
+  },
+  {
+   "lot_id": "interior-50x100",
+   "household_id": "empty_nest.anglo",
+   "archetype_id": "empty_nest",
+   "culture": "anglo",
+   "profile": "maximum",
+   "scheme_id": "V4",
+   "floors": 2,
+   "rank": 2,
+   "strategy_used": "A",
+   "selection": "rank_2",
+   "area_status": "fits",
+   "upper_spaces": [
+    "flex_room_guest"
+   ],
+   "levels": [
+    {
+     "level": 0,
+     "kind": "ground",
+     "finish_floor_ft": 1.0,
+     "gross_sqft": 1796.9,
+     "stair_sqft": 44.0,
+     "spaces": null,
+     "counts_in_gfa": true,
+     "is_story": true,
+     "counts_in_io": true
+    },
+    {
+     "level": 1,
+     "kind": "upper",
+     "finish_floor_ft": 11.0,
+     "gross_sqft": 188.6,
+     "stair_sqft": 44.0,
+     "spaces": [
+      "flex_room_guest"
+     ],
+     "counts_in_gfa": true,
+     "is_story": true,
+     "counts_in_io": false
+    }
+   ],
+   "height": [
+    {
+     "roof_id": "flat",
+     "status": "within_plane",
+     "plate_ft": 20.0,
+     "top_ft": 22.0,
+     "side_wall": "parapet",
+     "side_inset_ft": 0.0,
+     "front_plane_required": false,
+     "top_floor_width_ft": 13.6069,
+     "top_floor_depth_ft": 13.8606,
+     "grade_differential_ft": 1.2835,
+     "overall_height_ft": 23.2835,
+     "overall_limit_ft": 31.2835,
+     "headroom_ft": 8.0
+    },
+    {
+     "roof_id": "pitched_4_12",
+     "status": "within_plane",
+     "plate_ft": 20.0,
+     "top_ft": 22.2676,
+     "side_wall": "eave",
+     "side_inset_ft": 0.0,
+     "front_plane_required": false,
+     "top_floor_width_ft": 13.6069,
+     "top_floor_depth_ft": 13.8606,
+     "grade_differential_ft": 1.2835,
+     "overall_height_ft": 23.5511,
+     "overall_limit_ft": 31.2835,
+     "headroom_ft": 7.7324
+    }
+   ],
+   "default_roof": "pitched_4_12",
+   "status": "within_plane",
+   "status_best_roof": "within_plane",
+   "status_worst_roof": "within_plane",
+   "governing": null,
+   "next_stage": "S1",
    "warnings": []
   },
   {

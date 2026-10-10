@@ -978,8 +978,8 @@
  },
  "program_review": {
   "catalog_id": "spaceplan-residential-catalog",
-  "catalog_version": "0.12.0",
-  "catalog_sha256": "17ca8654495722031b6a01da2c3a9affd868f10c2e67ad7edff397eb3996f6b9",
+  "catalog_version": "0.13.0",
+  "catalog_sha256": "7825fa60c315e6d1b0cc933cbe19020a1ec96f0455794fd37f2d0e97e8b626a6",
   "crc_ruleset_id": "crc-2025-habitability",
   "crc_ruleset_sha256": "f231b2a00817c5aaba27fdcfd9e0eeb33157a93681436d2fb8ac2480719a6b77",
   "summary": {

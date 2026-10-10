@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import math
 from collections import Counter
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -310,9 +311,22 @@ def footprint_index(gross: list[float], cap: float) -> tuple[int, bool]:
     return (fit[-1], True) if fit else (0, False)
 
 
+def trimmed_index(ctx: ProfileContext, path: list, fits: Callable[[dict], bool]) -> int | None:
+    """Last step of the curve whose program passes `fits` (None when no step does). Step 9a: the maximum is
+    trimmed back along the curve when its program cannot be split inside the design footprint."""
+    for i in range(len(path) - 1, -1, -1):
+        if fits(ctx.program(path[i][0])):
+            return i
+    return None
+
+
 def expansion_profiles(ctx: ProfileContext, optimum_policy: str | None = None,
-                       optimum_cap_sqft: float | None = None) -> dict:
-    """Minimum, optimum and maximum from the expansion curve, with the curve itself."""
+                       optimum_cap_sqft: float | None = None, maximum_fits: Callable[[dict], bool] | None = None,
+                       maximum_trim_label: str | None = None) -> dict:
+    """Minimum, optimum and maximum from the expansion curve, with the curve itself.
+
+    maximum_fits: optional predicate over a program (step 9a); when the last step fails it, the maximum is the
+    last step that passes it and its governing limit is `maximum_trim_label`."""
     start = ctx.start()
     ok, why = ctx.feasible(start)
     path, stop = ctx.curve() if ok else ([(start, None, ctx.index(start), ctx.gain(start))], why)
@@ -325,6 +339,13 @@ def expansion_profiles(ctx: ProfileContext, optimum_policy: str | None = None,
         if not fits:
             opt_note = (f"the minimum program ({ctx.gross(path[0][0]):.0f} sq ft) exceeds the design footprint "
                         f"({optimum_cap_sqft:.0f} sq ft): it needs two floors")
+    top, trim = len(path) - 1, None
+    if maximum_fits is not None and not maximum_fits(ctx.program(path[top][0])):
+        found = trimmed_index(ctx, path, maximum_fits)
+        trim = {"from_step": top, "to_step": found, "fits": found is not None,
+                "from_gross_sqft": round(ctx.gross(path[top][0]), 1)}
+        if found is not None:
+            top = found
     points = [{"step": i, "move": None if m is None else f"{m[0]}:{m[1]}", "index": round(c, 4),
                "quality": round(g, 4), "gross_area_sqft": round(ctx.gross(s), 1)} for i, (s, m, c, g) in enumerate(path)]
     return {
@@ -334,9 +355,11 @@ def expansion_profiles(ctx: ProfileContext, optimum_policy: str | None = None,
                     "optimum_policy": optimum_policy or "knee",
                     "optimum_cap_sqft": None if optimum_cap_sqft is None else round(optimum_cap_sqft, 1),
                     "note": opt_note},
-        "maximum": {**describe(ctx, path[-1][0], "maximum"), "governing": stop if ok else why},
+        "maximum": {**describe(ctx, path[top][0], "maximum"), "curve_step": top,
+                    "governing": (maximum_trim_label if trim and trim["fits"] else stop) if ok else why,
+                    "trim": trim},
         "curve": points,
-        "_states": {"minimum": path[0][0], "optimum": path[knee][0], "maximum": path[-1][0]},
+        "_states": {"minimum": path[0][0], "optimum": path[knee][0], "maximum": path[top][0]},
     }
 
 
@@ -450,7 +473,8 @@ def describe_curve_moves(points: list[dict]) -> list[str]:
 def profile_programs(stages: dict, catalog, model, reference, far_sqft: float | None = None,
                      budget_fraction: float | None = None, strategy: str | None = None,
                      mean_slope: float | None = None, optimum_policy: str | None = None,
-                     optimum_cap_sqft: float | None = None) -> tuple[dict, dict]:
+                     optimum_cap_sqft: float | None = None, maximum_fits: Callable[[dict], bool] | None = None,
+                     maximum_trim_label: str | None = None) -> tuple[dict, dict]:
     """Expansion curve and the five program profiles of a household on one reading (shared with step 6.6).
 
     Moved from spaceplan.modules.profiles.main.run_profiles in refactor tanda 3 without changes, so the area
@@ -462,7 +486,7 @@ def profile_programs(stages: dict, catalog, model, reference, far_sqft: float | 
     later_ctx = ProfileContext(derivation=stages["later"]["derivation"], needs=stages["later"]["needs"], **common)
     ctx = ProfileContext(derivation=stages["now"]["derivation"], needs=stages["now"]["needs"],
                          next_needs=stages["later"]["needs"], **common)
-    exp = expansion_profiles(ctx, optimum_policy, optimum_cap_sqft)
+    exp = expansion_profiles(ctx, optimum_policy, optimum_cap_sqft, maximum_fits, maximum_trim_label)
     states = exp["_states"]
     profiles = {k: exp[k] for k in ("minimum", "optimum", "maximum")}
 
@@ -490,4 +514,5 @@ __all__ = [
     "program_delta",
     "public",
     "staged_profile",
+    "trimmed_index",
 ]
