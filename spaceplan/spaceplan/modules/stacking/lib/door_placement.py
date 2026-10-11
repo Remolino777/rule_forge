@@ -37,6 +37,8 @@ from spaceplan.modules.stacking.lib_aux.space_grid import WallRun, swing_cells, 
 
 OPENING, DOOR, CLOSET_DOOR, FIXED_DOOR, GARAGE_DOOR, STAIR_LINK = (
     "opening", "door", "closet_door", "fixed", "garage_door", "stair")
+SLIDER, PATIO_SLIDER, EXTERIOR_DOOR = "closet_slider", "patio_slider", "exterior_door"   # stage S2.1b
+EXTERIOR = -1                                    # the other side of an exterior door
 
 
 @dataclass
@@ -69,6 +71,7 @@ class FloorLayout:
     violations: list[str] = field(default_factory=list)
     swept: np.ndarray | None = None
     matrix_roles: dict = field(default_factory=dict)
+    patio_exit: dict | None = None
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)
@@ -119,8 +122,12 @@ def door_choices(rules: SpaceRules, matrix: ZoneMatrix, room: SpaceSpec, other: 
     rules forbid it."""
     if other.space_type == STAIR_TYPE:
         return None
+    if room.between:                                                # K10: a shared bath opens onto the hall only
+        return 1 if other.circulation else None
     if room.host and room.host == other.space_id:
         return 0                                                   # closet, pantry, en-suite space onto its host
+    if room.host and _private(rules, room) and room.space_type not in rules.s21["doors"]["sliding_space_types"]:
+        return None                                                # K10: an en-suite space opens onto its room only
     if room.space_type in rules.half_bath_types:
         return 1 if other.space_type in rules.half_bath_door_to else None
     if room.zone == "garage" or room.space_type.startswith("garage"):
@@ -205,6 +212,8 @@ class DoorPlacer:
                 t0, t1 = (hinge, hinge + leaf) if toward_plus else (hinge - leaf, hinge)
                 if not check_swing:
                     return Door(served, other, kind, run, t0, t1, hinge, toward_plus, into_high, leaf, clear)
+                if not self._supported(run, into_high, toward_plus, served, leaf):
+                    continue                          # the open leaf would stand in the air
                 sw = swing_cells(labels.shape, run, into_high, hinge, leaf, toward_plus)
                 if not sw.any():
                     continue
@@ -219,6 +228,40 @@ class DoorPlacer:
         if fallback is not None:
             self.layout.swept |= fallback[1]
             return fallback[0]
+        return None
+
+    def _supported(self, run: WallRun, into_high: bool, toward_plus: bool, served: int, leaf: float) -> bool:
+        """The open leaf rests on a wall: the hinge end of the run is a corner of the served space whose wall runs
+        on, perpendicular to the door wall, at least as deep as the leaf."""
+        labels = self.layout.labels
+        ny, nx = labels.shape
+        n = int(np.ceil(leaf - 1e-9))
+        k = run.k
+        if run.vertical:
+            cols = range(k, k + n) if into_high else range(k - n, k)
+            beside, inside = (run.t0 - 1, run.t0) if toward_plus else (run.t1, run.t1 - 1)
+            if not (0 <= beside < ny) or min(cols) < 0 or max(cols) >= nx:
+                return False
+            a = labels[beside, list(cols)]
+            b = labels[inside, list(cols)]
+        else:
+            rows = range(k, k + n) if into_high else range(k - n, k)
+            beside, inside = (run.t0 - 1, run.t0) if toward_plus else (run.t1, run.t1 - 1)
+            if not (0 <= beside < nx) or min(rows) < 0 or max(rows) >= ny:
+                return False
+            a = labels[list(rows), beside]
+            b = labels[list(rows), inside]
+        return bool((a != served).all() and (b == served).all())
+
+    def slider(self, room: int, other: int, min_width_ft: float, kind: str = SLIDER) -> Door | None:
+        """A sliding door (no swing) centred on the longest shared run."""
+        need = min_width_ft / self.res
+        for run in self.runs_between(room, other):
+            if run.cells + 1e-9 < need:
+                continue
+            width = max(need, min(run.cells - 2 * self.corner, 2 * need))
+            mid = 0.5 * (run.t0 + run.t1)
+            return Door(room, other, kind, run, mid - width / 2, mid + width / 2, clear_ft=width * self.res)
         return None
 
     def _on_landing(self, d: Door) -> bool:
@@ -321,6 +364,8 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
     pending = sorted(rooms, key=lambda k: (specs[k].host is not None, specs[k].space_id))
     accessible = f.accessible
     out_swing = set(rules.s21["doors"]["out_swing_space_types"])
+    sliding = set(rules.s21["doors"]["sliding_space_types"])
+    slider_min = float(rules.s21["doors"]["types"]["closet_slider"]["min_width_in"]) / 12.0
     fixed_pairs = {(k, j) for k, s in enumerate(specs) for j, t in enumerate(specs)
                    if s.fixed and t.fixed and s.space_type in rules.half_bath_types and t.space_type == VESTIBULE_TYPE}
     progress = True
@@ -346,6 +391,8 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
                     d = placer.door(k, j, FIXED_DOOR, accessible, check_swing=False)
                 elif room.zone == "garage" or room.space_type.startswith("garage"):
                     d = placer.door(j, k, GARAGE_DOOR, accessible)            # swings into the dwelling
+                elif room.space_type in sliding:
+                    d = placer.slider(k, j, slider_min)                      # closets: sliding door, no swing
                 elif room.space_type in out_swing:
                     d = placer.door(j, k, CLOSET_DOOR, accessible)            # storage space: leaf swings out
                 else:
@@ -360,15 +407,172 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
                 no_fit[k] = specs[k].space_type
     for k in pending:
         layout.violations.append(f"door:{no_fit[k]}" if k in no_fit else f"reach:{specs[k].space_type}")
+    # K10: a shared bath sits between its two bedrooms (a wall with each)
+    need = float(rules.s21["program"]["shared_contact_ft"]) / placer.res
+    for k, s in enumerate(specs):
+        for b in s.between:
+            j = layout.node(b)
+            if j is not None and placer.longest(k, j) / placer.res + 1e-9 < need:
+                layout.violations.append("k10:shared_bath_not_between")
+                break
+    if f.level == 0 and not layout.violations:
+        layout.patio_exit = place_patio_exit(layout, placer, rules)
+        if layout.patio_exit is None:
+            layout.violations.append("exit:patio")
     return layout
+
+
+# ------------------------------------------------------------------ the secondary door (patio)
+
+
+def exterior_runs(labels: np.ndarray, k: int, side: str) -> list[WallRun]:
+    """Straight runs of exterior wall of node k on one facade side (low_x, high_x, low_y, high_y)."""
+    m = labels == k
+    out = labels == EXTERIOR
+    ny, nx = labels.shape
+    runs: list[WallRun] = []
+    if side in ("low_x", "high_x"):
+        hit = np.zeros_like(m)
+        if side == "low_x":
+            hit[:, 1:] = m[:, 1:] & out[:, :-1]
+        else:
+            hit[:, :-1] = m[:, :-1] & out[:, 1:]
+        for i in range(nx):
+            col = hit[:, i]
+            if not col.any():
+                continue
+            line = i if side == "low_x" else i + 1
+            for t0, t1 in _true_runs(col):
+                runs.append(WallRun(EXTERIOR if side == "low_x" else k, k if side == "low_x" else EXTERIOR,
+                                    True, line, t0, t1))
+    else:
+        hit = np.zeros_like(m)
+        if side == "low_y":
+            hit[1:, :] = m[1:, :] & out[:-1, :]
+        else:
+            hit[:-1, :] = m[:-1, :] & out[1:, :]
+        for j in range(ny):
+            row = hit[j, :]
+            if not row.any():
+                continue
+            line = j if side == "low_y" else j + 1
+            for t0, t1 in _true_runs(row):
+                runs.append(WallRun(EXTERIOR if side == "low_y" else k, k if side == "low_y" else EXTERIOR,
+                                    False, line, t0, t1))
+    return sorted(runs, key=lambda r: -r.cells)
+
+
+def _true_runs(v: np.ndarray) -> list[tuple[int, int]]:
+    padded = np.concatenate(([0], v.astype(np.int8), [0]))
+    d = np.diff(padded)
+    return list(zip(np.nonzero(d == 1)[0].tolist(), np.nonzero(d == -1)[0].tolist()))
+
+
+def _segment_local(floor: SpaceFloor, run: WallRun, t0: float, t1: float):
+    from shapely.geometry import LineString
+
+    g = floor.grid
+    if run.vertical:
+        x = g.x0 + run.k * g.res
+        return LineString([(x, g.y0 + t0 * g.res), (x, g.y0 + t1 * g.res)])
+    y = g.y0 + run.k * g.res
+    return LineString([(g.x0 + t0 * g.res, y), (g.x0 + t1 * g.res, y)])
+
+
+def _landing_local(floor: SpaceFloor, run: WallRun, t0: float, t1: float, depth_ft: float):
+    """Rectangle outside the door, depth_ft deep (R311.3), as wide as the door."""
+    from shapely.geometry import box
+
+    g = floor.grid
+    a, b = g.x0 + t0 * g.res, g.x0 + t1 * g.res
+    if run.vertical:
+        a, b = g.y0 + t0 * g.res, g.y0 + t1 * g.res
+        x = g.x0 + run.k * g.res
+        return box(x - depth_ft, a, x, b) if run.low == EXTERIOR else box(x, a, x + depth_ft, b)
+    y = g.y0 + run.k * g.res
+    return box(a, y - depth_ft, b, y) if run.low == EXTERIOR else box(a, y, b, y + depth_ft)
+
+
+def place_patio_exit(layout: FloorLayout, placer: DoorPlacer, rules: SpaceRules) -> dict | None:
+    """The secondary door of the ground floor (client decision 2026-10-11): from the dining room before the kitchen
+    before the laundry or mudroom, on the rear facade first or a side facade; a glass slider from the social rooms
+    and the kitchen, a side-hinged door from the service rooms; a landing (R311.3) outside, inside the lot and off
+    the lot lines closer than S13 allows; nearest the rear deck of the site plan when there is one."""
+    ex = rules.s21["exits"]["patio"]
+    types = rules.s21["doors"]["types"]
+    f = layout.floor
+    ext = f.exterior or {}
+    lot, deck = ext.get("lot"), ext.get("deck")
+    s13 = float(ext.get("no_openings_below_ft", 0.0))
+    landing_ft = float(ext.get("landing_ft", 3.0))
+    by_type: dict[str, list[int]] = {}
+    for k, s in enumerate(layout.specs):
+        by_type.setdefault(s.space_type, []).append(k)
+    for st in ex["order"]:
+        for k in by_type.get(st, []):
+            slider = st in ex["slider_from"]
+            if slider:
+                big = st in types["patio_slider"]["large_from"]
+                widths = ([types["patio_slider"]["width_large_in"]] if big else []) + [types["patio_slider"]["width_in"]]
+            else:
+                widths = [types["service_exterior"]["leaf_in"]]
+            for side in ex["facades"]:
+                for run in exterior_runs(layout.labels, k, side):
+                    for w_in in widths:
+                        w = w_in / 12.0 / placer.res
+                        if run.cells + 1e-9 < w + 2 * placer.corner:
+                            continue
+                        spots = [0.5 * (run.t0 + run.t1) - w / 2]
+                        if not slider:                    # a hinged leaf sits at a corner (it rests on a wall)
+                            spots = [run.t0 + placer.corner, run.t1 - placer.corner - w]
+                        elif deck is not None:              # slide toward the rear deck of the site plan
+                            seg = _segment_local(f, run, run.t0, run.t1)
+                            c = seg.interpolate(seg.project(deck.centroid))
+                            t = ((c.y - f.grid.y0) if run.vertical else (c.x - f.grid.x0)) / placer.res
+                            spots.insert(0, min(max(t - w / 2, run.t0 + placer.corner), run.t1 - placer.corner - w))
+                        for t0 in spots:
+                            t1 = t0 + w
+                            landing = _landing_local(f, run, t0, t1, landing_ft)
+                            if lot is not None and not lot.buffer(1e-6).covers(landing):
+                                continue
+                            seg = _segment_local(f, run, t0, t1)
+                            if lot is not None and side != "high_y" and seg.distance(lot.exterior) < s13 - 1e-9:
+                                continue                  # S13: no opening this close to a lot line
+                            into_high = run.high == k
+                            if slider:
+                                door = Door(k, EXTERIOR, PATIO_SLIDER, run, t0, t1, clear_ft=w * placer.res)
+                            else:
+                                toward = abs(t0 - (run.t0 + placer.corner)) < 1e-9
+                                hinge = t0 + placer.frame / 2 if toward else t1 - placer.frame / 2
+                                if not placer._supported(run, into_high, toward, k, w):
+                                    continue
+                                sw = swing_cells(layout.labels.shape, run, into_high, hinge, w, toward)
+                                if (layout.labels[sw] != k).any() or (sw & placer.layout.swept).any():
+                                    continue
+                                placer.layout.swept |= sw
+                                door = Door(k, EXTERIOR, EXTERIOR_DOOR, run, t0, t1, hinge, toward, into_high, w,
+                                            w * placer.res - float(rules.door_ft["leaf_over_clear"]))
+                            layout.doors.append(door)
+                            glass = (w * placer.res * float(types["patio_slider"]["height_in"]) / 12.0
+                                     * float(types["patio_slider"]["glass_fraction"])) if slider else 0.0
+                            return {"space": layout.specs[k].space_id, "space_type": st, "facade": side,
+                                    "kind": door.kind, "width_in": round(w_in, 1), "glass_sqft": round(glass, 1),
+                                    "landing": landing, "on_deck": bool(deck is not None
+                                                                         and landing.intersects(deck)),
+                                    "door": door}
+    return None
 
 
 __all__ = [
     "CLOSET_DOOR",
     "DOOR",
+    "EXTERIOR",
+    "EXTERIOR_DOOR",
     "FIXED_DOOR",
     "GARAGE_DOOR",
     "OPENING",
+    "PATIO_SLIDER",
+    "SLIDER",
     "STAIR_LINK",
     "Door",
     "DoorPlacer",

@@ -64,6 +64,7 @@ class SpaceSpec:
     host: str | None = None
     fixed: bool = False
     synthetic: bool = False
+    between: tuple[str, ...] = ()       # K10: the two bedrooms a shared bath sits between
 
 
 @dataclass
@@ -96,6 +97,7 @@ class SpaceFloor:
     variant: str
     notes: list[str] = field(default_factory=list)
     links: dict[str, set] = field(default_factory=dict)      # S2 door links between zone units
+    exterior: dict | None = None        # ground floor: lot (local), rear deck, S13 distance, landing depth
 
     @property
     def res(self) -> float:
@@ -138,7 +140,7 @@ def spec_of(catalog, rules: SpaceRules, matrix: ZoneMatrix, row: dict[str, Any],
     return SpaceSpec(row["space_id"], st, row.get("zone") or t.get("zone", ""), unit_id,
                      float(row["area_sqft"] if target is None else target), min_sqft, min_side, habitable,
                      bool(t.get("passable")), st in CIRCULATION_TYPES, roles_of(matrix, st),
-                     row.get("host_space_id"), fixed)
+                     row.get("host_space_id"), fixed, False, tuple(row.get("shared_by") or ()))
 
 
 def _fixed_spec(name: str, space_id: str, space_type: str, matrix: ZoneMatrix, extra_roles=()) -> SpaceSpec:
@@ -152,7 +154,7 @@ def _fixed_spec(name: str, space_id: str, space_type: str, matrix: ZoneMatrix, e
 
 def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], rows: list[dict[str, Any]],
                 plan: LotPlan, catalog, rules: SpaceRules, matrix: ZoneMatrix, res: float, profile: str | None,
-                receiving: tuple[str, ...], variant: str) -> SpaceFloor:
+                receiving: tuple[str, ...], variant: str, exterior: dict | None = None) -> SpaceFloor:
     """The grid, fixed nodes and zone units of one floor of an S2 cell (`floor_block` = s2 upper, or the ground
     block of the chosen option)."""
     if level == GROUND:
@@ -215,7 +217,7 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
         links.setdefault(a, set()).add(b)
         links.setdefault(b, set()).add(a)
     return SpaceFloor(level, grid, base, fixed, units, landing, stair, tuple(receiving), accessible, variant, notes,
-                      links)
+                      links, exterior)
 
 
 def _fixed_node(name: str, level: int, rows: list[dict], matrix: ZoneMatrix, variant: str) -> SpaceSpec | None:

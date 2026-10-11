@@ -1,16 +1,16 @@
 {
   "ruleset_id": "crc-2025-openings",
-  "ruleset_version": "0.1.0",
+  "ruleset_version": "0.2.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "CRC-2025",
-  "transcribed_from": "IRC/CRC model-code values for emergency escape openings (R310), openings between the garage and the dwelling (R302.5.1) and the natural light and ventilation of habitable rooms (R303.1), transcribed for step 6.7a stage S2.1 (2026-10-11) from the model-code text as known to the student; the CRC 2025 adoption text was not read.",
+  "transcribed_from": "IRC/CRC model-code values for emergency escape openings (R310), openings between the garage and the dwelling (R302.5.1) and the natural light and ventilation of habitable rooms (R303.1), transcribed for step 6.7a stage S2.1 (2026-10-11) from the model-code text as known to the student; the CRC 2025 adoption text was not read. Version 0.2.0 (stage S2.1b, 2026-10-11) adds the egress door (R311.2) and the landings at exterior doors (R311.3).",
   "verification_note": "Separate ruleset for the space level of the vertical layer (step 6.7a S2.1) so the habitability ruleset and the golden packages stay unchanged. The glazing and ventilation ratios are not repeated here: they are read from crc_2025_habitability.json (C03). All entries verified=false until checked against the CRC 2025 text (California amendments and renumbering of the 2025 cycle).",
   "scope": {
     "excluded_overlays": [],
     "source": {
       "document": "CRC 2025",
-      "section": "R310, R302.5.1, R303.1"
+      "section": "R310, R302.5.1, R303.1, R311.2, R311.3"
     }
   },
   "lot_measurement": {
@@ -33,7 +33,10 @@
       "value": 20.0,
       "unit": "in",
       "parameters": {
-        "sleeping_space_types": ["primary_suite", "bedroom"],
+        "sleeping_space_types": [
+          "primary_suite",
+          "bedroom"
+        ],
         "min_clear_width_in": 20.0,
         "min_clear_height_in": 24.0,
         "min_net_clear_opening_sqft": 5.7,
@@ -59,7 +62,10 @@
       "value": null,
       "unit": null,
       "parameters": {
-        "forbidden_space_types": ["primary_suite", "bedroom"],
+        "forbidden_space_types": [
+          "primary_suite",
+          "bedroom"
+        ],
         "door": {
           "solid_core_min_thickness_in": 1.375,
           "alternative_rating_minutes": 20,
@@ -97,6 +103,50 @@
       "source": {
         "document": "CRC 2025",
         "section": "R303.1 and exception (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "O04-EGRESS-DOOR",
+      "magnitude": "egress_door",
+      "operator": ">=",
+      "value": 32.0,
+      "unit": "in",
+      "parameters": {
+        "min_clear_width_in": 32.0,
+        "min_clear_height_in": 78.0,
+        "side_hinged": true,
+        "count_min": 1,
+        "opens_to": "exterior"
+      },
+      "text": [
+        "R311.2: not less than one egress door per dwelling unit, side-hinged, providing a clear width of not less than 32 inches when measured between the face of the door and the stop, with the door open 90 degrees, and a clear height of not less than 78 inches; readily openable from inside without a key or special knowledge."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.2 (verify; AIBD summary of IRC R311.2)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "O05-EXTERIOR-LANDING",
+      "magnitude": "exterior_door_landing",
+      "operator": ">=",
+      "value": 36.0,
+      "unit": "in",
+      "parameters": {
+        "min_depth_in": 36.0,
+        "width": "not_less_than_door",
+        "max_slope": 0.02,
+        "egress_threshold_drop_in": 1.5,
+        "other_threshold_drop_in": 7.75
+      },
+      "text": [
+        "R311.3: a landing or floor on each side of each exterior door, not narrower than the door served, with a dimension of not less than 36 inches in the direction of travel; exterior landings may slope up to 2 percent; at the egress door the landing is not more than 1 1/2 in below the threshold (7 3/4 in on the exterior side when the door does not swing over it)."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R311.3, R311.3.1, R311.3.2 (verify; City of Greenfield CA patio-door handout)"
       },
       "verified": false
     }

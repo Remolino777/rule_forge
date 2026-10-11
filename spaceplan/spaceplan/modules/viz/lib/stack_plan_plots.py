@@ -14,6 +14,7 @@ INK, INK2, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#
 GROUND_FILL, UPPER_FILL, GARAGE_FILL, STAIR_FILL = "#d7e6f5", "#eb6834", "#c9c7c0", "#0b0b0b"
 BOTTOM_EDGE, TOP_EDGE, HALF_BATH_FILL, VESTIBULE_EDGE = "#008300", "#a8467a", "#2a78d6", "#2a78d6"
 DOOR_FILL, ENTRY_EDGE, VOID_EDGE = "#d03b3b", "#d03b3b", "#52514e"
+SLIDER_EDGE, DECK_FILL, DRIVE_FILL, WALK_FILL, GREEN_FILL = "#2a78d6", "#d9b98c", "#bdbbb4", "#e6e2d6", "#cfe3c4"
 WORDS = {
     "es": {"title": "Plantas apiladas (6.7a S1)", "ground": "Planta baja", "upper": "Planta alta",
            "garage": "Garaje", "stair": "Escalera", "envelope": "Envolvente de retiros", "roof": "techo",
@@ -236,11 +237,14 @@ S21_WORDS = {
     "es": {"title": "Espacios y puertas (6.7a S2.1)", "ground": "Planta baja", "upper": "Planta alta",
            "stair": "Escalera", "garage": "Garaje", "door": "Puerta (giro)", "opening": "Vano",
            "closet": "Clóset de sobrante", "more": "celdas más no mostradas", "rank": "escalera n.º",
-           "built_in": "clósets integrados"},
+           "built_in": "clósets integrados", "slider": "Corrediza / vidrio", "deck": "Deck y rellano",
+           "driveway": "Entrada vehicular", "walkway": "Sendero", "garden": "Jardín",
+           "cantilever": "voladizo"},
     "en": {"title": "Spaces and doors (6.7a S2.1)", "ground": "Ground floor", "upper": "Upper floor",
            "stair": "Stair", "garage": "Garage", "door": "Door (swing)", "opening": "Opening",
            "closet": "Leftover closet", "more": "more cells not shown", "rank": "stair rank",
-           "built_in": "built-in closets"},
+           "built_in": "built-in closets", "slider": "Slider / glass", "deck": "Deck and landing",
+           "driveway": "Driveway", "walkway": "Walkway", "garden": "Garden", "cantilever": "cantilever"},
 }
 SHORT = {"primary_suite": "suite", "primary_bath": "bath P", "walk_in_closet": "w-i cl", "bedroom": "bed",
          "bathroom": "bath", "living_room": "living", "dining_room": "dining", "family_room": "family",
@@ -248,7 +252,24 @@ SHORT = {"primary_suite": "suite", "primary_bath": "bath P", "walk_in_closet": "
          "vestibule": "vest", "flex_room": "flex", "mechanical": "mech", "living_dining": "liv-din"}
 
 
-def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None):
+def _site_panel(ax, site: dict | None) -> None:
+    """Front yard of stage S2.1b: garden, driveway, walkway and the covered entry deck; main door and sidelight."""
+    if not site or site.get("status") != "laid_out":
+        return
+    _fill(ax, site.get("garden"), color=GREEN_FILL, ec="none")
+    _fill(ax, site.get("driveway"), color=DRIVE_FILL, ec="none")
+    _fill(ax, site.get("walkway"), color=WALK_FILL, ec="none")
+    _fill(ax, site.get("entry_deck"), color=DECK_FILL, ec=INK2, lw=0.4)
+    me = site.get("main_entry") or {}
+    for key, color, lw in (("leaf", DOOR_FILL, 1.4), ("sidelight", SLIDER_EDGE, 1.4)):
+        if me.get(key):
+            xs, ys = zip(*me[key])
+            ax.plot(xs, ys, color=color, lw=lw, solid_capstyle="butt")
+
+
+def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None, site=None):
+    if level == 0:
+        _site_panel(ax, site)
     _fill(ax, floor_poly, color="#ffffff", ec=INK2, lw=0.6)
     for sp in block["spaces"]:
         if sp["space_type"].startswith("garage"):
@@ -270,11 +291,16 @@ def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None):
         if not seg:
             continue
         xs, ys = zip(*seg)
-        if d["kind"] == "opening":
-            ax.plot(xs, ys, color="#ffffff", lw=1.6, solid_capstyle="butt")
+        ax.plot(xs, ys, color="#ffffff", lw=1.6, solid_capstyle="butt")
+        if d["kind"] == "opening":                     # a cased opening: dashed, so it reads between two halls
+            ax.plot(xs, ys, color=INK2, lw=0.5, ls=(0, (1.2, 1.2)))
+        elif d["kind"] in ("closet_slider", "patio_slider"):
+            ax.plot(xs, ys, color=SLIDER_EDGE, lw=0.9 if d["kind"] == "patio_slider" else 0.6)
         else:
-            ax.plot(xs, ys, color="#ffffff", lw=1.6, solid_capstyle="butt")
             _line(ax, d.get("swing"), color=DOOR_FILL, lw=0.45)
+    ex = block.get("patio_exit")
+    if ex:
+        _fill(ax, ex.get("landing"), color=DECK_FILL, ec=INK2, lw=0.4)
     ax.set_aspect("equal")
     ax.set_xticks([])
     ax.set_yticks([])
@@ -305,13 +331,15 @@ def plot_space_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors:
         ax_g, ax_u = axes.flat[2 * k], axes.flat[2 * k + 1]
         for ax in (ax_g, ax_u):
             ax.set_axis_on()
-        _space_panel(ax_g, s1["levels"][0]["polygon"], s21["ground"], colors, s1["stair"]["polygon"], s1, 0)
+        _space_panel(ax_g, s1["levels"][0]["polygon"], s21["ground"], colors, s1["stair"]["polygon"], s1, 0,
+                     site=s21.get("site"))
         _space_panel(ax_u, s1["levels"][1]["polygon"], s21["upper"], colors, s1["stair"]["polygon"], s1, 1)
         built = len(s21["ground"].get("closets_in_rooms", [])) + len(s21["upper"].get("closets_in_rooms", []))
         ax_g.set_title(f"{c['household_id']} · {c['profile']} · {c['scheme_id']}\n{w['ground']} · "
                        f"{w['rank']} {s21.get('stair_rank', 0)}", fontsize=6, color=INK, loc="left")
-        ax_u.set_title(f"score {s21['score']:.2f} · {w['built_in']} {built}\n{w['upper']}", fontsize=6, color=INK,
-                       loc="left")
+        cant = f" · {w['cantilever']}" if s1.get("upper_placement") == "cantilever_rear" else ""
+        ax_u.set_title(f"score {s21['score']:.2f} · {w['built_in']} {built}{cant}\n{w['upper']}", fontsize=6,
+                       color=INK, loc="left")
     s = lot["summary"].get("s21", {})
     header = f"{w['title']} — {lot['lot_id']}   {s.get('status_counts', {})}"
     if len(cells) > len(shown):
@@ -322,9 +350,13 @@ def plot_space_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors:
     handles = [Patch(color=colors.get(z, "#eeeeee"), label=z) for z in zones]
     handles += [Patch(color=STAIR_FILL, label=w["stair"]), Patch(color=GARAGE_FILL, label=w["garage"]),
                 Patch(fill=False, hatch="....", label=w["closet"]),
-                Line2D([0], [0], color=DOOR_FILL, lw=0.8, label=w["door"])]
-    fig.legend(handles=handles, loc="lower center", ncol=len(handles), fontsize=6.5, frameon=False)
-    fig.tight_layout(rect=(0, 0.03, 1, 0.97))
+                Line2D([0], [0], color=DOOR_FILL, lw=0.8, label=w["door"]),
+                Line2D([0], [0], color=SLIDER_EDGE, lw=0.9, label=w["slider"]),
+                Line2D([0], [0], color=INK2, lw=0.6, ls=(0, (1.2, 1.2)), label=w["opening"]),
+                Patch(color=DECK_FILL, label=w["deck"]), Patch(color=DRIVE_FILL, label=w["driveway"]),
+                Patch(color=WALK_FILL, label=w["walkway"]), Patch(color=GREEN_FILL, label=w["garden"])]
+    fig.legend(handles=handles, loc="lower center", ncol=min(len(handles), 9), fontsize=6.5, frameon=False)
+    fig.tight_layout(rect=(0, 0.05, 1, 0.97))
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=200, facecolor=SURFACE)

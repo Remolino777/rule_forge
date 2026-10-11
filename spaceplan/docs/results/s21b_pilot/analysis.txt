@@ -1,0 +1,9 @@
+{'two': 291, 'zoned': 281, 'spaced': 126}
+{'corner-55x100': (33, 18), 'fan-cul-de-sac-35-80x100': (27, 9), 'fan-curve-35-80x100': (8, 5), 'fan-reverse-80-40x100': (25, 9), 'flag-70x80-pole20': (25, 8), 'hillside-50x100': (36, 15), 'interior-50x100': (34, 15), 'narrow-40x125': (33, 21), 'shallow-50x95': (30, 13), 'trapezoid-asym-45-65x100': (30, 13)}
+profiles {'maximum': {'no_valid_layout': 82, 'spaced': 101, 'not_evaluated': 3}, 'accessible': {'no_valid_layout': 58, 'not_evaluated': 7, 'spaced': 16}, 'staged_final': {'no_valid_layout': 15, 'spaced': 9}}
+ranks {0: 76, 2: 20, 1: 19, 3: 11} placements {'front': 76, 'rear': 13, 'over_garage': 9, 'compact': 27, 'compact_bands': 1}
+hinged 1150 in the air 0 closet sliders 430 unreached spaces 0 doors median 24.0
+patio exits {'dining_room': 102, 'kitchen': 11, 'living_dining': 11, 'mudroom': 2} facades {'high_y': 77, 'low_x': 44, 'high_x': 5} on rear deck 6 site check failures {}
+k10 en-suite 265 shared 19 program gross added median 56.0
+failed floor {'ground': 102, 'upper': 53}
+[('unit:social:cuts', 37), ('unit:circulation:corridor', 16), ('unit:kitchen:cuts', 16), ('matrix:N:stair_top-private_bath', 9), ('reach:mudroom', 8), ('unit:private:cuts', 6), ('unit:private:min_side:bathroom', 5), ('unit:circulation:min_side:hall', 5), ('unit:social:facade:dining_room', 4), ('unit:circulation:min_area:hall', 4), ('matrix:D:kitchen-laundry', 4), ('unit:kitchen:min_side:kitchen', 4), ('unit:circulation:min_side:half_bath', 4), ('door:primary_suite', 4)]

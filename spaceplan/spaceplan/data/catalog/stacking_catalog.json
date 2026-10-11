@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.10.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft. Version 0.9.0 (S1.2 close, 2026-10-10): route tolerance 25 ft (client decision after the tolerance simulation); small upper floors also try compact_bands (a room band beside a stair band). Version 0.10.0 (stage S2.1, 2026-10-11) adds the s21 block: spaces and doors inside each zone unit (guillotine rectangles on the S2 grid, halls inside private units, closets from the leftovers, doors with position, width, swing and hinge).",
+  "catalog_version": "0.11.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft. Version 0.9.0 (S1.2 close, 2026-10-10): route tolerance 25 ft (client decision after the tolerance simulation); small upper floors also try compact_bands (a room band beside a stair band). Version 0.10.0 (stage S2.1, 2026-10-11) adds the s21 block: spaces and doors inside each zone unit (guillotine rectangles on the S2 grid, halls inside private units, closets from the leftovers, doors with position, width, swing and hinge). Version 0.11.0 (stage S2.1b, 2026-10-11) adds door types (main entry with a sidelight, glass patio slider, service exterior door, closet slider), the patio exit, the program adjustment of stage S2.1 (corridor allowance and a bath per bedroom, K10) and the rear cantilever of the upper floor.",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -241,7 +241,15 @@
     },
     "small_house_placements": [
       "compact_bands"
-    ]
+    ],
+    "cantilever": {
+      "placement": "cantilever_rear",
+      "depth_ft": 6.0,
+      "stages": [
+        "S2.1"
+      ],
+      "note": "Client decision 2026-10-11: the upper floor may stand out over the patio up to depth_ft beyond the rear face of the ground floor, inside the setback envelope and the FAR; tried after the other placements, only in the stages listed. Structure not considered yet (provisional)."
+    }
   },
   "garage": {
     "side": "right",
@@ -638,13 +646,7 @@
         "host",
         "passable"
       ],
-      "out_swing_space_types": [
-        "closet",
-        "pantry",
-        "laundry_closet",
-        "storage",
-        "mechanical"
-      ],
+      "out_swing_space_types": [],
       "tree_costs": {
         "circulation": 1.0,
         "room": 3.0
@@ -662,13 +664,105 @@
           "bathroom"
         ]
       },
-      "note": "Client decision E3 (2026-10-11): every door has position, clear width, swing and hinge. A room gets one door, onto circulation when it can, else onto its host (en-suite bath, closet) or a passable room the door rules allow; passable rooms are joined by doors or cased openings along the shortest tree from the entry (or the top landing). The leaf is the clear width plus the stops; the wall run needs leaf + frame + a corner return. No swing over the stair or a landing (R311.7.6 for the top door, kept for every door by design). Design values provisional. Small storage spaces (out_swing_space_types) take a closet door (closet_clear_width_in) whose leaf swings out of them. The passable tree weighs a step into circulation and a step into a room by tree_costs, so the paths keep to halls. En suite: a private bath or a suite closet may open onto its bedroom (never the reverse: a bedroom always opens onto circulation); a shared bathroom prefers the hall."
+      "sliding_space_types": [
+        "closet",
+        "pantry",
+        "laundry_closet",
+        "storage",
+        "mechanical"
+      ],
+      "types": {
+        "main_entry": {
+          "leaf_in": 36,
+          "height_in": 80,
+          "sidelight_in": 12,
+          "swing": "inward",
+          "hinge": "wall_side",
+          "double_variant": {
+            "enabled": false,
+            "leaves_in": [
+              30,
+              30
+            ]
+          },
+          "note": "Typical San Diego tract-house entry (client decision 2026-10-11 after research): one 36 x 80 in side-hinged leaf with a fixed glass sidelight, recessed under the eave, a covered deck outside to wait. A double door (two 30 in leaves) is registered and off by default."
+        },
+        "patio_slider": {
+          "width_in": 72,
+          "width_large_in": 96,
+          "large_from": [
+            "living_room",
+            "living_dining",
+            "family_room"
+          ],
+          "height_in": 80,
+          "glass_fraction": 0.8,
+          "note": "Secondary door to the patio from the dining room or the kitchen (or a living room): a two-panel glass slider; its glass counts as glazing of the room (C03)."
+        },
+        "service_exterior": {
+          "leaf_in": 36,
+          "height_in": 80,
+          "swing": "inward",
+          "note": "Secondary door from the laundry or the mudroom: a side-hinged exterior door."
+        },
+        "closet_slider": {
+          "min_width_in": 24,
+          "note": "Closets and small storage spaces take a sliding door (no swing): the leaf never sweeps the room."
+        }
+      },
+      "note": "Client decision E3 (2026-10-11): every door has position, clear width, swing and hinge. A room gets one door, onto circulation when it can, else onto its host (en-suite bath, closet) or a passable room the door rules allow; passable rooms are joined by doors or cased openings along the shortest tree from the entry (or the top landing). The leaf is the clear width plus the stops; the wall run needs leaf + frame + a corner return. No swing over the stair or a landing (R311.7.6 for the top door, kept for every door by design). Design values provisional. Small storage spaces (out_swing_space_types) take a closet door (closet_clear_width_in) whose leaf swings out of them. The passable tree weighs a step into circulation and a step into a room by tree_costs, so the paths keep to halls. En suite: a private bath or a suite closet may open onto its bedroom (never the reverse: a bedroom always opens onto circulation); a shared bathroom prefers the hall. Version 0.11.0: closets and small storage spaces take a sliding door (sliding_space_types, no swing); a hinged leaf is hinged at a real corner of the space it swings into, with the wall beside it at least as long as the leaf (the open leaf rests on a wall, client decision 2026-10-11)."
     },
     "facade": {
       "glazing_height_ft": 4.0,
       "frame_allowance_ft": 0.5,
       "note": "Converts the glazing ratio of C03 (habitability ruleset) into a length of exterior wall: area x ratio / glazing_height_ft + frame_allowance_ft. The escape opening of a sleeping room (openings ruleset) needs its clear width plus the same frame allowance. Design values provisional. A habitable room scores 1 on exterior when its longest exterior wall exceeds the need by surplus_full_ft.",
       "surplus_full_ft": 6.0
+    },
+    "exits": {
+      "patio": {
+        "order": [
+          "dining_room",
+          "living_dining",
+          "kitchen",
+          "laundry",
+          "mudroom"
+        ],
+        "facades": [
+          "high_y",
+          "low_x",
+          "high_x"
+        ],
+        "slider_from": [
+          "dining_room",
+          "living_dining",
+          "kitchen",
+          "living_room",
+          "family_room"
+        ],
+        "landing_width_extra_ft": 0.0,
+        "note": "Client decision 2026-10-11: every ground floor opens onto the patio, from the dining room before the kitchen before the laundry or mudroom, on the rear facade first or a side facade (S13 keeps openings off lot lines closer than its limit). Outside the door a landing (R311.3) inside the lot; the rear deck of the site plan is preferred."
+      }
+    },
+    "program": {
+      "corridor_allowance": {
+        "from_types": [
+          "bedroom",
+          "primary_suite",
+          "bathroom"
+        ],
+        "side": "min_side_ft",
+        "min_rooms": 2
+      },
+      "bath_type": "bathroom",
+      "master": {
+        "room": "primary_suite",
+        "needs": [
+          "primary_bath",
+          "walk_in_closet"
+        ]
+      },
+      "shared_contact_ft": 2.0,
+      "note": "Stage S2.1 adjusts the program of each two-floor cell before S1 (K10, client decision 2026-10-11): a private zone serving min_rooms or more rooms gets a corridor allowance (hall width x the least sides of its rooms) as part of its zone target; the master gets its private bath and walk-in first, then each other bedroom a bath while the FAR allows; a bath shared by two bedrooms sits between them and opens onto the hall. The added area raises the floor's gross area within the FAR (the rear cantilever may hold it). A shared bath shares at least shared_contact_ft of wall with each of its two bedrooms."
     },
     "search": {
       "options_per_unit": 8,

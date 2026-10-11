@@ -164,7 +164,7 @@ class StackingCatalog:
 STAIR_TYPES = ("straight", "straight_landing", "l_turn", "u_turn", "u_well")
 CHOICE_KEYS = ("net_ground_bucket", "half_bath_fit", "entry_distance_ft", "joint_offset_ft")
 BOTTOM_OPTIONS = ("A", "B", "C")
-PLACEMENTS = ("rear", "front", "over_garage", "compact", "compact_bands")
+PLACEMENTS = ("rear", "front", "over_garage", "compact", "compact_bands", "cantilever_rear")
 ROOF_STEPS = ("default", "rotated", "flat")
 S1_BLOCKS = ("upper_floor", "garage", "roof_orientation", "geometry", "stair_access")
 

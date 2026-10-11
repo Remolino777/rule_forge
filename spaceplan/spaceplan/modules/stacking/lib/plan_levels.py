@@ -18,6 +18,7 @@ from shapely.geometry.base import BaseGeometry
 from spaceplan.modules.stacking.lib_aux.plan_geometry import HIGH, LOW, cut_band, joint_lines
 
 REAR, FRONT, OVER_GARAGE, COMPACT, COMPACT_BANDS = "rear", "front", "over_garage", "compact", "compact_bands"
+CANTILEVER_REAR = "cantilever_rear"            # stage S2.1 (client decision 2026-10-11)
 
 
 def ground_floor(footprint: BaseGeometry, gross_sqft: float, geometry: dict[str, Any]) -> BaseGeometry | None:
@@ -60,13 +61,35 @@ class UpperCandidate:
     reason: str | None = None
 
 
+def cantilever_zone(ground: BaseGeometry, footprint: BaseGeometry | None, depth_ft: float) -> BaseGeometry:
+    """Strip behind the rear face of the ground floor, depth_ft deep, inside the realizable footprint (setbacks)."""
+    x0, _, x1, y1 = ground.bounds
+    strip = box(x0, y1, x1, y1 + depth_ft)
+    return strip.intersection(footprint) if footprint is not None else strip
+
+
 def upper_floor(placement: str, ground: BaseGeometry, gross_sqft: float, garage: BaseGeometry | None,
                 garage_side: str, geometry: dict[str, Any], compact_min_depth_ft: float = 0.0,
-                band_depth_ft: float | None = None) -> UpperCandidate:
+                band_depth_ft: float | None = None, footprint: BaseGeometry | None = None,
+                cantilever_ft: float = 0.0) -> UpperCandidate:
     """`band_depth_ft` (placement compact_bands, small upper floors): the depth of a rear rectangle that holds a band
     of rooms beside a band of stair (widest room minimum side + widest stair span); a ground floor too shallow for it
     takes the band across the width instead."""
     rounds, tol = int(geometry["bisection_rounds"]), geometry["area_tolerance_sqft"]
+    if placement == CANTILEVER_REAR:          # stage S2.1: rear band of the ground floor plus the cantilever
+        if cantilever_ft <= 0.0:
+            return UpperCandidate(placement, None, (), "cantilever not enabled")
+        zone = cantilever_zone(ground, footprint, cantilever_ft)
+        if zone.is_empty or zone.area <= tol:
+            return UpperCandidate(placement, None, (), "no room behind the ground floor for a cantilever")
+        region = ground.union(zone)
+        cut = cut_band(region, gross_sqft, "y", HIGH, rounds, tol)
+        if cut is None:
+            return UpperCandidate(placement, None, (), "ground floor and cantilever do not hold the area")
+        poly = cut[0]
+        if poly.intersection(ground).area <= tol:
+            return UpperCandidate(placement, None, (), "cantilever band has no support on the ground floor")
+        return UpperCandidate(placement, poly, tuple(joint_lines(poly, ground)))
     if gross_sqft > ground.area + tol:
         return UpperCandidate(placement, None, (), "upper floor larger than the ground floor")
     if placement in (REAR, FRONT):
@@ -110,5 +133,5 @@ def upper_floor(placement: str, ground: BaseGeometry, gross_sqft: float, garage:
     return UpperCandidate(placement, poly, tuple(joint_lines(poly, ground)))
 
 
-__all__ = ["COMPACT", "COMPACT_BANDS", "FRONT", "OVER_GARAGE", "REAR", "UpperCandidate", "garage_area", "garage_rect", "ground_floor",
+__all__ = ["CANTILEVER_REAR", "cantilever_zone", "COMPACT", "COMPACT_BANDS", "FRONT", "OVER_GARAGE", "REAR", "UpperCandidate", "garage_area", "garage_rect", "ground_floor",
            "upper_floor"]

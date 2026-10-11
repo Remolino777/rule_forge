@@ -23,6 +23,7 @@ from shapely.geometry import LineString, Point, box
 from spaceplan.core.lib_aux.allocation import ranked_product
 from spaceplan.modules.stacking.lib.door_placement import (
     CLOSET_DOOR,
+    EXTERIOR,
     FIXED_DOOR,
     GARAGE_DOOR,
     OPENING,
@@ -32,6 +33,7 @@ from spaceplan.modules.stacking.lib.door_placement import (
     place_doors,
 )
 from spaceplan.modules.stacking.lib.floor_frame import GROUND, UPPER, cell_floors
+from spaceplan.modules.stacking.lib.front_yard import front_yard
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
 from spaceplan.modules.stacking.lib.space_relations import evaluate_space_floor, space_graph
 from spaceplan.modules.stacking.lib.space_rules import (
@@ -72,6 +74,7 @@ class S21Context:
     openings: Any
     stairs: Any
     client: Any
+    capacity: Any = None                    # SDMC capacity ruleset (Z10, Z11) for the front yard
 
 
 # ------------------------------------------------------------------ one floor
@@ -235,9 +238,28 @@ def _combine(ctx: S21Context, ground: list[FloorResult], upper: list[FloorResult
     return best
 
 
+def _exterior(s1: dict[str, Any], plan: LotPlan, lot_local, site_plan: dict | None, ctx: S21Context) -> dict:
+    """What the secondary door needs outside: the lot (local), the rear deck of the site plan, S13 and R311.3."""
+    from shapely.geometry import shape as _shape
+
+    deck = None
+    if site_plan:
+        part = site_plan.get("site_partition") or {}
+        opts = [o for o in part.get("options", []) if o.get("backyard")]
+        opt = next((o for o in opts if o.get("option_id") == part.get("selected_option_id")), None) or \
+            (opts[0] if opts else None)
+        for e in ((opt or {}).get("backyard") or {}).get("elements", []):
+            if e.get("element") == "rear_deck" and e.get("status") == "placed" and e.get("polygon"):
+                deck = plan.frame.to_local(_shape(e["polygon"]))
+    s13 = ctx.stairs.params("S13-EXTERIOR-WALL-OPENINGS")
+    return {"lot": lot_local, "deck": deck, "no_openings_below_ft": float(s13["not_permitted_below_ft"]),
+            "landing_ft": float(ctx.openings.params("O05-EXTERIOR-LANDING")["min_depth_in"]) / 12.0}
+
+
 def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any], plan: LotPlan,
-               profile: str | None, ctx: S21Context) -> dict[str, Any]:
-    """Stage S2.1 block of a cell zoned by S2 (`rows` = the area-matrix space split of the cell)."""
+               profile: str | None, ctx: S21Context, lot_local=None, site_plan: dict | None = None) -> dict[str, Any]:
+    """Stage S2.1 block of a cell zoned by S2 (`rows` = the area-matrix space split of the cell, after the program
+    adjustment of stage S2.1; `lot_local` and `site_plan` give the secondary door its outside)."""
     out: dict[str, Any] = {"stage": "S2.1", "warnings": []}
     if not s2 or s2.get("status") != "zoned" or not rows:
         return {**out, "status": NOT_EVALUATED_S21, "rule_traces": []}
@@ -247,11 +269,13 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
     g_recv, u_recv = _receiving(s2, option)
     alts = s2.get("_alternatives") or {"upper": [s2["upper"]], "ground": [option["ground"]]}
 
+    exterior = _exterior(s1, plan, lot_local, site_plan, ctx)
+
     def search(level: int, blocks: list[dict[str, Any]], recv, variant_of):
         tried = []
         for k, block in enumerate(blocks):
             fl = space_floor(level, floors, block, rows, plan, ctx.catalog, ctx.rules, ctx.matrix, res, profile, recv,
-                             variant_of(block))
+                             variant_of(block), exterior if level == GROUND else None)
             found, summary = search_floor(fl, ctx)
             summary["s2_alternative"] = k
             tried.append(summary)
@@ -288,8 +312,23 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
         "vertical": {"score": round(vert["score"], 4), "pairs": vert["pairs"]},
         "depth": _depths(g, u),
     })
-    out["rule_traces"] = _traces(ctx, g, u, s2)
+    if lot_local is not None and ctx.capacity is not None:
+        out["site"] = front_yard(s1, plan, lot_local, ctx.capacity, ctx.openings, ctx.catalog, ctx.scat)
+    out["k10"] = _k10_summary(g, u, rows)
+    out["rule_traces"] = _traces(ctx, g, u, s2, out)
     return out
+
+
+def _k10_summary(g: FloorResult, u: FloorResult, rows: list[dict[str, Any]]) -> dict[str, Any]:
+    en_suite, shared = {}, []
+    for lay in (g.layout, u.layout):
+        for s in lay.specs:
+            if s.between:
+                shared.append({"bath": s.space_id, "bedrooms": list(s.between)})
+            elif s.host and s.space_type in ("bathroom", "primary_bath"):
+                en_suite[s.space_id] = s.host
+    beds = [r["space_id"] for r in rows if r["space_type"] in ("bedroom", "primary_suite")]
+    return {"bedrooms": len(beds), "en_suite": en_suite, "shared": shared}
 
 
 # ------------------------------------------------------------------ contract blocks
@@ -304,7 +343,8 @@ def _wall_point(floor: SpaceFloor, run, t: float) -> tuple[float, float]:
 
 def _door_block(layout: FloorLayout, d, plan: LotPlan, nd: int) -> dict[str, Any]:
     f, specs = layout.floor, layout.specs
-    block: dict[str, Any] = {"a": specs[d.a].space_id, "b": specs[d.b].space_id, "kind": d.kind}
+    block: dict[str, Any] = {"a": specs[d.a].space_id, "b": "exterior" if d.b == EXTERIOR else specs[d.b].space_id,
+                             "kind": d.kind}
     if d.run is None:
         return block
     p0, p1 = _wall_point(f, d.run, d.t0), _wall_point(f, d.run, d.t1)
@@ -354,6 +394,9 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
                            for o in lay.options},
             "spaces": spaces,
             "closets_in_rooms": sorted(c for o in lay.options for c in o.parts.get("closets_in_rooms", [])),
+            "patio_exit": None if not lay.patio_exit else {
+                k: (polygon_json(plan.to_world(v), nd) if k == "landing" else v)
+                for k, v in lay.patio_exit.items() if k != "door"},
             "doors": [_door_block(lay, d, plan, nd) for d in lay.doors],
             "score": round(r.score, 4),
             "relations": {"hard_failed": r.relations["hard_failed"],
@@ -379,6 +422,10 @@ def _fail_traces(ctx: S21Context, first: str) -> list[dict[str, Any]]:
         rule = (HALF_BATH_RULE, ctx.client)
     elif kind == "door" and "garage" in first:
         rule = (GARAGE_OPENINGS_RULE, ctx.openings)
+    elif kind == "exit":
+        rule = ("O05-EXTERIOR-LANDING", ctx.openings)
+    elif kind == "k10":
+        rule = ("K10-BATHS-PER-BEDROOM", ctx.client)
     out = []
     if rule is not None:
         out.append(trace(rule[1], rule[0], FAIL, f"first violation: {first}"))
@@ -388,9 +435,26 @@ def _fail_traces(ctx: S21Context, first: str) -> list[dict[str, Any]]:
     return out
 
 
-def _traces(ctx: S21Context, g: FloorResult, u: FloorResult, s2: dict[str, Any]) -> list[dict[str, Any]]:
+def _traces(ctx: S21Context, g: FloorResult, u: FloorResult, s2: dict[str, Any],
+            block: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     rules = ctx.rules
     out = []
+    block = block or {}
+    ex = g.layout.patio_exit
+    if ex:
+        out.append(trace(ctx.openings, "O05-EXTERIOR-LANDING", PASS,
+                         f"secondary door ({ex['kind']}, {ex['width_in']:g} in) from {ex['space']} on the {ex['facade']} "
+                         f"facade with a landing outside" + (" on the rear deck" if ex["on_deck"] else "")))
+    site = block.get("site") or {}
+    for c in site.get("checks", []):
+        rs = ctx.openings if c["rule_id"].startswith("O0") else ctx.capacity
+        out.append(trace(rs, c["rule_id"], PASS if c["passes"] else FAIL,
+                         f"main entry and front yard: value {c['value']} against {c['limit']}"))
+    k10 = block.get("k10") or {}
+    if k10:
+        out.append(trace(ctx.client, "K10-BATHS-PER-BEDROOM", PASS,
+                         f"{len(k10['en_suite'])} baths en suite (onto their room only), {len(k10['shared'])} shared "
+                         f"between two bedrooms (onto the hall)"))
     layouts = (g.layout, u.layout)
     specs = [s for lay in layouts for s in lay.specs]
     out.append(trace(ctx.crc, HABITABLE_DIMENSION_RULE, PASS,
@@ -415,8 +479,8 @@ def _traces(ctx: S21Context, g: FloorResult, u: FloorResult, s2: dict[str, Any])
                      f"the stair arrives into {u.layout.specs[u.layout.landing_node].space_id}"))
     out.append(trace(ctx.client, BOTTOM_RULE, PASS,
                      f"option {s2['chosen_option']}: the start lands in {g.layout.specs[g.layout.landing_node].space_id}"))
-    hb = [(lay, d) for lay in layouts for d in lay.doors
-          if lay.specs[d.a].space_type in rules.half_bath_types or lay.specs[d.b].space_type in rules.half_bath_types]
+    hb = [(lay, d) for lay in layouts for d in lay.doors if d.b != EXTERIOR and (
+          lay.specs[d.a].space_type in rules.half_bath_types or lay.specs[d.b].space_type in rules.half_bath_types)]
     if hb:
         to = sorted({lay.specs[d.b if lay.specs[d.a].space_type in rules.half_bath_types else d.a].space_type
                      for lay, d in hb})

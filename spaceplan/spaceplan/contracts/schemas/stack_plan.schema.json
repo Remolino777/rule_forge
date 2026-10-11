@@ -1366,7 +1366,10 @@
             "closet_door",
             "fixed",
             "garage_door",
-            "stair"
+            "stair",
+            "closet_slider",
+            "patio_slider",
+            "exterior_door"
           ]
         },
         "clear_width_in": {
@@ -1504,6 +1507,13 @@
         },
         "relations": {
           "type": "object"
+        },
+        "patio_exit": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Secondary door of the ground floor (stage S2.1b): space, facade, kind, width, glass area, landing (R311.3), whether the landing meets the rear deck."
         }
       }
     },
@@ -1584,6 +1594,14 @@
           "items": {
             "$ref": "#/$defs/rule_trace"
           }
+        },
+        "site": {
+          "type": "object",
+          "description": "Front yard and main entry (stage S2.1b): driveway, walkway, entry deck, garden (world polygons), main door with sidelight, areas, paving fraction and the Z10 / Z11 / O04 / O05 checks."
+        },
+        "k10": {
+          "type": "object",
+          "description": "Baths per bedroom (K10): en-suite baths and baths shared between two bedrooms."
         }
       }
     }
@@ -1857,6 +1875,10 @@
           },
           "s21": {
             "$ref": "#/$defs/s21"
+          },
+          "program_adjustment": {
+            "type": "object",
+            "description": "Stage S2.1 program adjustment of the cell (corridor allowance, K10 baths) within the FAR slack."
           }
         }
       }

@@ -121,7 +121,7 @@ def arrival_kind(order: list[str], upper_types: set[str], rooms: int, small_max:
 
 def _halls_by_floor(rows: list[dict], hall_types: set[str], floors: int) -> list[float]:
     """Hall area prorated to the net area of each floor (same convention as the area matrix's build_split)."""
-    halls = sum(r["area_sqft"] for r in rows if r["space_type"] in hall_types)
+    halls = sum(r["area_sqft"] for r in rows if r["space_type"] in hall_types and not r.get("allowance"))
     net = [0.0] * floors
     for r in rows:
         if r["zone"] != CIRCULATION:
@@ -158,7 +158,15 @@ def split_members(catalog, s2: dict[str, Any], zone: str, members: list[dict], f
     """Two groups of a zone's spaces that can sit on both sides of the stair hall: the parts of the catalog's
     zone_parts scheme for the zone, else rooms balanced by area; hosted spaces follow their host. None when a group
     would hold no habitable room."""
-    hosted = {r["space_id"]: r for r in members if r.get("host_space_id")}
+    follow = {}                                  # space -> the member it stays with
+    for r in members:
+        if r.get("host_space_id"):
+            follow[r["space_id"]] = r["host_space_id"]
+        if r.get("shared_by"):                   # stage S2.1 (K10): a shared bath and its two bedrooms together
+            a, b = r["shared_by"]
+            follow[r["space_id"]] = a
+            follow[b] = a
+    hosted = {r["space_id"]: {**r, "host_space_id": follow[r["space_id"]]} for r in members if r["space_id"] in follow}
     heads = [r for r in members if r["space_id"] not in hosted]
     scheme_id = s2["zone_parts"].get(floor, {}).get(zone)
     groups: list[list[dict]] = [[], []]
@@ -174,8 +182,16 @@ def split_members(catalog, s2: dict[str, Any], zone: str, members: list[dict], f
     for r in sorted(rest, key=lambda r: (-r["area_sqft"], r["space_id"])):
         light = min((0, 1), key=lambda k: (sum(x["area_sqft"] for x in groups[k]), k))
         groups[light].append(r)
+    def root(sid: str) -> str:
+        seen = set()
+        while sid in follow and sid not in seen:
+            seen.add(sid)
+            sid = follow[sid]
+        return sid
+
     for h in hosted.values():
-        home = next((k for k in (0, 1) if any(x["space_id"] == h["host_space_id"] for x in groups[k])), None)
+        head = root(h["space_id"])
+        home = next((k for k in (0, 1) if any(x["space_id"] == head for x in groups[k])), None)
         groups[home if home is not None else 0].append(h)
     if not all(groups) or not all(_habitable(catalog, g) for g in groups):
         return None
@@ -192,8 +208,12 @@ def floor_units(catalog, s2: dict[str, Any], rows: list[dict], level: int, floor
     groups: dict[str, list[dict]] = {}
     floor = "upper" if level > GROUND else "ground"
     hb_left = under_stair_half_bath and level == GROUND
+    extras: dict[str, float] = {}                # stage S2.1: corridor allowance of a zone (part of its target)
     for r in rows:
         st = r["space_type"]
+        if r.get("allowance") and r["floor"] == level:
+            extras[r["zone"]] = extras.get(r["zone"], 0.0) + float(r["area_sqft"])
+            continue
         if r["zone"] == GARAGE_ZONE or st == stair_type or st in hall_types or r["floor"] != level:
             continue
         if hb_left and st == HALF_BATH_USE:
@@ -228,7 +248,9 @@ def floor_units(catalog, s2: dict[str, Any], rows: list[dict], level: int, floor
         circ += least - own
 
     def unit(uid: str, zone: str, members: list[dict]) -> ZoneUnit:
-        target = sum(r["area_sqft"] for r in members) + (circ if zone == CIRCULATION else 0.0)
+        own = sum(r["area_sqft"] for r in members)
+        whole = sum(r["area_sqft"] for r in groups.get(zone, [])) or own or 1.0
+        target = own + (circ if zone == CIRCULATION else 0.0) + extras.get(zone, 0.0) * own / whole
         return ZoneUnit(uid, zone, tuple(r["space_id"] for r in members),
                         frozenset(r["space_type"] for r in members), target,
                         _unit_width(catalog, s2, zone, members, hall_types))

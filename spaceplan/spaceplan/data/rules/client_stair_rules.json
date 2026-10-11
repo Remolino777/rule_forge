@@ -1,6 +1,6 @@
 {
   "ruleset_id": "client-stair-rules",
-  "ruleset_version": "0.4.0",
+  "ruleset_version": "0.5.0",
   "jurisdiction_id": "client",
   "zone": "*",
   "code_edition": "client decisions 2026-10-09 / 2026-10-10",
@@ -403,6 +403,37 @@
         "section": "2026-10-10, half bath"
       },
       "verified": true
+    },
+    {
+      "rule_id": "K10-BATHS-PER-BEDROOM",
+      "kind": "client",
+      "magnitude": "bath_allocation",
+      "operator": "==",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "master_first": [
+          "primary_bath",
+          "walk_in_closet"
+        ],
+        "bath_per_bedroom": "while_far_allows",
+        "en_suite_door": "bedroom_only",
+        "shared_bath": {
+          "between_bedrooms": 2,
+          "door_to": [
+            "hall",
+            "foyer"
+          ]
+        },
+        "upper_half_bath": false
+      },
+      "text": [
+        "Client decision 2026-10-11: the master bedroom gets its private bath and walk-in closet first; then each other bedroom gets its own bath (en suite, opening only onto it) while the FAR allows; a bath shared by two bedrooms sits between them and opens onto the circulation; no half bath on the upper floor (the social half bath is a ground-floor space)."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "client decision 2026-10-11 (step 6.7a S2.1b)"
+      }
     }
   ]
 }

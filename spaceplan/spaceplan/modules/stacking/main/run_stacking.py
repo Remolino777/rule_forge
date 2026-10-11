@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from spaceplan.core.lib.catalog import load_catalog
+from spaceplan.core.lib.rules import load_ruleset
 from spaceplan.core.lib.contracts import read_contract
 from spaceplan.modules.stacking.lib.cell_geometry import DRAWN, S1_STATUSES, S1Context, draw_cell
 from spaceplan.modules.stacking.lib.cell_selection import (
@@ -44,6 +45,7 @@ from spaceplan.modules.stacking.lib.height_check import (
 from spaceplan.modules.stacking.lib.levels import build_levels
 from spaceplan.modules.stacking.lib.lot_plan import lot_plan, strategy_key
 from spaceplan.modules.stacking.lib.lot_vertical import lot_envelope, lot_vertical_facts
+from spaceplan.modules.stacking.lib.program_adjust import adjust_program
 from spaceplan.modules.stacking.lib.space_cell import NO_VALID_LAYOUT, NOT_EVALUATED_S21, SPACED, S21Context, space_cell
 from spaceplan.modules.stacking.lib.space_rules import load_crc_ruleset, load_openings_ruleset, space_rules
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
@@ -195,7 +197,7 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
         s2ctx = replace(s2ctx, alternatives=int(scat.s21["search"]["s2_alternatives"]))
         crc, openings = load_crc_ruleset(), load_openings_ruleset()
         s21ctx = S21Context(scat, catalog, s2ctx.matrix, space_rules(scat, catalog, crc, openings, srs, crs), crc,
-                            openings, srs, crs)
+                            openings, srs, crs, load_ruleset())
     actx = access_context(scat, limits, crs) if drawing else None
 
     lots_out, cells_out, missing = [], [], []
@@ -212,10 +214,17 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
         for c in selected:
             if c["lot_id"] != lot_id:
                 continue
+            adjustment = None
+            if s21ctx is not None:               # stage S2.1: corridor allowance and baths per bedroom (K10)
+                c, adjustment = adjust_program(c, lot["budget"].get("far_gross_max_sqft"), catalog, scat, crs)
             out = stack_cell(c, lot, lc, rs, scat, stair_sqft)
+            if adjustment is not None and adjustment.get("applied"):
+                out["program_adjustment"] = adjustment
             if plan is not None and out["next_stage"] == "S1":
+                cant = scat.data["upper_floor"].get("cantilever") or {}
                 ctx = S1Context(scat, limits, srs, rs, crs, catalog, lot_envelope(rs, lc),
-                                (lc.get("terrain") or {}).get("mean_slope"), stair_sqft)
+                                (lc.get("terrain") or {}).get("mean_slope"), stair_sqft,
+                                float(cant.get("depth_ft", 0.0)) if stage in cant.get("stages", []) else 0.0)
                 strategy = strategy_key(lot["budget"], c.get("strategy_used"))
                 s0 = dict(out)
                 s1, pool = stage_s1(c, s0, plan, strategy, ctx, actx, site, lot_local)
@@ -226,9 +235,9 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                 if s2ctx is not None and s1["next_stage"] == "S2":
                     refine = None
                     if s21ctx is not None:
-                        def refine(s1_block, s2_block, c=c):
+                        def refine(s1_block, s2_block, c=c, plan=plan, lot_local=lot_local, site=site):
                             return space_cell(c.get("space_split") or [], s1_block, s2_block, plan, c["profile"],
-                                              s21ctx)
+                                              s21ctx, lot_local, site)
                     stage_s2(c, s0, out, plan, strategy, ctx, s2ctx, actx, pool, refine,
                              int(scat.s21["fallback"]["max_candidates"]) if s21ctx is not None else None)
                     if s21ctx is not None and "s21" not in out:

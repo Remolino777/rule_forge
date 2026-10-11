@@ -130,6 +130,13 @@ def suite_groups(specs: dict[str, SpaceSpec], rules: SpaceRules, matrix) -> list
         if partner is not None:
             parent[sid] = partner
 
+    sandwich = {}                              # K10: bath shared by two bedrooms of the unit -> (b1, b2)
+    for sid, sp in specs.items():
+        if len(sp.between) == 2 and all(b in specs for b in sp.between):
+            sandwich[sid] = tuple(sp.between)
+            parent[sid] = sp.between[0]
+            parent[sp.between[1]] = sp.between[0]
+
     def build(par: dict[str, str]) -> list[list[str]]:
         def root(sid: str) -> str:
             seen = set()
@@ -143,8 +150,16 @@ def suite_groups(specs: dict[str, SpaceSpec], rules: SpaceRules, matrix) -> list
         for sid in sorted(specs):
             if sid != root(sid):
                 groups[root(sid)].append(sid)
-        return [[r] + sorted(d, key=lambda x: (specs[x].space_type == rules.closet_type, x))
-                for r, d in sorted(groups.items())]
+        out = []
+        for r, d in sorted(groups.items()):
+            bath = next((x for x in d if x in sandwich), None)
+            if bath is None:
+                out.append([r] + sorted(d, key=lambda x: (specs[x].space_type == rules.closet_type, x)))
+                continue
+            b1, b2 = sandwich[bath]
+            mine = {b: (b, *sorted(x for x in d if specs[x].host == b)) for b in (b1, b2)}
+            out.append(["@shared", mine[b1], bath, mine[b2]])
+        return out
 
     ways = [build(parent)]
     secondary = [b for b in beds if "primary_bedroom" not in specs[b].roles] or beds
@@ -163,7 +178,12 @@ def _band_forms(group: list[str], end: int) -> list[tuple]:
     return [f if end == 0 else tuple(reversed(f)) for f in forms]
 
 
-def _group_blocks(g: list[str], end: int) -> list[tuple]:
+def _group_blocks(g: list, end: int) -> list[tuple]:
+    if g and g[0] == "@shared":                   # K10: bedroom | shared bath | bedroom, all on the corridor
+        b1, bath, b2 = g[1], g[2], g[3]
+        c1 = b1 if end == 0 else tuple(reversed(b1))
+        c2 = b2 if end == 0 else tuple(reversed(b2))
+        return [(c1, (bath,), c2), (c2, (bath,), c1)]
     forms = [(f,) for f in _band_forms(g, end)]
     if len(g) > 1:
         forms.append(tuple((x,) for x in g))
@@ -274,6 +294,7 @@ class UnitLayout:
         out = floor.outside
         self.landing = floor.landing[j0:j1, i0:i1]
         self.need_cells = float(catalog.data["circulation"]["door_contact_ft"]) / self.res   # as S2 links zones
+        self.shared_cells = float(rules.s21["program"]["shared_contact_ft"]) / self.res
         by_id = {u.unit_id: u for u in floor.units}
         linked = [by_id[x] for x in sorted(floor.links.get(unit.unit_id, ())) if x in by_id]
         pad = (slice(j0 - 1, j1 + 1), slice(i0 - 1, i1 + 1))
@@ -475,6 +496,11 @@ class UnitLayout:
                 ok = any(self._contact(p.mask, t) >= need for t in self.room_targets)
             if not ok and private:                # a hall strip of a neighbouring private unit may reach it
                 ok = any(self._contact(p.mask, t) >= need for t in self.private_targets)
+            if ok and sp.between:                 # K10: between its two bedrooms
+                for b in sp.between:
+                    q = next((x for x in pieces if x.spec.space_id == b), None)
+                    if q is not None and self._touch_cells(p.mask, q.mask) < self.shared_cells:
+                        return False
             if not ok:
                 return False
         return True

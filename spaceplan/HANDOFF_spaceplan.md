@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 11 de octubre de 2026 · Estado: **paso 6.7a S2.1 v1 hecha (sección 4r: espacios y puertas dentro de cada zona; 135 de 286 celdas zonificadas con planta completa)**; S1.2 integrada y cerrada (4q); S2 hecha (4o); pasos 1–6, 6.5a–6.5d y 6.6 completos; reestructuración modular completa (4i) · Paquete `spaceplan` v0.1.0 · catálogo residencial 0.13.0 · reglas de escalera CRC 0.3.0 · reglas de aberturas CRC 0.1.0 · catálogo de apilamiento 0.10.0 · reglas de cliente de escalera 0.4.0 · 1,342 pruebas
+Fecha: 11 de octubre de 2026 · Estado: **paso 6.7a S2.1b hecha (sección 4s: corredizas, bisagra en esquina, baños por dormitorio K10, salida al patio, voladizo, antejardín con Z10/Z11; 126 de 281 casas con planta completa y 0 espacios sin acceso)**; S2.1 v1 (4r); S1.2 (4q); S2 (4o); pasos 1–6, 6.5a–6.5d y 6.6 completos · catálogo de apilamiento 0.11.0 · reglas de aberturas CRC 0.2.0 · reglas de cliente 0.5.0 · catálogo residencial 0.13.0
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -985,6 +985,41 @@ las opciones descartadas; para diagnóstico conviene la "más profunda".
 tiempo (≈ 12 s por celda con retrocesos). Siguen fuera: las 5 celdas accesibles de S1.2, `site_plan` del lote en curva,
 S13/FAR, estructura.
 
+## 4s. Paso 6.7a, S2.1b (11 oct 2026): puertas, baños por dormitorio, salida al patio, voladizo y antejardín
+
+**Decisiones del cliente.** (1) Corredizas en clósets; corrediza de vidrio, más ancha, del comedor o la cocina (o la
+sala) al deck, cuyo vidrio cuenta para la luz. (2) Baño compartido entre las dos recámaras, entrado desde la
+circulación; arriba no hay medio baño. (3) K10: primero baño privado y walk-in del master, luego un baño por dormitorio
+mientras el FAR alcance; el ajuste del programa va en `stacking` (sin tocar el golden). (4) Salida al patio comedor >
+cocina > lavandería/mudroom, posterior o lateral. (5) Voladizo de 6 ft. (6) Puerta principal (típica de las casas tract
+de San Diego: una hoja de 36" × 80" con panel lateral fijo, metida bajo el alero, deck cubierto para esperar; R311.2 y
+R311.3) distinta de la secundaria (patio). (7) Antejardín con la norma (Z10, Z11) que muestra circulación y jardín.
+Conectividad al 100 % como invariante.
+
+**Código.** `lib/program_adjust.py` (asignación por FAR antes de S0: reserva de pasillo de la zona privada como parte
+de su objetivo, master primero, baño por dormitorio, en suite o compartido con `shared_by`); `floor_frame` (la reserva
+entra al objetivo de la zona; el baño compartido y sus recámaras quedan juntos al partir la zona); `plan_levels`
+(`cantilever_rear`) y `cell_geometry` (`S1Context.cantilever_ft`, solo en la etapa S2.1); `door_placement`
+(corredizas, bisagra en esquina real `_supported`, K10 en las reglas de puerta, `place_patio_exit` con rellano, S13 y
+deck trasero); `unit_layout` (grupo recámara | baño compartido | recámara sobre el pasillo); `lib/front_yard.py`
+(entrada vehicular, deck de entrada, sendero, jardín, puerta principal con panel lateral, Z10 / Z11 / O04 / O05);
+`space_cell` (bloques `site`, `k10`, `patio_exit`, trazas); `viz` (antejardín, corredizas, vanos punteados).
+Catálogo 0.11.0 (tipos de puerta, `exits`, `program`, `upper_floor.cantilever`), reglas de aberturas 0.2.0 (O04 R311.2,
+O05 R311.3), reglas de cliente 0.5.0 (K10). 12 pruebas nuevas.
+
+**Piloto (10 lotes, 291 celdas best).** S2 zonifica 281 (antes 286: el programa ajustado cambia S1/S2 en 5 celdas).
+**126 casas con planta completa (45 %; S2.1 v1: 135)** — máximo 101/186, accesible 16/81, por etapas 9/24. En todas:
+0 espacios sin acceso; 0 de 1,150 hojas abatibles al aire (antes 332 de 1,653); 430 clósets con corrediza; salida al
+patio en el 100 % (comedor 102, cocina 11, sala-comedor 11, mudroom 2; posterior 77, lateral 49; sobre el deck del
+`site_plan` 6); Z10, Z11, O04 y O05 aprobados en todas; K10: 265 baños en suite y 19 compartidos entre dos recámaras;
+mediana de 56 sq ft agregados por celda dentro del FAR. El voladizo no ganó en ninguna celda (las otras colocaciones
+siempre caben). Fallan más las plantas bajas (102 contra 53 altas): unidades sociales y de cocina sin corte válido
+(37 y 16), pasillo que no alcanza las unidades (16).
+
+**Pendiente.** Zonificación de S2 con la salida al patio y las puertas en esquina (hoy las descubre S2.1); el deck
+trasero del `site_plan` frente a la salida (solo 6 coinciden); baños en franja larga (la forma se puntúa, no se
+prohíbe); voladizo como forma preferida cuando ahorra área en planta baja; tiempo ≈ 12 s por celda.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1044,7 +1079,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); S2.1b pasillo en la zonificación | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); ~~S2.1b puertas, baños, salidas, voladizo, antejardín (4s)~~ **hecho** (45 %, 0 sin acceso); S2.1c cobertura de plantas bajas | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
 | 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 
@@ -1127,7 +1162,7 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.1`,
-> secciones 4o–4r del HANDOFF) con **S2.1b**: hacer que la zonificación de S2 reserve el pasillo interior de la zona
-> privada (o que S2.1 ajuste el límite circulación–privada), para subir las 135 de 286 celdas con planta completa;
-> revisar el mudroom como paso garaje–cocina y decidir la excepción de R303.1 para la cocina. Respeta las reglas de la
-> sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.
+> secciones 4o–4s del HANDOFF) con **S2.1c**: subir la cobertura de plantas bajas (126 de 281 casas con planta
+> completa): que S2 zonifique sabiendo de la salida al patio y de las puertas en esquina, alinear la salida con el deck
+> trasero del `site_plan`, y revisar baños en franja larga. Respeta las reglas de la sección 1. Primero haz el análisis
+> lógico y el plan, y pregúntame antes de programar.

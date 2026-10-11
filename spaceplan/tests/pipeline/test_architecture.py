@@ -179,7 +179,8 @@ def test_files_follow_plan_table():
                          "floor_frame", "core_zoning", "zone_relations", "zone_cell",  # S2
                          "access_core", "access_stair", "access_rank", "routes", "access_cell",  # S1.2
                          "space_rules", "unit_frame", "unit_layout", "door_placement", "space_relations",
-                         "space_cell"},  # S2.1
+                         "space_cell",  # S2.1
+                         "program_adjust", "front_yard"},  # S2.1b
         "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry", "zone_grid",
                              "space_grid"},  # space_grid: S2.1
         "stacking/main": {"run_stacking", "contract"},

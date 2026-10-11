@@ -26,6 +26,8 @@ from spaceplan.modules.stacking.lib.lot_plan import LotPlan
 from spaceplan.modules.stacking.lib.plan_levels import (
     garage_area,
     garage_rect,
+    CANTILEVER_REAR,
+    cantilever_zone,
     ground_floor,
     upper_floor,
 )
@@ -109,6 +111,7 @@ class S1Context:
     envelope: HeightEnvelope
     slope: float | None
     stair_target_sqft: float
+    cantilever_ft: float = 0.0                 # stage S2.1: rear cantilever of the upper floor (0: not tried)
 
 
 def _band_depth(upper_names: list[str], ctx: S1Context, shapes) -> float | None:
@@ -175,6 +178,8 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
     cfg = _stair_cfg(ctx, top["receiving"])
 
     order = list(placements or scat.upper_placements(cell.get("scheme_id")))
+    if ctx.cantilever_ft > 0.0 and placements is None:
+        order.append(CANTILEVER_REAR)
     band_depth = None
     if top["small_house"]:                 # a room band beside a stair band (client decision 2026-10-10)
         band_depth = _band_depth(upper_names, ctx, shapes)
@@ -184,7 +189,8 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
     upper_cands, chosen, stair, valid = [], None, None, []
     for placement in order:
         cand = upper_floor(placement, ground, levels[1]["gross_sqft"], garage, g_cfg["side"], geo,
-                           scat.data["upper_floor"]["compact_min_depth_ft"], band_depth)
+                           scat.data["upper_floor"]["compact_min_depth_ft"], band_depth,
+                           footprint=footprint, cantilever_ft=ctx.cantilever_ft)
         found, cands = None, []
         if cand.polygon is not None and picker is not None:
             cands, found = picker(placement, cand, ground, garage, cfg)
@@ -222,7 +228,10 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
                              "polygon": polygon_json(plan.to_world(poly), nd),
                              "allowed_polygon": polygon_json(plan.to_world(allowed), nd),
                              "within_allowed": ok})
-    upper_in_ground = _contained(upper, ground, tol)
+    support = ground
+    if chosen.placement == CANTILEVER_REAR:   # the cantilever stands out over the patio by design
+        support = ground.union(cantilever_zone(ground, footprint, ctx.cantilever_ft))
+    upper_in_ground = _contained(upper, support, tol)
 
     default_roof = scat.roof(scat.default_roof)
     flat_roof = scat.roof(scat.flat_roof_id)
