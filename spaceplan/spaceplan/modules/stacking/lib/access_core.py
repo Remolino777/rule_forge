@@ -38,10 +38,15 @@ OPENINGS_RULE, LIGHTING_RULE = "S13-EXTERIOR-WALL-OPENINGS", "S12-STAIR-LIGHTING
 
 
 def site_entry(site_plan: dict[str, Any]) -> dict[str, Any]:
-    """Garage side and entry-deck interval (measured from the inner edge of the driveway) of the first feasible
-    site option."""
-    options = site_plan["site_partition"]["options"]
-    opt = next((o for o in options if o.get("feasible")), options[0])
+    """Garage side and entry-deck interval (measured from the inner edge of the driveway) of the selected site
+    option, else the first feasible one with zones, else any with zones; none (centred door) when no option was
+    laid out."""
+    part = site_plan["site_partition"]
+    options = [o for o in part["options"] if o.get("zones")]
+    opt = next((o for o in options if o.get("option_id") == part.get("selected_option_id")), None) or \
+        next((o for o in options if o.get("feasible")), None) or (options[0] if options else None)
+    if opt is None:
+        return {"garage_side": None, "deck_offset_ft": None, "option_id": None}
     zones = opt["zones"]
 
     def xs(name):

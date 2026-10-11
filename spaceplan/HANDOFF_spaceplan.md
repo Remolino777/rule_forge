@@ -879,6 +879,33 @@ tolerancias:** 12 ft → A 49, B 22, luz 74; 20 ft → A 55, B 11, luz 85, recor
 lotes; bajar el tiempo (reutilizar la huella para todas las posiciones); verificar S13 (R302.1) y si el vacío cuenta
 en el FAR; la estructura.
 
+## 4q. Paso 6.7a, S1.2 integrada en el flujo (10 oct 2026): opción B, tolerancia 15 ft
+
+**Rama:** `stacking/6.7a-s1.2`. `spaceplan stacking LOTES --stage S2 --site-plan SP.json ...` (sin `--site-plan` se
+calcula desde los briefs). Comparación: `tools/compare_s12_baseline.py OUT stack_plan*.json` contra la línea base
+congelada `docs/baselines/stack_plan_04bbba2` (S1.1 + retroceso de S2). Resultados: `docs/results/s12_pilot/`.
+
+**Decisiones del cliente.** Opción B: se borran el selector por junta y el retroceso de S2; la línea base queda como
+datos. Tolerancia de recorrido 15 ft. Piloto solo con celdas `best`.
+
+**Código.** `lib/access_cell.py`: `stage_s1` junta las candidatas de todas las posiciones de la planta alta, preselecciona
+por estrategia, busca el medio baño y dibuja la mejor por un proxy (marcada `provisional`); `stage_s2` dibuja y
+zonifica cada preseleccionada y elige con `access_rank` (obligatorio → tolerancia 15 ft → preferencias); guarda
+`stair_choice` (elegida, razón, Pareto, portafolio por estrategia, no zonificadas). `site_entry` toma la opción
+seleccionada del `site_plan`, y sin opción trazada usa la puerta centrada. Catálogo 0.8.0; esquema con `access_core`,
+`stair_choice` y `u_well`; láminas con puerta, vestíbulo, vacío y estrategia. 1,296 pruebas pasan.
+
+**Resultados (10 lotes, 291 celdas best, mismas celdas que la línea base).** Zonificadas 261 → 279 (+22, −4: tres
+`empty_nest` máximo en el trapecio y uno en el cul-de-sac, sin candidata zonificable). Escalera contra muro exterior
+0 → 236; con luz natural (K06) 224. Medio baño bajo escalera 141 → 241. Mediana del mayor rectángulo libre (ambas
+zonificadas): PB 770 → 851 sq ft, PA 468 → 648. Ocupación de la escalera 54.3 → 60.8 sq ft (U y L ocupan más).
+Recorrido mediano 83 ft. Estrategias: A 123, D 100, B 55, C 1, sin elegir 12. B se concentra en lotes angostos o en
+abanico (angosto 12, cul-de-sac 8, curva 7 —este sin `site_plan` trazado—, reverso 7). Tiempo ≈ 3.9 s por celda de
+punta a punta (incluye matriz de áreas y S0), dos lotes en paralelo.
+
+**Pendiente.** Revisar las 4 celdas perdidas y el peso de B en lotes angostos (¿muro lateral con U más estrecha? K08
+lo impide); `site_plan` del lote en curva; verificar S13 (R302.1) y si el vacío cuenta en el FAR; estructura; S2.1.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |

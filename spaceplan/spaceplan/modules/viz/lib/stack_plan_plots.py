@@ -13,6 +13,7 @@ from pathlib import Path
 INK, INK2, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#fcfcfb"
 GROUND_FILL, UPPER_FILL, GARAGE_FILL, STAIR_FILL = "#d7e6f5", "#eb6834", "#c9c7c0", "#0b0b0b"
 BOTTOM_EDGE, TOP_EDGE, HALF_BATH_FILL, VESTIBULE_EDGE = "#008300", "#a8467a", "#2a78d6", "#2a78d6"
+DOOR_FILL, ENTRY_EDGE, VOID_EDGE = "#d03b3b", "#d03b3b", "#52514e"
 WORDS = {
     "es": {"title": "Plantas apiladas (6.7a S1)", "ground": "Planta baja", "upper": "Planta alta",
            "garage": "Garaje", "stair": "Escalera", "envelope": "Envolvente de retiros", "roof": "techo",
@@ -20,14 +21,16 @@ WORDS = {
            "rear": "atrás", "front": "adelante", "over_garage": "sobre garaje", "compact": "compacta", "more": "celdas más no mostradas",
            "bottom": "Arranque", "top": "Llegada", "half_bath": "Medio baño bajo escalera",
            "hall": "pasillo", "upper_vestibule": "vestíbulo", "straight": "recta", "straight_landing": "recta c/descanso",
-           "l_turn": "L", "u_turn": "U"},
+           "l_turn": "L", "u_turn": "U", "u_well": "U c/vacío", "door": "Puerta principal y vestíbulo",
+           "void": "Vacío", "strategy": "estrategia"},
     "en": {"title": "Stacked plans (6.7a S1)", "ground": "Ground floor", "upper": "Upper floor",
            "garage": "Garage", "stair": "Stair", "envelope": "Setback envelope", "roof": "roof",
            "default": "default", "rotated": "ridge turned", "flat": "flat", "None": "plane governs",
            "rear": "rear", "front": "front", "over_garage": "over garage", "compact": "compact", "more": "more cells not shown",
            "bottom": "Stair start", "top": "Stair arrival", "half_bath": "Half bath under stair",
            "hall": "hall", "upper_vestibule": "vestibule", "straight": "straight", "straight_landing": "straight+landing",
-           "l_turn": "L", "u_turn": "U"},
+           "l_turn": "L", "u_turn": "U", "u_well": "U with void", "door": "Main door and vestibule",
+           "void": "Void", "strategy": "strategy"},
 }
 
 
@@ -49,6 +52,16 @@ def _line(ax, poly, **kw):
     for ring in _rings(poly):
         xs, ys = zip(*ring)
         ax.plot(xs, ys, **kw)
+
+
+def _access(ax, s1: dict, level: int) -> None:
+    """Stage S1.2 access core: main door, swing and vestibule on the ground floor; the void on the upper floor."""
+    acc = s1.get("access_core") or {}
+    if level == 0:
+        _line(ax, acc.get("vestibule"), color=ENTRY_EDGE, lw=0.6, ls="--")
+        _line(ax, acc.get("swing"), color=ENTRY_EDGE, lw=0.4, ls=":")
+        _fill(ax, acc.get("door"), color=DOOR_FILL, ec=DOOR_FILL, lw=0.8)
+    _fill(ax, acc.get("void"), color="#ffffff", ec=VOID_EDGE, lw=0.6, hatch="xx")
 
 
 def plot_stack_sheet(lot: dict, cells: list[dict], out_path: str | Path, lang: str = "es",
@@ -77,6 +90,8 @@ def plot_stack_sheet(lot: dict, cells: list[dict], out_path: str | Path, lang: s
         _fill(ax, s1["ground"].get("garage_polygon"), color=GARAGE_FILL, ec=INK2, lw=0.5, hatch="///")
         _fill(ax, s1["levels"][1]["polygon"], color=UPPER_FILL, alpha=0.45, ec=UPPER_FILL, lw=0.9)
         _fill(ax, s1["stair"]["polygon"], color=STAIR_FILL, ec=STAIR_FILL)
+        _access(ax, s1, 0)
+        _access(ax, s1, 1)
         core = s1.get("stair_core")
         if core:
             us = core["under_stair"]
@@ -91,6 +106,9 @@ def plot_stack_sheet(lot: dict, cells: list[dict], out_path: str | Path, lang: s
                         arrowprops={"arrowstyle": "->", "color": "#ffffff", "lw": 0.8})
         kept = s1["roof"]["kept"]
         top_rec = w.get(core["top_end"]["receiving"]["receiving"], "") if core else ""
+        acc = s1.get("access_core") or {}
+        if acc.get("strategy"):
+            top_rec += f" · {w['strategy']} {acc['strategy']}{' *' if acc.get('provisional') else ''}"
         ax.set_title(f"{c['household_id']}\n{c['profile']} · {c['scheme_id']} · {w[s1['upper_placement']]}\n"
                      f"{w['roof']}: {w[str(kept)]} · {w.get(s1['stair']['stair_id'], s1['stair']['stair_id'])} "
                      f"→ {top_rec}", fontsize=6.5, color=INK, loc="left")
@@ -106,8 +124,10 @@ def plot_stack_sheet(lot: dict, cells: list[dict], out_path: str | Path, lang: s
     handles = [Patch(color=GROUND_FILL, label=w["ground"]), Patch(color=GARAGE_FILL, label=w["garage"]),
                Patch(color=UPPER_FILL, alpha=0.45, label=w["upper"]), Patch(color=STAIR_FILL, label=w["stair"]),
                Patch(fill=False, ec=BOTTOM_EDGE, label=w["bottom"]), Patch(fill=False, ec=TOP_EDGE, ls="--", label=w["top"]),
-               Patch(color=HALF_BATH_FILL, alpha=0.55, label=w["half_bath"])]
-    fig.legend(handles=handles, loc="lower center", ncol=7, fontsize=7, frameon=False)
+               Patch(color=HALF_BATH_FILL, alpha=0.55, label=w["half_bath"]),
+               Patch(fill=False, ec=DOOR_FILL, ls="--", label=w["door"]),
+               Patch(fill=False, ec=VOID_EDGE, hatch="xx", label=w["void"])]
+    fig.legend(handles=handles, loc="lower center", ncol=9, fontsize=7, frameon=False)
     fig.tight_layout(rect=(0, 0.03, 1, 0.97))
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -184,6 +204,8 @@ def plot_zoning_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors
                     (core["bottom_end"]["zone"], BOTTOM_EDGE), s1["ground"].get("garage_polygon"), hb)
         _zone_panel(ax_u, s1["levels"][1]["polygon"], s2["upper"]["units"], colors, s1["stair"]["polygon"],
                     (core["top_end"]["zone"], TOP_EDGE))
+        _access(ax_g, s1, 0)
+        _access(ax_u, s1, 1)
         chosen = (s2.get("stair_choice") or {}).get("chosen") or {}
         tag = f" · {w['strategy']} {chosen['strategy']} ({chosen.get('light')})" if chosen else ""
         ax_g.set_title(f"{c['household_id']} · {c['profile']} · {c['scheme_id']}\n{w['ground']}: {w['option']} "

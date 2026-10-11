@@ -201,3 +201,29 @@ def test_stair_hall_rejects_a_stair_enclosed_by_one_private_zone(env):
     # circulation only at the stair's start (front), the bedroom zone wraps the other three sides
     enclosed = ((i0, i1, j0, 53), (i0, i1, 53, j1))              # stair rows start at 53 (y = 26 ft)
     assert search._stair_hall(enclosed) == "hall:inside_private"
+
+
+# ------------------------------------------------------------------ site cases (integration, option B)
+
+
+def _site(options, selected=None):
+    return {"site_partition": {"options": options, "selected_option_id": selected}}
+
+
+def _zones(deck, drive):
+    def rect(x0, x1):
+        return {"polygon": {"type": "Polygon", "coordinates": [[[x0, 0], [x1, 0], [x1, 6], [x0, 6], [x0, 0]]]}}
+    return {"entry_deck": rect(*deck), **({"driveway": rect(*drive)} if drive else {})}
+
+
+def test_site_entry_takes_the_selected_option_and_survives_unlaid_sites():
+    from spaceplan.modules.stacking.lib.access_core import site_entry
+
+    n1 = {"option_id": "n1", "feasible": True, "zones": _zones((0, 10), (30, 50))}
+    n2 = {"option_id": "n2", "feasible": True, "zones": _zones((16, 26), (0, 14))}
+    assert site_entry(_site([n1, n2], "n2"))["garage_side"] == "left"          # the selected option
+    assert site_entry(_site([n1, n2]))["garage_side"] == "right"               # else the first feasible
+    unlaid = {"option_id": "n2", "feasible": False, "reasons": ["footprint does not fit"]}   # no zones (fan curve)
+    assert site_entry(_site([unlaid]))["garage_side"] is None
+    flag = {"option_id": "n2", "feasible": True, "zones": _zones((5, 15), None)}             # no driveway on the front
+    assert site_entry(_site([flag], "n2"))["deck_offset_ft"] == (0.0, 10.0)

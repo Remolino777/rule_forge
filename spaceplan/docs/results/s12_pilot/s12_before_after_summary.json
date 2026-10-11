@@ -1,0 +1,146 @@
+{
+ "cells_before": 291,
+ "cells_after": 291,
+ "matched": 291,
+ "zoned": [
+  261,
+  279
+ ],
+ "exterior_wall_stair": [
+  0,
+  236
+ ],
+ "natural_light_after": {
+  "window": 224,
+  "none": 55,
+  "null": 12
+ },
+ "strategy_after": {
+  "D": 100,
+  "B": 55,
+  "A": 123,
+  "null": 12,
+  "C": 1
+ },
+ "stair_type": [
+  {
+   "straight_landing": 45,
+   "straight": 131,
+   "u_turn": 24,
+   "l_turn": 91
+  },
+  {
+   "l_turn": 198,
+   "straight": 41,
+   "u_turn": 50,
+   "u_well": 1,
+   "straight_landing": 1
+  }
+ ],
+ "half_bath_under_stair": [
+  141,
+  241
+ ],
+ "arrival": [
+  {
+   "hall": 199,
+   "family_room": 42,
+   "upper_vestibule": 20
+  },
+  {
+   "upper_vestibule": 34,
+   "hall": 245
+  }
+ ],
+ "median_both_zoned": {
+  "occupied_sqft": [
+   54.3,
+   60.8
+  ],
+  "free_rect_ground": [
+   770.0,
+   851.0
+  ],
+  "free_rect_upper": [
+   468.0,
+   648.0
+  ],
+  "score": [
+   1.0,
+   1.0
+  ]
+ },
+ "median_route_ft_after": 83.0,
+ "by_lot": {
+  "corner-55x100": {
+   "zoned": [
+    27,
+    32
+   ],
+   "cells": 33
+  },
+  "fan-cul-de-sac-35-80x100": {
+   "zoned": [
+    28,
+    27
+   ],
+   "cells": 29
+  },
+  "fan-curve-35-80x100": {
+   "zoned": [
+    8,
+    8
+   ],
+   "cells": 8
+  },
+  "fan-reverse-80-40x100": {
+   "zoned": [
+    25,
+    25
+   ],
+   "cells": 26
+  },
+  "flag-70x80-pole20": {
+   "zoned": [
+    25,
+    27
+   ],
+   "cells": 28
+  },
+  "hillside-50x100": {
+   "zoned": [
+    33,
+    36
+   ],
+   "cells": 36
+  },
+  "interior-50x100": {
+   "zoned": [
+    28,
+    36
+   ],
+   "cells": 36
+  },
+  "narrow-40x125": {
+   "zoned": [
+    32,
+    32
+   ],
+   "cells": 35
+  },
+  "shallow-50x95": {
+   "zoned": [
+    27,
+    30
+   ],
+   "cells": 30
+  },
+  "trapezoid-asym-45-65x100": {
+   "zoned": [
+    28,
+    26
+   ],
+   "cells": 30
+  }
+ }
+}

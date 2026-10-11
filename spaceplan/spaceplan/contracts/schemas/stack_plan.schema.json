@@ -377,7 +377,8 @@
                 "straight",
                 "straight_landing",
                 "l_turn",
-                "u_turn"
+                "u_turn",
+                "u_well"
               ]
             },
             "risers": {
@@ -709,7 +710,8 @@
             "straight",
             "straight_landing",
             "l_turn",
-            "u_turn"
+            "u_turn",
+            "u_well"
           ]
         },
         "footprint": {
