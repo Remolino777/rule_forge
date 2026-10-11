@@ -17,7 +17,7 @@ from shapely.geometry.base import BaseGeometry
 
 from spaceplan.modules.stacking.lib_aux.plan_geometry import HIGH, LOW, cut_band, joint_lines
 
-REAR, FRONT, OVER_GARAGE, COMPACT = "rear", "front", "over_garage", "compact"
+REAR, FRONT, OVER_GARAGE, COMPACT, COMPACT_BANDS = "rear", "front", "over_garage", "compact", "compact_bands"
 
 
 def ground_floor(footprint: BaseGeometry, gross_sqft: float, geometry: dict[str, Any]) -> BaseGeometry | None:
@@ -61,7 +61,11 @@ class UpperCandidate:
 
 
 def upper_floor(placement: str, ground: BaseGeometry, gross_sqft: float, garage: BaseGeometry | None,
-                garage_side: str, geometry: dict[str, Any], compact_min_depth_ft: float = 0.0) -> UpperCandidate:
+                garage_side: str, geometry: dict[str, Any], compact_min_depth_ft: float = 0.0,
+                band_depth_ft: float | None = None) -> UpperCandidate:
+    """`band_depth_ft` (placement compact_bands, small upper floors): the depth of a rear rectangle that holds a band
+    of rooms beside a band of stair (widest room minimum side + widest stair span); a ground floor too shallow for it
+    takes the band across the width instead."""
     rounds, tol = int(geometry["bisection_rounds"]), geometry["area_tolerance_sqft"]
     if gross_sqft > ground.area + tol:
         return UpperCandidate(placement, None, (), "upper floor larger than the ground floor")
@@ -89,10 +93,22 @@ def upper_floor(placement: str, ground: BaseGeometry, gross_sqft: float, garage:
         poly = box(cx - width / 2, y1 - depth, cx + width / 2, y1).intersection(ground)
         if poly.area < gross_sqft - tol:
             return UpperCandidate(placement, None, (), "compact rectangle leaves the ground floor")
+    elif placement == COMPACT_BANDS:
+        if not band_depth_ft:
+            return UpperCandidate(placement, None, (), "no band depth (not a small upper floor)")
+        x0, y0, x1, y1 = ground.bounds
+        depth = band_depth_ft
+        width = gross_sqft / depth
+        if depth > y1 - y0:                    # shallow ground floor: the bands run across the width
+            width, depth = band_depth_ft, gross_sqft / band_depth_ft
+        cx = 0.5 * (x0 + x1)
+        poly = box(cx - width / 2, y1 - depth, cx + width / 2, y1).intersection(ground)
+        if width > x1 - x0 + 1e-6 or depth > y1 - y0 + 1e-6 or poly.area < gross_sqft - tol:
+            return UpperCandidate(placement, None, (), "band rectangle leaves the ground floor")
     else:
         raise ValueError(f"unknown upper-floor placement {placement!r}")
     return UpperCandidate(placement, poly, tuple(joint_lines(poly, ground)))
 
 
-__all__ = ["COMPACT", "FRONT", "OVER_GARAGE", "REAR", "UpperCandidate", "garage_area", "garage_rect", "ground_floor",
+__all__ = ["COMPACT", "COMPACT_BANDS", "FRONT", "OVER_GARAGE", "REAR", "UpperCandidate", "garage_area", "garage_rect", "ground_floor",
            "upper_floor"]

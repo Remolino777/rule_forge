@@ -916,8 +916,17 @@ entre 15.5 y 42 ft más larga (mediana 22). Simulación (279 celdas): 10 ft → 
 de 5–8 ft de fondo a todo el ancho; A no tiene muro lateral que siga arriba y la regla de ancho falla en todas. Es un
 problema de la forma de la planta alta en S1, no de la escalera.
 
-**Pendiente.** Decisión del cliente sobre la tolerancia; planta alta compacta para casas pequeñas (proporción mínima);
-`site_plan` del lote en curva; verificar S13 (R302.1) y si el vacío cuenta en el FAR; estructura; S2.1.
+**Cierre S1.2 (11 oct 2026).** Decisiones del cliente: tolerancia **25 ft**; planta alta en dos bandas para casas
+pequeñas. Catálogo 0.9.0: `route_tolerance_ft` 25 y `upper_floor.small_house_placements: [compact_bands]` (rectángulo
+atrás, centrado, de fondo = mayor lado mínimo de las habitaciones de arriba + mayor ancho de escalera; a lo ancho si
+la planta baja es poco profunda). Resultado final (291 celdas): zonificadas 261 → **286**; escalera contra muro
+exterior 0 → 259; con luz 254; A 149, D 103, C 2, B 32, sin elegir 5; medio baño bajo escalera 141 → 239; recorrido
+mediano 86.5 ft (+3.2 ft de recorrido extra mediano por la tolerancia). `compact_bands` se eligió en 7 celdas.
+Quedan 5 sin zonificar: perfiles accesibles de 175–255 sq ft arriba en lotes en abanico y angosto (ancho y área de
+habitación). ≈ 4.5 s por celda de punta a punta. 1,299 pruebas pasan.
+
+**Pendiente.** Las 5 celdas accesibles (¿planta alta más ancha o programa arriba distinto?); `site_plan` del lote en
+curva; verificar S13 (R302.1) y si el vacío cuenta en el FAR; estructura; **S2.1**.
 
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 

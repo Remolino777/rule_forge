@@ -171,6 +171,20 @@ def test_compact_upper_floor_for_small_upper_floors(scat):
     assert compact.polygon.area == pytest.approx(200.0) and y1 - y0 >= 12.0 and y1 == pytest.approx(25.0)
 
 
+def test_compact_bands_upper_floor_holds_a_room_band_beside_a_stair_band(scat):
+    from spaceplan.modules.stacking.lib.plan_levels import COMPACT_BANDS
+
+    ground = box(0, 0, 40, 50)
+    bands = upper_floor(COMPACT_BANDS, ground, 250.0, None, "right", scat.geometry, 12.0, band_depth_ft=19.0)
+    x0, y0, x1, y1 = bands.polygon.bounds
+    assert bands.polygon.area == pytest.approx(250.0) and y1 - y0 == pytest.approx(19.0) and y1 == 50.0
+    shallow = upper_floor(COMPACT_BANDS, box(0, 0, 40, 15), 250.0, None, "right", scat.geometry, 12.0, 19.0)
+    sx0, _, sx1, _ = shallow.polygon.bounds
+    assert sx1 - sx0 == pytest.approx(19.0)                  # too shallow: the bands run across the width
+    assert upper_floor(COMPACT_BANDS, ground, 250.0, None, "right", scat.geometry, 12.0).polygon is None
+    assert "compact_bands" in scat.data["upper_floor"]["small_house_placements"]
+
+
 # ------------------------------------------------------------------ receiving spaces and client rules
 
 

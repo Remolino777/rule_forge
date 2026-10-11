@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.8.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft.",
+  "catalog_version": "0.9.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft. Version 0.9.0 (S1.2 close, 2026-10-10): route tolerance 25 ft (client decision after the tolerance simulation); small upper floors also try compact_bands (a room band beside a stair band).",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -225,15 +225,22 @@
       "compact": {
         "es": "Compacta (atrás, centrada)",
         "en": "Compact (rear, centred)"
+      },
+      "compact_bands": {
+        "es": "Compacta en dos bandas (habitación + escalera)",
+        "en": "Compact in two bands (room + stair)"
       }
     },
     "compact_min_depth_ft": 12.0,
-    "note": "The upper floor is a band of the ground floor cut parallel to the front (rear or front placement) or a rectangle anchored on the garage corner (over_garage), so it is contained in the ground floor by construction; the first placement in the order that holds the stair is chosen and every placement is reported. Partial upper floors (V4: guest, work) try the room over the garage first. Compact (S1.1): a rectangle at the rear of the ground floor, centred, at least compact_min_depth_ft deep (stair plus arrival zone), for small upper floors where a full-width band would be a few feet deep.",
+    "note": "The upper floor is a band of the ground floor cut parallel to the front (rear or front placement) or a rectangle anchored on the garage corner (over_garage), so it is contained in the ground floor by construction; the first placement in the order that holds the stair is chosen and every placement is reported. Partial upper floors (V4: guest, work) try the room over the garage first. Compact (S1.1): a rectangle at the rear of the ground floor, centred, at least compact_min_depth_ft deep (stair plus arrival zone), for small upper floors where a full-width band would be a few feet deep. compact_bands (S1.2 close, small houses only): a rectangle at the rear, centred, as deep as the widest minimum side of the upper rooms plus the widest stair span (room band beside stair band); across the width when the ground floor is too shallow.",
     "source": {
       "kind": "catalog",
       "citation": "Student-defined placement hypothesis (private floor toward the garden; room over the garage for partial upper floors), spaceplan step 6.7a S1 (2026-10)",
       "status": "provisional"
-    }
+    },
+    "small_house_placements": [
+      "compact_bands"
+    ]
   },
   "garage": {
     "side": "right",
@@ -517,7 +524,7 @@
         "occupied_sqft"
       ],
       "rule": "pareto",
-      "route_tolerance_ft": 15.0,
+      "route_tolerance_ft": 25.0,
       "preferences": [
         "strategy",
         "arrival",

@@ -33,6 +33,7 @@ from spaceplan.modules.stacking.lib.roof_plane import check_roof, roof_sequence
 from spaceplan.modules.stacking.lib.stacking_catalog import StackingCatalog
 from spaceplan.modules.stacking.lib.stair import best_by_type, candidates, choose, stair_shape
 from spaceplan.modules.stacking.lib.stair_access import (
+    space_type_of,
     DEFERRED,
     FAIL,
     PASS,
@@ -110,6 +111,17 @@ class S1Context:
     stair_target_sqft: float
 
 
+def _band_depth(upper_names: list[str], ctx: S1Context, shapes) -> float | None:
+    """Depth of the compact_bands upper floor: the widest minimum side of the upper rooms plus the widest stair
+    span (both from the catalogs)."""
+    types = [t["space_type"] for t in ctx.catalog.data["space_types"]]
+    sides = [float(ctx.catalog.space_type(st).get("min_side_ft", 0.0))
+             for st in (space_type_of(n, types) for n in upper_names) if st is not None]
+    if not sides or not shapes:
+        return None
+    return max(sides) + max(sh.span_ft for sh in shapes)
+
+
 def _stair_cfg(ctx: S1Context, receiving: str) -> dict[str, Any]:
     us, pl, acc = ctx.scat.under_stair, ctx.scat.stair_placement, ctx.scat.stair_access
     hb_spec = ctx.catalog.space_type("half_bath")
@@ -157,15 +169,22 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
     design = {**scat.stair_design, "u_min_span_ft": u_min_span_ft(ctx.client_rs)}   # client rule K08
     shapes = [stair_shape(t, lv["floor_to_floor_ft"], limits, design) for t in scat.stair_types
               if stair_ids is None or t["stair_id"] in stair_ids]
-    rooms = upper_rooms(list(cell.get("split", {}).get("upper_spaces") or s0.get("upper_spaces") or []),
-                        ctx.catalog, scat.stair_access)
+    upper_names = list(cell.get("split", {}).get("upper_spaces") or s0.get("upper_spaces") or [])
+    rooms = upper_rooms(upper_names, ctx.catalog, scat.stair_access)
     top = top_receiving(ctx.client_rs, rooms, scat.stair_access["small_house_upper_rooms_max"])
     cfg = _stair_cfg(ctx, top["receiving"])
 
+    order = list(placements or scat.upper_placements(cell.get("scheme_id")))
+    band_depth = None
+    if top["small_house"]:                 # a room band beside a stair band (client decision 2026-10-10)
+        band_depth = _band_depth(upper_names, ctx, shapes)
+        if placements is None:
+            order += [p for p in scat.data["upper_floor"].get("small_house_placements", []) if p not in order]
+
     upper_cands, chosen, stair, valid = [], None, None, []
-    for placement in (placements or scat.upper_placements(cell.get("scheme_id"))):
+    for placement in order:
         cand = upper_floor(placement, ground, levels[1]["gross_sqft"], garage, g_cfg["side"], geo,
-                           scat.data["upper_floor"]["compact_min_depth_ft"])
+                           scat.data["upper_floor"]["compact_min_depth_ft"], band_depth)
         found, cands = None, []
         if cand.polygon is not None and picker is not None:
             cands, found = picker(placement, cand, ground, garage, cfg)

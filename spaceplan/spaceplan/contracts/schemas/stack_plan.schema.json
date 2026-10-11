@@ -253,6 +253,7 @@
             "rear",
             "front",
             "over_garage",
+            "compact_bands",
             "compact"
           ]
         },

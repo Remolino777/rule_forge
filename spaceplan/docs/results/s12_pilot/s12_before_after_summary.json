@@ -4,23 +4,23 @@
  "matched": 291,
  "zoned": [
   261,
-  279
+  286
  ],
  "exterior_wall_stair": [
   0,
-  236
+  259
  ],
  "natural_light_after": {
-  "window": 224,
-  "none": 55,
-  "null": 12
+  "window": 254,
+  "none": 32,
+  "null": 5
  },
  "strategy_after": {
-  "D": 100,
-  "B": 55,
-  "A": 123,
-  "null": 12,
-  "C": 1
+  "D": 103,
+  "A": 149,
+  "B": 32,
+  "null": 5,
+  "C": 2
  },
  "stair_type": [
   {
@@ -30,16 +30,16 @@
    "l_turn": 91
   },
   {
-   "l_turn": 198,
-   "straight": 41,
-   "u_turn": 50,
-   "u_well": 1,
-   "straight_landing": 1
+   "l_turn": 194,
+   "straight": 31,
+   "u_turn": 63,
+   "straight_landing": 1,
+   "u_well": 2
   }
  ],
  "half_bath_under_stair": [
   141,
-  241
+  239
  ],
  "arrival": [
   {
@@ -48,34 +48,34 @@
    "upper_vestibule": 20
   },
   {
-   "upper_vestibule": 34,
+   "upper_vestibule": 41,
    "hall": 245
   }
  ],
  "median_both_zoned": {
   "occupied_sqft": [
-   54.3,
+   57.5,
    60.8
   ],
   "free_rect_ground": [
-   770.0,
-   851.0
+   775.5,
+   857.5
   ],
   "free_rect_upper": [
    468.0,
-   648.0
+   605.6
   ],
   "score": [
    1.0,
    1.0
   ]
  },
- "median_route_ft_after": 83.0,
+ "median_route_ft_after": 86.5,
  "by_lot": {
   "corner-55x100": {
    "zoned": [
     27,
-    32
+    33
    ],
    "cells": 33
   },
@@ -103,7 +103,7 @@
   "flag-70x80-pole20": {
    "zoned": [
     25,
-    27
+    28
    ],
    "cells": 28
   },
@@ -124,7 +124,7 @@
   "narrow-40x125": {
    "zoned": [
     32,
-    32
+    33
    ],
    "cells": 35
   },
@@ -138,7 +138,7 @@
   "trapezoid-asym-45-65x100": {
    "zoned": [
     28,
-    26
+    30
    ],
    "cells": 30
   }

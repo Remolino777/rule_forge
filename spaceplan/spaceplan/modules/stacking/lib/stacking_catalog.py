@@ -155,7 +155,7 @@ class StackingCatalog:
 STAIR_TYPES = ("straight", "straight_landing", "l_turn", "u_turn", "u_well")
 CHOICE_KEYS = ("net_ground_bucket", "half_bath_fit", "entry_distance_ft", "joint_offset_ft")
 BOTTOM_OPTIONS = ("A", "B", "C")
-PLACEMENTS = ("rear", "front", "over_garage", "compact")
+PLACEMENTS = ("rear", "front", "over_garage", "compact", "compact_bands")
 ROOF_STEPS = ("default", "rotated", "flat")
 S1_BLOCKS = ("upper_floor", "garage", "roof_orientation", "geometry", "stair_access")
 
@@ -206,7 +206,7 @@ def _check_s1(data: dict[str, Any]) -> list[str]:
     if not isinstance(stair["placement"].get("search_step_ft"), (int, float)) or stair["placement"]["search_step_ft"] <= 0:
         problems.append("stair.placement.search_step_ft must be > 0")
     uf = data["upper_floor"]
-    orders = [uf.get("placements", [])] + list(uf.get("scheme_order", {}).values())
+    orders = [uf.get("placements", []), uf.get("small_house_placements", [])] + list(uf.get("scheme_order", {}).values())
     if not uf.get("placements") or any(p not in PLACEMENTS for order in orders for p in order):
         problems.append(f"upper_floor placements must be drawn from {PLACEMENTS}")
     if not isinstance(uf.get("compact_min_depth_ft"), (int, float)) or uf["compact_min_depth_ft"] <= 0:
