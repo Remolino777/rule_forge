@@ -279,6 +279,8 @@ def test_s2_chooses_the_stair_among_the_s1_candidates(zoned, scat):
         chosen = choice["chosen"]
         assert chosen and chosen["s2_status"] == "zoned" and chosen["near_best"]
         assert core["provisional"] is False                       # the drawing kept is the one S2 chose
+        assert core["candidates"] and "discards" in core          # and keeps what S1 handed over
+        assert len(choice["ranked"]) == choice["zoned"] and choice["ranked"][0] == chosen
         assert (core["strategy"], core["stair_id"], core["placement"]) == \
             (chosen["strategy"], chosen["stair_id"], chosen["placement"])
         assert choice["portfolio"][chosen["strategy"]] == chosen     # the best of each strategy is kept

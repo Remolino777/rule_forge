@@ -1264,6 +1264,22 @@
             },
             "reason": {
               "type": "string"
+            },
+            "ranked": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/stair_candidate"
+              },
+              "description": "Every zoned candidate in choice order (lets the tolerance be simulated from the contract)."
+            },
+            "arrival_order": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
             }
           }
         }

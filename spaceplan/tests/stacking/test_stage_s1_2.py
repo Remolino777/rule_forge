@@ -227,3 +227,28 @@ def test_site_entry_takes_the_selected_option_and_survives_unlaid_sites():
     assert site_entry(_site([unlaid]))["garage_side"] is None
     flag = {"option_id": "n2", "feasible": True, "zones": _zones((5, 15), None)}             # no driveway on the front
     assert site_entry(_site([flag], "n2"))["deck_offset_ft"] == (0.0, 10.0)
+
+
+# ------------------------------------------------------------------ routes over two floors (living upstairs)
+
+
+def test_stair_walk_is_treads_and_landings_without_effort_factor():
+    from spaceplan.modules.stacking.lib.routes import stair_walk_ft
+
+    stair = {"treads": 14, "tread_in": 10.0, "landing_ft": 3.0}
+    assert stair_walk_ft(stair, 1) == pytest.approx(14 * 10 / 12)
+    assert stair_walk_ft(stair, 2) == pytest.approx(14 * 10 / 12 + 3.0)
+
+
+def test_targets_upstairs_are_walked_through_the_stair():
+    from spaceplan.modules.stacking.lib.routes import two_floor_routes
+
+    ground = {"total_ft": 10.0, "by_target": {"stair": 10.0}, "absent": ["living", "dining", "kitchen"]}
+    upper = {"total_ft": 30.0, "by_target": {"living": 12.0, "dining": 8.0, "kitchen": 10.0}, "absent": []}
+    r = two_floor_routes(ground, upper, 15.0)
+    assert r["by_target"] == {"stair": 10.0, "living": 37.0, "dining": 33.0, "kitchen": 35.0}
+    assert r["total_ft"] == pytest.approx(115.0) and r["upper"]["targets"] == ["living", "dining", "kitchen"]
+    blocked = two_floor_routes(ground, {**upper, "by_target": {**upper["by_target"], "kitchen": None}}, 15.0)
+    assert blocked["total_ft"] is None                               # unreachable upstairs: no route, not a short one
+    same = {"total_ft": 40.0, "by_target": {"living": 10.0, "stair": 30.0}, "absent": []}
+    assert two_floor_routes(same, upper, 15.0) is same              # nothing upstairs: unchanged

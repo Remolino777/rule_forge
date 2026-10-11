@@ -161,13 +161,19 @@ def stage_s2(cell, s0, out: dict[str, Any], plan, strategy, ctx: S1Context, s2ct
     for r in ranked:
         portfolio.setdefault(r.trial["strategy"], summary(r.trial, r))
     choice = {"tolerance_ft": actx.tolerance_ft, "strategy_preference": actx.preference,
-              "candidates": len(trials), "zoned": len(ranked), "portfolio": portfolio,
+              "candidates": len(trials), "zoned": len(ranked), "portfolio": portfolio, "arrival_order": order,
+              "ranked": [summary(r.trial, r) for r in ranked],          # every zoned candidate, in choice order
               "pareto": [summary(r.trial, r) for r in ranked if r.pareto],
               "not_zoned": [summary(t) for t in trials if t["route_ft"] is None]}
     if ranked:
         best = ranked[0].trial
         choice.update({"chosen": summary(best, ranked[0]), "reason": ranked[0].reason})
         best["s1"]["access_core"]["provisional"] = False
+        for k in ("candidates", "discards"):                      # what S1 handed over stays with the chosen drawing
+            if k in (provisional.get("access_core") or {}):
+                best["s1"]["access_core"][k] = provisional["access_core"][k]
+        if "upper_candidates" in provisional:
+            best["s1"]["upper_candidates"] = provisional["upper_candidates"]
         out["s1"], s2 = best["s1"], best["s2"]
     else:
         choice.update({"chosen": None, "reason": "no candidate zoned" if trials else "no candidate drawn"})

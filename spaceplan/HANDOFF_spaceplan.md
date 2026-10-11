@@ -903,8 +903,21 @@ Recorrido mediano 83 ft. Estrategias: A 123, D 100, B 55, C 1, sin elegir 12. B 
 abanico (angosto 12, cul-de-sac 8, curva 7 —este sin `site_plan` trazado—, reverso 7). Tiempo ≈ 3.9 s por celda de
 punta a punta (incluye matriz de áreas y S0), dos lotes en paralelo.
 
-**Pendiente.** Revisar las 4 celdas perdidas y el peso de B en lotes angostos (¿muro lateral con U más estrecha? K08
-lo impide); `site_plan` del lote en curva; verificar S13 (R302.1) y si el vacío cuenta en el FAR; estructura; S2.1.
+**Ajustes (S1.2b, 10 oct 2026).** La escalera elegida conserva las candidatas y descartes de S1. Recorrido en dos
+plantas: un destino que está arriba (sala en la ladera, perfil accesible) se camina puerta → arranque + escalera
+(huellas y descansos, sin factor de esfuerzo; decisión del cliente) + llegada → zona. `stair_choice.ranked` guarda
+todas las candidatas zonificadas, para simular la tolerancia sin volver a zonificar
+(`tools/simulate_tolerance.py`). Diagnóstico de no zonificadas: `tools/diagnose_unzoned.py`. 1,298 pruebas pasan.
+
+**Hallazgos.** (1) B gana por recorrido, no por falta de alternativas: en 48 de 55 celdas había A, D o C zonificada,
+entre 15.5 y 42 ft más larga (mediana 22). Simulación (279 celdas): 10 ft → B 78, luz 201; 15 → B 55, luz 224;
+20 → B 39, luz 240; 25 → B 25, luz 254, recorrido mediano +3 ft; 30 → B 19, luz 260; 40 → B 12, luz 267.
+(2) Las 12 no zonificadas son plantas altas pequeñas (175–255 sq ft: un cuarto y un baño) que S1 dibuja como franjas
+de 5–8 ft de fondo a todo el ancho; A no tiene muro lateral que siga arriba y la regla de ancho falla en todas. Es un
+problema de la forma de la planta alta en S1, no de la escalera.
+
+**Pendiente.** Decisión del cliente sobre la tolerancia; planta alta compacta para casas pequeñas (proporción mínima);
+`site_plan` del lote en curva; verificar S13 (R302.1) y si el vacío cuenta en el FAR; estructura; S2.1.
 
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
