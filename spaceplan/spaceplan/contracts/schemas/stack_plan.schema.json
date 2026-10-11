@@ -1344,6 +1344,248 @@
           "type": "string"
         }
       }
+    },
+    "s21_door": {
+      "type": "object",
+      "required": [
+        "a",
+        "b",
+        "kind"
+      ],
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "opening",
+            "door",
+            "closet_door",
+            "fixed",
+            "garage_door",
+            "stair"
+          ]
+        },
+        "clear_width_in": {
+          "type": "number"
+        },
+        "segment": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "swing_into": {
+          "type": "string"
+        },
+        "leaf_ft": {
+          "type": "number"
+        },
+        "hinge": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "swing": {
+          "$ref": "#/$defs/polygon"
+        },
+        "self_closing": {
+          "type": "boolean"
+        }
+      },
+      "description": "A door or opening of stage S2.1: a = the space the leaf swings into (or the first space of an opening); segment on the shared wall (world coordinates); hinge and swing (quarter disc) for hinged doors; garage doors self-closing (O02)."
+    },
+    "s21_space": {
+      "type": "object",
+      "required": [
+        "space_id",
+        "space_type",
+        "area_sqft",
+        "polygon"
+      ],
+      "properties": {
+        "space_id": {
+          "type": "string"
+        },
+        "space_type": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "string"
+        },
+        "unit_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "area_sqft": {
+          "type": "number"
+        },
+        "target_sqft": {
+          "type": "number"
+        },
+        "exterior_ft": {
+          "type": "number"
+        },
+        "host": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fixed": {
+          "type": "boolean"
+        },
+        "synthetic": {
+          "type": "boolean"
+        },
+        "polygon": {
+          "$ref": "#/$defs/polygon"
+        }
+      }
+    },
+    "s21_floor": {
+      "type": "object",
+      "required": [
+        "level",
+        "spaces",
+        "doors",
+        "root",
+        "landing_space"
+      ],
+      "properties": {
+        "level": {
+          "type": "integer"
+        },
+        "variant": {
+          "type": "string"
+        },
+        "root": {
+          "type": "string"
+        },
+        "landing_space": {
+          "type": "string"
+        },
+        "hall_sides": {
+          "type": "object"
+        },
+        "spaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/s21_space"
+          }
+        },
+        "closets_in_rooms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "doors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/s21_door"
+          }
+        },
+        "score": {
+          "type": "number"
+        },
+        "relations": {
+          "type": "object"
+        }
+      }
+    },
+    "s21": {
+      "type": "object",
+      "required": [
+        "stage",
+        "status",
+        "warnings",
+        "rule_traces"
+      ],
+      "description": "Stage S2.1: spaces and doors inside the S2 zones of both floors (closes step 6.7a). status spaced -> next_stage null; no_valid_layout keeps the first violation; not_evaluated when no candidate was zoned.",
+      "properties": {
+        "stage": {
+          "const": "S2.1"
+        },
+        "status": {
+          "enum": [
+            "spaced",
+            "no_valid_layout",
+            "not_evaluated"
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "failed_floor": {
+          "enum": [
+            "ground",
+            "upper"
+          ]
+        },
+        "first_violation": {
+          "type": "string"
+        },
+        "stair_rank": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "attempts": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "s2_alternative": {
+          "type": "object"
+        },
+        "search": {
+          "type": "object"
+        },
+        "score": {
+          "type": "number"
+        },
+        "score_parts": {
+          "type": "object"
+        },
+        "ground": {
+          "$ref": "#/$defs/s21_floor"
+        },
+        "upper": {
+          "$ref": "#/$defs/s21_floor"
+        },
+        "vertical": {
+          "type": "object"
+        },
+        "depth": {
+          "type": "object"
+        },
+        "rule_traces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule_trace"
+          }
+        }
+      }
     }
   },
   "properties": {
@@ -1397,7 +1639,8 @@
           "enum": [
             "S0",
             "S1",
-            "S2"
+            "S2",
+            "S2.1"
           ]
         },
         "selection_mode": {
@@ -1611,6 +1854,9 @@
           },
           "s2": {
             "$ref": "#/$defs/s2"
+          },
+          "s21": {
+            "$ref": "#/$defs/s21"
           }
         }
       }

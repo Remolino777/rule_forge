@@ -232,4 +232,104 @@ def plot_zoning_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors
     return out
 
 
-__all__ = ["S2_WORDS", "WORDS", "plot_stack_sheet", "plot_zoning_sheet"]
+S21_WORDS = {
+    "es": {"title": "Espacios y puertas (6.7a S2.1)", "ground": "Planta baja", "upper": "Planta alta",
+           "stair": "Escalera", "garage": "Garaje", "door": "Puerta (giro)", "opening": "Vano",
+           "closet": "Clóset de sobrante", "more": "celdas más no mostradas", "rank": "escalera n.º",
+           "built_in": "clósets integrados"},
+    "en": {"title": "Spaces and doors (6.7a S2.1)", "ground": "Ground floor", "upper": "Upper floor",
+           "stair": "Stair", "garage": "Garage", "door": "Door (swing)", "opening": "Opening",
+           "closet": "Leftover closet", "more": "more cells not shown", "rank": "stair rank",
+           "built_in": "built-in closets"},
+}
+SHORT = {"primary_suite": "suite", "primary_bath": "bath P", "walk_in_closet": "w-i cl", "bedroom": "bed",
+         "bathroom": "bath", "living_room": "living", "dining_room": "dining", "family_room": "family",
+         "breakfast_nook": "nook", "laundry_closet": "laundry cl", "half_bath": "½ bath", "entry_vestibule": "entry",
+         "vestibule": "vest", "flex_room": "flex", "mechanical": "mech", "living_dining": "liv-din"}
+
+
+def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None):
+    _fill(ax, floor_poly, color="#ffffff", ec=INK2, lw=0.6)
+    for sp in block["spaces"]:
+        if sp["space_type"].startswith("garage"):
+            _fill(ax, sp["polygon"], color=GARAGE_FILL, ec=INK2, lw=0.5, hatch="///")
+            continue
+        color = colors.get(sp["zone"], "#eeeeee") if not sp["fixed"] else "#f3f2ee"
+        hatch = "...." if sp["synthetic"] and sp["space_type"] == "closet" else None
+        _fill(ax, sp["polygon"], color=color, ec=INK, lw=0.5, hatch=hatch)
+        ring = _rings(sp["polygon"])
+        if ring and sp["area_sqft"] >= 20:
+            xs, ys = zip(*ring[0])
+            ax.text(sum(xs[:-1]) / (len(xs) - 1), sum(ys[:-1]) / (len(ys) - 1),
+                    f"{SHORT.get(sp['space_type'], sp['space_type'])}\n{sp['area_sqft']:.0f}", fontsize=3.6,
+                    color=INK, ha="center", va="center")
+    _fill(ax, stair, color=STAIR_FILL, ec=STAIR_FILL)
+    _access(ax, s1, level)
+    for d in block["doors"]:
+        seg = d.get("segment")
+        if not seg:
+            continue
+        xs, ys = zip(*seg)
+        if d["kind"] == "opening":
+            ax.plot(xs, ys, color="#ffffff", lw=1.6, solid_capstyle="butt")
+        else:
+            ax.plot(xs, ys, color="#ffffff", lw=1.6, solid_capstyle="butt")
+            _line(ax, d.get("swing"), color=DOOR_FILL, lw=0.45)
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_color(GRID)
+
+
+def plot_space_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors: dict[str, str], lang: str = "es",
+                     max_cells: int = 8) -> Path:
+    """One sheet per lot: for each spaced cell (stage S2.1), both floors with spaces, doors and swings."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+
+    w = S21_WORDS.get(lang, S21_WORDS["en"])
+    shown = cells[:max_cells]
+    ncol = 4
+    nrow = max(1, math.ceil(len(shown) / 2))
+    fig, axes = plt.subplots(nrow, ncol, figsize=(3.2 * ncol, 3.6 * nrow + 0.8), squeeze=False)
+    fig.patch.set_facecolor(SURFACE)
+    for ax in axes.flat:
+        ax.set_axis_off()
+    for k, c in enumerate(shown):
+        s1, s21 = c["s1"], c["s21"]
+        ax_g, ax_u = axes.flat[2 * k], axes.flat[2 * k + 1]
+        for ax in (ax_g, ax_u):
+            ax.set_axis_on()
+        _space_panel(ax_g, s1["levels"][0]["polygon"], s21["ground"], colors, s1["stair"]["polygon"], s1, 0)
+        _space_panel(ax_u, s1["levels"][1]["polygon"], s21["upper"], colors, s1["stair"]["polygon"], s1, 1)
+        built = len(s21["ground"].get("closets_in_rooms", [])) + len(s21["upper"].get("closets_in_rooms", []))
+        ax_g.set_title(f"{c['household_id']} · {c['profile']} · {c['scheme_id']}\n{w['ground']} · "
+                       f"{w['rank']} {s21.get('stair_rank', 0)}", fontsize=6, color=INK, loc="left")
+        ax_u.set_title(f"score {s21['score']:.2f} · {w['built_in']} {built}\n{w['upper']}", fontsize=6, color=INK,
+                       loc="left")
+    s = lot["summary"].get("s21", {})
+    header = f"{w['title']} — {lot['lot_id']}   {s.get('status_counts', {})}"
+    if len(cells) > len(shown):
+        header += f"   (+{len(cells) - len(shown)} {w['more']})"
+    fig.text(0.01, 0.995, header, fontsize=8, color=INK, va="top")
+    zones = sorted({sp["zone"] for c in shown for f in ("ground", "upper") for sp in c["s21"][f]["spaces"]
+                    if not sp["fixed"]})
+    handles = [Patch(color=colors.get(z, "#eeeeee"), label=z) for z in zones]
+    handles += [Patch(color=STAIR_FILL, label=w["stair"]), Patch(color=GARAGE_FILL, label=w["garage"]),
+                Patch(fill=False, hatch="....", label=w["closet"]),
+                Line2D([0], [0], color=DOOR_FILL, lw=0.8, label=w["door"])]
+    fig.legend(handles=handles, loc="lower center", ncol=len(handles), fontsize=6.5, frameon=False)
+    fig.tight_layout(rect=(0, 0.03, 1, 0.97))
+    out = Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+    return out
+
+
+__all__ = ["S21_WORDS", "S2_WORDS", "WORDS", "plot_space_sheet", "plot_stack_sheet", "plot_zoning_sheet"]

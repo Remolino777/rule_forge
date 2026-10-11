@@ -20,13 +20,12 @@ from shapely.geometry.base import BaseGeometry
 from spaceplan.modules.stacking.lib.core_zoning import FloorRules, FloorSearch, Realization
 from spaceplan.modules.stacking.lib.floor_frame import (
     CIRCULATION,
-    FAMILY_ROOM,
-    arrival_of,
     GROUND,
     HALF_BATH_USE,
     STORAGE_USE,
     UPPER,
     FloorFrame,
+    arrival_of,
     cell_floors,
     floor_units,
     ground_frame,
@@ -35,7 +34,13 @@ from spaceplan.modules.stacking.lib.floor_frame import (
 )
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
 from spaceplan.modules.stacking.lib.routes import route_lengths, stair_walk_ft, two_floor_routes
-from spaceplan.modules.stacking.lib.stair_access import DEFERRED_S21, FAIL, NOT_EVALUATED, PASS, trace
+from spaceplan.modules.stacking.lib.stair_access import (
+    DEFERRED_S21,
+    FAIL,
+    NOT_EVALUATED,
+    PASS,
+    trace,
+)
 from spaceplan.modules.stacking.lib.zone_relations import ZoneMatrix, vertical_pairs
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
 from spaceplan.modules.stacking.lib_aux.zone_grid import bounding_cells
@@ -59,6 +64,7 @@ class S2Context:
     upper_rules: FloorRules
     routes: dict[str, Any] | None = None       # stage S1.2: route targets and passable zones (client step 7)
     stair_flights: dict[str, int] = field(default_factory=dict)   # stair_id -> flights (stair walk of the routes)
+    alternatives: int = 0                      # stage S2.1: zonings of each floor kept in memory (0: none)
 
 
 def floor_rules(catalog, s2: dict[str, Any], floor: str, stair_hall: dict[str, Any] | None = None) -> FloorRules:
@@ -272,7 +278,7 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
                                                                  "pairs": vert["pairs"]},
                           "ground": _floor_block(g_best.frame, g_best, summary, plan, nd, [g_best] + [
                               rz for rz in fit if rz is not g_best][: keep - 1]),
-                          "_upper": u_best, "_ground": g_best})
+                          "_upper": u_best, "_ground": g_best, "_fit": fit})
             if ctx.routes is not None and floors.door_area is not None:
                 routes = route_lengths(g_best.frame, g_best.rects, ctx.matrix.roles, ctx.routes, floors.door_area)
                 if routes.get("absent"):          # a target lives upstairs: walk the stair and the upper floor
@@ -306,9 +312,19 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
         out["vertical"] = best["vertical"]
     else:
         out["upper_search"] = u_summary
+    if chosen and ctx.alternatives:
+        # in memory only (stage S2.1 tries them in order; never written to the contract)
+        best = portfolio[chosen]
+        k = ctx.alternatives
+        out["_alternatives"] = {
+            "upper": [out["upper"]] + [_floor_block(rz.frame, rz, u_summary, plan, nd, [])
+                                       for rz in u_valid if rz is not best["_upper"]][: k - 1],
+            "ground": [best["ground"]] + [_floor_block(rz.frame, rz, {}, plan, nd, [])
+                                          for rz in best["_fit"] if rz is not best["_ground"]][: k - 1]}
     for e in portfolio.values():
         e.pop("_upper", None)
         e.pop("_ground", None)
+        e.pop("_fit", None)
     out["options"] = portfolio
     out["matrix_overrides"] = list(ctx.matrix.overrides)
     out["rule_traces"] = _traces(client, out, arrival, portfolio, chosen, u_valid, u_summary, has_hb, us)
@@ -350,5 +366,16 @@ def _traces(client, out, arrival, portfolio, chosen, u_valid, u_summary, has_hb,
     return traces
 
 
-__all__ = ["GROUND_NOT_ZONED", "NEXT_STAGE", "NOT_ZONED", "NO_SPACE_SPLIT", "S2Context", "S2_STATUSES",
-           "UPPER_NOT_ZONED", "ZONED", "floor_rules", "s2_context", "zone_cell"]
+__all__ = [
+    "GROUND_NOT_ZONED",
+    "NEXT_STAGE",
+    "NOT_ZONED",
+    "NO_SPACE_SPLIT",
+    "S2_STATUSES",
+    "UPPER_NOT_ZONED",
+    "ZONED",
+    "S2Context",
+    "floor_rules",
+    "s2_context",
+    "zone_cell",
+]

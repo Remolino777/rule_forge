@@ -139,6 +139,24 @@ def stack_zoning_sheets(stack_plan: dict, out_dir: str | Path, lang: str = "es",
     return figures
 
 
+def stack_space_sheets(stack_plan: dict, out_dir: str | Path, lang: str = "es",
+                       profiles: tuple[str, ...] = ("maximum", "accessible", "staged_final")) -> list[Path]:
+    """Stage S2.1 (step 6.7a): one sheet per lot with the spaced cells of the given profiles."""
+    from spaceplan.modules.viz.lib.stack_plan_plots import plot_space_sheet
+    from spaceplan.modules.viz.lib.zoning_plots import ZONE_COLORS
+
+    plan = read_contract(stack_plan, "stack_plan")
+    out = Path(out_dir)
+    figures = []
+    for lot in plan["lots"]:
+        spaced = [c for c in plan["cells"] if c["lot_id"] == lot["lot_id"]
+                  and (c.get("s21") or {}).get("status") == "spaced" and c["profile"] in profiles]
+        if spaced:
+            figures.append(plot_space_sheet(lot, spaced, out / f"{lot['lot_id']}_stack_spaces.png", ZONE_COLORS,
+                                            lang))
+    return figures
+
+
 def draw_sensitivity(result: dict, out_path: str | Path, lang: str = "es") -> Path:
     """Normative sensitivity figure (FOS x FOT per lot) from the sensitivity result."""
     from spaceplan.modules.viz.lib.sensitivity_plots import plot_sensitivity
@@ -147,4 +165,4 @@ def draw_sensitivity(result: dict, out_path: str | Path, lang: str = "es") -> Pa
 
 
 __all__ = ["area_matrix_figures", "draw_area_matrix", "draw_capacity", "draw_sensitivity", "draw_site", "draw_zoning",
-           "package_view", "stack_plan_sheets", "stack_zoning_sheets"]
+           "package_view", "stack_plan_sheets", "stack_space_sheets", "stack_zoning_sheets"]

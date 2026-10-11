@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 10 de octubre de 2026 · Estado: **paso 6.7a S1.2 en prueba (sección 4p: escalera desde la puerta, luz, U de 2.5 m)**; **paso 6.7a etapa S2 hecha (sección 4o: zonificación de ambas plantas alrededor del `stair_core`, portafolio de arranque A/B/C, retroceso a S1)**; pasos 1–6, 6.5a–6.5d y **6.6** completos; **reestructuración modular completa** (sección 4i: 8 módulos + núcleo + pipeline, 7 contratos ejecutables 0.2.0); **paso 6.7a etapas S0, S1 y S1.1 hechas y lógica de áreas con FOS/FOT del cliente** (secciones 4j, 4k, 4l y 4m: módulo `stacking`, contrato `stack_plan`; S1 dibuja plantas, escalera y techo; S1.1 compara configuraciones de escalera, espacio bajo ella, llegada y arranque) (6.6: 10 lotes del piloto, esquemas verticales V0–V5, índices IC/IO como familia de reglas de razón, evaluación E0/E1/E2, mapas de decisión) · Paquete `spaceplan` v0.1.0 · brief 0.5 · paquete 0.9 · reglas SDMC 0.4.0 · catálogo residencial 0.13.0 · catálogo de hogar 0.3.0 · reglas verticales 0.1.0 · reglas de escalera CRC 0.3.0 · variables de diseño del cliente 0.1.0 · catálogo de apilamiento 0.7.0 · reglas de cliente de escalera 0.4.0 · 1,291 pruebas
+Fecha: 11 de octubre de 2026 · Estado: **paso 6.7a S2.1 v1 hecha (sección 4r: espacios y puertas dentro de cada zona; 135 de 286 celdas zonificadas con planta completa)**; S1.2 integrada y cerrada (4q); S2 hecha (4o); pasos 1–6, 6.5a–6.5d y 6.6 completos; reestructuración modular completa (4i) · Paquete `spaceplan` v0.1.0 · catálogo residencial 0.13.0 · reglas de escalera CRC 0.3.0 · reglas de aberturas CRC 0.1.0 · catálogo de apilamiento 0.10.0 · reglas de cliente de escalera 0.4.0 · 1,342 pruebas
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -928,6 +928,63 @@ habitación). ≈ 4.5 s por celda de punta a punta. 1,299 pruebas pasan.
 **Pendiente.** Las 5 celdas accesibles (¿planta alta más ancha o programa arriba distinto?); `site_plan` del lote en
 curva; verificar S13 (R302.1) y si el vacío cuenta en el FAR; estructura; **S2.1**.
 
+## 4r. Paso 6.7a, etapa S2.1 (11 oct 2026): espacios y puertas dentro de cada zona
+
+**Rama:** `stacking/6.7a-s2.1` (desde `2a31c9a`). `spaceplan stacking LOTES --stage S2.1 [-o OUT.json] --tables T
+--plans P` (por defecto celdas `best`; tablas `stack_plan_s21.csv`; láminas `<lote>_stack_spaces.png`). Resultados:
+`docs/results/s21_pilot/`. Plan y decisiones: `spaceplan_6_7a_S2_1_plan.md` (proyecto).
+
+**Decisiones del cliente (E1–E6).** E1 solo la candidata elegida, con retroceso por `stair_choice.ranked`; E2
+rectángulos, los sobrantes como clóset o circulación; E3 puertas con posición, ancho, giro y bisagra; E4 R310 y C03 con
+fachada como reglas duras; E5 clósets con los sobrantes; E6 los pendientes no bloqueantes quedan fuera.
+
+**Qué hace.** Por planta: rejilla de S2 (0.5 ft) con los objetos fijos como nodos (vestíbulo de la puerta, escalera,
+medio baño bajo la escalera y su vestíbulo, garaje). Cada unidad de zona de S2 se corta en rectángulos (guillotina de
+tres niveles, cortes por área sobre la máscara de la unidad): sin pasillo, con el pasillo de circulación ya en un lado
+(`edge:`), con una franja de pasillo en un lado o por el medio (`mid_x`/`mid_y`, carga doble, colocada donde toca la
+circulación). Los cuartos se agrupan en suites (cuarto + clósets + baño en suite; el baño compartido solo o pegado a un
+cuarto) y forman bandas perpendiculares al pasillo. Un clóset del programa puede integrarse a su cuarto
+(`closets_in_rooms`). Poda local: lado y área mínimos (catálogo − tolerancia, nunca bajo C01/C06), fachada de habitables
+(O03 vía C03) y de dormitorios (O01), el pasillo toca las unidades enlazadas, cada cuarto puede tener puerta, los pares
+duros D de cuartos de paso tocan su unidad. Puertas: árbol de vanos entre espacios de paso desde la raíz (vestíbulo de
+entrada abajo, escalera arriba), una puerta por cuarto (circulación > anfitrión/en suite > cuarto de paso), giro dentro del
+espacio servido, nunca sobre escalera ni descanso (S08), sin cruzar otros giros; garaje nunca a dormitorio (O02, puerta de
+cierre automático). Chequeos de planta: alcance, llegada K01/K02 en un espacio permitido, matriz D/I/N con K05 sobre el
+grafo de puertas (cierra los `deferred_to_S2.1`). Si falla: siguientes zonificaciones de S2 en memoria
+(`s2_alternatives` = 3) y luego la siguiente escalera de `ranked` (hasta 4).
+
+**Datos y código.** Catálogo de apilamiento 0.10.0 (bloque `s21`; `selection.stage_default_modes.S2.1 = best`); ruleset
+nuevo `crc_2025_openings.json` 0.1.0 (O01 R310, O02 R302.5.1, O03 R303.1; `verified: false`); esquema `stack_plan` con
+bloque `s21` y etapa `S2.1`. `lib`: `space_rules`, `unit_frame`, `unit_layout`, `door_placement`, `space_relations`,
+`space_cell`; `lib_aux`: `space_grid`; `access_cell.stage_s2(..., refine, max_tries)`; `zone_cell` guarda alternativas en
+memoria; `viz`: `plot_space_sheet`, `stack_space_sheets`. 15 pruebas nuevas más los casos de arquitectura de los módulos nuevos (1,342 en total). Golden sin cambios; fixture
+de `stack_plan` renovado (`docs/refactor/log/golden_refresh_2026-10-11_stage_s21.md`).
+
+**Resultados del piloto (10 lotes, 291 celdas best; S2 zonifica 286).**
+1. **135 celdas con planta completa (47 %)**: máximo 110/186, accesible 17/81, por etapas 8/24. Por lote: angosto
+   23/33, reverso 16/25, esquina 16/33, trapecio 16/30, ladera 15/36, interior 13/36, poco profundo 13/30, bandera 11/28,
+   cul-de-sac 7/27, curva 5/8.
+2. Retroceso: 93 con la escalera elegida, 42 con otra de `ranked` (16, 18 y 8 en los rangos 1–3); 44 usan otra
+   zonificación de S2. Estrategias finales A 73, D 35, B 23, C 4.
+3. Mediana de 23 puertas por casa; 211 clósets integrados a su cuarto; 3 clósets de sobrantes; profundidad mediana de la
+   suite desde la entrada: 6 puertas; circulación mediana de la planta alta 21 % (umbral de alerta del catálogo 20 %).
+4. **151 sin planta**: falla la planta baja en 91 y la alta en 60. Primeras violaciones: unidades que no admiten un
+   corte válido (social 33, privada 22, cocina 13), mudroom sin paso (10), pasillo que no alcanza las unidades enlazadas
+   (10), baño privado en la llegada (K05, 9), pares D cocina–lavandería (6) y comedor–cocina (5), cocina sin fachada
+   (O03, 4).
+
+**Hallazgos.** (1) La zonificación de S2 no reserva el pasillo interior de la zona privada: S2.1 lo toma del área de los
+cuartos y los deja bajo su mínimo. (2) Las unidades sociales delgadas (estudio y flex en 7.5 ft) solo tocan la
+circulación en un extremo y no admiten un segundo cuarto. (3) El perfil accesible es el más afectado (pasillos de 4 ft,
+puertas de 34 in). (4) La cocina sin fachada es una consecuencia directa de E4; la excepción de R303.1 está prevista en
+los datos (`artificial_light_exception`) y es decisión del cliente. (5) La violación reportada es la más frecuente entre
+las opciones descartadas; para diagnóstico conviene la "más profunda".
+
+**Pendiente (S2.1b).** Zonificación de S2 consciente del pasillo (reservar la franja de la zona privada en el objetivo de
+área, o ajustar el límite circulación–privada en S2.1); mudroom como paso entre garaje y cocina; diagnóstico por regla;
+tiempo (≈ 12 s por celda con retrocesos). Siguen fuera: las 5 celdas accesibles de S1.2, `site_plan` del lote en curva,
+S13/FAR, estructura.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -987,7 +1044,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; S2.1 espacios y puertas dentro de cada zona | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); S2.1b pasillo en la zonificación | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
 | 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 
@@ -1002,6 +1059,12 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 (propuesta: consume `lot_capacity`, `site_plan` y `area_matrix`; produce un contrato nuevo, p. ej. `stacked_scheme`).
 
 ## 9. Posibilidades de innovación registradas
+
+- (paso 6.7a S2.1) Retroceso S2.1 → S2 → S1 como búsqueda en cascada con presupuesto (hoy: 3 zonificaciones × 4
+  escaleras); zonificación consciente del pasillo (la franja interior como parte del objetivo de área); grafo de puertas
+  con arista vertical como métrica de privacidad (profundidad de la suite) y descriptor de MAP-Elites; muro libre para
+  mobiliario; exportación directa a IfcSpace/IfcDoor (paso 13); reglas de puerta y escape como caso RuleForge con traza
+  por espacio; el plano `s21` como sustituto del paso 6 de planogen.
 
 - (paso 6.7a S2) Retroceso entre etapas generalizado (S2 ya pide a S1 otra colocación o escalera; falta S1 → áreas:
   dimensionar la planta alta con la huella real de la escalera); profundidad sintáctica entre pisos con arista
@@ -1063,9 +1126,8 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
-> Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2`,
-> secciones 4k–4o del HANDOFF) con la **etapa S2.1 del paso 6.7a**: espacios y puertas dentro de las zonas que S2
-> dejó alrededor del `stair_core` (celdas con `s2.status == "zoned"`), cerrando los pares `deferred_to_S2.1` (medio
-> baño sin puerta directa a sala o cocina, clóset de lavandería fuera de la llegada) y decidiendo si S1 debe dimensionar
-> la planta alta con la huella real de la escalera (67 plantas altas pequeñas sin zonificar). Respeta las reglas de la
+> Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.1`,
+> secciones 4o–4r del HANDOFF) con **S2.1b**: hacer que la zonificación de S2 reserve el pasillo interior de la zona
+> privada (o que S2.1 ajuste el límite circulación–privada), para subir las 135 de 286 celdas con planta completa;
+> revisar el mudroom como paso garaje–cocina y decidir la excepción de R303.1 para la cocina. Respeta las reglas de la
 > sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.

@@ -151,6 +151,15 @@ class StackingCatalog:
             raise StackingCatalogError("stacking catalog has no s2 block (stage S2 needs catalog >= 0.5.0)")
         return self.data["s2"]
 
+    # ----------------------------------------------------------------- stage S2.1
+
+    @property
+    def s21(self) -> dict[str, Any]:
+        """Design values of stage S2.1 (spaces and doors inside each zone unit)."""
+        if "s21" not in self.data:
+            raise StackingCatalogError("stacking catalog has no s21 block (stage S2.1 needs catalog >= 0.10.0)")
+        return self.data["s21"]
+
 
 STAIR_TYPES = ("straight", "straight_landing", "l_turn", "u_turn", "u_well")
 CHOICE_KEYS = ("net_ground_bucket", "half_bath_fit", "entry_distance_ft", "joint_offset_ft")
@@ -277,6 +286,67 @@ def _check_s2(data: dict[str, Any]) -> list[str]:
     return problems
 
 
+S21_WEIGHTS = ("relations", "shape", "circulation", "exterior", "closets", "vertical")
+S21_SIDES = ("low_x", "high_x", "low_y", "high_y")
+S21_DOOR_NUMBERS = ("interior_clear_width_in", "closet_clear_width_in", "leaf_over_clear_in", "frame_in",
+                    "corner_return_in", "opening_width_ft")
+S21_SEARCH = ("options_per_unit", "max_arrangements_per_unit", "max_combinations_per_floor", "stop_after_valid",
+              "keep_alternatives", "s2_alternatives")
+
+
+def _positive(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
+
+
+def _check_s21(data: dict[str, Any]) -> list[str]:
+    """Structural problems of the stage-S2.1 block (optional before catalog 0.10.0)."""
+    s21 = data.get("s21")
+    if s21 is None:
+        return []
+    problems = []
+    for key in ("layout", "leftovers", "doors", "facade", "search", "vertical_depth_ok", "weights", "fallback",
+                "source"):
+        if key not in s21:
+            problems.append(f"missing s21.{key}")
+    if problems:
+        return problems
+    lay = s21["layout"]
+    if not isinstance(lay.get("max_stack"), int) or lay["max_stack"] < 1:
+        problems.append("s21.layout.max_stack must be an integer >= 1")
+    if not lay.get("hall_sides") or any(s not in S21_SIDES for s in lay["hall_sides"]):
+        problems.append(f"s21.layout.hall_sides must be drawn from {S21_SIDES}")
+    for key in ("target_tolerance_fraction", "side_tolerance_fraction"):
+        if not isinstance(lay.get(key), (int, float)) or not 0 <= lay[key] < 1:
+            problems.append(f"s21.layout.{key} must be in [0, 1)")
+    left = s21["leftovers"]
+    if not isinstance(left.get("closet_space_type"), str) or not left.get("closet_hosts"):
+        problems.append("s21.leftovers needs closet_space_type and closet_hosts")
+    if not isinstance(left.get("keep_in_space_below_fraction"), (int, float)) or not 0 <= left["keep_in_space_below_fraction"] < 1:
+        problems.append("s21.leftovers.keep_in_space_below_fraction must be in [0, 1)")
+    doors = s21["doors"]
+    for key in S21_DOOR_NUMBERS:
+        if not _positive(doors.get(key)):
+            problems.append(f"s21.doors.{key} must be a number > 0")
+    if not doors.get("preference") or not isinstance(doors.get("swing"), dict):
+        problems.append("s21.doors needs preference and swing")
+    if set(lay.get("local_weights", {})) != {"shape", "fit", "exterior"}:
+        problems.append("s21.layout.local_weights must weigh shape, fit and exterior")
+    for key in ("glazing_height_ft", "frame_allowance_ft", "surplus_full_ft"):
+        if not _positive(s21["facade"].get(key)):
+            problems.append(f"s21.facade.{key} must be a number > 0")
+    for key in S21_SEARCH:
+        if not isinstance(s21["search"].get(key), int) or s21["search"][key] < 1:
+            problems.append(f"s21.search.{key} must be an integer >= 1")
+    for key in ("D", "I"):
+        if not isinstance(s21["vertical_depth_ok"].get(key), int):
+            problems.append(f"s21.vertical_depth_ok.{key} must be an integer")
+    if set(s21["weights"]) != set(S21_WEIGHTS) or any(v < 0 for v in s21["weights"].values()):
+        problems.append(f"s21.weights must give a number >= 0 for each of {S21_WEIGHTS}")
+    if s21["fallback"].get("order") != "stair_choice.ranked":
+        problems.append("s21.fallback.order must be 'stair_choice.ranked'")
+    return problems
+
+
 def check_stacking_catalog(data: dict[str, Any]) -> list[str]:
     """Structural problems of a stacking catalog (empty list = valid)."""
     problems = []
@@ -315,7 +385,7 @@ def check_stacking_catalog(data: dict[str, Any]) -> list[str]:
             problems.append(f"roof {roof['roof_id']!r}: pitched roof needs pitch_rise_per_run")
     if not data["below_grade"].get("probe_exposures_ft"):
         problems.append("below_grade.probe_exposures_ft is empty")
-    return problems + _check_s1(data) + _check_s2(data)
+    return problems + _check_s1(data) + _check_s2(data) + _check_s21(data)
 
 
 def load_stacking_catalog(path: str | Path | None = None) -> StackingCatalog:

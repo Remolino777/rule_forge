@@ -20,6 +20,7 @@ The workflow only reads contracts: no lotcap, site or areas code runs here.
 from __future__ import annotations
 
 import csv
+from dataclasses import replace
 from collections import Counter
 
 from shapely.geometry import shape
@@ -43,6 +44,8 @@ from spaceplan.modules.stacking.lib.height_check import (
 from spaceplan.modules.stacking.lib.levels import build_levels
 from spaceplan.modules.stacking.lib.lot_plan import lot_plan, strategy_key
 from spaceplan.modules.stacking.lib.lot_vertical import lot_envelope, lot_vertical_facts
+from spaceplan.modules.stacking.lib.space_cell import NO_VALID_LAYOUT, NOT_EVALUATED_S21, SPACED, S21Context, space_cell
+from spaceplan.modules.stacking.lib.space_rules import load_crc_ruleset, load_openings_ruleset, space_rules
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
 from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
@@ -55,8 +58,9 @@ from spaceplan.modules.stacking.lib.vertical_rules import (
 )
 
 STEP, STAGE = "6.7a", "S0"
-STAGES = ("S0", "S1", "S2")
-DRAWING_STAGES = ("S1", "S2")
+STAGES = ("S0", "S1", "S2", "S2.1")
+DRAWING_STAGES = ("S1", "S2", "S2.1")
+ZONING_STAGES = ("S2", "S2.1")
 CELL_KEYS = ("lot_id", "household_id", "archetype_id", "culture", "profile", "scheme_id", "floors", "rank",
              "strategy_used")
 
@@ -134,6 +138,21 @@ def _s2_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
             "to_s2_1": sum(1 for c in cells if c.get("s2") and c["s2"]["next_stage"])}
 
 
+def _s21_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
+    blocks = [c["s21"] for c in cells if c.get("s21")]
+    spaced = [b for b in blocks if b["status"] == SPACED]
+    return {"cells": len(blocks),
+            "status_counts": dict(sorted(Counter(b["status"] for b in blocks).items())),
+            "stair_rank_counts": dict(sorted(Counter(str(b.get("stair_rank")) for b in spaced).items())),
+            "first_violation_counts": dict(Counter(b.get("first_violation") for b in blocks
+                                                   if b["status"] == NO_VALID_LAYOUT).most_common(12)),
+            "failed_floor_counts": dict(sorted(Counter(b.get("failed_floor") for b in blocks
+                                                       if b["status"] == NO_VALID_LAYOUT).items())),
+            "doors": sum(len(b[f]["doors"]) for b in spaced for f in ("ground", "upper")),
+            "closets_from_leftovers": sum(1 for b in spaced for f in ("ground", "upper") for sp in b[f]["spaces"]
+                                          if sp["synthetic"] and sp["space_type"] == "closet")}
+
+
 def _lot_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
     return {"cells": len(cells),
             "by_floors": dict(sorted(Counter(str(c["floors"]) for c in cells).items())),
@@ -170,7 +189,13 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
     limits = stair_limits(srs) if srs is not None else None
     crs = load_client_ruleset(client_rules_path) if drawing else None
     s2ctx = (s2_context(scat, catalog, crs, build_matrix(catalog, relations(crs), scat.s2["pair_default_weights"]))
-             if stage == "S2" else None)
+             if stage in ZONING_STAGES else None)
+    s21ctx = None
+    if stage == "S2.1":
+        s2ctx = replace(s2ctx, alternatives=int(scat.s21["search"]["s2_alternatives"]))
+        crc, openings = load_crc_ruleset(), load_openings_ruleset()
+        s21ctx = S21Context(scat, catalog, s2ctx.matrix, space_rules(scat, catalog, crc, openings, srs, crs), crc,
+                            openings, srs, crs)
     actx = access_context(scat, limits, crs) if drawing else None
 
     lots_out, cells_out, missing = [], [], []
@@ -199,7 +224,16 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                 out["s1"] = s1
                 out["next_stage"] = s1["next_stage"]
                 if s2ctx is not None and s1["next_stage"] == "S2":
-                    stage_s2(c, s0, out, plan, strategy, ctx, s2ctx, actx, pool)
+                    refine = None
+                    if s21ctx is not None:
+                        def refine(s1_block, s2_block, c=c):
+                            return space_cell(c.get("space_split") or [], s1_block, s2_block, plan, c["profile"],
+                                              s21ctx)
+                    stage_s2(c, s0, out, plan, strategy, ctx, s2ctx, actx, pool, refine,
+                             int(scat.s21["fallback"]["max_candidates"]) if s21ctx is not None else None)
+                    if s21ctx is not None and "s21" not in out:
+                        out["s21"] = {"stage": "S2.1", "status": NOT_EVALUATED_S21, "warnings": [],
+                                      "rule_traces": [], "reason": "no zoned stair candidate"}
             lot_cells.append(out)
         cells_out += lot_cells
         summary = _lot_summary(lot_cells)
@@ -209,6 +243,8 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
             facts["plan"] = {"lot_polygon": lc["lot"]["polygon"], "envelope_polygon": lc["capacity"]["envelope"]["polygon"]}
         if s2ctx is not None:
             summary["s2"] = _s2_summary(lot_cells)
+        if s21ctx is not None:
+            summary["s21"] = _s21_summary(lot_cells)
         lots_out.append({**facts, "summary": summary})
     if missing:
         raise ValueError(f"stacking: no lot_capacity contract for lot(s) {', '.join(missing)}")
@@ -230,6 +266,16 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                         "arrival zone); zone-level doors, entry, K01 arrival, K04 vestibule, house anchors and hard "
                         "matrix pairs (K05 over the base) are hard; relations, shape, anchors and stair access are "
                         "scored. Start options A/B/C kept as a portfolio. Design values provisional.")})
+    if s21ctx is not None:
+        meta_s1.update({
+            "s21": _s21_summary(cells_out),
+            "openings_ruleset": s21ctx.openings.ruleset_id, "openings_ruleset_version": s21ctx.openings.version,
+            "openings_ruleset_sha256": s21ctx.openings.sha256,
+            "note_s21": ("Stage S2.1: spaces of each S2 zone unit as guillotine rectangles on the S2 grid (halls along "
+                         "a side, rooms in bands facing the corridor, closets from leftovers), doors with position, "
+                         "width, swing and hinge; C01, C06, O01 (escape), O02 (garage openings), O03 (habitable rooms "
+                         "on the facade), S08 and K01, K02, K04, K05 hard; the chosen stair candidate first, then the "
+                         "next ranked ones. Design values provisional; CRC values unverified.")})
     return {
         "meta": {
             "step": STEP,
@@ -350,6 +396,40 @@ def s2_table_rows(result: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+S21_TABLE_FIELDS = ("lot_id", "household_id", "profile", "scheme_id", "rank", "s21_status", "stair_rank", "tries",
+                    "failed_floor", "first_violation", "s2_alternative_ground", "s2_alternative_upper", "score",
+                    "ground_spaces", "upper_spaces", "doors", "closets_from_leftovers", "closets_in_rooms",
+                    "suite_depth_from_entry", "circulation_fraction_ground", "circulation_fraction_upper")
+
+
+def s21_table_rows(result: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for c in result["cells"]:
+        b = c.get("s21")
+        if not b:
+            continue
+        ok = b["status"] == SPACED
+        floors = [b[f] for f in ("ground", "upper")] if ok else []
+        alt = b.get("s2_alternative") or {}
+        rows.append({
+            "lot_id": c["lot_id"], "household_id": c["household_id"], "profile": c["profile"],
+            "scheme_id": c["scheme_id"], "rank": c["rank"], "s21_status": b["status"],
+            "stair_rank": b.get("stair_rank"), "tries": len(b.get("attempts", [])),
+            "failed_floor": b.get("failed_floor"), "first_violation": b.get("first_violation"),
+            "s2_alternative_ground": alt.get("ground"), "s2_alternative_upper": alt.get("upper"),
+            "score": b.get("score"),
+            "ground_spaces": len(b["ground"]["spaces"]) if ok else None,
+            "upper_spaces": len(b["upper"]["spaces"]) if ok else None,
+            "doors": sum(len(f["doors"]) for f in floors) if ok else None,
+            "closets_from_leftovers": sum(1 for f in floors for sp in f["spaces"]
+                                          if sp["synthetic"] and sp["space_type"] == "closet") if ok else None,
+            "closets_in_rooms": sum(len(f.get("closets_in_rooms", [])) for f in floors) if ok else None,
+            "suite_depth_from_entry": (b.get("depth") or {}).get("primary_suite_from_entry"),
+            "circulation_fraction_ground": (b.get("score_parts") or {}).get("ground", {}).get("circulation_fraction"),
+            "circulation_fraction_upper": (b.get("score_parts") or {}).get("upper", {}).get("circulation_fraction")})
+    return rows
+
+
 def write_tables(result: dict[str, Any], out_dir: str | Path) -> list[Path]:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -375,8 +455,17 @@ def write_tables(result: dict[str, Any], out_dir: str | Path) -> list[Path]:
             writer.writeheader()
             writer.writerows(rows)
         paths.append(path)
+    rows = s21_table_rows(result)
+    if rows:
+        path = out / "stack_plan_s21.csv"
+        with path.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=S21_TABLE_FIELDS)
+            writer.writeheader()
+            writer.writerows(rows)
+        paths.append(path)
     return paths
 
 
-__all__ = ["S1_STATUSES", "S1_TABLE_FIELDS", "S2_STATUSES", "S2_TABLE_FIELDS", "s2_table_rows", "STAGE", "STAGES", "STEP", "TABLE_FIELDS", "run_stacking", "s1_table_rows",
+__all__ = ["S1_STATUSES", "S1_TABLE_FIELDS", "S21_TABLE_FIELDS", "S2_STATUSES", "S2_TABLE_FIELDS", "s21_table_rows",
+           "s2_table_rows", "STAGE", "STAGES", "STEP", "TABLE_FIELDS", "run_stacking", "s1_table_rows",
            "stack_cell", "table_rows", "write_tables"]

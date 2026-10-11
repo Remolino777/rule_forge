@@ -330,9 +330,9 @@ def _add_module_parsers(sub) -> None:
     p_stack.add_argument("--households", help="comma list archetype.culture (culture: none|latino|anglo)")
     p_stack.add_argument("--cells", choices=("best", "top2", "all"),
                          help="area-matrix cells taken (default: top2 in S0, best in S1 and S2)")
-    p_stack.add_argument("--stage", choices=("S0", "S1", "S2"), default="S0",
+    p_stack.add_argument("--stage", choices=("S0", "S1", "S2", "S2.1"), default="S0",
                          help="S0 levels and height (default); S1 also draws floors, stair and roof; S2 also zones "
-                              "both floors around the stair core")
+                              "both floors around the stair core; S2.1 also lays out spaces and doors in each zone")
     p_stack.add_argument("--plans", help="directory for the S1 stacked-plan sheets (and the S2 zoning sheets)")
     _add_design_args(p_stack)
     p_stack.add_argument("--area-matrix", help="read this area_matrix contract instead of computing it")
@@ -431,6 +431,10 @@ def _stack_lines(contract: dict) -> list[str]:
             lines.append(f"  {'':<26} S2 {s2['status_counts']}  arrival {s2['arrival_counts']}  start "
                          f"{s2['chosen_option_counts']} feasible {s2['feasible_option_counts']}  half bath "
                          f"{s2['half_bath_counts']}  strategy {s2.get('strategy_counts')}  light {s2.get('light_counts')}")
+        if "s21" in s:
+            s21 = s["s21"]
+            lines.append(f"  {'':<26} S2.1 {s21['status_counts']}  stair rank {s21['stair_rank_counts']}  doors "
+                         f"{s21['doors']}  first violations {s21['first_violation_counts']}")
     return lines
 
 
@@ -498,9 +502,12 @@ def _run_stacking_command(args) -> int:
     if args.plans:
         from spaceplan.modules.viz.main.run_viz import stack_plan_sheets
         stack_plan_sheets(contract, args.plans)
-        if args.stage == "S2":
+        if args.stage in ("S2", "S2.1"):
             from spaceplan.modules.viz.main.run_viz import stack_zoning_sheets
             stack_zoning_sheets(contract, args.plans)
+        if args.stage == "S2.1":
+            from spaceplan.modules.viz.main.run_viz import stack_space_sheets
+            stack_space_sheets(contract, args.plans)
     print(json.dumps(contract, indent=2) if args.json else "\n".join(_stack_lines(contract)))
     return 0
 

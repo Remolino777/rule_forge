@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.9.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft. Version 0.9.0 (S1.2 close, 2026-10-10): route tolerance 25 ft (client decision after the tolerance simulation); small upper floors also try compact_bands (a room band beside a stair band).",
+  "catalog_version": "0.10.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft. Version 0.9.0 (S1.2 close, 2026-10-10): route tolerance 25 ft (client decision after the tolerance simulation); small upper floors also try compact_bands (a room band beside a stair band). Version 0.10.0 (stage S2.1, 2026-10-11) adds the s21 block: spaces and doors inside each zone unit (guillotine rectangles on the S2 grid, halls inside private units, closets from the leftovers, doors with position, width, swing and hinge).",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -14,7 +14,8 @@
     "stage_default_modes": {
       "S0": "top2",
       "S1": "best",
-      "S2": "best"
+      "S2": "best",
+      "S2.1": "best"
     }
   },
   "levels": {
@@ -575,6 +576,131 @@
       ],
       "note": "Stage S2, both floors: the stair borders the circulation zone along at least min_circulation_contact_ft (a full stair width); the open room zones (living, kitchen: no walls inside) take no more than max_open_zone_share of its edge; a single private zone no more than max_private_unit_share (not enclosed on three sides; bedrooms on both sides behind walls are fine). The stair never stands inside a room.",
       "max_private_unit_share": 0.75
+    }
+  },
+  "s21": {
+    "layout": {
+      "max_stack": 3,
+      "hall_sides": [
+        "low_x",
+        "high_x",
+        "low_y",
+        "high_y"
+      ],
+      "hall_width": "circulation.design_width_ft",
+      "hall_width_accessible": "accessibility.passage_width_ft",
+      "hall_min_terminals": "circulation.hall_min_terminals",
+      "max_aspect": "zoning.max_aspect_ratio",
+      "target_tolerance_fraction": 0.25,
+      "local_weights": {
+        "shape": 0.45,
+        "fit": 0.4,
+        "exterior": 0.15
+      },
+      "side_tolerance_fraction": 0.15,
+      "mergeable_into_host": [
+        "closet"
+      ],
+      "note": "Each zone unit of S2 is cut into rectangles (columns along one axis, up to max_stack spaces per column) on the S2 grid; cut lines are placed where the free area of each column and space equals its scaled target, so units clipped by the stair, the vestibule or the void are handled by masking. A unit holding hall_min_terminals or more rooms that need circulation is also tried with a hall strip along each side. Values written as catalog paths are read from the residential catalog (no copy). Unit options are ranked by local_weights: shape (aspect of each space against max_aspect), fit (area against the scaled target, within target_tolerance_fraction) and exterior (facade surplus). A hall strip, and the circulation space of a circulation unit, must touch every unit S2 linked to its unit (and a hall strip a circulation unit) along at least a door width, so the corridor reaches the rooms it was drawn for. Hard least side of a space: the catalog's min_side_ft less side_tolerance_fraction (design value, like the area tolerance of S2), never under the normative least dimension of a habitable room (C01) or a hall (C06); the shape score still prefers the catalog side. A program closet of a room (mergeable_into_host) may also be built into its room (the room takes its area; reported as closets_in_rooms) when it does not fit as a space of its own."
+    },
+    "leftovers": {
+      "closet_space_type": "closet",
+      "closet_hosts": [
+        "primary_suite",
+        "bedroom",
+        "flex_room",
+        "study",
+        "hall",
+        "foyer"
+      ],
+      "keep_in_space_below_fraction": 0.12,
+      "note": "Client decision E5 (2026-10-11): the part of a space outside its largest rectangle (a corner the stair or the vestibule leaves) becomes a closet of that space when it is a rectangle within the closet type's area range, meets its least side, keeps off the stair landing and its space may host one (closet_hosts); every option is also tried without those closets; otherwise the part stays in the space (an irregular corner)."
+    },
+    "doors": {
+      "interior_clear_width_in": 32,
+      "accessible_clear_width_in": "accessibility.door_clear_width_in",
+      "closet_clear_width_in": 24,
+      "leaf_over_clear_in": 2,
+      "frame_in": 3,
+      "corner_return_in": 4,
+      "opening_width_ft": 4.0,
+      "swing": {
+        "room": "into_served_space",
+        "closet": "into_host",
+        "garage": "into_dwelling"
+      },
+      "swing_forbidden_over": [
+        "stair",
+        "landing"
+      ],
+      "preference": [
+        "circulation",
+        "host",
+        "passable"
+      ],
+      "out_swing_space_types": [
+        "closet",
+        "pantry",
+        "laundry_closet",
+        "storage",
+        "mechanical"
+      ],
+      "tree_costs": {
+        "circulation": 1.0,
+        "room": 3.0
+      },
+      "en_suite": {
+        "from_roles": [
+          "private_bath",
+          "suite_closet"
+        ],
+        "to_roles": [
+          "primary_bedroom",
+          "bedroom"
+        ],
+        "prefer_circulation": [
+          "bathroom"
+        ]
+      },
+      "note": "Client decision E3 (2026-10-11): every door has position, clear width, swing and hinge. A room gets one door, onto circulation when it can, else onto its host (en-suite bath, closet) or a passable room the door rules allow; passable rooms are joined by doors or cased openings along the shortest tree from the entry (or the top landing). The leaf is the clear width plus the stops; the wall run needs leaf + frame + a corner return. No swing over the stair or a landing (R311.7.6 for the top door, kept for every door by design). Design values provisional. Small storage spaces (out_swing_space_types) take a closet door (closet_clear_width_in) whose leaf swings out of them. The passable tree weighs a step into circulation and a step into a room by tree_costs, so the paths keep to halls. En suite: a private bath or a suite closet may open onto its bedroom (never the reverse: a bedroom always opens onto circulation); a shared bathroom prefers the hall."
+    },
+    "facade": {
+      "glazing_height_ft": 4.0,
+      "frame_allowance_ft": 0.5,
+      "note": "Converts the glazing ratio of C03 (habitability ruleset) into a length of exterior wall: area x ratio / glazing_height_ft + frame_allowance_ft. The escape opening of a sleeping room (openings ruleset) needs its clear width plus the same frame allowance. Design values provisional. A habitable room scores 1 on exterior when its longest exterior wall exceeds the need by surplus_full_ft.",
+      "surplus_full_ft": 6.0
+    },
+    "search": {
+      "options_per_unit": 8,
+      "max_combinations_per_floor": 240,
+      "stop_after_valid": 8,
+      "keep_alternatives": 3,
+      "max_arrangements_per_unit": 400,
+      "s2_alternatives": 3,
+      "note": "Unit options ranked by a local score (shape, area against target, exterior wall of habitable rooms); floor combinations visited in ranked order up to the cap, stopping once stop_after_valid layouts are valid. Each floor is tried on the S2 zoning that was chosen and then on the next s2_alternatives - 1 valid zonings S2 found (kept in memory, not in the contract) before the next stair candidate."
+    },
+    "vertical_depth_ok": {
+      "D": 4,
+      "I": 6,
+      "note": "Steps through the door graph (the stair counted as one) under which a matrix pair whose roles sit on different floors counts as met; at the space level halls and landings add steps that the zone graph of S2 (D 2, I 3) does not have."
+    },
+    "weights": {
+      "relations": 0.3,
+      "shape": 0.25,
+      "circulation": 0.15,
+      "exterior": 0.1,
+      "closets": 0.05,
+      "vertical": 0.15
+    },
+    "fallback": {
+      "order": "stair_choice.ranked",
+      "max_candidates": 4,
+      "note": "Client decision E1 (2026-10-11): S2.1 runs on the chosen stair candidate; when it finds no valid layout, the next candidate of stair_choice.ranked is tried, in the choice order of S1.2. At most max_candidates candidates are laid out per cell."
+    },
+    "source": {
+      "kind": "catalog",
+      "citation": "Student design decisions 2026-10-11 (step 6.7a S2.1 plan: E1 chosen candidate with fallback by ranked, E2 rectangles with leftovers as closets or circulation, E3 doors with position, width, swing and hinge, E4 R310 and C03 facade hard, E5 closets from leftovers); values provisional",
+      "status": "provisional"
     }
   }
 }

@@ -110,7 +110,7 @@ def stack_plan_contract_for(area_matrix: dict | None = None, lot_capacities: lis
     if lot_capacities is None:
         lot_capacities = [c for c in (lot_capacity_contract_for(load_lot_brief(n)) for n in (lots or PILOT_LOTS))
                           if c is not None]
-    if site_plans is None and stage in ("S1", "S2"):
+    if site_plans is None and stage in ("S1", "S2", "S2.1"):
         names = lots or PILOT_LOTS
         site_plans = [c for c in (capacity_contracts(load_lot_brief(n)).get("site_plan") for n in names)
                       if c is not None]

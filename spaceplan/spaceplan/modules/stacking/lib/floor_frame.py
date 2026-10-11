@@ -257,14 +257,25 @@ def _scaled(units: list[ZoneUnit], free_cells: int) -> tuple[tuple[int, ...], fl
     return tuple(cells), total
 
 
-def ground_frame(floors: CellFloors, units: list[ZoneUnit], res: float, use: str, notes: list[str]) -> FloorFrame:
-    """Ground floor for one use of the space under the stair (half bath: fixed with its vestibule; storage: the
-    footprint only)."""
+def ground_fixed(floors: CellFloors, use: str) -> list[tuple[str, BaseGeometry | None]]:
+    """Fixed objects of the ground floor for one use of the space under the stair (first listed wins)."""
     fixed = [(FIXED_GARAGE, floors.garage), (FIXED_STAIR, floors.stair)]
     if use == HALF_BATH_USE and floors.half_bath is not None:
         fixed += [(FIXED_HALF_BATH, floors.half_bath), (FIXED_VESTIBULE, floors.vestibule)]
     if floors.entry_vestibule is not None:
         fixed.append((FIXED_ENTRY, floors.entry_vestibule))
+    return fixed
+
+
+def upper_fixed(floors: CellFloors) -> list[tuple[str, BaseGeometry | None]]:
+    """Fixed objects of the upper floor: the stair opening and the interior void of strategy C."""
+    return [(FIXED_STAIR, floors.stair)] + ([(FIXED_VOID, floors.void)] if floors.void is not None else [])
+
+
+def ground_frame(floors: CellFloors, units: list[ZoneUnit], res: float, use: str, notes: list[str]) -> FloorFrame:
+    """Ground floor for one use of the space under the stair (half bath: fixed with its vestibule; storage: the
+    footprint only)."""
+    fixed = ground_fixed(floors, use)
     grid = rasterize(floors.ground, fixed, res)
     taken = unary_union([g for _, g in fixed if g is not None])
     targets, total = _scaled(units, grid.free_cells)
@@ -276,7 +287,7 @@ def ground_frame(floors: CellFloors, units: list[ZoneUnit], res: float, use: str
 
 
 def upper_frame(floors: CellFloors, units: list[ZoneUnit], res: float, notes: list[str]) -> FloorFrame:
-    fixed = [(FIXED_STAIR, floors.stair)] + ([(FIXED_VOID, floors.void)] if floors.void is not None else [])
+    fixed = upper_fixed(floors)
     grid = rasterize(floors.upper, fixed, res)
     targets, total = _scaled(units, grid.free_cells)
     taken = unary_union([g for _, g in fixed if g is not None])
@@ -314,6 +325,31 @@ def arrival_of(unit: ZoneUnit, order: list[str]) -> str | None:
     return None
 
 
-__all__ = ["CIRCULATION", "FAMILY_ROOM", "FIXED_ENTRY", "FIXED_GARAGE", "FIXED_VOID", "FIXED_HALF_BATH", "FIXED_STAIR", "FIXED_VESTIBULE", "GROUND",
-           "HALF_BATH_USE", "HALL", "STORAGE_USE", "UPPER", "VESTIBULE", "CellFloors", "FloorFrame", "ZoneUnit",
-           "arrival_kind", "arrival_of", "cell_floors", "floor_units", "ground_frame", "upper_arrival", "upper_frame"]
+__all__ = [
+    "CIRCULATION",
+    "FAMILY_ROOM",
+    "FIXED_ENTRY",
+    "FIXED_GARAGE",
+    "FIXED_HALF_BATH",
+    "FIXED_STAIR",
+    "FIXED_VESTIBULE",
+    "FIXED_VOID",
+    "GROUND",
+    "HALF_BATH_USE",
+    "HALL",
+    "STORAGE_USE",
+    "UPPER",
+    "VESTIBULE",
+    "CellFloors",
+    "FloorFrame",
+    "ZoneUnit",
+    "arrival_kind",
+    "arrival_of",
+    "cell_floors",
+    "floor_units",
+    "ground_fixed",
+    "ground_frame",
+    "upper_arrival",
+    "upper_fixed",
+    "upper_frame",
+]

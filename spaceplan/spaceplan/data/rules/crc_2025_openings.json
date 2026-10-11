@@ -1,0 +1,104 @@
+{
+  "ruleset_id": "crc-2025-openings",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "us-ca",
+  "zone": "*",
+  "code_edition": "CRC-2025",
+  "transcribed_from": "IRC/CRC model-code values for emergency escape openings (R310), openings between the garage and the dwelling (R302.5.1) and the natural light and ventilation of habitable rooms (R303.1), transcribed for step 6.7a stage S2.1 (2026-10-11) from the model-code text as known to the student; the CRC 2025 adoption text was not read.",
+  "verification_note": "Separate ruleset for the space level of the vertical layer (step 6.7a S2.1) so the habitability ruleset and the golden packages stay unchanged. The glazing and ventilation ratios are not repeated here: they are read from crc_2025_habitability.json (C03). All entries verified=false until checked against the CRC 2025 text (California amendments and renumbering of the 2025 cycle).",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "CRC 2025",
+      "section": "R310, R302.5.1, R303.1"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [],
+    "depth_methods": [],
+    "default_width_method": null,
+    "default_depth_method": null,
+    "setback_distance_semantics": null,
+    "verified": false,
+    "source": {
+      "document": "CRC 2025",
+      "section": "n/a"
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "O01-EMERGENCY-ESCAPE",
+      "magnitude": "sleeping_room_escape_opening",
+      "operator": ">=",
+      "value": 20.0,
+      "unit": "in",
+      "parameters": {
+        "sleeping_space_types": ["primary_suite", "bedroom"],
+        "min_clear_width_in": 20.0,
+        "min_clear_height_in": 24.0,
+        "min_net_clear_opening_sqft": 5.7,
+        "min_net_clear_opening_grade_floor_sqft": 5.0,
+        "max_sill_height_in": 44.0,
+        "opens_to": "exterior"
+      },
+      "text": [
+        "R310.1: every sleeping room shall have at least one operable emergency escape and rescue opening that opens directly into a public way, a yard or a court.",
+        "R310.2.1: net clear opening not less than 5.7 sq ft (5.0 sq ft at grade floor); clear height not less than 24 in; clear width not less than 20 in. R310.2.2: sill not more than 44 in above the floor."
+      ],
+      "note": "At the space level the opening needs an exterior wall of the sleeping room at least as long as the clear width plus the catalog frame allowance (s21.facade); height and sill are checked at the window level (later step).",
+      "source": {
+        "document": "CRC 2025",
+        "section": "R310.1, R310.2 (verify)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "O02-GARAGE-OPENINGS",
+      "magnitude": "garage_dwelling_opening",
+      "operator": "not_in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "forbidden_space_types": ["primary_suite", "bedroom"],
+        "door": {
+          "solid_core_min_thickness_in": 1.375,
+          "alternative_rating_minutes": 20,
+          "self_closing": true,
+          "self_latching": true
+        }
+      },
+      "text": [
+        "R302.5.1: openings from a private garage directly into a room used for sleeping purposes shall not be permitted. Other openings between the garage and the residence shall be equipped with solid wood doors, solid or honeycomb-core steel doors not less than 1 3/8 in thick, or 20-minute fire-rated doors, equipped with a self-closing or automatic-closing device."
+      ],
+      "source": {
+        "document": "CRC 2025",
+        "section": "R302.5.1 (verify; California amendment requires self-closing and self-latching)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "O03-HABITABLE-FACADE",
+      "magnitude": "habitable_room_exterior_glazing",
+      "operator": ">=",
+      "value": null,
+      "unit": "ratio",
+      "parameters": {
+        "glazing_rule": "C03-GLAZING",
+        "ventilation_rule": "C03-VENTILATION",
+        "artificial_light_exception": {
+          "space_types": [],
+          "note": "R303.1 exception: glazing is not required where an artificial light source and mechanical ventilation are provided. Not applied by design (client decision E4, 2026-10-11): every habitable room keeps an exterior wall. Listing space types here (e.g. kitchen) applies the exception to them."
+        }
+      },
+      "text": [
+        "R303.1: habitable rooms shall have an aggregate glazing area of not less than 8 percent of the floor area of such rooms; natural ventilation through windows or other openings to the outdoors with an openable area of not less than 4 percent of the floor area."
+      ],
+      "note": "The ratios are read from C03-GLAZING and C03-VENTILATION of the habitability ruleset; this entry makes the exterior wall a hard requirement of the space level.",
+      "source": {
+        "document": "CRC 2025",
+        "section": "R303.1 and exception (verify)"
+      },
+      "verified": false
+    }
+  ]
+}

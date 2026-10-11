@@ -1,0 +1,288 @@
+{
+ "corner-55x100": {
+  "cells": 33,
+  "status_counts": {
+   "no_valid_layout": 17,
+   "spaced": 16
+  },
+  "stair_rank_counts": {
+   "0": 11,
+   "1": 2,
+   "2": 2,
+   "3": 1
+  },
+  "first_violation_counts": {
+   "unit:private:cuts": 5,
+   "unit:social:cuts": 4,
+   "unit:circulation:corridor": 2,
+   "unit:social:min_side:living_room": 1,
+   "matrix:D:access-living": 1,
+   "reach:mudroom": 1,
+   "matrix:N:stair_top-private_bath": 1,
+   "unit:circulation:min_area:hall": 1,
+   "matrix:D:kitchen-laundry": 1
+  },
+  "failed_floor_counts": {
+   "ground": 10,
+   "upper": 7
+  },
+  "doors": 380,
+  "closets_from_leftovers": 1
+ },
+ "fan-cul-de-sac-35-80x100": {
+  "cells": 29,
+  "status_counts": {
+   "no_valid_layout": 20,
+   "not_evaluated": 2,
+   "spaced": 7
+  },
+  "stair_rank_counts": {
+   "0": 3,
+   "1": 3,
+   "3": 1
+  },
+  "first_violation_counts": {
+   "unit:social:cuts": 4,
+   "unit:private:min_side:bathroom": 3,
+   "unit:circulation:corridor": 3,
+   "unit:kitchen:cuts": 3,
+   "matrix:D:access-living": 2,
+   "unit:private:cuts": 2,
+   "unit:circulation:min_side:hall": 1,
+   "unit:social:facade:living_dining": 1,
+   "matrix:D:kitchen-laundry": 1
+  },
+  "failed_floor_counts": {
+   "ground": 15,
+   "upper": 5
+  },
+  "doors": 162,
+  "closets_from_leftovers": 1
+ },
+ "fan-curve-35-80x100": {
+  "cells": 8,
+  "status_counts": {
+   "no_valid_layout": 3,
+   "spaced": 5
+  },
+  "stair_rank_counts": {
+   "0": 4,
+   "2": 1
+  },
+  "first_violation_counts": {
+   "unit:private:cuts": 2,
+   "unit:social:cuts": 1
+  },
+  "failed_floor_counts": {
+   "ground": 2,
+   "upper": 1
+  },
+  "doors": 109,
+  "closets_from_leftovers": 0
+ },
+ "fan-reverse-80-40x100": {
+  "cells": 26,
+  "status_counts": {
+   "no_valid_layout": 9,
+   "not_evaluated": 1,
+   "spaced": 16
+  },
+  "stair_rank_counts": {
+   "0": 10,
+   "1": 3,
+   "2": 1,
+   "3": 2
+  },
+  "first_violation_counts": {
+   "matrix:N:stair_top-private_bath": 3,
+   "unit:social:cuts": 2,
+   "reach:flex_room": 1,
+   "reach:mudroom": 1,
+   "unit:kitchen:min_side:kitchen": 1,
+   "matrix:D:kitchen-laundry": 1
+  },
+  "failed_floor_counts": {
+   "ground": 3,
+   "upper": 6
+  },
+  "doors": 374,
+  "closets_from_leftovers": 1
+ },
+ "flag-70x80-pole20": {
+  "cells": 28,
+  "status_counts": {
+   "no_valid_layout": 17,
+   "spaced": 11
+  },
+  "stair_rank_counts": {
+   "0": 7,
+   "1": 2,
+   "2": 1,
+   "3": 1
+  },
+  "first_violation_counts": {
+   "matrix:N:stair_top-private_bath": 4,
+   "unit:circulation:min_side:hall": 2,
+   "unit:kitchen:min_side:kitchen": 2,
+   "unit:circulation:min_area:hall": 2,
+   "unit:kitchen:cuts": 1,
+   "reach:kitchen": 1,
+   "unit:social:cuts": 1,
+   "matrix:D:living-dining": 1,
+   "matrix:group:patio_from_dining_or_kitchen": 1,
+   "reach:primary_bath": 1,
+   "matrix:D:kitchen-laundry": 1
+  },
+  "failed_floor_counts": {
+   "ground": 9,
+   "upper": 8
+  },
+  "doors": 264,
+  "closets_from_leftovers": 0
+ },
+ "hillside-50x100": {
+  "cells": 36,
+  "status_counts": {
+   "no_valid_layout": 21,
+   "spaced": 15
+  },
+  "stair_rank_counts": {
+   "0": 10,
+   "1": 2,
+   "2": 3
+  },
+  "first_violation_counts": {
+   "unit:private:cuts": 6,
+   "unit:social:cuts": 5,
+   "reach:mudroom": 2,
+   "unit:kitchen:facade:kitchen": 2,
+   "unit:kitchen:cuts": 2,
+   "matrix:D:dining-kitchen": 1,
+   "reach:vestibule": 1,
+   "unit:private:min_side:bathroom": 1,
+   "matrix:D:kitchen-laundry": 1
+  },
+  "failed_floor_counts": {
+   "ground": 12,
+   "upper": 9
+  },
+  "doors": 357,
+  "closets_from_leftovers": 0
+ },
+ "interior-50x100": {
+  "cells": 36,
+  "status_counts": {
+   "no_valid_layout": 23,
+   "spaced": 13
+  },
+  "stair_rank_counts": {
+   "0": 8,
+   "1": 2,
+   "2": 3
+  },
+  "first_violation_counts": {
+   "unit:private:cuts": 6,
+   "unit:social:cuts": 5,
+   "reach:mudroom": 2,
+   "unit:kitchen:facade:kitchen": 2,
+   "unit:kitchen:cuts": 2,
+   "door:laundry_closet": 1,
+   "matrix:D:dining-kitchen": 1,
+   "unit:circulation:corridor": 1,
+   "unit:social:min_side:flex_room": 1,
+   "unit:private:min_side:bathroom": 1,
+   "matrix:D:kitchen-laundry": 1
+  },
+  "failed_floor_counts": {
+   "ground": 14,
+   "upper": 9
+  },
+  "doors": 317,
+  "closets_from_leftovers": 0
+ },
+ "narrow-40x125": {
+  "cells": 35,
+  "status_counts": {
+   "no_valid_layout": 10,
+   "not_evaluated": 2,
+   "spaced": 23
+  },
+  "stair_rank_counts": {
+   "0": 19,
+   "1": 1,
+   "2": 2,
+   "3": 1
+  },
+  "first_violation_counts": {
+   "unit:social:cuts": 3,
+   "reach:mudroom": 2,
+   "landing:half_bath": 1,
+   "matrix:N:stair_top-private_bath": 1,
+   "reach:primary_bath": 1,
+   "matrix:D:dining-kitchen": 1,
+   "unit:circulation:cuts": 1
+  },
+  "failed_floor_counts": {
+   "ground": 5,
+   "upper": 5
+  },
+  "doors": 524,
+  "closets_from_leftovers": 0
+ },
+ "shallow-50x95": {
+  "cells": 30,
+  "status_counts": {
+   "no_valid_layout": 17,
+   "spaced": 13
+  },
+  "stair_rank_counts": {
+   "0": 11,
+   "2": 2
+  },
+  "first_violation_counts": {
+   "unit:social:cuts": 4,
+   "unit:kitchen:cuts": 3,
+   "unit:social:facade:living_room": 2,
+   "reach:mudroom": 2,
+   "reach:hall": 2,
+   "unit:private:cuts": 1,
+   "door:laundry_closet": 1,
+   "unit:circulation:corridor": 1,
+   "unit:social:min_side:flex_room": 1
+  },
+  "failed_floor_counts": {
+   "ground": 10,
+   "upper": 7
+  },
+  "doors": 305,
+  "closets_from_leftovers": 0
+ },
+ "trapezoid-asym-45-65x100": {
+  "cells": 30,
+  "status_counts": {
+   "no_valid_layout": 14,
+   "spaced": 16
+  },
+  "stair_rank_counts": {
+   "0": 10,
+   "1": 1,
+   "2": 3,
+   "3": 2
+  },
+  "first_violation_counts": {
+   "unit:social:cuts": 4,
+   "unit:circulation:corridor": 3,
+   "matrix:D:dining-kitchen": 2,
+   "unit:kitchen:cuts": 2,
+   "unit:social:facade:living_room": 1,
+   "unit:circulation:min_area:hall": 1,
+   "unit:circulation:min_side:half_bath": 1
+  },
+  "failed_floor_counts": {
+   "ground": 11,
+   "upper": 3
+  },
+  "doors": 380,
+  "closets_from_leftovers": 0
+ }
+}

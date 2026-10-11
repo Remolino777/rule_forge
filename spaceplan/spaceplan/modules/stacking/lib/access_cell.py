@@ -18,9 +18,19 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
-from spaceplan.modules.stacking.lib.access_core import EntryDoor, entry_door, permitted_walls, site_entry
+from spaceplan.modules.stacking.lib.access_core import (
+    EntryDoor,
+    entry_door,
+    permitted_walls,
+    site_entry,
+)
 from spaceplan.modules.stacking.lib.access_rank import rank_stair_candidates
-from spaceplan.modules.stacking.lib.access_stair import AccessCandidate, access_candidates, preselect, with_half_bath
+from spaceplan.modules.stacking.lib.access_stair import (
+    AccessCandidate,
+    access_candidates,
+    preselect,
+    with_half_bath,
+)
 from spaceplan.modules.stacking.lib.cell_geometry import DRAWN, S1Context, draw_cell
 from spaceplan.modules.stacking.lib.stair import StairShape, stair_shape
 from spaceplan.modules.stacking.lib.stair_access import u_min_span_ft
@@ -128,8 +138,12 @@ def stage_s1(cell, s0, plan, strategy, ctx: S1Context, actx: AccessContext, site
 
 
 def stage_s2(cell, s0, out: dict[str, Any], plan, strategy, ctx: S1Context, s2ctx: S2Context, actx: AccessContext,
-             pool: CellPool) -> None:
-    """S2 of a cell: every preselected candidate drawn and zoned, the choice in three levels, the portfolio."""
+             pool: CellPool, refine=None, max_tries: int | None = None) -> None:
+    """S2 of a cell: every preselected candidate drawn and zoned, the choice in three levels, the portfolio.
+
+    With `refine` (stage S2.1: (s1, s2) -> s21 block), the chosen candidate is laid out space by space; when it gets
+    no valid layout the next candidate of the ranked list is tried (client decision E1, 2026-10-11), up to
+    `max_tries` candidates; the first one laid out becomes the choice."""
     trials = []
     provisional = out["s1"]
     for placement, a in pool.picks:
@@ -165,9 +179,24 @@ def stage_s2(cell, s0, out: dict[str, Any], plan, strategy, ctx: S1Context, s2ct
               "ranked": [summary(r.trial, r) for r in ranked],          # every zoned candidate, in choice order
               "pareto": [summary(r.trial, r) for r in ranked if r.pareto],
               "not_zoned": [summary(t) for t in trials if t["route_ft"] is None]}
+    pick, s21 = 0, None
+    if ranked and refine is not None:
+        tries = ranked[: max_tries or len(ranked)]
+        attempts = []
+        for k, r in enumerate(tries):
+            block = refine(r.trial["s1"], r.trial["s2"])
+            attempts.append({"rank": k, "strategy": r.trial["strategy"], "stair_id": r.trial["stair_id"],
+                             "status": block["status"], "first_violation": block.get("first_violation")})
+            if s21 is None or block["status"] == "spaced":
+                pick, s21 = k, block
+            if block["status"] == "spaced":
+                break
+        s21["stair_rank"] = pick
+        s21["attempts"] = attempts
     if ranked:
-        best = ranked[0].trial
-        choice.update({"chosen": summary(best, ranked[0]), "reason": ranked[0].reason})
+        best = ranked[pick].trial
+        reason = ranked[pick].reason if pick == 0 else f"S2.1 fallback to rank {pick}: {ranked[pick].reason}"
+        choice.update({"chosen": summary(best, ranked[pick]), "reason": reason})
         best["s1"]["access_core"]["provisional"] = False
         for k in ("candidates", "discards"):                      # what S1 handed over stays with the chosen drawing
             if k in (provisional.get("access_core") or {}):
@@ -178,9 +207,15 @@ def stage_s2(cell, s0, out: dict[str, Any], plan, strategy, ctx: S1Context, s2ct
     else:
         choice.update({"chosen": None, "reason": "no candidate zoned" if trials else "no candidate drawn"})
         s2 = trials[0]["s2"] if trials else zone_cell(cell, provisional, plan, s2ctx)
+    for t in trials:                                     # S2.1 alternatives live in memory only
+        t["s2"].pop("_alternatives", None)
+    s2.pop("_alternatives", None)
     s2["stair_choice"] = choice
     out["s2"] = s2
     out["next_stage"] = s2["next_stage"]
+    if s21 is not None:
+        out["s21"] = s21
+        out["next_stage"] = None
 
 
 __all__ = ["AccessContext", "CellPool", "access_context", "draw_with", "stage_s1", "stage_s2"]
