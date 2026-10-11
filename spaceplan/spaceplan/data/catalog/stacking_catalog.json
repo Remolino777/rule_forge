@@ -1,7 +1,7 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.7.0",
-  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule.",
+  "catalog_version": "0.8.0",
+  "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft.",
   "units": "ft, sq ft",
   "selection": {
     "modes": {
@@ -135,7 +135,7 @@
         "joint_offset_ft"
       ],
       "net_ground_bucket_sqft": 5.0,
-      "choice_note": "Lexicographic choice among valid candidates: smallest net ground-floor cost (footprint minus usable space under the stair, in buckets), then a half bath fits under the stair (vestibulated), then the bottom zone closest to the front (entry), then the position closest to the joint's middle.",
+      "choice_note": "Ordering of the geometric candidates inside one search (no longer the choice of the stair: stage S1.2 chooses with access_core.comparison). Lexicographic choice among valid candidates: smallest net ground-floor cost (footprint minus usable space under the stair, in buckets), then a half bath fits under the stair (vestibulated), then the bottom zone closest to the front (entry), then the position closest to the joint's middle.",
       "source": {
         "kind": "catalog",
         "citation": "Student-defined comparison of stair configurations, spaceplan step 6.7a S1.1 (2026-10)",
@@ -517,7 +517,7 @@
         "occupied_sqft"
       ],
       "rule": "pareto",
-      "route_tolerance_ft": 6.0,
+      "route_tolerance_ft": 15.0,
       "preferences": [
         "strategy",
         "arrival",

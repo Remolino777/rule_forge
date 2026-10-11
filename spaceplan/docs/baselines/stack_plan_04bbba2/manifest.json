@@ -1,0 +1,59 @@
+{
+ "baseline_id": "stack_plan_04bbba2_best",
+ "commit": "04bbba2",
+ "branch": "stacking/6.7a-s2",
+ "created": "2026-10-10",
+ "what": "Stage S1 (stair at the joint, S1.1 lexicographic choice) + S2 (zoning, backtrack to S1) on the best two-floor cells of the 10 pilot lots, before stage S1.2 (stair from the main door). Frozen as data for the before/after comparison of the capstone report (client decision 2026-10-10, option B); the joint selector code was removed afterwards.",
+ "inputs": {
+  "area_matrix_input_sha256": "6.6",
+  "stacking_catalog": "0.5.0",
+  "cells": 1022
+ },
+ "summary_s2": {
+  "arrival_counts": {
+   "family_room": 42,
+   "hall": 199,
+   "upper_vestibule": 20
+  },
+  "cells": 291,
+  "chosen_option_counts": {
+   "A": 241,
+   "B": 20
+  },
+  "feasible_option_counts": {
+   "A": 241,
+   "B": 254,
+   "C": 240
+  },
+  "half_bath_counts": {
+   "relocated": 120,
+   "under_stair": 141
+  },
+  "redrawn_by_s2": 150,
+  "redrawn_stair_changed": 123,
+  "stair_type_counts": {
+   "l_turn": 88,
+   "straight": 131,
+   "straight_landing": 18,
+   "u_turn": 24
+  },
+  "status_counts": {
+   "upper_not_zoned": 30,
+   "zoned": 261
+  },
+  "to_s2_1": 261,
+  "upper_placement_counts": {
+   "compact": 14,
+   "front": 8,
+   "over_garage": 58,
+   "rear": 181
+  }
+ },
+ "files": {
+  "stack_plan_cells.csv": "28dc7e940972b015bb60852dd45e236e7ceb29d014f75160a488849ea746506b",
+  "stack_plan_s1.csv": "f103713186c1f59195b0a9d86eeb6f8f28f2fbe6eb8db6a8f441896eaa29915e",
+  "stack_plan_s2.csv": "203a99420497dd97de257f8430a165c8e39ff44032547da042dca811a37b6a34",
+  "stack_plan_s2_joint_best.json.gz": "59c335bc7e53aba7765df4a07a10f5314df1d0df4ad42340df7ef9871758ca24"
+ },
+ "reproduce": "git worktree add <dir> 04bbba2; with that package first on sys.path: stack_plan_contract_for(area_matrix=<pilot area_matrix with space_split>, lot_capacities=<10 pilot lot_capacity>, mode='best', stage='S2')"
+}

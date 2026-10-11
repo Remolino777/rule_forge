@@ -210,7 +210,7 @@
     },
     "s1": {
       "type": "object",
-      "description": "Stage S1 of a two-floor cell: drawn ground and upper floors, stand-in garage, stair at the joint, allowed polygon per level (131.0444), roof of the drawn upper floor against the plane, containment and room over the garage (R302.6).",
+      "description": "Stage S1 of a two-floor cell: drawn ground and upper floors, stand-in garage, stair at the joint, allowed polygon per level (131.0444), roof of the drawn upper floor against the plane, containment and room over the garage (R302.6). Stage S1.2: the stair is placed from the main door against the permitted walls (strategies A, D, C, B); access_core keeps the door, vestibule, void and the preselected candidates; the drawing is provisional until S2 chooses.",
       "required": [
         "stage",
         "status",
@@ -580,6 +580,108 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/rule_trace"
+          }
+        },
+        "access_core": {
+          "type": "object",
+          "required": [
+            "provisional"
+          ],
+          "description": "Stage S1.2 access core: main door, swing, vestibule, interior void (strategy C), the candidate drawn and the preselected candidates handed to S2 (provisional until S2 chooses).",
+          "properties": {
+            "provisional": {
+              "type": "boolean"
+            },
+            "fixed": {
+              "type": "boolean"
+            },
+            "placement": {
+              "type": "string"
+            },
+            "strategy": {
+              "enum": [
+                "A",
+                "B",
+                "C",
+                "D"
+              ]
+            },
+            "stair_id": {
+              "type": "string"
+            },
+            "wall": {
+              "type": "string"
+            },
+            "fire_separation_ft": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "light": {
+              "type": "string"
+            },
+            "light_part": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "openings": {},
+            "occupied_sqft": {
+              "type": "number"
+            },
+            "entry_ft": {
+              "type": "number"
+            },
+            "stacked_ft": {
+              "type": "number"
+            },
+            "fallback": {
+              "type": "boolean"
+            },
+            "void_sqft": {
+              "type": "number"
+            },
+            "half_bath_fit": {
+              "type": "boolean"
+            },
+            "door": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "swing": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "vestibule": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "void": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "candidates": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "discards": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            }
           }
         }
       }
@@ -1103,27 +1205,124 @@
             "$ref": "#/$defs/rule_trace"
           }
         },
-        "backtrack": {
+        "stair_choice": {
           "type": "object",
           "required": [
-            "tried",
-            "placement",
-            "redrawn"
+            "tolerance_ft",
+            "candidates",
+            "zoned",
+            "portfolio",
+            "chosen",
+            "reason"
           ],
+          "description": "Stage S1.2 decision in S2: every preselected stair candidate zoned, the choice in three levels (hard rules, route tolerance, client preferences), the Pareto front (route, occupied area) and the best candidate of each strategy (portfolio).",
           "properties": {
-            "tried": {
-              "type": "array"
+            "tolerance_ft": {
+              "type": "number"
             },
-            "placement": {
-              "type": "string"
+            "strategy_preference": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
-            "redrawn": {
-              "type": "boolean"
+            "candidates": {
+              "type": "integer"
             },
-            "stair_id": {
+            "zoned": {
+              "type": "integer"
+            },
+            "portfolio": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/stair_candidate"
+              }
+            },
+            "pareto": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/stair_candidate"
+              }
+            },
+            "not_zoned": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/stair_candidate"
+              }
+            },
+            "chosen": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/stair_candidate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reason": {
               "type": "string"
             }
           }
+        }
+      }
+    },
+    "stair_candidate": {
+      "type": "object",
+      "required": [
+        "strategy",
+        "stair_id",
+        "placement",
+        "route_ft",
+        "s2_status"
+      ],
+      "properties": {
+        "strategy": {
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        "stair_id": {
+          "type": "string"
+        },
+        "placement": {
+          "type": "string"
+        },
+        "route_ft": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "occupied_sqft": {
+          "type": "number"
+        },
+        "light": {
+          "type": "string"
+        },
+        "arrival_kind": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "half_bath": {
+          "type": "boolean"
+        },
+        "s2_status": {
+          "type": "string"
+        },
+        "pareto": {
+          "type": "boolean"
+        },
+        "near_best": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
         }
       }
     }

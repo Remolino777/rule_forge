@@ -122,12 +122,12 @@ S2_WORDS = {
     "es": {"title": "Zonificación alrededor de la escalera (6.7a S2)", "ground": "Planta baja", "upper": "Planta alta",
            "option": "arranque", "arrival": "llegada", "family_room": "family room", "hall": "pasillo",
            "upper_vestibule": "vestíbulo", "relocated": "medio baño reubicado", "under_stair": "medio baño bajo escalera",
-           "None": "sin medio baño", "redrawn": "redibujada", "more": "celdas más no mostradas", "stair": "Escalera",
+           "None": "sin medio baño", "strategy": "estrategia", "more": "celdas más no mostradas", "stair": "Escalera",
            "garage": "Garaje", "start": "Arranque", "top": "Llegada"},
     "en": {"title": "Zoning around the stair core (6.7a S2)", "ground": "Ground floor", "upper": "Upper floor",
            "option": "start", "arrival": "arrival", "family_room": "family room", "hall": "hall",
            "upper_vestibule": "vestibule", "relocated": "half bath relocated", "under_stair": "half bath under stair",
-           "None": "no half bath", "redrawn": "redrawn", "more": "more cells not shown", "stair": "Stair",
+           "None": "no half bath", "strategy": "strategy", "more": "more cells not shown", "stair": "Stair",
            "garage": "Garage", "start": "Stair start", "top": "Stair arrival"},
 }
 
@@ -184,11 +184,12 @@ def plot_zoning_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors
                     (core["bottom_end"]["zone"], BOTTOM_EDGE), s1["ground"].get("garage_polygon"), hb)
         _zone_panel(ax_u, s1["levels"][1]["polygon"], s2["upper"]["units"], colors, s1["stair"]["polygon"],
                     (core["top_end"]["zone"], TOP_EDGE))
-        redrawn = f" · {w['redrawn']}" if s2["backtrack"]["redrawn"] else ""
+        chosen = (s2.get("stair_choice") or {}).get("chosen") or {}
+        tag = f" · {w['strategy']} {chosen['strategy']} ({chosen.get('light')})" if chosen else ""
         ax_g.set_title(f"{c['household_id']} · {c['profile']} · {c['scheme_id']}\n{w['ground']}: {w['option']} "
                        f"{s2['chosen_option']} ({'/'.join(s2['feasible_options'])}) · {w[str(opt.get('half_bath'))]}",
                        fontsize=5.5, color=INK, loc="left")
-        ax_u.set_title(f"score {s2['score']:.2f}{redrawn}\n{w['upper']}: {w['arrival']} "
+        ax_u.set_title(f"score {s2['score']:.2f}{tag}\n{w['upper']}: {w['arrival']} "
                        f"{w[s2['arrival']['receiving']]}", fontsize=5.5, color=INK, loc="left")
     s = lot["summary"].get("s2", {})
     header = f"{w['title']} — {lot['lot_id']}   {s.get('status_counts', {})}   {s.get('chosen_option_counts', {})}"

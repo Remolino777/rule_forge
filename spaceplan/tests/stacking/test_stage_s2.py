@@ -1,5 +1,5 @@
 """Stage S2 of the stacking module (step 6.7a): zoning of both floors around the stair core, A/B/C start portfolio,
-client-rule traces (K01-K05, K05 over the base matrix) and the backtrack to S1."""
+client-rule traces (K01-K05, K05 over the base matrix) and the stair choice of stage S1.2 (no backtrack: option B)."""
 
 import copy
 
@@ -39,7 +39,7 @@ from spaceplan.modules.stacking.lib_aux.zone_grid import (
     shared_contact,
 )
 from spaceplan.modules.stacking.main.contract import to_contract
-from spaceplan.modules.stacking.main.run_stacking import backtrack_order, run_stacking, s2_table_rows
+from spaceplan.modules.stacking.main.run_stacking import run_stacking, s2_table_rows
 
 SUBJECT = "interior_50x100_empty_nest_anglo"
 
@@ -77,7 +77,7 @@ def _zoned_cells(result):
 
 
 def test_catalog_has_s2_block_and_checks_it(scat):
-    assert scat.version == "0.7.0" and scat.s2["arrival_order"][0] == FAMILY_ROOM
+    assert scat.version == "0.8.0" and scat.s2["arrival_order"][0] == FAMILY_ROOM
     bad = copy.deepcopy(scat.data)
     bad["s2"]["grid_ft"] = 0
     bad["s2"]["arrival_order"] = ["hall"]
@@ -229,8 +229,10 @@ def test_zones_cover_each_floor_without_overlap(zoned):
         s1, s2 = c["s1"], c["s2"]
         core = s1["stair_core"]
         opt = s2["options"][s2["chosen_option"]]
-        for level, units, fixed in ((1, s2["upper"]["units"], []),
-                                    (0, opt["ground"]["units"], [s1["ground"].get("garage_polygon")]
+        access = s1.get("access_core") or {}                       # S1.2: entry vestibule and void are fixed
+        for level, units, fixed in ((1, s2["upper"]["units"], [access.get("void")]),
+                                    (0, opt["ground"]["units"], [s1["ground"].get("garage_polygon"),
+                                                                 access.get("vestibule")]
                                      + ([core["under_stair"]["half_bath"], core["under_stair"]["vestibule"]]
                                         if opt.get("half_bath") == "under_stair" else []))):
             floor = shape(s1["levels"][level]["polygon"])
@@ -265,15 +267,22 @@ def test_small_upper_floor_is_reported_not_evaluated():
         if s2 and s2["status"] != "zoned":
             assert s2["next_stage"] is None and s2["upper_search"]["first_violations"]
             assert {t["result"] for t in s2["rule_traces"]} <= {NOT_EVALUATED, "fail"}
-            assert s2["backtrack"]["tried"]                       # S1 was asked for other drawings first
+            assert "backtrack" not in s2                          # option B: S2 chooses among the S1 candidates
+            assert s2["stair_choice"]["chosen"] is None and s2["stair_choice"]["reason"]
 
 
-def test_backtrack_order_tries_placements_and_stairs():
-    s1 = {"upper_placement": "rear", "stair": {"stair_id": "l_turn"},
-          "upper_candidates": [{"placement": "rear", "stair_fits": True}, {"placement": "front", "stair_fits": False},
-                               {"placement": "compact", "stair_fits": True}]}
-    order = backtrack_order(s1, ["straight", "l_turn"])
-    assert order == [("rear", "straight"), ("compact", "l_turn"), ("compact", "straight")]
+def test_s2_chooses_the_stair_among_the_s1_candidates(zoned, scat):
+    for c in _zoned_cells(zoned):
+        choice, core = c["s2"]["stair_choice"], c["s1"]["access_core"]
+        assert choice["tolerance_ft"] == scat.access_core["comparison"]["route_tolerance_ft"]
+        assert 1 <= choice["zoned"] <= choice["candidates"] <= len(core["candidates"])
+        chosen = choice["chosen"]
+        assert chosen and chosen["s2_status"] == "zoned" and chosen["near_best"]
+        assert core["provisional"] is False                       # the drawing kept is the one S2 chose
+        assert (core["strategy"], core["stair_id"], core["placement"]) == \
+            (chosen["strategy"], chosen["stair_id"], chosen["placement"])
+        assert choice["portfolio"][chosen["strategy"]] == chosen     # the best of each strategy is kept
+        assert any(p["pareto"] for p in choice["pareto"])
 
 
 def test_deferred_door_pairs_are_traced_for_s2_1(zoned):

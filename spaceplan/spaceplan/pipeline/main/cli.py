@@ -338,6 +338,9 @@ def _add_module_parsers(sub) -> None:
     p_stack.add_argument("--area-matrix", help="read this area_matrix contract instead of computing it")
     p_stack.add_argument("--lot-capacity", action="append", default=[],
                          help="lot_capacity contract of a lot (repeat); default: computed from the lot briefs")
+    p_stack.add_argument("--site-plan", action="append", default=[],
+                         help="site_plan contract of a lot (repeat; S1 and S2 place the stair from its main door); "
+                              "default: computed from the lot briefs")
     p_stack.add_argument("--tables", help="directory for stack_plan_cells.csv (and stack_plan_s1.csv, "
                                           "stack_plan_s2.csv by stage)")
     p_stack.add_argument("-o", "--out", help="write the stack_plan contract")
@@ -427,7 +430,7 @@ def _stack_lines(contract: dict) -> list[str]:
             s2 = s["s2"]
             lines.append(f"  {'':<26} S2 {s2['status_counts']}  arrival {s2['arrival_counts']}  start "
                          f"{s2['chosen_option_counts']} feasible {s2['feasible_option_counts']}  half bath "
-                         f"{s2['half_bath_counts']}  redrawn {s2['redrawn_by_s2']}")
+                         f"{s2['half_bath_counts']}  strategy {s2.get('strategy_counts')}  light {s2.get('light_counts')}")
     return lines
 
 
@@ -486,7 +489,8 @@ def _run_stacking_command(args) -> int:
         area_matrix=load_contract(args.area_matrix, "area_matrix") if args.area_matrix else None,
         lot_capacities=[load_contract(p, "lot_capacity") for p in args.lot_capacity] or None,
         mode=args.cells, lots=args.lots or None, households=_parse_households(args.households), zone_top=0,
-        stage=args.stage, design=_design_from_args(args))
+        stage=args.stage, design=_design_from_args(args),
+        site_plans=[load_contract(p, "site_plan") for p in args.site_plan] or None)
     if args.out:
         write_contract(contract, args.out)
     if args.tables:
