@@ -451,6 +451,7 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
                        "area_sqft": round(n * ca, 1), "target_sqft": round(s.target_sqft, 1),
                        "exterior_ft": round(exterior_run(m, ext) * f.res, 2), "host": s.host,
                        "fixed": s.fixed, "synthetic": s.synthetic,
+                       **({"cap_sqft": round(s.cap_sqft, 1)} if s.cap_sqft is not None else {}),
                        "polygon": polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)})
     return {"level": f.level, "variant": f.variant,
             "root": lay.specs[lay.root].space_id, "landing_space": lay.specs[lay.landing_node].space_id,

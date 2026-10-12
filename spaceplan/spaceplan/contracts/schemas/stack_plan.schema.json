@@ -1439,6 +1439,10 @@
         "target_sqft": {
           "type": "number"
         },
+        "cap_sqft": {
+          "type": "number",
+          "description": "S2.2e: effective maximum net area of the space (area criteria of the program adjustment)."
+        },
         "exterior_ft": {
           "type": "number"
         },

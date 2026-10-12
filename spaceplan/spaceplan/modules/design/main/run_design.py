@@ -8,6 +8,8 @@
     check       validate the registry baseline and, optionally, a profile
     tools       write the LLM tool definitions (data/schemas/design_tools.json by default)
     materialize write the stores (catalogs and rulesets) with a profile applied, for a pipeline run
+    criteria    area budget or door interference criteria by layer, with the effective maximum per space for a
+                house size (S2.2e); change them with `apply --set <id>=<value>` or the LLM tool set_criteria
 """
 
 from __future__ import annotations
@@ -19,6 +21,7 @@ from typing import Any
 
 from spaceplan.core.lib.contracts import write_contract
 from spaceplan.core.lib_aux.json_io import dump_json, load_json, load_resource_json
+from spaceplan.modules.design.lib import area_criteria as ac
 from spaceplan.modules.design.lib import design_profile as dp
 from spaceplan.modules.design.lib.design_registry import (
     RULESET_PREFIX,
@@ -80,6 +83,32 @@ def explain_lines(reg: DesignRegistry, profile: dict, param_id: str, lang: str =
     lines.append(f"  verified: {row['verified']}; store {row['store']} -> {row['path']}")
     if row.get("note"):
         lines.append(f"  note: {row['note']}")
+    return lines
+
+
+def criteria_lines(view: dict[str, Any]) -> list[str]:
+    """Plain-text table of a criteria view (area or doors)."""
+    if view["group"] == ac.DOORS:
+        return ["door interference criteria"] + [f"  {r['id']:42s} {_fmt(r['value']):>8s} {r['unit'] or '':6s} "
+                                                 f"{r['kind']:9s} {r['description']}" for r in view["rules"]]
+    lines = [f"area criteria{' for a house of ' + format(view['house_net_sqft'], '.0f') + ' sq ft net (size factor ' + format(view['size_factor'], '.3f') + ')' if view.get('house_net_sqft') else ''}"]
+    lines.append("  policy:")
+    lines += [f"    {r['id']:42s} {_fmt(r['value']):>20s} {r['unit'] or '':6s} {r['description']}" for r in view["policy"]]
+    lines.append(f"  whole suite cap: {view['suite_total_cap_sqft']} sq ft; extra package: "
+                 f"{view['extra_package']['types']} {view['extra_package']['net_sqft']} sq ft")
+    lines.append(f"  {'space':16s} {'code':>6s} {'p.min':>6s} {'p.tgt':>6s} {'p.max':>6s} {'rec':>6s} {'cap':>6s} "
+                 f"{'share':>6s} {'eff.cap':>8s} binding")
+    for s in view["spaces"]:
+        prog, des = s["layers"]["program"], s["layers"]["design"]
+
+        def val(d, k):
+            return _fmt(d[k]["value"]) if k in d else "-"
+        code = s["layers"].get("code")
+        eff = s.get("effective") or {}
+        lines.append(f"  {s['space_type']:16s} {format(code['value'], 'g') if code else '-':>6s} "
+                     f"{val(prog, 'program_min_sqft'):>6s} {val(prog, 'program_target_sqft'):>6s} "
+                     f"{val(prog, 'program_max_sqft'):>6s} {val(des, 'rec_sqft'):>6s} {val(des, 'cap_sqft'):>6s} "
+                     f"{val(des, 'share_max'):>6s} {_fmt(eff.get('cap_sqft', '-')):>8s} {eff.get('binding', '')}")
     return lines
 
 
@@ -173,6 +202,11 @@ def run_design_command(args) -> int:
         dump_json(tool_definitions(reg), out)
         print(f"{len(tool_definitions(reg)['tools'])} tools over {len(reg.params)} parameters -> {out}")
         return 0
+    if action == "criteria":
+        values, kinds = dp.effective_values(reg, profile), reg.kinds(dp.change_map(profile))
+        view = ac.criteria_view(reg, values, kinds, args.group, args.space_type, args.house_net, lang)
+        print(json.dumps(view, indent=2, ensure_ascii=False) if args.json else "\n".join(criteria_lines(view)))
+        return 0
     if action == "materialize":
         written = materialize_to(reg, profile, args.out)
         print(f"{len(written)} stores written to {args.out}")
@@ -223,10 +257,15 @@ def add_design_parser(sub) -> None:
     q = acts.add_parser("tools")
     q.add_argument("-o", "--out")
     common(q, profile=False)
+    q = acts.add_parser("criteria")
+    q.add_argument("--group", choices=ac.GROUPS, default=ac.AREA)
+    q.add_argument("--space-type")
+    q.add_argument("--house-net", type=float, help="net program area of the house (sq ft, garage excluded)")
+    common(q)
     q = acts.add_parser("materialize")
     q.add_argument("-o", "--out", required=True)
     common(q)
 
 
-__all__ = ["BASELINE_PROFILE", "add_design_parser", "explain_lines", "list_lines", "load_profile",
+__all__ = ["BASELINE_PROFILE", "add_design_parser", "criteria_lines", "explain_lines", "list_lines", "load_profile",
            "materialize_to", "parse_value", "run_design_command", "write_profile"]

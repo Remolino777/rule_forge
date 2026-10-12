@@ -1215,6 +1215,60 @@ recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote
 - Techos en varios planos sobre `open_air`.
 - Endurecer las preferencias fuertes cuando las zonas vengan dimensionadas.
 
+## 4x. Paso 6.7a, S2.2e (12 oct 2026): presupuesto de superficie, topes de área e interferencia de puertas
+
+**Decisión del cliente (12 oct, 10:18).**
+- Acepta la línea base del análisis `claude/spaceplan_6_7a_S2_2e_analisis_areas_puertas.md`.
+- El ambiente adicional queda en "proponer".
+- Todos los criterios deben poder modificarlos una persona o un LLM.
+
+**Datos.**
+- `design_space_standards` 0.6.0:
+  - S00-AREA-CAPS (`space.area.*`):
+    - topes activados;
+    - jerarquía suite ≤ 1.8 × dormitorio recomendado;
+    - suite completa ≤ 0.85 × garage;
+    - comedor ≤ 0.8 × sala;
+    - proporciones ajustadas por tamaño de vivienda (1600 → 3800 sq ft, +25 %);
+    - margen de dibujo 6 %;
+    - `freed_area` unbuilt/keep;
+    - `extra_room_policy` never/propose/auto, con su paquete y un sobrecosto de 40 sq ft.
+  - Por tipo: `area_rec_sqft`, `area_cap_sqft` y `area_share_max` en 14 tipos.
+- `design_circulation_doors` 0.2.0 P03: R2, R3, `approach_depth_ft` 3, tolerancia, espesor de hoja, E1 y `doorway_max_width_ft` 8.
+- Registro 0.4.0: 486 parámetros, con la referencia del garage y las restricciones rec ≤ cap y min ≤ cap.
+
+**Código.**
+- `design/lib/area_criteria.py`:
+  - máximo efectivo = max(recomendada, mínima del catálogo, min(absoluto, jerarquía, proporción × neto × factor));
+  - tope de la suite completa;
+  - vistas por capas (código, programa, diseño).
+- Herramientas LLM 0.2.0: `get_criteria` y `set_criteria`. CLI: `spaceplan design criteria --house-net N [--group doors]`.
+- `program_adjust`:
+  - paso 0, topes (`area_cap_sqft` en cada fila);
+  - el área liberada sale de la planta (bruta = neta × bruta/neta de la planta; la baja nunca queda menor que la alta);
+  - paso 3b, suite completa contra el garage;
+  - paso 3c, ambiente adicional (propone o agrega).
+- `SpaceSpec.cap_sqft`. `unit_layout._cap_area` reparte el exceso por llenado (water-filling) hasta el tope × (1 + margen).
+- `lib_aux/door_geometry.py`: barrido, hoja cerrada y zona de paso con shapely y STRtree; reglas R1, E1, R1b, R2 y R3.
+- `space_quality` / `run_quality`:
+  - `over_cap`, área por tipo, métricas de la suite contra el garage;
+  - puertas por planta;
+  - `quality_doors.csv`.
+- Esquema: `s21_space.cap_sqft`.
+
+**Piloto (`docs/results/s22e_pilot/`).**
+- 32 casas (antes 26).
+- Dormitorio principal: mediana 255 sq ft (antes 303), máximo 275 (antes 385); suite/garage máx 0.95 (antes 1.12).
+- Espacios sobre su tope: 6.3 % (antes 13.5 %).
+- Interferencias exactas: 75 casos de R3 y 2 de R2.
+- El paquete adicional cabe en 222 de 291 celdas (solo se propone).
+
+**Pendiente.**
+- P3, colocación conjunta de puertas: candidatas posición × lado × sentido × tipo, más reparación o CP-SAT.
+- P4, muros con espesor y eficiencia neta/bruta explícita.
+- P5, asignación MILP y aplicación de la propuesta del ambiente adicional.
+- Decidir si se baja la mínima del catálogo de la suite (250 → 150–180), lo que requiere refrescar los golden.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1363,7 +1417,7 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4w del HANDOFF) con **S2.2d parte 2**: S1/S2 con la escalera en la franja central (K12): búsqueda de
-> posiciones dentro de la franja y zonificación alrededor de un núcleo central, para recuperar cobertura (26 de 291
-> casas); puerta a la terraza; techos en varios planos. Mide con `spaceplan quality` contra `docs/results/s22d_pilot/`.
-> Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.
+> secciones 4t–4x del HANDOFF). S2.2e cerró los topes de área y el detector exacto de puertas. Siguen P3
+> (colocación conjunta de puertas con R1–R3) y S2.2d parte 2 (zonificación con la escalera central). Mide con
+> `spaceplan quality` contra `docs/results/s22e_pilot/after/`. Respeta las reglas de la sección 1. Primero haz el
+> análisis lógico y el plan, y pregúntame antes de programar.

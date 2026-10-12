@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-circulation-doors",
-  "ruleset_version": "0.1.0",
+  "ruleset_version": "0.2.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice. Version 0.2.0 (2026-10-12, step S2.2e): exact door interference checks (swing vs swing, swing vs the doorway of another door, swing vs the closed leaf of another door, swing outside its room) with their tolerances and the same-suite exception; reported as indicators until the joint placement of step P3.",
   "verification_note": "Design values, not code (the hallway width floor is CRC C06 R311.6 in crc_2025_habitability). The hall design width, the circulation target and warning fractions stay in the residential catalog (circulation block) and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -264,10 +264,129 @@
             "soft",
             "hard"
           ]
+        },
+        "no_swing_on_doorway": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "El giro de una puerta no invade la zona de paso de otra puerta",
+            "en": "A swing does not enter the approach zone of another doorway"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "no_swing_outside_room": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "La hoja no choca con muros: el giro queda dentro del ambiente que sirve",
+            "en": "The leaf does not hit walls: the swing stays inside the space it serves"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "approach_depth_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la zona de paso a cada lado del vano de una puerta",
+            "en": "Depth of the approach zone on each side of a doorway"
+          },
+          "range": [
+            2.0,
+            5.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "5 ft in the accessible profile (ICC A117.1 maneuvering)."
+        },
+        "overlap_tolerance_sqft": {
+          "value": 0.05,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Área de cruce por debajo de la cual dos geometrías solo se tocan",
+            "en": "Overlap area below which two geometries only touch"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "leaf_thickness_in": {
+          "value": 1.75,
+          "type": "number",
+          "unit": "in",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Espesor de la hoja (para la hoja cerrada)",
+            "en": "Leaf thickness (for the closed leaf)"
+          },
+          "range": [
+            1.25,
+            2.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "same_suite_exception": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Excepción E1: dos giros que se cruzan dentro de una misma suite privada se toleran si ninguna hoja choca con la otra hoja cerrada",
+            "en": "Exception E1: two crossing swings inside one private suite are tolerated when neither leaf hits the other closed leaf"
+          },
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "doorway_max_width_ft": {
+          "value": 8.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Una abertura sin hoja más ancha que esto es un límite abierto (gran sala), sin zona de paso",
+            "en": "A leafless opening wider than this is an open boundary (great room), without an approach zone"
+          },
+          "range": [
+            4.0,
+            16.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
         }
       },
       "text": [
-        "Door conflicts checked at the space level."
+        "Door conflicts checked at the space level.",
+        "S2.2e: exact geometry (shapely) of the swing sector, the closed leaf and the approach zone; reported per floor (indicators) until the joint door placement of step P3 enforces them."
       ],
       "source": {
         "document": "Common US residential practice (student research 2026-10-11)",

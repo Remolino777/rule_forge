@@ -9,6 +9,9 @@ Reads the `s21` block of stack_plan cells and the effective design values (regis
               upper-floor override), exterior wall length, mean depth from the facade against the daylight depth;
   per house   circulation fraction per floor, longest hall run, halls and foyers that are not one rectangle,
               fragmented spaces, M spaces holding facade while some N space of the floor has less than its share;
+  S2.2e       area against the effective maximum (the cap the program adjustment gave the space, else the
+              absolute design cap) plus the drawn-plan wall allowance; whole primary suite against the 2-car garage;
+              exact door interference per floor (lib_aux.door_geometry: R1 / E1 / R1b / R2 / R3);
   summary     per space type and overall, plus the coverage of the stage (cells with a drawn floor plan).
 
 Values come from the design registry ids (space.<type>.aspect_max, light.category.<type>...), never literals.
@@ -24,9 +27,15 @@ import numpy as np
 import shapely
 from shapely.geometry import shape
 
+from spaceplan.modules.design.lib import area_criteria as ac
+from spaceplan.modules.stacking.lib_aux.door_geometry import floor_conflicts, summarize
+
 GRID_FT = 0.5            # raster step of the furniture test (the S2 grid)
 SPACED = "spaced"
 CIRCULATION_TYPES = ("hall", "foyer")
+SUITE_HOSTS = ("primary_suite", "bedroom")       # rooms a private suite hangs from (E1 exception)
+SUITE, SUITE_PARTS, GARAGE = "primary_suite", ("walk_in_closet", "primary_bath"), "garage"
+DOOR_PREFIX = "door.conflicts."
 
 
 def _value(values: dict[str, Any], pid: str) -> Any:
@@ -94,6 +103,10 @@ def space_metrics(sp: dict[str, Any], level: int, values: dict[str, Any]) -> dic
     head = values.get("light.daylight.window_head_ft")
     factor = values.get("light.daylight.depth_factor")
     depth = g.area / ext if ext > 0 else None
+    cap = sp.get("cap_sqft")
+    if cap is None:
+        eff = ac.effective_cap(values, t, None)
+        cap = eff["cap_sqft"] if eff else None
     return {
         "space_id": sp["space_id"], "space_type": t, "level": level, "area_sqft": round(g.area, 1),
         "w_ft": round(w, 2), "h_ft": round(h, 2), "short_ft": round(short, 2), "long_ft": round(long_, 2),
@@ -110,6 +123,8 @@ def space_metrics(sp: dict[str, Any], level: int, values: dict[str, Any]) -> dic
         "daylight_ok": None if depth is None or head is None or factor is None or cat != "N"
         else depth <= head * factor + 1e-9,
         "fixed": bool(sp.get("fixed")), "synthetic": bool(sp.get("synthetic")),
+        "cap_sqft": cap, "over_cap": None if cap is None else g.area > ac.drawn_cap(values, cap) + GRID_FT * GRID_FT,
+        "host": sp.get("host"),
     }
 
 
@@ -118,6 +133,8 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
     if s21.get("status") != SPACED:
         return None
     spaces, floors = [], {}
+    garage = 0.0
+    door_params = {k[len(DOOR_PREFIX):]: v for k, v in values.items() if k.startswith(DOOR_PREFIX)}
     for key in ("ground", "upper"):
         fl = s21.get(key)
         if not fl:
@@ -125,6 +142,9 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
         level = int(fl.get("level", 0 if key == "ground" else 1))
         rows = [space_metrics(sp, level, values) for sp in fl["spaces"] if sp.get("polygon") and not sp.get("fixed")]
         spaces += rows
+        findings = floor_conflicts(fl.get("doors") or [], fl["spaces"], door_params, SUITE_HOSTS)
+        garage += sum(shape(sp["polygon"]).area for sp in fl["spaces"]
+                      if sp.get("polygon") and str(sp["space_type"]).startswith(GARAGE))
         halls = [r for r in rows if r["space_type"] == "hall"]
         n_rows = [r for r in rows if r["category"] == "N"]
         m_facade = [r for r in rows if r["category"] == "M" and r["exterior_ft"] > 0]
@@ -136,14 +156,32 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
             "fragmented": sum(1 for r in rows if r["fragments"] > 1),
             "n_spaces": len(n_rows), "n_daylit": sum(1 for r in n_rows if r["daylight_ok"]),
             "m_with_facade": len(m_facade), "m_facade_ft": round(sum(r["exterior_ft"] for r in m_facade), 1),
+            "doors": summarize(findings), "door_findings": findings,
         }
     cid = "/".join(str(cell.get(k)) for k in ("lot_id", "household_id", "profile", "scheme_id", "strategy_used"))
-    return {"cell_id": cid, "lot_id": cell.get("lot_id"), "profile": cell.get("profile"), "floors": floors, "spaces": spaces}
+    suite = suite_metrics(spaces, garage)
+    extra = ((cell.get("program_adjustment") or {}).get("area_criteria") or {}).get("extra_room")
+    return {"cell_id": cid, "lot_id": cell.get("lot_id"), "profile": cell.get("profile"), "floors": floors,
+            "spaces": spaces, "suite": suite, "extra_room": extra}
 
 
-def _pct(rows: list[dict], key: str) -> float | None:
+def suite_metrics(spaces: list[dict[str, Any]], garage_sqft: float) -> dict[str, Any] | None:
+    """The primary suite drawn: bedroom, whole suite (with its walk-in and bath) and both against the garage."""
+    beds = [r for r in spaces if r["space_type"] == SUITE]
+    if not beds:
+        return None
+    bed = max(beds, key=lambda r: r["area_sqft"])
+    parts = [r for r in spaces if r["space_type"] in SUITE_PARTS and r.get("host") == bed["space_id"]]
+    total = bed["area_sqft"] + sum(r["area_sqft"] for r in parts)
+    return {"bedroom_sqft": bed["area_sqft"], "total_sqft": round(total, 1), "garage_sqft": round(garage_sqft, 1),
+            "bedroom_to_garage": round(bed["area_sqft"] / garage_sqft, 3) if garage_sqft > 0 else None,
+            "total_to_garage": round(total / garage_sqft, 3) if garage_sqft > 0 else None}
+
+
+def _pct(rows: list[dict], key: str, bad: bool = False) -> float | None:
+    """Percent of the rows that fail `key` (False), or that have it (True) when `bad`."""
     vals = [r[key] for r in rows if r[key] is not None]
-    return round(100.0 * sum(1 for v in vals if not v) / len(vals), 1) if vals else None
+    return round(100.0 * sum(1 for v in vals if bool(v) == bad) / len(vals), 1) if vals else None
 
 
 def type_summary(spaces: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -164,7 +202,23 @@ def type_summary(spaces: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "pct_not_rectangular": round(100.0 * sum(1 for r in rows if r["rectangularity"] < 0.999)
                                                  / len(rows), 1),
                     "pct_fragmented": round(100.0 * sum(1 for r in rows if r["fragments"] > 1) / len(rows), 1),
-                    "pct_not_daylit": _pct(rows, "daylight_ok")})
+                    "pct_not_daylit": _pct(rows, "daylight_ok"),
+                    "area_median": round(st.median(r["area_sqft"] for r in rows), 1),
+                    "area_p90": round(sorted(r["area_sqft"] for r in rows)[int(0.9 * (len(rows) - 1))], 1),
+                    "area_max": round(max(r["area_sqft"] for r in rows), 1),
+                    "pct_over_cap": _pct([r for r in rows if r["over_cap"] is not None], "over_cap", bad=True)})
+    return out
+
+
+def _suite_summary(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not rows:
+        return None
+    out: dict[str, Any] = {"n": len(rows)}
+    for key in ("bedroom_sqft", "total_sqft", "bedroom_to_garage", "total_to_garage"):
+        vals = sorted(r[key] for r in rows if r[key] is not None)
+        if vals:
+            out[f"{key}_median"] = round(st.median(vals), 3)
+            out[f"{key}_max"] = round(vals[-1], 3)
     return out
 
 
@@ -202,9 +256,26 @@ def quality_report(stack_plans: list[dict[str, Any]], values: dict[str, Any]) ->
                                                                                             "bath_closet")},
         "m_spaces_with_facade": sum(f["m_with_facade"] for f in floors),
         "m_facade_ft": round(sum(f["m_facade_ft"] for f in floors), 1),
+        "pct_over_cap": _pct([r for r in spaces if r["over_cap"] is not None], "over_cap", bad=True),
+        "doors": {k: sum(f["doors"][k] for f in floors) for k in ("R1", "E1", "R1b", "R2", "R3")},
+        "floors_with_door_conflicts": sum(1 for f in floors if any(v for k, v in f["doors"].items() if k != "E1")),
+        "floors": len(floors),
+        "suite": _suite_summary([c["suite"] for c in cells if c["suite"]]),
+        "extra_room": {"fits": sum(1 for c in cells if (c["extra_room"] or {}).get("fits")),
+                       "applied": sum(1 for c in cells if (c["extra_room"] or {}).get("applied"))},
     }
     return {"overall": overall, "by_type": type_summary(spaces), "cells": cells}
 
 
-__all__ = ["GRID_FT", "category", "cell_metrics", "closet_role", "fits_rectangle", "furniture_options", "quality_report", "space_metrics",
-           "type_summary"]
+__all__ = [
+    "GRID_FT",
+    "category",
+    "cell_metrics",
+    "closet_role",
+    "fits_rectangle",
+    "furniture_options",
+    "quality_report",
+    "space_metrics",
+    "suite_metrics",
+    "type_summary",
+]

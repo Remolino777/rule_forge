@@ -184,9 +184,9 @@ def test_files_follow_plan_table():
                          "program_adjust", "front_yard",  # S2.1b
                          "space_quality"},  # S2.2a
         "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry", "zone_grid",
-                             "space_grid"},  # space_grid: S2.1
+                             "space_grid", "door_geometry"},  # space_grid: S2.1; door_geometry: S2.2e
         "stacking/main": {"run_stacking", "contract", "run_quality"},  # run_quality: S2.2a
-        "design/lib": {"design_registry", "design_profile", "llm_tools"},  # S2.2a
+        "design/lib": {"design_registry", "design_profile", "llm_tools", "area_criteria"},  # S2.2a; S2.2e
         "design/lib_aux": {"param_paths", "units"},
         "design/main": {"run_design", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",

@@ -2,7 +2,9 @@
 (name, description, input_schema), plus a local dispatcher that runs them on a profile.
 
 The tools let an assistant list, explain, propose and apply parameter changes and compare profiles; every change
-goes through the same validation as the CLI (range, choices, code floor, constraints). `run_variant` and
+goes through the same validation as the CLI (range, choices, code floor, constraints). `get_criteria` and
+`set_criteria` (step S2.2e) read and change the area budget and door interference criteria by layer (code, program,
+design) with the effective maximum of each space for a house size, mapped onto the same parameters. `run_variant` and
 `compare_variants` are declared for the pipeline integration of step S2.2f and answer "not_available" until then.
 """
 
@@ -10,10 +12,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from spaceplan.modules.design.lib import area_criteria as ac
 from spaceplan.modules.design.lib import design_profile as dp
 from spaceplan.modules.design.lib.design_registry import KINDS, WHO, DesignRegistry
 
-TOOLS_VERSION = "0.1.0"
+TOOLS_VERSION = "0.2.0"
 VALUE_SCHEMA = {"description": "New value: number, text (enum), true/false or a list of texts",
                 "anyOf": [{"type": "number"}, {"type": "string"}, {"type": "boolean"},
                           {"type": "array", "items": {"type": "string"}}]}
@@ -54,6 +57,29 @@ def tool_definitions(reg: DesignRegistry) -> dict[str, Any]:
         {"name": "diff_profile",
          "description": "Parameters of the current profile that differ from the baseline.",
          "input_schema": {"type": "object", "properties": {}, "additionalProperties": False}},
+        {"name": "get_criteria",
+         "description": "Area budget or door interference criteria by layer. group=area: per space type the code "
+                        "floor, the program range (catalog min/target/max, least side) and the design criteria "
+                        "(recommended, absolute cap, share of the net program area), the policy (hierarchy ratios, "
+                        "suite vs garage, size factor, use of the freed area, extra-room policy) and, given "
+                        "house_net_sqft, the effective maximum and which limit binds. group=doors: the door "
+                        "interference rules and tolerances.",
+         "input_schema": {"type": "object", "properties": {
+             "group": {"type": "string", "enum": list(ac.GROUPS)},
+             "space_type": {"type": "string", "enum": ac.cap_types(reg.baseline())},
+             "house_net_sqft": {"type": "number", "exclusiveMinimum": 0},
+             "lang": {"type": "string", "enum": ["es", "en"]}}, "required": ["group"], "additionalProperties": False}},
+        {"name": "set_criteria",
+         "description": "Change area or door criteria with a reason (validated like apply_changes; fails as a whole). "
+                        "group=area with space_type: keys " + ", ".join(sorted(ac.SPACE_KEYS)) + ". group=area "
+                        "without space_type: policy keys (the id after 'space.area.', e.g. suite_to_bedroom_max, "
+                        "extra_room_policy). group=doors: the id after 'door.conflicts.' (e.g. approach_depth_ft).",
+         "input_schema": {"type": "object", "properties": {
+             "group": {"type": "string", "enum": list(ac.GROUPS)},
+             "space_type": {"type": "string", "enum": ac.cap_types(reg.baseline())},
+             "changes": {"type": "object", "minProperties": 1, "additionalProperties": VALUE_SCHEMA},
+             "reason": {"type": "string"}}, "required": ["group", "changes", "reason"],
+             "additionalProperties": False}},
         {"name": "run_variant",
          "description": "Run the generator on pilot lots with the current profile and return quality indicators "
                         "(available from step S2.2f).",
@@ -91,12 +117,24 @@ def dispatch(reg: DesignRegistry, profile: dict[str, Any], name: str, arguments:
             return {"ok": True, "changes": new["changes"], "profile_sha256": dp.profile_sha256(new)}, new
         if name == "diff_profile":
             return {"ok": True, "diff": dp.diff(reg, None, profile)}, profile
+        if name == "get_criteria":
+            values, kinds = dp.effective_values(reg, profile), reg.kinds(dp.change_map(profile))
+            return {"ok": True, **ac.criteria_view(reg, values, kinds, arguments["group"], arguments.get("space_type"),
+                                                   arguments.get("house_net_sqft"), lang)}, profile
+        if name == "set_criteria":
+            changes = ac.criteria_changes(dp.effective_values(reg, profile), arguments["group"],
+                                          arguments["changes"], arguments.get("space_type"))
+            new = dp.apply(reg, profile, changes, author, date, arguments.get("reason", ""))
+            return {"ok": True, "applied": changes, "changes": new["changes"],
+                    "profile_sha256": dp.profile_sha256(new)}, new
         if name in NOT_AVAILABLE:
             return {"ok": False, "error": "not_available", "detail": "pipeline integration arrives in step S2.2f"}, \
                 profile
         return {"ok": False, "error": f"unknown tool {name!r}"}, profile
     except dp.ProfileError as exc:
         return {"ok": False, "error": "invalid_changes", "problems": exc.problems}, profile
+    except ac.CriteriaError as exc:
+        return {"ok": False, "error": "invalid_criteria", "detail": str(exc)}, profile
     except KeyError as exc:
         return {"ok": False, "error": str(exc)}, profile
 

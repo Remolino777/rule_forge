@@ -163,7 +163,7 @@ def test_tool_definitions_are_valid_and_current(reg):
     defs = tool_definitions(reg)
     names = [t["name"] for t in defs["tools"]]
     assert names == ["list_parameters", "explain_parameter", "propose_change", "apply_changes", "diff_profile",
-                     "run_variant", "compare_variants"]
+                     "get_criteria", "set_criteria", "run_variant", "compare_variants"]
     for t in defs["tools"]:
         Draft202012Validator.check_schema(t["input_schema"])
     ids = defs["tools"][1]["input_schema"]["properties"]["id"]["enum"]

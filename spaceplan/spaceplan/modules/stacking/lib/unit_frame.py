@@ -65,6 +65,7 @@ class SpaceSpec:
     fixed: bool = False
     synthetic: bool = False
     between: tuple[str, ...] = ()       # K10: the two bedrooms a shared bath sits between
+    cap_sqft: float | None = None       # S2.2e: effective maximum net area (program adjustment), None: no cap
 
 
 @dataclass
@@ -151,7 +152,8 @@ def spec_of(catalog, rules: SpaceRules, matrix: ZoneMatrix, row: dict[str, Any],
     return SpaceSpec(row["space_id"], st, row.get("zone") or t.get("zone", ""), unit_id,
                      float(row["area_sqft"] if target is None else target), min_sqft, min_side, habitable,
                      bool(t.get("passable")), st in CIRCULATION_TYPES, roles_of(matrix, st),
-                     row.get("host_space_id"), fixed, False, tuple(row.get("shared_by") or ()))
+                     row.get("host_space_id"), fixed, False, tuple(row.get("shared_by") or ()),
+                     float(row["area_cap_sqft"]) if row.get("area_cap_sqft") is not None else None)
 
 
 def _fixed_spec(name: str, space_id: str, space_type: str, matrix: ZoneMatrix, extra_roles=()) -> SpaceSpec:

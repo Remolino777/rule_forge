@@ -40,6 +40,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from spaceplan.modules.design.lib.area_criteria import drawn_cap
 from spaceplan.modules.stacking.lib.space_rules import SpaceRules
 from spaceplan.modules.stacking.lib.unit_frame import (
     SpaceFloor,
@@ -1031,6 +1032,37 @@ class UnitLayout:
             out[k] += excess * out[k] / base
         return out
 
+    def _cap_area(self, targets: dict[str, float], specs: dict[str, SpaceSpec]) -> dict[str, float]:
+        """S2.2e: no space above its effective maximum (program adjustment) plus the drawn-plan wall allowance; what
+        a capped space gives up goes to the uncapped spaces of the unit (habitable rooms first), in proportion,
+        repeated until nothing more is capped. When every space is at its cap the rest stays spread in proportion
+        (the floor is larger than the program; the quality indicators report it)."""
+        ca = self.res * self.res
+        caps = {k: drawn_cap(self.rules.design, specs[k].cap_sqft) / ca for k in targets
+                if specs[k].cap_sqft is not None}
+        if not caps:
+            return targets
+        out = dict(targets)
+        fixed: set[str] = set()
+        for _ in range(len(out)):
+            excess = 0.0
+            for k, cap in caps.items():
+                if k not in fixed and out[k] > cap + 1e-9:
+                    excess += out[k] - cap
+                    out[k] = cap
+                    fixed.add(k)
+            if excess <= 0:
+                break
+            free = [k for k in out if k not in fixed]
+            takers = [k for k in free if specs[k].habitable] or free
+            if not takers:                                  # all capped: keep the excess in proportion
+                base = sum(out.values()) or 1.0
+                return {k: v + excess * v / base for k, v in out.items()}
+            base = sum(out[k] for k in takers) or 1.0
+            for k in takers:
+                out[k] += excess * out[k] / base
+        return out
+
     def _pad(self):
         i0, i1, j0, j1 = self.unit.box
         return slice(j0 - 1, j1 + 1), slice(i0 - 1, i1 + 1)
@@ -1051,7 +1083,8 @@ class UnitLayout:
             specs = {k: sp for k, sp in base.items() if k not in merged}
             for k in merged:
                 host = specs[base[k].host]
-                specs[host.space_id] = SpaceSpec(**{**host.__dict__,
+                cap = host.cap_sqft + base[k].target_sqft if host.cap_sqft is not None else None
+                specs[host.space_id] = SpaceSpec(**{**host.__dict__, "cap_sqft": cap,
                                                     "target_sqft": host.target_sqft + base[k].target_sqft})
             found += self._options(specs, tuple(sorted(merged)))
         found.sort(key=lambda o: (-o.score, o.hall_side))
@@ -1116,7 +1149,7 @@ class UnitLayout:
 
         def scaled(ids, free):
             total = sum(specs[k].target_sqft for k in ids) or 1.0
-            return self._cap_small({k: specs[k].target_sqft / total * free for k in ids}, specs)
+            return self._cap_area(self._cap_small({k: specs[k].target_sqft / total * free for k in ids}, specs), specs)
 
         jobs = []                                 # (side, area mask, hall spec, iterator of [(g, mask, targets)])
         for side, area_mask, hspec, toward in variants:

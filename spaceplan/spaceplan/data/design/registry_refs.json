@@ -1,6 +1,6 @@
 {
   "registry_id": "spaceplan-design-registry",
-  "registry_version": "0.3.0",
+  "registry_version": "0.4.0",
   "note": "Parameters that already live in the residential catalog, the stacking catalog or the client rulesets, registered by reference (path into their store; never copied). '{t}' expands over 'for'. range_rel = range as multiples of the baseline value. The new design parameters are discovered from the design rulesets (parameter objects).",
   "stores": {
     "catalog": "residential catalog (data/catalog, merged fragments)",
@@ -653,6 +653,26 @@
         "es": "La escalera nunca ocupa la fachada del jardín",
         "en": "The stair never takes the garden facade"
       }
+    },
+    {
+      "id": "space.garage_2car.area_target_sqft",
+      "store": "catalog",
+      "path": "space_types[space_type=garage_2car].area.target",
+      "type": "number",
+      "unit": "sq_ft",
+      "kind": "reference",
+      "kinds_allowed": [
+        "reference"
+      ],
+      "who": "designer",
+      "range_rel": [
+        0.8,
+        1.3
+      ],
+      "description": {
+        "es": "Área objetivo del garage de 2 autos (referencia de la suite completa)",
+        "en": "Target area of the 2-car garage (reference of the whole suite)"
+      }
     }
   ],
   "constraints": [
@@ -733,6 +753,68 @@
       "description": {
         "es": "lado mínimo ≤ máximo",
         "en": "min leg ≤ max leg"
+      }
+    },
+    {
+      "le": [
+        "space.{t}.area_rec_sqft",
+        "space.{t}.area_cap_sqft"
+      ],
+      "for": [
+        "bathroom",
+        "bedroom",
+        "dining_room",
+        "family_room",
+        "flex_room",
+        "half_bath",
+        "kitchen",
+        "living_dining",
+        "living_room",
+        "primary_bath",
+        "primary_suite",
+        "social_bath",
+        "study",
+        "walk_in_closet"
+      ],
+      "description": {
+        "es": "recomendada ≤ máxima",
+        "en": "recommended ≤ maximum"
+      }
+    },
+    {
+      "le": [
+        "space.{t}.area_min_sqft",
+        "space.{t}.area_cap_sqft"
+      ],
+      "for": [
+        "bathroom",
+        "bedroom",
+        "dining_room",
+        "family_room",
+        "flex_room",
+        "half_bath",
+        "kitchen",
+        "living_dining",
+        "living_room",
+        "primary_bath",
+        "primary_suite",
+        "social_bath",
+        "study",
+        "walk_in_closet"
+      ],
+      "description": {
+        "es": "mínima del catálogo ≤ máxima de diseño",
+        "en": "catalog minimum ≤ design maximum"
+      }
+    },
+    {
+      "le": [
+        "space.area.share_small_house_sqft",
+        "space.area.share_large_house_sqft"
+      ],
+      "description": {
+        "es": "vivienda chica ≤ vivienda grande",
+        "en": "small house ≤ large house"
       }
     }
   ]

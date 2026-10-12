@@ -225,7 +225,8 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                 continue
             adjustment = None
             if s21ctx is not None:               # stage S2.1: corridor allowance and baths per bedroom (K10)
-                c, adjustment = adjust_program(c, lot["budget"].get("far_gross_max_sqft"), catalog, scat, crs)
+                c, adjustment = adjust_program(c, lot["budget"].get("far_gross_max_sqft"), catalog, scat, crs,
+                                               s21ctx.rules.design)
             out = stack_cell(c, lot, lc, rs, scat, stair_sqft)
             if adjustment is not None and adjustment.get("applied"):
                 out["program_adjustment"] = adjustment

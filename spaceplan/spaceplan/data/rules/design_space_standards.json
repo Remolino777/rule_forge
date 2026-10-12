@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.5.0",
+  "ruleset_version": "0.6.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile. Version 0.5.0 (2026-10-12): upper floor at optimal areas, the rest as roof or a terrace up to 3 ft deep (client decision).",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile. Version 0.5.0 (2026-10-12): upper floor at optimal areas, the rest as roof or a terrace up to 3 ft deep (client decision). Version 0.6.0 (2026-10-12, step S2.2e): area criteria (recommended and maximum net area per space type, hierarchy ratios, share of the house's net program area adapted to the house size, policy for the area the caps free and for an extra bedroom with bath); client decision 2026-10-12 10:18.",
   "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -578,6 +578,251 @@
       "verified": true
     },
     {
+      "rule_id": "S00-AREA-CAPS",
+      "kind": "design",
+      "magnitude": "area_budget",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.area",
+      "parameters": {
+        "caps_enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Aplicar los topes de área por ambiente (máximo absoluto, jerarquía y proporción)",
+            "en": "Apply the per-space area caps (absolute maximum, hierarchy and share)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM."
+        },
+        "suite_to_bedroom_max": {
+          "value": 1.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Dormitorio principal ≤ este múltiplo del área recomendada del dormitorio secundario",
+            "en": "Primary bedroom ≤ this multiple of the recommended secondary bedroom area"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Practice: 14x16 (224) vs 10x12-12x12 (120-144) -> 1.5-1.9."
+        },
+        "suite_total_to_garage_max": {
+          "value": 0.85,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Suite completa (dormitorio + walk-in + baño) ≤ este múltiplo del garage de 2 autos objetivo",
+            "en": "Whole suite (bedroom + walk-in + bath) ≤ this multiple of the target 2-car garage"
+          },
+          "range": [
+            0.5,
+            1.5
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client observation 2026-10-12: a master the size of the garage wastes buildable area."
+        },
+        "dining_to_living_max": {
+          "value": 0.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Comedor ≤ este múltiplo del área recomendada de la sala",
+            "en": "Dining room ≤ this multiple of the recommended living room area"
+          },
+          "range": [
+            0.5,
+            1.2
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "share_small_house_sqft": {
+          "value": 1600.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Vivienda chica: por debajo de esta área neta las proporciones máximas suben",
+            "en": "Small house: below this net area the maximum shares grow"
+          },
+          "range": [
+            800.0,
+            3000.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: in small homes the suite and the kitchen take a larger share."
+        },
+        "share_large_house_sqft": {
+          "value": 3800.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Vivienda grande: desde esta área neta rigen las proporciones base",
+            "en": "Large house: from this net area the base shares apply"
+          },
+          "range": [
+            2000.0,
+            8000.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "share_small_bonus": {
+          "value": 0.25,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Aumento de las proporciones máximas en la vivienda chica (lineal hasta la grande)",
+            "en": "Growth of the maximum shares in a small house (linear down to the large one)"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "drawn_wall_allowance": {
+          "value": 0.06,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Margen de los topes en la planta dibujada (S2.1 dibuja a eje de muro, sin espesor)",
+            "en": "Margin of the caps in the drawn plan (S2.1 draws to wall centrelines, no thickness)"
+          },
+          "range": [
+            0.0,
+            0.2
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "A 14x16 room measured to wall centrelines is ~14.4x16.4 (+5.4 %); removed when walls get a thickness (P4)."
+        },
+        "freed_area": {
+          "value": "unbuilt",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "choices": [
+            "unbuilt",
+            "keep"
+          ],
+          "description": {
+            "es": "Destino del área que liberan los topes: no construir (planta más chica, techo o patio) o mantenerla en la planta",
+            "en": "Use of the area the caps free: leave it unbuilt (smaller floor, roof or patio) or keep it in the floor"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "The FAR is a ceiling, not a target (S2.2e analysis)."
+        },
+        "extra_room_policy": {
+          "value": "propose",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "choices": [
+            "never",
+            "propose",
+            "auto"
+          ],
+          "description": {
+            "es": "Ambiente adicional cuando sobra área: nunca; proponer (el cliente decide); automático (se agrega y se informa)",
+            "en": "Extra room when area is left: never; propose (the client decides); automatic (added and reported)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM. The program never changes without this rule."
+        },
+        "extra_room_types": {
+          "value": [
+            "bedroom",
+            "bathroom"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "choices": [
+            "bedroom",
+            "bathroom",
+            "study",
+            "flex_room"
+          ],
+          "description": {
+            "es": "Ambientes del paquete adicional (en orden)",
+            "en": "Spaces of the extra package (in order)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "extra_room_overhead_sqft": {
+          "value": 40.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Área extra del paquete por muros y pasillo",
+            "en": "Extra area of the package for walls and hall"
+          },
+          "range": [
+            0.0,
+            150.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        }
+      },
+      "text": [
+        "Effective maximum of a space = max(recommended, catalog minimum, min(absolute cap, hierarchy limit, share x net program area x size factor)); it never cuts below the recommended size.",
+        "Normative minimums stay in the CRC rulesets (habitable area and least side, code floors)."
+      ],
+      "source": {
+        "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+        "section": "recommended / maximum areas, hierarchy and shares"
+      },
+      "verified": false
+    },
+    {
       "rule_id": "S01-PRIMARY-SUITE",
       "kind": "design",
       "magnitude": "space_standard",
@@ -756,6 +1001,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 224.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de primary_suite",
+            "en": "Recommended net area of primary_suite"
+          },
+          "range": [
+            134.4,
+            358.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 300.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de primary_suite (diseño)",
+            "en": "Absolute maximum net area of primary_suite (design)"
+          },
+          "range": [
+            180.0,
+            600.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.14,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de primary_suite sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of primary_suite in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -950,6 +1264,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 132.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de bedroom",
+            "en": "Recommended net area of bedroom"
+          },
+          "range": [
+            79.2,
+            211.2
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 180.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de bedroom (diseño)",
+            "en": "Absolute maximum net area of bedroom (design)"
+          },
+          "range": [
+            108.0,
+            360.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.1,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de bedroom sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of bedroom in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -1103,6 +1486,52 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 50.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de walk_in_closet",
+            "en": "Recommended net area of walk_in_closet"
+          },
+          "range": [
+            30.0,
+            80.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 80.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de walk_in_closet (diseño)",
+            "en": "Absolute maximum net area of walk_in_closet (design)"
+          },
+          "range": [
+            48.0,
+            160.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -1374,6 +1803,52 @@
           "kinds_allowed": [
             "reference"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 40.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de bathroom",
+            "en": "Recommended net area of bathroom"
+          },
+          "range": [
+            24.0,
+            64.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 60.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de bathroom (diseño)",
+            "en": "Absolute maximum net area of bathroom (design)"
+          },
+          "range": [
+            36.0,
+            120.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -1644,6 +2119,52 @@
           "kinds_allowed": [
             "reference"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 80.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de primary_bath",
+            "en": "Recommended net area of primary_bath"
+          },
+          "range": [
+            48.0,
+            128.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 130.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de primary_bath (diseño)",
+            "en": "Absolute maximum net area of primary_bath (design)"
+          },
+          "range": [
+            78.0,
+            260.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -1915,6 +2436,52 @@
           "kinds_allowed": [
             "reference"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 40.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de social_bath",
+            "en": "Recommended net area of social_bath"
+          },
+          "range": [
+            24.0,
+            64.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 60.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de social_bath (diseño)",
+            "en": "Absolute maximum net area of social_bath (design)"
+          },
+          "range": [
+            36.0,
+            120.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -2166,6 +2733,52 @@
           "kinds_allowed": [
             "reference"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 16.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de half_bath",
+            "en": "Recommended net area of half_bath"
+          },
+          "range": [
+            9.6,
+            25.6
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 25.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de half_bath (diseño)",
+            "en": "Absolute maximum net area of half_bath (design)"
+          },
+          "range": [
+            15.0,
+            50.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -2647,6 +3260,75 @@
           "kinds_allowed": [
             "reference"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 170.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de kitchen",
+            "en": "Recommended net area of kitchen"
+          },
+          "range": [
+            102.0,
+            272.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 260.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de kitchen (diseño)",
+            "en": "Absolute maximum net area of kitchen (design)"
+          },
+          "range": [
+            156.0,
+            520.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.13,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de kitchen sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of kitchen in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -2995,6 +3677,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 135.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de dining_room",
+            "en": "Recommended net area of dining_room"
+          },
+          "range": [
+            81.0,
+            216.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 180.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de dining_room (diseño)",
+            "en": "Absolute maximum net area of dining_room (design)"
+          },
+          "range": [
+            108.0,
+            360.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.09,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de dining_room sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of dining_room in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -3301,6 +4052,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 250.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de living_room",
+            "en": "Recommended net area of living_room"
+          },
+          "range": [
+            150.0,
+            400.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 330.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de living_room (diseño)",
+            "en": "Absolute maximum net area of living_room (design)"
+          },
+          "range": [
+            198.0,
+            660.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.14,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de living_room sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of living_room in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -3454,6 +4274,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 280.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de family_room",
+            "en": "Recommended net area of family_room"
+          },
+          "range": [
+            168.0,
+            448.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 400.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de family_room (diseño)",
+            "en": "Absolute maximum net area of family_room (design)"
+          },
+          "range": [
+            240.0,
+            800.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.18,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de family_room sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of family_room in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -3607,6 +4496,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 360.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de living_dining",
+            "en": "Recommended net area of living_dining"
+          },
+          "range": [
+            216.0,
+            576.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 450.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de living_dining (diseño)",
+            "en": "Absolute maximum net area of living_dining (design)"
+          },
+          "range": [
+            270.0,
+            900.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.23,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de living_dining sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of living_dining in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -3760,6 +4718,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 120.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de study",
+            "en": "Recommended net area of study"
+          },
+          "range": [
+            72.0,
+            192.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 180.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de study (diseño)",
+            "en": "Absolute maximum net area of study (design)"
+          },
+          "range": [
+            108.0,
+            360.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.08,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de study sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of study in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
@@ -3952,6 +4979,75 @@
             "soft",
             "hard"
           ]
+        },
+        "area_rec_sqft": {
+          "value": 120.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta recomendada de flex_room",
+            "en": "Recommended net area of flex_room"
+          },
+          "range": [
+            72.0,
+            192.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_cap_sqft": {
+          "value": 160.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Área neta máxima absoluta de flex_room (diseño)",
+            "en": "Absolute maximum net area of flex_room (design)"
+          },
+          "range": [
+            96.0,
+            320.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 10:18 (S2.2e): baseline of the area analysis accepted; editable by a person or an LLM.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
+        },
+        "area_share_max": {
+          "value": 0.08,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción máxima de flex_room sobre el área neta del programa (sin garage)",
+            "en": "Maximum share of flex_room in the net program area (garage excluded)"
+          },
+          "range": [
+            0.03,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "NAHB/BIAL: bedrooms ~29 %, kitchen ~11-12 %, family room ~11 % of the home.",
+          "source": {
+            "document": "Area analysis S2.2e (2026-10-12): Cedreo and CRD average room sizes, NAHB Best in American Living 'Where builders place their space' (shares by room), common US residential practice",
+            "section": "recommended / maximum areas, hierarchy and shares"
+          }
         }
       },
       "aspect_exempt": false,
