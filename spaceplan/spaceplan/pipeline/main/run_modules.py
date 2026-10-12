@@ -101,7 +101,8 @@ def lot_capacity_contract_for(brief: dict, catalog_path: str | Path | None = Non
 def stack_plan_contract_for(area_matrix: dict | None = None, lot_capacities: list[dict] | None = None,
                             mode: str | None = None, lots: list[str] | None = None,
                             households: list[tuple[str, str | None]] | None = None, stage: str = "S0",
-                            site_plans: list[dict] | None = None, **area_kwargs) -> dict:
+                            site_plans: list[dict] | None = None, design_profile: dict | None = None,
+                            **area_kwargs) -> dict:
     """stack_plan (step 6.7, stage S0, S1 or S2): reads the given contracts, or produces them for `lots` (default:
     the pilot). S1 and S2 also read the site_plan of each lot (main door, driveway side); when none is given they
     are produced from the lot briefs."""
@@ -114,7 +115,8 @@ def stack_plan_contract_for(area_matrix: dict | None = None, lot_capacities: lis
         names = lots or PILOT_LOTS
         site_plans = [c for c in (capacity_contracts(load_lot_brief(n)).get("site_plan") for n in names)
                       if c is not None]
-    result = run_stacking(area_matrix, lot_capacities, mode, stage=stage, site_plans=site_plans)
+    result = run_stacking(area_matrix, lot_capacities, mode, stage=stage, site_plans=site_plans,
+                          design_profile=design_profile)
     inputs = {"area_matrix": area_matrix["input_sha256"],
               "lot_capacity": sorted(c["input_sha256"] for c in lot_capacities), "meta": result["meta"]}
     if site_plans:

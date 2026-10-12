@@ -9,7 +9,19 @@ the void may bite a corner).
 Hard here: minimum area (catalog, C01 for habitable rooms), least side of the largest rectangle (catalog, C01, C06 for
 halls), the exterior wall of habitable and sleeping rooms (O03 via C03, O01). The part of a space outside its largest
 rectangle becomes a closet when it is big enough and its space may host one (E5); otherwise it stays in the space.
-Options are ranked by shape, fit to target and facade surplus.
+
+Step S2.2b (client decisions 2026-10-11) reads the design registry through SpaceRules:
+  * one space, one piece: a part cut off its space joins the neighbour that shares the most wall with it (halls
+    follow the S2 circulation zone until S2.2d);
+  * small spaces are sized to their typical size (the rest goes to the habitable rooms) and the whole-wall types
+    (closet, laundry closet, pantry) cover the whole wall they share with their room;
+  * closets carved across a whole short wall: the bath closet takes the length of a long bath beyond its preferred
+    ratio, a reach-in closet shortens a long bedroom, a linen closet closes the quieter end of the upper hall;
+  * hard proportion and furniture for the types the profile marks hard (baths, dining room, kitchen by any allowed
+    template; bedrooms with 36 in around the bed); least side without tolerance in habitable rooms;
+  * score: shape per type (preferred and maximum ratio, longest side, worst space), furniture that fits, fit to
+    target, circulation (rectangular halls of limited length) and light (daylit depth of N spaces, facade surplus,
+    facade held by M spaces, cross ventilation).
 """
 
 from __future__ import annotations
@@ -33,10 +45,14 @@ from spaceplan.modules.stacking.lib.unit_frame import (
 from spaceplan.modules.stacking.lib_aux.space_grid import (
     Guillotine,
     components,
+    exposed_sides,
+    exterior_cells,
     exterior_run,
+    fits_in_mask,
     largest_rect,
     mask_bounds,
     realize,
+    shared_edge,
 )
 from spaceplan.modules.zoning.lib.band_enumeration import band_arrangements
 
@@ -271,10 +287,24 @@ def _mid_arrangements(ways: list[list[list[str]]], along_x: bool, limit: int, se
             return
 
 
-def _closet_spec(rules: SpaceRules, host: SpaceSpec, k: int, sqft: float) -> SpaceSpec:
-    return SpaceSpec(f"{host.space_id}_closet{'' if k == 0 else k + 1}", rules.closet_type, host.zone, host.unit_id,
+def _closet_spec(rules: SpaceRules, host: SpaceSpec, k: int, sqft: float, role: str = "closet") -> SpaceSpec:
+    """A closet the layout adds to `host`; `role` names it in the id (closet, bath_closet, linen)."""
+    return SpaceSpec(f"{host.space_id}_{role}{'' if k == 0 else k + 1}", rules.closet_type, host.zone, host.unit_id,
                      sqft, rules.closet_min_sqft, rules.closet_min_side_ft, False, False, False, frozenset(),
                      host.space_id, False, True)
+
+
+BATH_TYPES = ("bathroom", "primary_bath", "social_bath", "half_bath")
+
+
+def _aspect(rect: tuple[int, int, int, int]) -> float:
+    w, h = rect[1] - rect[0], rect[3] - rect[2]
+    return max(w, h) / max(min(w, h), 1)
+
+
+def _box_rect(mask: np.ndarray) -> tuple[int, int, int, int] | None:
+    """Bounding rectangle (i0, i1, j0, j1) of a mask, in the mask's own coordinates."""
+    return mask_bounds(mask)
 
 
 class UnitLayout:
@@ -301,6 +331,7 @@ class UnitLayout:
         self.link_targets = [(u.unit_id, u.mask[pad]) for u in linked]
         circ_fixed = np.isin(floor.base, [k for k, s in enumerate(floor.fixed) if s.circulation and s.space_type != "stair"])
         self.fixed_circ = circ_fixed[pad] if circ_fixed[pad].any() else None
+        self.stair_pad = floor.stair[pad] if floor.stair[pad].any() else None
         self.circ_targets = [m for uid, m in self.link_targets if by_id[uid].zone == "circulation"]
         self.room_targets = [m for uid, m in self.link_targets if by_id[uid].zone != "circulation"]
         self.private_targets = [m for uid, m in self.link_targets if by_id[uid].zone == "private"]
@@ -355,13 +386,17 @@ class UnitLayout:
     # ---------------------------------------------------------------- one realization
 
     def _pieces(self, area_box: np.ndarray, rects: dict[str, tuple], specs: dict[str, SpaceSpec],
-                with_closets: bool = True):
-        """Pieces of a realization (masks in unit-box coordinates), closets from leftovers; None and a reason when
-        a hard rule fails."""
+                with_closets: bool = True, avoid: np.ndarray | None = None):
+        """Pieces of a realization (masks in unit-box coordinates), closets from leftovers and closets carved on a
+        short wall; None and a reason when a hard rule fails."""
         i0, _, j0, _ = self.unit.box
         ca = self.res * self.res
+        rules = self.rules
+        one_piece = bool(rules.policy("one_piece"))
+        one_piece_circ = bool(rules.policy("one_piece_circulation"))
         pieces: list[Piece] = []
         facade_slack = []
+        stray: list[tuple[np.ndarray, SpaceSpec]] = []          # parts cut off their space (one space, one piece)
         for sid, (a0, a1, b0, b1) in rects.items():          # cheap bounds first: a clipped rectangle only shrinks
             spec = specs[sid]
             if min(a1 - a0, b1 - b0) * self.res < spec.min_side_ft - 1e-9:
@@ -386,47 +421,303 @@ class UnitLayout:
                 rect = (local[0] + i0, local[1] + i0, local[2] + j0, local[3] + j0)
                 kept[local[2]:local[3], local[0]:local[1]] = True
                 kept &= region
-                leftover = region & ~kept
-                for comp in components(leftover):
+                loose = []
+                for comp in components(region & ~kept):
                     c_cells = int(comp.sum())
                     c_n, c_rect = largest_rect(comp)
                     c_side = min(c_rect[1] - c_rect[0], c_rect[3] - c_rect[2]) * self.res
-                    big = c_cells >= self.rules.keep_fraction * n
-                    if (with_closets and big and spec.space_type in self.rules.closet_hosts and c_n == c_cells
-                            and self.rules.closet_min_sqft <= c_cells * ca <= self.rules.closet_max_sqft
-                            and c_side >= self.rules.closet_min_side_ft - 1e-9 and _touches(comp, kept)
+                    big = c_cells >= rules.keep_fraction * n
+                    if (with_closets and big and spec.space_type in rules.closet_hosts and c_n == c_cells
+                            and rules.closet_min_sqft <= c_cells * ca <= rules.closet_max_sqft
+                            and c_side >= rules.closet_min_side_ft - 1e-9 and _touches(comp, kept)
                             and not (comp & self.landing).any()):
-                        closets.append((comp, (c_rect[0] + i0, c_rect[1] + i0, c_rect[2] + j0, c_rect[3] + j0)))
-                    else:
+                        closets.append((comp, (c_rect[0] + i0, c_rect[1] + i0, c_rect[2] + j0, c_rect[3] + j0),
+                                        "closet"))
+                    elif _touches(comp, kept) or not one_piece or (spec.circulation and not one_piece_circ):
                         kept |= comp
+                    else:
+                        loose.append(comp)
+                while loose:                                     # parts reached through other parts
+                    joined = [c for c in loose if _touches(c, kept)]
+                    if not joined:
+                        break
+                    for c in joined:
+                        kept |= c
+                    loose = [c for c in loose if not any(c is x for x in joined)]
+                stray += [(c, spec) for c in loose]              # S2.2b: given to a neighbour below
             if min(rect[1] - rect[0], rect[3] - rect[2]) * self.res < spec.min_side_ft - 1e-9:
                 return None, f"min_side:{spec.space_type}"
+            own_closet = any(o.host == sid and o.space_type in (rules.closet_type, "walk_in_closet")
+                             for o in specs.values())
+            if with_closets and not closets and not own_closet:   # S2.2b: closet across a short wall
+                carved = self._carve(spec, kept, rect, avoid)
+                if carved is not None:
+                    kept, cmask, crect, role = carved
+                    closets.append((cmask, crect, role))
             sqft = int(kept.sum()) * ca
             if sqft < spec.min_sqft - 1e-6:
                 return None, f"min_area:{spec.space_type}"
             ok, slack = self._facade_ok(spec, kept, sqft)
             if not ok:
                 return None, f"facade:{spec.space_type}"
-            if spec.habitable or spec.space_type in self.rules.sleeping_types:
+            why = self._hard_shape(spec, kept)
+            if why:
+                return None, why
+            if spec.habitable or spec.space_type in rules.sleeping_types:
                 facade_slack.append(slack)
-            pieces.append(Piece(spec, kept, rect))
-            for k, (comp, c_rect) in enumerate(closets):
-                pieces.append(Piece(_closet_spec(self.rules, spec, k, int(comp.sum()) * ca), comp, c_rect))
+            piece = Piece(spec, kept, rect)
+            pieces.append(piece)
+            for k, (comp, c_rect, role) in enumerate(closets):
+                pieces.append(Piece(_closet_spec(rules, spec, k if role == "closet" else 0, int(comp.sum()) * ca,
+                                                 role), comp, c_rect))
+        for comp, spec in stray:                                # S2.2b: a cut-off part joins the neighbour that
+            best = None                                          # shares the most wall with it (never a closet)
+            for k, q in enumerate(pieces):
+                if q.spec.space_id == spec.space_id or q.spec.space_type == rules.closet_type:
+                    continue
+                t = self._touch_cells(comp, q.mask)
+                if t > 0 and (best is None or t > best[0]):
+                    best = (t, k)
+            if best is None:
+                own = next((k for k, q in enumerate(pieces) if q.spec.space_id == spec.space_id), None)
+                if spec.circulation and own is not None and self.stair_pad is not None \
+                        and self._contact(comp, self.stair_pad) > 0:
+                    q = pieces[own]                              # a hall around the stairwell: joined through it
+                    pieces[own] = Piece(q.spec, q.mask | comp, q.rect)
+                    continue
+                return None, f"fragment:{spec.space_type}"
+            q = pieces[best[1]]
+            pieces[best[1]] = Piece(q.spec, q.mask | comp, q.rect)
+        why = self._full_wall(pieces)
+        if why:
+            return None, why
         return (pieces, facade_slack), None
 
-    def _score(self, pieces: list[Piece], targets: dict[str, float], facade_slack: list[float]) -> dict:
-        shapes, fits = [], []
+    # ---------------------------------------------------------------- S2.2b: carving, hard shape, whole wall
+
+    def _carve(self, spec: SpaceSpec, kept: np.ndarray, rect: tuple[int, int, int, int],
+               avoid: np.ndarray | None = None):
+        """(room, closet, closet rect, role) when a long room or bath gets a closet across a whole short wall: a strip
+        of the closet depth at the short end that faces neither the facade nor the circulation, when the room keeps
+        its least side and its area; None otherwise."""
+        rules = self.rules
+        t = spec.space_type
+        if t in BATH_TYPES and rules.closets("bath_closet_enabled"):
+            depth_ft, role = rules.closets("bath_closet_depth_ft"), "bath_closet"
+        elif t in (rules.closets("reach_in_types") or ()) and rules.closets("reach_in_enabled"):
+            depth_ft, role = rules.closets("reach_in_depth_ft"), "closet"
+        else:
+            return None
+        pref = rules.std(t, "aspect_pref_max")
+        box = _box_rect(kept)
+        if pref is None or box is None or int(kept.sum()) != (box[1] - box[0]) * (box[3] - box[2]):
+            return None                                   # only full rectangles
+        if _aspect(box) <= float(pref) + 1e-9:
+            return None
+        d = self._cells(float(depth_ft))
+        w, h = box[1] - box[0], box[3] - box[2]
+        if role == "bath_closet":                         # the closet takes the length beyond the preferred ratio
+            short, long_ = min(w, h), max(w, h)
+            d = max(d, long_ - int(np.floor(float(pref) * short + 1e-9)))
+            d = min(d, int(np.floor(self.rules.closet_max_sqft / (short * self.res * self.res))))
+            if d <= 0:
+                return None
+        ends = []
+        if w >= h:
+            ends = [(box[0], box[0] + d, box[2], box[3]), (box[1] - d, box[1], box[2], box[3])]
+        else:
+            ends = [(box[0], box[1], box[2], box[2] + d), (box[0], box[1], box[3] - d, box[3])]
+        best = None
+        for e in ends:
+            strip = np.zeros_like(kept)
+            strip[e[2]:e[3], e[0]:e[1]] = True
+            if (strip & self.landing).any():
+                continue
+            rest = kept & ~strip
+            r_box = _box_rect(rest)
+            if r_box is None or min(r_box[1] - r_box[0], r_box[3] - r_box[2]) * self.res < spec.min_side_ft - 1e-9:
+                continue
+            area = int(strip.sum()) * self.res * self.res
+            if not (rules.closet_min_sqft - 1e-9 <= area <= rules.closet_max_sqft + 1e-9):
+                continue
+            door_side = sum(self._contact(strip, m) for m in self.circ_targets) + (
+                self._touch_cells(strip, avoid) if avoid is not None else 0)
+            cost = exterior_cells(strip, self.ext) + 10 * door_side      # keep the window wall and the door side
+            if best is None or cost < best[0]:
+                best = (cost, rest, strip, e)
+        if best is None:
+            return None
+        _, rest, strip, e = best
+        i0, _, j0, _ = self.unit.box
+        return rest, strip, (e[0] + i0, e[1] + i0, e[2] + j0, e[3] + j0), role
+
+    def _hard_shape(self, spec: SpaceSpec, kept: np.ndarray) -> str | None:
+        """Hard proportion and furniture of the types the profile marks hard (client: baths, dining room, kitchen;
+        bed clearance in bedrooms)."""
+        rules = self.rules
+        t = spec.space_type
+        box = _box_rect(kept)
+        if box is None:
+            return f"empty:{t}"
+        amax = rules.std(t, "aspect_max")
+        if amax is not None and rules.hard(t, "aspect_max") and _aspect(box) > float(amax) + 1e-9:
+            return f"aspect:{t}"
+        if rules.furniture_hard(t):
+            options = rules.furniture_ft(t)
+            if options and not any(fits_in_mask(kept, self._cells(w), self._cells(d)) for w, d in options):
+                return f"furniture:{t}"
+        return None
+
+    def _full_wall(self, pieces: list[Piece]) -> str | None:
+        """A space of a whole-wall type covers the whole wall it shares with its host (or its main neighbour):
+        the common wall is as long as the space's side and the host's side along it (client 2026-10-11)."""
+        rules = self.rules
+        types = set(rules.policy("full_wall_types") or ())
+        if not types or rules.design_kinds.get("space.policy.full_wall_types") != "hard":
+            return None
+        tol = float(rules.policy("full_wall_tolerance_ft") or 0.0) / self.res + 1e-9
         for p in pieces:
-            w, h = p.rect[1] - p.rect[0], p.rect[3] - p.rect[2]
-            aspect = max(w, h) / max(min(w, h), 1)
-            shapes.append(min(1.0, self.rules.max_aspect / aspect))
+            if p.spec.space_type not in types:
+                continue
+            host = next((q for q in pieces if q.spec.space_id == p.spec.host), None) if p.spec.host else None
+            if host is None:
+                cands = [(shared_edge(p.mask, q.mask)[0], q) for q in pieces
+                         if q is not p and q.spec.space_type not in types]
+                cands = [c for c in cands if c[0] > 0]
+                if not cands:
+                    continue                              # its wall is on another unit: checked there
+                host = max(cands, key=lambda c: c[0])[1]
+            shared, along_y = shared_edge(p.mask, host.mask)
+            if shared == 0:
+                return f"full_wall:{p.spec.space_type}"
+            pb, hb = _box_rect(p.mask), _box_rect(host.mask)
+            p_len = (pb[3] - pb[2]) if along_y else (pb[1] - pb[0])
+            h_len = (hb[3] - hb[2]) if along_y else (hb[1] - hb[0])
+            if shared < p_len - tol or shared < h_len - tol:
+                return f"full_wall:{p.spec.space_type}"
+        return None
+
+    def _linen(self, pieces: list[Piece]) -> list[Piece] | None:
+        """Pieces with a linen closet across the whole width of the upper hall, at its quieter end; None when the
+        hall is not a plain rectangle or the closet does not fit (S2.2b, client 2026-10-11)."""
+        rules = self.rules
+        if self.floor.level <= 0 or not rules.closets("linen_enabled"):
+            return None
+        halls = [p for p in pieces if p.spec.space_type == HALL_TYPE]
+        if len(halls) != 1:
+            return None
+        h = halls[0]
+        box = _box_rect(h.mask)
+        if box is None or int(h.mask.sum()) != (box[1] - box[0]) * (box[3] - box[2]):
+            return None
+        d = self._cells(float(rules.closets("linen_depth_ft")))
+        w, ht = box[1] - box[0], box[3] - box[2]
+        ends = ([(box[0], box[0] + d, box[2], box[3]), (box[1] - d, box[1], box[2], box[3])] if w >= ht
+                else [(box[0], box[1], box[2], box[2] + d), (box[0], box[1], box[3] - d, box[3])])
+        others = [q.mask for q in pieces if q is not h]
+        best = None
+        for e in ends:
+            strip = np.zeros_like(h.mask)
+            strip[e[2]:e[3], e[0]:e[1]] = True
+            if (strip & self.landing).any():
+                continue
+            rest = h.mask & ~strip
+            area = int(strip.sum()) * self.res * self.res
+            if int(rest.sum()) * self.res * self.res < h.spec.min_sqft - 1e-6:
+                continue
+            if not (rules.closet_min_sqft - 1e-9 <= area <= rules.closet_max_sqft + 1e-9):
+                continue
+            cost = (sum(self._touch_cells(strip, m) for m in others)
+                    + sum(self._contact(strip, m) for m in self.circ_targets + self.room_targets))
+            if best is None or cost < best[0]:
+                best = (cost, rest, strip, e)
+        if best is None:
+            return None
+        _, rest, strip, e = best
+        i0, _, j0, _ = self.unit.box
+        r = _box_rect(rest)
+        hall = Piece(h.spec, rest, (r[0] + i0, r[1] + i0, r[2] + j0, r[3] + j0))
+        closet = Piece(_closet_spec(rules, h.spec, 0, int(strip.sum()) * self.res * self.res, "linen"), strip,
+                       (e[0] + i0, e[1] + i0, e[2] + j0, e[3] + j0))
+        return [hall if q is h else q for q in pieces] + [closet]
+
+    # ---------------------------------------------------------------- score (S2.2b)
+
+    def _shape_of(self, p: Piece) -> float | None:
+        rules = self.rules
+        t = p.spec.space_type
+        box = _box_rect(p.mask)
+        if box is None:
+            return None
+        long_ft = max(box[1] - box[0], box[3] - box[2]) * self.res
+        if p.spec.circulation:
+            rect_fill = p.cells / max((box[1] - box[0]) * (box[3] - box[2]), 1)
+            limit = rules.design.get("circulation.hall.max_length_ft")
+            length = 1.0 if not limit or long_ft <= limit else float(limit) / long_ft
+            return rect_fill * length
+        pref, amax = rules.std(t, "aspect_pref_max"), rules.std(t, "aspect_max")
+        if pref is None or amax is None:
+            return None                                    # exempt (closets, laundry closet)
+        a = _aspect(box)
+        pref, amax = float(pref), float(amax)
+        if a <= pref + 1e-9:
+            s = 1.0
+        elif a <= amax + 1e-9:
+            s = 1.0 - 0.5 * (a - pref) / max(amax - pref, 1e-9)
+        else:
+            s = max(0.0, 0.5 - 0.5 * (a - amax))
+        side = rules.std(t, "max_side_ft")
+        if side and long_ft > float(side):
+            s *= max(0.0, 1.0 - (long_ft - float(side)) / float(side))
+        return s
+
+    def _score(self, pieces: list[Piece], targets: dict[str, float], facade_slack: list[float]) -> dict:
+        rules = self.rules
+        level = self.floor.level
+        shapes, fits, furn = [], [], []
+        circ_parts = []
+        n_daylit, n_total, n_cross = 0, 0, 0
+        m_ext, all_ext = 0, 0
+        head = float(rules.light("daylight.window_head_ft") or 0.0)
+        factor = float(rules.light("daylight.depth_factor") or 0.0)
+        for p in pieces:
+            t = p.spec.space_type
+            s = self._shape_of(p)
+            if s is not None:
+                (circ_parts if p.spec.circulation else shapes).append(s)
             if p.spec.space_id in targets and targets[p.spec.space_id] > 0:
                 dev = abs(p.cells - targets[p.spec.space_id]) / targets[p.spec.space_id]
                 fits.append(max(0.0, 1.0 - dev / self.tol) if self.tol else 1.0)
-        full = float(self.rules.s21["facade"]["surplus_full_ft"])
+            if not p.spec.synthetic:
+                options = rules.furniture_ft(t)
+                if options:
+                    furn.append(1.0 if any(fits_in_mask(p.mask, self._cells(w), self._cells(d)) for w, d in options)
+                                else 0.0)
+            ext = exterior_cells(p.mask, self.ext)
+            all_ext += ext
+            cat = rules.category(t, level)
+            if cat == "M":
+                m_ext += ext
+            elif cat == "N":
+                n_total += 1
+                run = exterior_run(p.mask, self.ext) * self.res
+                if run > 0 and head and factor and p.cells * self.res * self.res / run <= head * factor + 1e-9:
+                    n_daylit += 1
+                if exposed_sides(p.mask, self.ext) >= 2:
+                    n_cross += 1
+        w_worst = float(rules.policy("worst_weight") or 0.0)
+        shape = (1.0 - w_worst) * float(np.mean(shapes)) + w_worst * float(min(shapes)) if shapes else 1.0
+        full = float(rules.s21["facade"]["surplus_full_ft"])
         exterior = float(np.mean([min(1.0, max(0.0, s) / full) for s in facade_slack])) if facade_slack else 1.0
-        parts = {"shape": float(np.mean(shapes)), "fit": float(np.mean(fits)) if fits else 1.0, "exterior": exterior}
-        w = self.rules.s21["layout"]["local_weights"]
+        daylit = n_daylit / n_total if n_total else 1.0
+        m_share = m_ext / all_ext if all_ext else 0.0
+        cross = float(rules.light("ventilation.cross_bonus_weight") or 0.0) * (n_cross / n_total if n_total else 0.0)
+        light = min(1.0, 0.5 * daylit + 0.25 * exterior + 0.25 * (1.0 - m_share) + cross)
+        parts = {"shape": shape, "furniture": float(np.mean(furn)) if furn else 1.0,
+                 "fit": float(np.mean(fits)) if fits else 1.0,
+                 "circulation": float(np.mean(circ_parts)) if circ_parts else 1.0,
+                 "light": light, "exterior": exterior, "daylit": daylit, "m_facade_share": m_share}
+        w = rules.s21["layout"]["local_weights"]
         parts["total"] = sum(w[k] * parts[k] for k in w) / (sum(w.values()) or 1.0)
         return parts
 
@@ -552,6 +843,35 @@ class UnitLayout:
         cols = np.nonzero(hit.any(0))[0]
         return int(cols[0]) + i0, int(cols[-1]) + 1 + i0
 
+    def _cap_small(self, targets: dict[str, float], specs: dict[str, SpaceSpec]) -> dict[str, float]:
+        """Small spaces at most their typical size (typical width x depth x cap); what they give up goes to the
+        habitable rooms of the unit (or the other spaces), in proportion (S2.2b)."""
+        rules = self.rules
+        if not rules.policy("small_types_to_typical"):
+            return targets
+        small = set(rules.policy("typical_area_types") or ())
+        cap_f = float(rules.policy("typical_area_cap") or 1.0)
+        ca = self.res * self.res
+        out = dict(targets)
+        excess = 0.0
+        for k, v in targets.items():
+            t = specs[k].space_type
+            w, d = rules.std(t, "typical_w_ft"), rules.std(t, "typical_d_ft")
+            if t in small and w and d:
+                cap = float(w) * float(d) * cap_f / ca
+                if v > cap:
+                    excess += v - cap
+                    out[k] = cap
+        if excess <= 0:
+            return targets
+        takers = [k for k in out if specs[k].habitable] or [k for k in out if specs[k].space_type not in small]
+        if not takers:
+            return targets
+        base = sum(out[k] for k in takers) or 1.0
+        for k in takers:
+            out[k] += excess * out[k] / base
+        return out
+
     def _pad(self):
         i0, i1, j0, j1 = self.unit.box
         return slice(j0 - 1, j1 + 1), slice(i0 - 1, i1 + 1)
@@ -627,7 +947,7 @@ class UnitLayout:
 
         def scaled(ids, free):
             total = sum(specs[k].target_sqft for k in ids) or 1.0
-            return {k: specs[k].target_sqft / total * free for k in ids}
+            return self._cap_small({k: specs[k].target_sqft / total * free for k in ids}, specs)
 
         jobs = []                                 # (side, area mask, hall spec, iterator of [(g, mask, targets)])
         for side, area_mask, hspec, toward in variants:
@@ -657,6 +977,9 @@ class UnitLayout:
             hall_piece = None
             if hspec is not None:
                 strip = unit.mask & ~area_mask
+                if self.rules.policy("one_piece_circulation") and len(components(strip[j0:j1, i0:i1])) > 1:
+                    self._fail("fragment:hall")                 # S2.2b: the hall is one piece
+                    continue
                 _, rect = largest_rect(strip)
                 hall_piece = Piece(hspec, strip[j0:j1, i0:i1], rect)
             area_box = area_mask[j0:j1, i0:i1]
@@ -677,7 +1000,8 @@ class UnitLayout:
                     continue
                 seen.add(key)
                 for with_closets in (True, False):
-                    got, why = self._pieces(area_box, rects, specs, with_closets)
+                    got, why = self._pieces(area_box, rects, specs, with_closets,
+                                            hall_piece.mask if hall_piece is not None else None)
                     if got is None:
                         self._fail(why)
                         break
@@ -685,16 +1009,22 @@ class UnitLayout:
                     has_closet = any(p.spec.synthetic and p.spec.space_type == self.rules.closet_type for p in pieces)
                     if hall_piece is not None:
                         pieces = pieces + [hall_piece]
-                    if not self._corridor_ok(pieces):
-                        self._fail("corridor")
-                    elif not self._reach_ok(pieces):
-                        self._fail("reach")
-                    elif not self._hard_pairs_ok(pieces):
-                        self._fail("hard_pair")
-                    else:
-                        parts = self._score(pieces, targets, slack)
-                        parts["closets_in_rooms"] = list(merged)
-                        found.append(UnitOption(unit.index, side, tuple(pieces), parts["total"], parts))
+                    variants = [pieces]
+                    linen = self._linen(pieces) if with_closets else None
+                    if linen is not None:                       # S2.2b: linen closet across the upper hall
+                        variants.insert(0, linen)
+                        has_closet = True
+                    for cand in variants:
+                        if not self._corridor_ok(cand):
+                            self._fail("corridor")
+                        elif not self._reach_ok(cand):
+                            self._fail("reach")
+                        elif not self._hard_pairs_ok(cand):
+                            self._fail("hard_pair")
+                        else:
+                            parts = self._score(cand, targets, slack)
+                            parts["closets_in_rooms"] = list(merged)
+                            found.append(UnitOption(unit.index, side, tuple(cand), parts["total"], parts))
                     if not has_closet:
                         break
         return found

@@ -114,7 +114,7 @@ def test_apply_writes_a_valid_contract_and_round_trips(reg, base):
     contract = to_contract(prof)
     validate_contract(contract, "design_profile")
     assert from_contract(contract) == prof
-    back = dp.apply(reg, prof, [{"id": "space.bathroom.aspect_max", "value": 1.7, "kind": "soft"}], "javier", DATE)
+    back = dp.apply(reg, prof, [{"id": "space.bathroom.aspect_max", "value": 1.7, "kind": "hard"}], "javier", DATE)
     assert [c["id"] for c in back["changes"]] == ["exits.patio.order"]
 
 

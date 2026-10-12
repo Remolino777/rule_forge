@@ -79,7 +79,7 @@ def _cells(result):
 
 
 def test_catalog_has_s21_block_and_checks_it(scat):
-    assert scat.version == "0.11.0" and scat.s21["fallback"]["order"] == "stair_choice.ranked"
+    assert scat.version == "0.12.0" and scat.s21["fallback"]["order"] == "stair_choice.ranked"
     bad = copy.deepcopy(scat.data)
     bad["s21"]["doors"]["interior_clear_width_in"] = 0
     bad["s21"]["weights"] = {"relations": 1.0}

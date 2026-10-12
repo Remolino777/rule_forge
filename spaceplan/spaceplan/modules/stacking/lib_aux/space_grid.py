@@ -340,20 +340,59 @@ def mask_polygon(mask: np.ndarray, grid):
     return unary_union(boxes).simplify(0)
 
 
+# ------------------------------------------------------------------ fit and exposure (step S2.2b)
+
+
+def fits_in_mask(mask: np.ndarray, a: int, b: int) -> bool:
+    """True when an a x b block of cells (either orientation) lies wholly inside the mask."""
+    ny, nx = mask.shape
+    if a <= 0 or b <= 0:
+        return True
+    integral = np.pad(mask.astype(np.int32).cumsum(0).cumsum(1), ((1, 0), (1, 0)))
+    for kx, ky in ((a, b), (b, a)):
+        if kx > nx or ky > ny:
+            continue
+        s = integral[ky:, kx:] - integral[:-ky, kx:] - integral[ky:, :-kx] + integral[:-ky, :-kx]
+        if (s == kx * ky).any():
+            return True
+    return False
+
+
+def exterior_cells(mask: np.ndarray, ext: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> int:
+    """Cell edges of the mask on an outside neighbour (all four sides): its exposed wall in cells."""
+    return int(sum((mask & e).sum() for e in ext))
+
+
+def exposed_sides(mask: np.ndarray, ext: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> int:
+    """How many of the four sides (-x, +x, -y, +y) of the mask touch the outside (2 or more: cross ventilation)."""
+    return sum(1 for e in ext if (mask & e).any())
+
+
+def shared_edge(a: np.ndarray, b: np.ndarray) -> tuple[int, bool]:
+    """(cells of the longest common wall between masks a and b, True when that wall runs along y)."""
+    along_y = int((a[:, 1:] & b[:, :-1]).sum() + (a[:, :-1] & b[:, 1:]).sum())     # neighbours across x
+    along_x = int((a[1:, :] & b[:-1, :]).sum() + (a[:-1, :] & b[1:, :]).sum())     # neighbours across y
+    return (along_y, True) if along_y >= along_x else (along_x, False)
+
+
 __all__ = [
     "Guillotine",
     "Rect",
     "WallRun",
     "components",
     "contact_cells",
+    "exposed_sides",
+    "exterior_cells",
     "exterior_run",
     "fill_unassigned",
+    "fits_in_mask",
     "largest_rect",
     "longest_contact",
     "mask_bounds",
     "mask_polygon",
     "realize",
     "rect_mask",
+    "shared_edge",
     "swing_cells",
     "wall_runs",
 ]

@@ -47,7 +47,14 @@ from spaceplan.modules.stacking.lib.lot_plan import lot_plan, strategy_key
 from spaceplan.modules.stacking.lib.lot_vertical import lot_envelope, lot_vertical_facts
 from spaceplan.modules.stacking.lib.program_adjust import adjust_program
 from spaceplan.modules.stacking.lib.space_cell import NO_VALID_LAYOUT, NOT_EVALUATED_S21, SPACED, S21Context, space_cell
-from spaceplan.modules.stacking.lib.space_rules import load_crc_ruleset, load_openings_ruleset, space_rules
+from spaceplan.core.lib_aux.hashing import sha256_of
+from spaceplan.modules.design.lib.design_registry import load_registry
+from spaceplan.modules.stacking.lib.space_rules import (
+    design_view,
+    load_crc_ruleset,
+    load_openings_ruleset,
+    space_rules,
+)
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
 from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
@@ -167,7 +174,8 @@ def _lot_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
 def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict], mode: str | None = None,
                  catalog_path=None, rules_path=None, stacking_catalog_path=None, stage: str = STAGE,
                  stair_rules_path=None, client_rules_path=None,
-                 site_plans: dict[str, dict] | list[dict] | None = None) -> dict[str, Any]:
+                 site_plans: dict[str, dict] | list[dict] | None = None,
+                 design_profile: dict[str, Any] | None = None) -> dict[str, Any]:
     """Stage S0 (and S1, S2 by `stage`) over an area_matrix contract and the lot_capacity contracts of its lots (by
     brief_id). S1 and S2 place the stair from the main door (stage S1.2): the site_plan contract of each lot gives
     the entry deck and the driveway side; without it the door is centred on the free front (flagged)."""
@@ -196,7 +204,8 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
     if stage == "S2.1":
         s2ctx = replace(s2ctx, alternatives=int(scat.s21["search"]["s2_alternatives"]))
         crc, openings = load_crc_ruleset(), load_openings_ruleset()
-        s21ctx = S21Context(scat, catalog, s2ctx.matrix, space_rules(scat, catalog, crc, openings, srs, crs), crc,
+        s21ctx = S21Context(scat, catalog, s2ctx.matrix,
+                            space_rules(scat, catalog, crc, openings, srs, crs, design_view(design_profile)), crc,
                             openings, srs, crs, load_ruleset())
     actx = access_context(scat, limits, crs) if drawing else None
 
@@ -280,6 +289,9 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
             "s21": _s21_summary(cells_out),
             "openings_ruleset": s21ctx.openings.ruleset_id, "openings_ruleset_version": s21ctx.openings.version,
             "openings_ruleset_sha256": s21ctx.openings.sha256,
+            "design_registry_version": load_registry().version,
+            "design_profile_id": (design_profile or {}).get("profile_id", "baseline"),
+            "design_profile_sha256": sha256_of(design_profile or {}),
             "note_s21": ("Stage S2.1: spaces of each S2 zone unit as guillotine rectangles on the S2 grid (halls along "
                          "a side, rooms in bands facing the corridor, closets from leftovers), doors with position, "
                          "width, swing and hinge; C01, C06, O01 (escape), O02 (garage openings), O03 (habitable rooms "

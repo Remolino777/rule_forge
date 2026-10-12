@@ -122,10 +122,15 @@ def _floor_parts(layout: FloorLayout, rel: dict[str, Any], rules: SpaceRules, ca
     sleeping = [k for k, s in enumerate(specs) if s.space_type in rules.sleeping_types]
     closet_types = {rules.closet_type, "walk_in_closet"}
     with_closet = sum(1 for k in sleeping if any(specs[j].space_type in closet_types for j in layout.adj.get(k, ())))
+    def mean(key: str) -> float:
+        return float(np.mean([o.parts.get(key, 1.0) for o in opts])) if opts else 1.0
+
     return {"relations": rel["score"],
-            "shape": float(np.mean([o.parts.get("shape", 1.0) for o in opts])) if opts else 1.0,
-            "exterior": float(np.mean([o.parts.get("exterior", 1.0) for o in opts])) if opts else 1.0,
-            "circulation": circulation,
+            "shape": mean("shape"),
+            "furniture": mean("furniture"),                        # S2.2b
+            "light": mean("light"),                                # S2.2b: daylight, facade use, cross ventilation
+            "exterior": mean("exterior"),
+            "circulation": 0.5 * circulation + 0.5 * mean("circulation"),   # fraction + hall shape and length
             "closets": with_closet / len(sleeping) if sleeping else 1.0,
             "circulation_fraction": frac}
 

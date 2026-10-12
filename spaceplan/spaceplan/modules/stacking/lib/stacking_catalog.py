@@ -286,7 +286,8 @@ def _check_s2(data: dict[str, Any]) -> list[str]:
     return problems
 
 
-S21_WEIGHTS = ("relations", "shape", "circulation", "exterior", "closets", "vertical")
+S21_WEIGHTS = ("relations", "shape", "furniture", "circulation", "light", "closets", "vertical")  # S2.2b
+S21_LOCAL_WEIGHTS = ("shape", "furniture", "fit", "circulation", "light")  # S2.2b
 S21_SIDES = ("low_x", "high_x", "low_y", "high_y")
 S21_DOOR_NUMBERS = ("interior_clear_width_in", "closet_clear_width_in", "leaf_over_clear_in", "frame_in",
                     "corner_return_in", "opening_width_ft")
@@ -329,8 +330,8 @@ def _check_s21(data: dict[str, Any]) -> list[str]:
             problems.append(f"s21.doors.{key} must be a number > 0")
     if not doors.get("preference") or not isinstance(doors.get("swing"), dict):
         problems.append("s21.doors needs preference and swing")
-    if set(lay.get("local_weights", {})) != {"shape", "fit", "exterior"}:
-        problems.append("s21.layout.local_weights must weigh shape, fit and exterior")
+    if set(lay.get("local_weights", {})) != set(S21_LOCAL_WEIGHTS):
+        problems.append(f"s21.layout.local_weights must weigh {S21_LOCAL_WEIGHTS}")
     for key in ("glazing_height_ft", "frame_allowance_ft", "surplus_full_ft"):
         if not _positive(s21["facade"].get(key)):
             problems.append(f"s21.facade.{key} must be a number > 0")

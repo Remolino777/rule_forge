@@ -130,6 +130,9 @@ def spec_of(catalog, rules: SpaceRules, matrix: ZoneMatrix, row: dict[str, Any],
     habitable = bool(t.get("habitable"))
     tol = float(rules.s21["layout"]["target_tolerance_fraction"])
     side_tol = float(rules.s21["layout"]["side_tolerance_fraction"])
+    hab_tol = rules.policy("habitable_side_tolerance")      # S2.2b: none for habitable rooms (client 2026-10-11)
+    if habitable and hab_tol is not None:
+        side_tol = float(hab_tol)
     min_side = float(t.get("min_side_ft", rules.closet_min_side_ft)) * (1.0 - side_tol)
     min_sqft = float(t.get("area", {}).get("min", 0.0)) * (1.0 - tol)
     if habitable and st not in rules.habitable_exempt:
@@ -137,6 +140,10 @@ def spec_of(catalog, rules: SpaceRules, matrix: ZoneMatrix, row: dict[str, Any],
         min_sqft = max(min_sqft, rules.habitable_min_sqft)
     if st in CIRCULATION_TYPES:
         min_side = max(min_side, rules.hall_min_ft)
+    if rules.furniture_hard(st):                       # S2.2b: hard furniture sets the least side of the cuts
+        options = rules.furniture_ft(st)
+        if options:
+            min_side = max(min_side, min(min(w, d) for w, d in options))
     return SpaceSpec(row["space_id"], st, row.get("zone") or t.get("zone", ""), unit_id,
                      float(row["area_sqft"] if target is None else target), min_sqft, min_side, habitable,
                      bool(t.get("passable")), st in CIRCULATION_TYPES, roles_of(matrix, st),

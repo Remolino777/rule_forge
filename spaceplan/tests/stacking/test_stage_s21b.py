@@ -93,7 +93,7 @@ def _cell(beds: int, baths: int, gross: float):
 
 
 def test_catalog_adds_door_types_exits_program_and_cantilever(scat):
-    assert scat.version == "0.11.0" and "cantilever_rear" in PLACEMENTS
+    assert scat.version == "0.12.0" and "cantilever_rear" in PLACEMENTS
     types = scat.s21["doors"]["types"]
     assert types["main_entry"]["leaf_in"] == 36 and types["main_entry"]["sidelight_in"] > 0
     assert types["patio_slider"]["width_in"] >= 60 and "closet" in scat.s21["doors"]["sliding_space_types"]

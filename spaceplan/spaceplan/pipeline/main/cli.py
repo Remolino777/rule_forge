@@ -333,6 +333,8 @@ def _add_module_parsers(sub) -> None:
     p_stack.add_argument("--stage", choices=("S0", "S1", "S2", "S2.1"), default="S0",
                          help="S0 levels and height (default); S1 also draws floors, stair and roof; S2 also zones "
                               "both floors around the stair core; S2.1 also lays out spaces and doors in each zone")
+    p_stack.add_argument("--design-profile", help="design profile (contract or plain JSON) for S2.1; default: the "
+                                                 "design registry baseline")
     p_stack.add_argument("--plans", help="directory for the S1 stacked-plan sheets (and the S2 zoning sheets)")
     _add_design_args(p_stack)
     p_stack.add_argument("--area-matrix", help="read this area_matrix contract instead of computing it")
@@ -494,6 +496,15 @@ def _run_sensitivity_command(args) -> int:
     return 0
 
 
+def _design_profile(args):
+    """Client design profile of S2.1 (step S2.2b); None keeps the registry baseline."""
+    if not getattr(args, "design_profile", None):
+        return None
+    from spaceplan.modules.design.main.run_design import load_profile
+
+    return load_profile(args.design_profile)
+
+
 def _run_stacking_command(args) -> int:
     from spaceplan.modules.stacking.main.contract import from_contract
     from spaceplan.modules.stacking.main.run_stacking import write_tables
@@ -504,7 +515,8 @@ def _run_stacking_command(args) -> int:
         lot_capacities=[load_contract(p, "lot_capacity") for p in args.lot_capacity] or None,
         mode=args.cells, lots=args.lots or None, households=_parse_households(args.households), zone_top=0,
         stage=args.stage, design=_design_from_args(args),
-        site_plans=[load_contract(p, "site_plan") for p in args.site_plan] or None)
+        site_plans=[load_contract(p, "site_plan") for p in args.site_plan] or None,
+        design_profile=_design_profile(args))
     if args.out:
         write_contract(contract, args.out)
     if args.tables:

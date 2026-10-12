@@ -26,6 +26,7 @@ OVERALL_LABELS = {
     "circulation_fraction_median": "fracción de circulación (mediana por planta)",
     "hall_long_ft_median": "tramo de pasillo más largo (mediana, ft)",
     "pct_n_not_daylit": "% de espacios N más hondos que la profundidad de luz",
+    "closets_by_role": "clósets por rol (recámara, blancos, baño)",
     "m_spaces_with_facade": "espacios M que ocupan fachada",
     "m_facade_ft": "fachada ocupada por espacios M (ft)",
 }

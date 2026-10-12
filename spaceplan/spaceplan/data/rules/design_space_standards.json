@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.1.0",
+  "ruleset_version": "0.2.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters.",
   "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -30,6 +30,362 @@
     "note": "Every value the client or the designer may define is a parameter object: value, type (number / enum / list / bool), unit, kind (hard / soft / weight / reference), who (client / designer / code), range (numbers), choices (enum / list), kinds_allowed, optional floor (a code rule the value may not cross) and a description in Spanish and English. The design registry (modules/design) reads them; the client's changes go to a design profile, never here."
   },
   "rules": [
+    {
+      "rule_id": "S00-LAYOUT-POLICY",
+      "kind": "design",
+      "magnitude": "layout_policy",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.policy",
+      "parameters": {
+        "habitable_side_tolerance": {
+          "value": 0.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Tolerancia bajo el lado mínimo del catálogo en espacios habitables",
+            "en": "Tolerance below the catalog least side in habitable rooms"
+          },
+          "range": [
+            0.0,
+            0.15
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-11: none (other spaces keep layout.side_tolerance_fraction)."
+        },
+        "worst_weight": {
+          "value": 0.5,
+          "type": "number",
+          "unit": null,
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Peso del peor espacio en la forma de una unidad",
+            "en": "Weight of the worst space in the shape of a unit"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        },
+        "small_types_to_typical": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Los espacios chicos se dimensionan a su tamaño típico; el sobrante va a los habitables",
+            "en": "Small spaces are sized to their typical size; the rest goes to the habitable rooms"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "typical_area_cap": {
+          "value": 1.25,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Tope del área de un espacio chico = factor × ancho típico × fondo típico",
+            "en": "Cap of a small space = factor x typical width x typical depth"
+          },
+          "range": [
+            1.0,
+            2.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "typical_area_types": {
+          "value": [
+            "bathroom",
+            "primary_bath",
+            "social_bath",
+            "half_bath",
+            "pantry",
+            "laundry",
+            "laundry_closet",
+            "walk_in_closet",
+            "mudroom",
+            "mechanical",
+            "storage",
+            "closet"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Espacios chicos que se llevan a su tamaño típico",
+            "en": "Small spaces sized to their typical size"
+          },
+          "choices": [
+            "bathroom",
+            "primary_bath",
+            "social_bath",
+            "half_bath",
+            "pantry",
+            "laundry",
+            "laundry_closet",
+            "walk_in_closet",
+            "mudroom",
+            "mechanical",
+            "storage",
+            "closet",
+            "work_kitchen",
+            "foyer"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "full_wall_types": {
+          "value": [
+            "closet",
+            "laundry_closet",
+            "pantry"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Espacios que cubren todo el muro donde se apoyan (nunca parte del muro)",
+            "en": "Spaces that cover the whole wall they stand on (never part of it)"
+          },
+          "choices": [
+            "closet",
+            "laundry_closet",
+            "pantry",
+            "storage",
+            "mechanical",
+            "walk_in_closet"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-11: a closet covers the whole width of its wall."
+        },
+        "full_wall_tolerance_ft": {
+          "value": 0.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Holgura de la regla de muro completo (una celda de la rejilla)",
+            "en": "Tolerance of the whole-wall rule (one grid cell)"
+          },
+          "range": [
+            0.0,
+            1.5
+          ],
+          "kinds_allowed": [
+            "hard"
+          ]
+        },
+        "one_piece": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Cada espacio es una sola pieza (pasillo incluido)",
+            "en": "Each space is a single piece (halls included)"
+          },
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-11."
+        },
+        "one_piece_circulation": {
+          "value": false,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Pasillos y foyers también en una sola pieza (hoy dependen de la zona de circulación que dibuja S2; se corrige en S2.2d)",
+            "en": "Halls and foyers also in one piece (today they follow the circulation zone S2 draws; fixed in step S2.2d)"
+          },
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Off by default in S2.2b: a hall cut by the S2 zone polygon keeps its parts; S2.2d draws the circulation zone in one piece."
+        }
+      },
+      "text": [
+        "Layout policy of stage S2.1 (step S2.2b)."
+      ],
+      "source": {
+        "document": "Client decisions 2026-10-11",
+        "section": "S2.2b"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "S00-CLOSETS",
+      "kind": "design",
+      "magnitude": "closets",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.closets",
+      "parameters": {
+        "linen_enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Clóset de blancos (linos) al fondo del pasillo de la planta alta, con todo su ancho",
+            "en": "Linen closet at the end of the upper hall, across its whole width"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "linen_depth_ft": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del clóset de blancos",
+            "en": "Depth of the linen closet"
+          },
+          "range": [
+            1.5,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bath_closet_enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Clóset de baño en el muro corto de un baño largo",
+            "en": "Bath closet on the short wall of a long bath"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bath_closet_depth_ft": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del clóset de baño",
+            "en": "Depth of the bath closet"
+          },
+          "range": [
+            1.5,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "reach_in_enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Clóset en el muro corto de una recámara larga (cubre todo el muro)",
+            "en": "Reach-in closet on the short wall of a long bedroom (whole wall)"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "reach_in_depth_ft": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del clóset de recámara",
+            "en": "Depth of the bedroom reach-in closet"
+          },
+          "range": [
+            2.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "reach_in_types": {
+          "value": [
+            "primary_suite",
+            "bedroom",
+            "flex_room"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Espacios que pueden recibir clóset en su muro corto",
+            "en": "Spaces that may get a closet on their short wall"
+          },
+          "choices": [
+            "primary_suite",
+            "bedroom",
+            "flex_room",
+            "study"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Closets added by the layout (client decision 2026-10-11): linen, bath and bedroom reach-in closets, each across a whole wall."
+      ],
+      "source": {
+        "document": "Client decisions 2026-10-11",
+        "section": "S2.2b"
+      },
+      "verified": true
+    },
     {
       "rule_id": "S01-PRIMARY-SUITE",
       "kind": "design",
@@ -136,7 +492,7 @@
           "value": 12.5,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de primary_suite",
@@ -149,13 +505,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: 36 in clear at both sides and the foot of the bed; hard."
         },
         "furniture_d_ft": {
           "value": 10,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de primary_suite",
@@ -324,37 +681,38 @@
           ]
         },
         "furniture_w_ft": {
-          "value": 10,
+          "value": 11.0,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de bedroom",
             "en": "Width of the clear furniture rectangle (furniture + clearances) of bedroom"
           },
           "range": [
-            6.0,
-            15.0
+            6.5,
+            16.5
           ],
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: 36 in clear at both sides and the foot of the bed; hard."
         },
         "furniture_d_ft": {
-          "value": 9.5,
+          "value": 10.0,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de bedroom",
             "en": "Depth of the clear furniture rectangle of bedroom"
           },
           "range": [
-            5.5,
-            14.0
+            6.0,
+            15.0
           ],
           "kinds_allowed": [
             "soft",
@@ -382,7 +740,7 @@
           ]
         },
         "bed_clearance_in": {
-          "value": 30,
+          "value": 36,
           "type": "number",
           "unit": "in",
           "kind": "soft",
@@ -653,7 +1011,7 @@
           "value": 1.7,
           "type": "number",
           "unit": "ratio",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de bathroom (preferencia hasta calibrar; puede volverse dura)",
@@ -666,13 +1024,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_w_ft": {
           "value": 5,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de bathroom",
@@ -685,13 +1044,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_d_ft": {
           "value": 8,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de bathroom",
@@ -704,7 +1064,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "template": {
           "value": "inline_tub",
@@ -826,7 +1187,7 @@
           "value": 1.8,
           "type": "number",
           "unit": "ratio",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de primary_bath (preferencia hasta calibrar; puede volverse dura)",
@@ -839,13 +1200,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_w_ft": {
           "value": 8,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de primary_bath",
@@ -858,13 +1220,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_d_ft": {
           "value": 9,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de primary_bath",
@@ -877,7 +1240,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "template": {
           "value": "double_vanity",
@@ -998,7 +1362,7 @@
           "value": 1.8,
           "type": "number",
           "unit": "ratio",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de social_bath (preferencia hasta calibrar; puede volverse dura)",
@@ -1011,13 +1375,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_w_ft": {
           "value": 5,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de social_bath",
@@ -1030,13 +1395,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_d_ft": {
           "value": 7,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de social_bath",
@@ -1049,7 +1415,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "template": {
           "value": "inline_shower",
@@ -1171,7 +1538,7 @@
           "value": 2.0,
           "type": "number",
           "unit": "ratio",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de half_bath (preferencia hasta calibrar; puede volverse dura)",
@@ -1184,13 +1551,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_w_ft": {
           "value": 3,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de half_bath",
@@ -1203,13 +1571,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_d_ft": {
           "value": 5,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de half_bath",
@@ -1222,7 +1591,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         }
       },
       "aspect_exempt": false,
@@ -1324,7 +1694,7 @@
           "value": 1.8,
           "type": "number",
           "unit": "ratio",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de kitchen (preferencia hasta calibrar; puede volverse dura)",
@@ -1337,13 +1707,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_w_ft": {
           "value": 10,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de kitchen",
@@ -1356,13 +1727,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_d_ft": {
           "value": 10,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de kitchen",
@@ -1375,7 +1747,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "template": {
           "value": "L",
@@ -1529,6 +1902,176 @@
           "kinds_allowed": [
             "soft",
             "hard"
+          ]
+        },
+        "templates_allowed": {
+          "value": [
+            "L",
+            "U",
+            "galley",
+            "island"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Plantillas de cocina permitidas (cumple si cabe alguna)",
+            "en": "Allowed kitchen templates (the kitchen passes when any fits)"
+          },
+          "choices": [
+            "L",
+            "U",
+            "galley",
+            "island"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "template_L_w_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla de cocina L (mesadas + pasillo NKBA)",
+            "en": "Width of the L kitchen template (counters + NKBA aisle)"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_L_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla de cocina L",
+            "en": "Depth of the L kitchen template"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_U_w_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla de cocina U (mesadas + pasillo NKBA)",
+            "en": "Width of the U kitchen template (counters + NKBA aisle)"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_U_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla de cocina U",
+            "en": "Depth of the U kitchen template"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_galley_w_ft": {
+          "value": 7.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla de cocina galley (mesadas + pasillo NKBA)",
+            "en": "Width of the galley kitchen template (counters + NKBA aisle)"
+          },
+          "range": [
+            5.25,
+            11.25
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_galley_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla de cocina galley",
+            "en": "Depth of the galley kitchen template"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_island_w_ft": {
+          "value": 13,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla de cocina island (mesadas + pasillo NKBA)",
+            "en": "Width of the island kitchen template (counters + NKBA aisle)"
+          },
+          "range": [
+            9.1,
+            19.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_island_d_ft": {
+          "value": 16,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla de cocina island",
+            "en": "Depth of the island kitchen template"
+          },
+          "range": [
+            11.2,
+            24.0
+          ],
+          "kinds_allowed": [
+            "reference"
           ]
         }
       },
@@ -1784,7 +2327,7 @@
           "value": 1.5,
           "type": "number",
           "unit": "ratio",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de dining_room (preferencia hasta calibrar; puede volverse dura)",
@@ -1797,13 +2340,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_w_ft": {
           "value": 12,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de dining_room",
@@ -1816,13 +2360,14 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "furniture_d_ft": {
           "value": 9,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de dining_room",
@@ -1835,7 +2380,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
         },
         "seats": {
           "value": 6,

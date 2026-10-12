@@ -1,6 +1,6 @@
 {
   "registry_id": "spaceplan-design-registry",
-  "registry_version": "0.1.0",
+  "registry_version": "0.2.0",
   "note": "Parameters that already live in the residential catalog, the stacking catalog or the client rulesets, registered by reference (path into their store; never copied). '{t}' expands over 'for'. range_rel = range as multiples of the baseline value. The new design parameters are discovered from the design rulesets (parameter objects).",
   "stores": {
     "catalog": "residential catalog (data/catalog, merged fragments)",
@@ -358,8 +358,9 @@
       "for": [
         "relations",
         "shape",
+        "furniture",
         "circulation",
-        "exterior",
+        "light",
         "closets",
         "vertical"
       ],
@@ -385,8 +386,10 @@
       "id": "weights.unit.{t}",
       "for": [
         "shape",
+        "furniture",
         "fit",
-        "exterior"
+        "circulation",
+        "light"
       ],
       "store": "stacking_catalog",
       "path": "s21.layout.local_weights.{t}",

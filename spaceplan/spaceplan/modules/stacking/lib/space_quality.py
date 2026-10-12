@@ -39,6 +39,25 @@ def category(values: dict[str, Any], space_type: str, level: int) -> str | None:
     return values.get(f"light.category.{space_type}")
 
 
+def furniture_options(values: dict[str, Any], space_type: str) -> list[tuple[float, float]]:
+    """Clear furniture rectangles of a type (the kitchen: any allowed template)."""
+    allowed = values.get(f"space.{space_type}.templates_allowed")
+    if allowed:
+        return [(values[f"space.{space_type}.template_{t}_w_ft"], values[f"space.{space_type}.template_{t}_d_ft"])
+                for t in allowed if f"space.{space_type}.template_{t}_w_ft" in values]
+    w, d = values.get(f"space.{space_type}.furniture_w_ft"), values.get(f"space.{space_type}.furniture_d_ft")
+    return [] if w is None or d is None else [(w, d)]
+
+
+def closet_role(sp: dict[str, Any]) -> str:
+    """linen / bath_closet / closet (reach-in, leftover or program closet), from the id the layout gives."""
+    sid = sp["space_id"]
+    for role in ("linen", "bath_closet"):
+        if f"_{role}" in sid:
+            return role
+    return "closet"
+
+
 def fits_rectangle(geom, w_ft: float, d_ft: float, step: float = GRID_FT) -> bool:
     """True when an axis-aligned w x d rectangle (either orientation) fits inside the geometry."""
     x0, y0, x1, y1 = geom.bounds
@@ -69,7 +88,7 @@ def space_metrics(sp: dict[str, Any], level: int, values: dict[str, Any]) -> dic
     aspect = long_ / short if short > 0 else float("inf")
     pref, amax = _value(values, f"space.{t}.aspect_pref_max"), _value(values, f"space.{t}.aspect_max")
     min_side, max_side = _value(values, f"space.{t}.min_side_ft"), _value(values, f"space.{t}.max_side_ft")
-    fw, fd = _value(values, f"space.{t}.furniture_w_ft"), _value(values, f"space.{t}.furniture_d_ft")
+    furniture = furniture_options(values, t)
     cat = category(values, t, level)
     ext = float(sp.get("exterior_ft") or 0.0)
     head = values.get("light.daylight.window_head_ft")
@@ -84,7 +103,8 @@ def space_metrics(sp: dict[str, Any], level: int, values: dict[str, Any]) -> dic
         "aspect_max_ok": None if amax is None else aspect <= amax + 1e-9,
         "min_side_ok": None if min_side is None else short >= min_side - 1e-9,
         "max_side_ok": None if max_side is None else long_ <= max_side + 1e-9,
-        "furniture_fits": None if fw is None or fd is None else fits_rectangle(g, fw, fd),
+        "furniture_fits": None if not furniture else any(fits_rectangle(g, w, d) for w, d in furniture),
+        "closet_role": closet_role(sp) if t == "closet" else None,
         "category": cat, "exterior_ft": round(ext, 2),
         "daylight_depth_ft": None if depth is None else round(depth, 2),
         "daylight_ok": None if depth is None or head is None or factor is None or cat != "N"
@@ -178,11 +198,13 @@ def quality_report(stack_plans: list[dict[str, Any]], values: dict[str, Any]) ->
         "hall_long_ft_median": round(st.median(f["hall_long_ft"] for f in floors if f["hall_long_ft"] > 0), 1)
         if any(f["hall_long_ft"] > 0 for f in floors) else None,
         "pct_n_not_daylit": _pct(n_rows, "daylight_ok"),
+        "closets_by_role": {r: sum(1 for x in spaces if x.get("closet_role") == r) for r in ("closet", "linen",
+                                                                                            "bath_closet")},
         "m_spaces_with_facade": sum(f["m_with_facade"] for f in floors),
         "m_facade_ft": round(sum(f["m_facade_ft"] for f in floors), 1),
     }
     return {"overall": overall, "by_type": type_summary(spaces), "cells": cells}
 
 
-__all__ = ["GRID_FT", "category", "cell_metrics", "fits_rectangle", "quality_report", "space_metrics",
+__all__ = ["GRID_FT", "category", "cell_metrics", "closet_role", "fits_rectangle", "furniture_options", "quality_report", "space_metrics",
            "type_summary"]

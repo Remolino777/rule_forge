@@ -6,7 +6,9 @@ Three layers, read once per run (no number lives in this file):
     on the facade) of the openings ruleset; S08 (no door swing over the stair) of the stair ruleset;
   * client: K01 / K02 receiving spaces, K04 half-bath door (client stair ruleset);
   * design: the s21 block of the stacking catalog (door widths, frame, swing, facade conversion, search caps) and
-    the residential catalog it points to (hall width, closets, space types).
+    the residential catalog it points to (hall width, closets, space types);
+  * design registry (step S2.2b): the effective values and kinds of the design parameters (baseline or a client
+    profile): proportion, longest side and furniture per space type, light categories, layout policy, closets.
 """
 
 from __future__ import annotations
@@ -16,6 +18,8 @@ from pathlib import Path
 from typing import Any
 
 from spaceplan.core.lib.rules import CRC_RULESET, RuleSet, load_ruleset, load_ruleset_resource
+from spaceplan.modules.design.lib.design_profile import change_map, effective_values
+from spaceplan.modules.design.lib.design_registry import load_registry
 
 OPENINGS_RULESET = ("data", "rules", "crc_2025_openings.json")
 HABITABLE_AREA_RULE, HABITABLE_DIMENSION_RULE = "C01-HABITABLE-AREA", "C01-HABITABLE-DIMENSION"
@@ -75,6 +79,42 @@ class SpaceRules:
     private_opens_to: frozenset[str]
     garage_opens_to: frozenset[str]
     statuses: dict[str, str] = field(default_factory=dict)
+    design: dict[str, Any] = field(default_factory=dict)          # registry id -> effective value
+    design_kinds: dict[str, str] = field(default_factory=dict)    # registry id -> effective kind
+
+    # ---------------------------------------------------------------- design registry (step S2.2b)
+    def std(self, space_type: str, name: str) -> Any:
+        return self.design.get(f"space.{space_type}.{name}")
+
+    def hard(self, space_type: str, name: str) -> bool:
+        return self.design_kinds.get(f"space.{space_type}.{name}") == "hard"
+
+    def policy(self, name: str) -> Any:
+        return self.design.get(f"space.policy.{name}")
+
+    def closets(self, name: str) -> Any:
+        return self.design.get(f"space.closets.{name}")
+
+    def light(self, name: str) -> Any:
+        return self.design.get(f"light.{name}")
+
+    def category(self, space_type: str, level: int) -> str | None:
+        if level > 0 and f"light.category.{space_type}__upper" in self.design:
+            return self.design[f"light.category.{space_type}__upper"]
+        return self.design.get(f"light.category.{space_type}")
+
+    def furniture_ft(self, space_type: str) -> list[tuple[float, float]]:
+        """Clear furniture rectangles of a space type (any of them must fit); the kitchen lists its allowed
+        templates."""
+        allowed = self.std(space_type, "templates_allowed")
+        if allowed:
+            return [(float(self.std(space_type, f"template_{t}_w_ft")), float(self.std(space_type, f"template_{t}_d_ft")))
+                    for t in allowed if self.std(space_type, f"template_{t}_w_ft") is not None]
+        w, d = self.std(space_type, "furniture_w_ft"), self.std(space_type, "furniture_d_ft")
+        return [] if w is None or d is None else [(float(w), float(d))]
+
+    def furniture_hard(self, space_type: str) -> bool:
+        return self.hard(space_type, "furniture_w_ft") or self.hard(space_type, "templates_allowed")
 
     def facade_need_ft(self, space_type: str, area_sqft: float, habitable: bool) -> float:
         """Exterior wall a space needs: glazing of a habitable room (O03 via C03) and the escape opening of a
@@ -98,7 +138,15 @@ class SpaceRules:
                                                                 else self.door_ft["interior"])
 
 
-def space_rules(scat, catalog, crc: RuleSet, openings: RuleSet, stairs: RuleSet, client: RuleSet) -> SpaceRules:
+def design_view(profile: dict[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, str]]:
+    """(values, kinds) of the design registry with a client profile applied (None: the baseline)."""
+    reg = load_registry()
+    return effective_values(reg, profile), reg.kinds(change_map(profile))
+
+
+def space_rules(scat, catalog, crc: RuleSet, openings: RuleSet, stairs: RuleSet, client: RuleSet,
+                design: tuple[dict[str, Any], dict[str, str]] | None = None) -> SpaceRules:
+    values, kinds = design if design is not None else design_view()
     s21 = scat.s21
     lay, doors, left = s21["layout"], s21["doors"], s21["leftovers"]
     o3 = openings.params(FACADE_RULE)
@@ -145,6 +193,8 @@ def space_rules(scat, catalog, crc: RuleSet, openings: RuleSet, stairs: RuleSet,
                                                 (crc, HALL_WIDTH_RULE), (openings, ESCAPE_RULE),
                                                 (openings, GARAGE_OPENINGS_RULE), (openings, FACADE_RULE),
                                                 (stairs, TOP_DOOR_RULE))},
+        design=dict(values),
+        design_kinds=dict(kinds),
     )
 
 
@@ -165,6 +215,7 @@ __all__ = [
     "TOP_DOOR_RULE",
     "SpaceRules",
     "catalog_value",
+    "design_view",
     "load_crc_ruleset",
     "load_openings_ruleset",
     "space_rules",
