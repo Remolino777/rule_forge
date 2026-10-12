@@ -34,6 +34,8 @@ from spaceplan.modules.stacking.lib.zone_relations import (
     ZonePair,
 )
 
+WALK_THROUGH = "walk_in_closet"                  # a dressing room on the way from the suite to its bath
+
 
 def door_touches(layout: FloorLayout, node: int, mask: np.ndarray) -> bool:
     """Does a door of `node` open onto a cell of `mask` (the cells on the other side of its leaf span)?"""
@@ -93,6 +95,8 @@ def pair_on_space_floor(layout: FloorLayout, g: FloorGraph, p: ZonePair) -> str:
                     return MET
                 if any(c in g.circulation and y in g.adj.get(c, ()) for c in g.adj.get(x, ())):
                     return MET
+                if any(specs[c].space_type == WALK_THROUGH and y in g.adj.get(c, ()) for c in g.adj.get(x, ())):
+                    return MET                                  # S2.2c: suite -> walk-in -> bath (client K11)
                 if specs[x].passable and specs[y].passable and _touch(layout, x, y):
                     return MET
         return FAILED

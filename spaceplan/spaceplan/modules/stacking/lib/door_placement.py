@@ -39,6 +39,7 @@ OPENING, DOOR, CLOSET_DOOR, FIXED_DOOR, GARAGE_DOOR, STAIR_LINK = (
     "opening", "door", "closet_door", "fixed", "garage_door", "stair")
 SLIDER, PATIO_SLIDER, EXTERIOR_DOOR = "closet_slider", "patio_slider", "exterior_door"   # stage S2.1b
 EXTERIOR = -1                                    # the other side of an exterior door
+WALK_IN_TYPE, WALK_THROUGH_BATHS = "walk_in_closet", ("primary_bath",)   # S2.2c: the suite only
 
 
 @dataclass
@@ -124,7 +125,12 @@ def door_choices(rules: SpaceRules, matrix: ZoneMatrix, room: SpaceSpec, other: 
         return None
     if room.between:                                                # K10: a shared bath opens onto the hall only
         return 1 if other.circulation else None
+    if (room.host and room.space_type in WALK_THROUGH_BATHS and rules.policy("walk_through_closet")
+            and other.space_type == WALK_IN_TYPE and other.host == room.host):
+        return 0                                                   # S2.2c: the suite's bath through its walk-in
     if room.host and room.host == other.space_id:
+        if room.space_type in WALK_THROUGH_BATHS and rules.policy("walk_through_closet"):
+            return 1                                               # straight from the bedroom only without walk-in
         return 0                                                   # closet, pantry, en-suite space onto its host
     if room.host and _private(rules, room) and room.space_type not in rules.s21["doors"]["sliding_space_types"]:
         return None                                                # K10: an en-suite space opens onto its room only
@@ -156,6 +162,15 @@ def door_choices(rules: SpaceRules, matrix: ZoneMatrix, room: SpaceSpec, other: 
 # ------------------------------------------------------------------ geometry of one door
 
 
+def great_room_pair(layout: FloorLayout, rules: SpaceRules, a: int, b: int) -> bool:
+    """Both nodes are zones of the great room of an open-plan floor (S2.2c): their boundary is open."""
+    if not getattr(layout.floor, "open_plan", False) or a < 0 or b < 0:
+        return False
+    zones = set(rules.design.get("space.great_room.zones") or ())
+    sa, sb = layout.specs[a], layout.specs[b]
+    return sa.space_type in zones and sb.space_type in zones and not sa.fixed and not sb.fixed
+
+
 class DoorPlacer:
     def __init__(self, layout: FloorLayout, rules: SpaceRules):
         self.layout, self.rules = layout, rules
@@ -182,7 +197,10 @@ class DoorPlacer:
     def opening(self, a: int, b: int, kind: str = OPENING) -> Door | None:
         """A cased opening (no leaf) as wide as the catalog allows, centred on the longest shared run."""
         need = self.rules.door_ft["interior"] / self.res
+        whole = great_room_pair(self.layout, self.rules, a, b)      # S2.2c: no wall inside the great room
         for run in self.runs_between(a, b):
+            if whole:
+                return Door(a, b, kind, run, run.t0, run.t1, clear_ft=run.cells * self.res)
             if run.cells + 1e-9 < need:
                 continue
             returns = min(2 * self.corner, run.cells - need)          # kept when the wall allows them
@@ -344,6 +362,11 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
             d = placer.opening(lo, hi)
             if d is not None:
                 link(d)
+    for (lo, hi), _ in sorted(placer.runs.items()):            # S2.2c: the great room has no inner walls
+        if lo >= 0 and hi >= 0 and hi not in adj[lo] and great_room_pair(layout, rules, lo, hi):
+            d = placer.opening(lo, hi)
+            if d is not None:
+                link(d)
     entry = [k for k, s in enumerate(specs) if ENTRY in s.roles]
     for e in entry:
         hubs = [c for c in adj[e] if specs[c].circulation]
@@ -361,7 +384,8 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
 
     # 2. one door per other space, iterated until no space can be reached any more
     rooms = [k for k in range(len(specs)) if k not in passable and k != stair and k not in reached]
-    pending = sorted(rooms, key=lambda k: (specs[k].host is not None, specs[k].space_id))
+    pending = sorted(rooms, key=lambda k: (specs[k].host is not None,              # walk-ins before their baths
+                                           specs[k].space_type in WALK_THROUGH_BATHS, specs[k].space_id))
     accessible = f.accessible
     out_swing = set(rules.s21["doors"]["out_swing_space_types"])
     sliding = set(rules.s21["doors"]["sliding_space_types"])
@@ -571,6 +595,7 @@ __all__ = [
     "FIXED_DOOR",
     "GARAGE_DOOR",
     "OPENING",
+    "great_room_pair",
     "PATIO_SLIDER",
     "SLIDER",
     "STAIR_LINK",

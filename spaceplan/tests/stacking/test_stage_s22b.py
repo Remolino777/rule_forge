@@ -209,3 +209,52 @@ def test_unit_score_has_the_new_terms(rules, catalog, matrix):
     assert parts["furniture"] == 1.0 and parts["shape"] == 1.0
     strip = _piece(ul, unit.specs[0], 0, 18, 0, 24)              # 9 x 12: no room for the bed with 36 in clear
     assert ul._score([strip], {"bed": 432}, [3.0])["furniture"] == 0.0
+
+
+# ------------------------------------------------------------------ step S2.2c (client 2026-10-12)
+
+
+def test_bath_templates_lower_the_least_side(rules, catalog, matrix):
+    assert rules.furniture_ft("primary_bath") == [(8.0, 9.0), (5.0, 8.0)]
+    assert (5.0, 7.0) in rules.furniture_ft("bathroom") and (4.0, 4.0) in rules.furniture_ft("half_bath")
+    pb = spec_of(catalog, rules, matrix, _row("pb", "primary_bath", 80, "suite"), "u")
+    assert pb.min_side_ft == pytest.approx(5.0)               # the single-vanity template, not 8 ft
+
+
+def test_walk_in_of_the_suite_is_a_walk_through(rules, catalog, matrix):
+    wic = spec_of(catalog, rules, matrix, _row("w", "walk_in_closet", 50, "suite"), "u")
+    assert wic.min_side_ft == pytest.approx(rules.policy("walk_through_min_side_ft"))
+    from spaceplan.modules.stacking.lib.door_placement import door_choices
+
+    suite = spec_of(catalog, rules, matrix, _row("suite", "primary_suite", 290), "u")
+    bath = spec_of(catalog, rules, matrix, _row("pb", "primary_bath", 80, "suite"), "u")
+    assert door_choices(rules, matrix, bath, wic) == 0          # through the walk-in first
+    assert door_choices(rules, matrix, bath, suite) == 1        # the bedroom only as a fallback
+    from spaceplan.modules.stacking.lib.unit_layout import suite_groups
+
+    groups = suite_groups({s.space_id: s for s in (suite, wic, bath)}, rules, matrix)
+    assert groups[0][0] == ["suite", "w", "pb"]                 # suite -> walk-in -> bath
+
+
+def test_open_plan_by_culture_and_great_room_pairs(rules):
+    assert rules.design["space.great_room.open_cultures"] == ["anglo", "none"]
+    assert "living_room" in rules.design["space.great_room.zones"]
+    assert rules.design["space.great_room.merge_units"] is False
+    from spaceplan.modules.stacking.lib.door_placement import great_room_pair
+    from spaceplan.modules.stacking.lib.unit_frame import SpaceSpec as S
+
+    specs = [S("k", "kitchen", "kitchen", "k", 0, 0, 0, True, True, False, frozenset()),
+             S("l", "living_room", "social", "s", 0, 0, 0, True, True, False, frozenset()),
+             S("h", "half_bath", "circulation", "c", 0, 0, 0, False, False, False, frozenset())]
+    open_lay = SimpleNamespace(floor=SimpleNamespace(open_plan=True), specs=specs)
+    closed_lay = SimpleNamespace(floor=SimpleNamespace(open_plan=False), specs=specs)
+    assert great_room_pair(open_lay, rules, 0, 1) and not great_room_pair(open_lay, rules, 0, 2)
+    assert not great_room_pair(closed_lay, rules, 0, 1)
+
+
+def test_maximum_profile_weighs_shape_more(rules):
+    from spaceplan.modules.stacking.lib.unit_layout import shape_weighted
+
+    w = {"shape": 0.25, "fit": 0.1}
+    assert shape_weighted(rules, w, SimpleNamespace(profile="maximum"))["shape"] == pytest.approx(0.25 * 1.6)
+    assert shape_weighted(rules, w, SimpleNamespace(profile="accessible")) == w

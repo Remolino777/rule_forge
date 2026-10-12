@@ -170,7 +170,9 @@ def suite_groups(specs: dict[str, SpaceSpec], rules: SpaceRules, matrix) -> list
         for r, d in sorted(groups.items()):
             bath = next((x for x in d if x in sandwich), None)
             if bath is None:
-                out.append([r] + sorted(d, key=lambda x: (specs[x].space_type == rules.closet_type, x)))
+                through = bool(rules.policy("walk_through_closet"))    # S2.2c: suite -> walk-in -> bath
+                out.append([r] + sorted(d, key=lambda x: (specs[x].space_type == rules.closet_type,
+                                                          through and specs[x].space_type in BATH_TYPES, x)))
                 continue
             b1, b2 = sandwich[bath]
             mine = {b: (b, *sorted(x for x in d if specs[x].host == b)) for b in (b1, b2)}
@@ -295,6 +297,15 @@ def _closet_spec(rules: SpaceRules, host: SpaceSpec, k: int, sqft: float, role: 
 
 
 BATH_TYPES = ("bathroom", "primary_bath", "social_bath", "half_bath")
+WALK_IN = "walk_in_closet"
+
+
+def shape_weighted(rules: SpaceRules, weights: dict[str, float], floor) -> dict[str, float]:
+    """Weights with the shape weight raised in the maximum profile (client 2026-10-12: never stretch spaces to
+    fill the maximum area)."""
+    if getattr(floor, "profile", None) != "maximum" or "shape" not in weights:
+        return weights
+    return {**weights, "shape": weights["shape"] * float(rules.policy("maximum_shape_factor") or 1.0)}
 
 
 def _aspect(rect: tuple[int, int, int, int]) -> float:
@@ -733,7 +744,7 @@ class UnitLayout:
                  "fit": float(np.mean(fits)) if fits else 1.0,
                  "circulation": float(np.mean(circ_parts)) if circ_parts else 1.0,
                  "light": light, "exterior": exterior, "daylit": daylit, "m_facade_share": m_share}
-        w = rules.s21["layout"]["local_weights"]
+        w = shape_weighted(rules, rules.s21["layout"]["local_weights"], self.floor)
         parts["total"] = sum(w[k] * parts[k] for k in w) / (sum(w.values()) or 1.0)
         return parts
 
@@ -797,6 +808,8 @@ class UnitLayout:
                     continue
                 qs = q.spec
                 ok = (qs.circulation or (sp.host and sp.host == qs.space_id) or (qs.host == sp.space_id and False)
+                      or (self.rules.policy("walk_through_closet") and sp.space_type in BATH_TYPES and sp.host
+                          and qs.space_type == WALK_IN and qs.host == sp.host)            # S2.2c: through the walk-in
                       or (sp.roles & self.from_roles and qs.roles & self.to_roles)
                       or (not private and qs.passable))
             if not ok and not private:

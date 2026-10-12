@@ -2,7 +2,7 @@
   "contract": "design_profile",
   "version": "0.2.0",
   "produced_by": "design",
-  "input_sha256": "3c014bb94a8e9c522a1c9a567181938e713c14f476f9c9fd9e8c9b381a847e10",
+  "input_sha256": "1c2f9d3489a8de04c1b51571ca0f7bcf9e9d8c9e6a7d624ffd0c4edb683d6644",
   "brief_id": null,
   "consumers": [
     "stacking",
@@ -13,7 +13,7 @@
     "profile_version": "0.1.0",
     "registry_id": "spaceplan-design-registry",
     "registry_version": "0.2.0",
-    "base_stores_sha256": "0b1eb5872b96c4c0816876a3fbb819569d77258bd64bba15fc838ee376c29085",
+    "base_stores_sha256": "ac4f861649220b9e94dae00883ddb150d3f54fb74eddb66b544662fc26f6002d",
     "changes": [],
     "note": "Baseline: no changes (registry defaults). Client profiles start from here."
   }

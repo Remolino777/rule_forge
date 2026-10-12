@@ -53,7 +53,7 @@ from spaceplan.modules.stacking.lib.unit_frame import (
     SpaceFloor,
     space_floor,
 )
-from spaceplan.modules.stacking.lib.unit_layout import UnitLayout
+from spaceplan.modules.stacking.lib.unit_layout import UnitLayout, shape_weighted
 from spaceplan.modules.stacking.lib.zone_relations import FloorGraph, ZoneMatrix, vertical_pairs
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
 from spaceplan.modules.stacking.lib_aux.space_grid import exterior_run, mask_polygon
@@ -130,9 +130,62 @@ def _floor_parts(layout: FloorLayout, rel: dict[str, Any], rules: SpaceRules, ca
             "furniture": mean("furniture"),                        # S2.2b
             "light": mean("light"),                                # S2.2b: daylight, facade use, cross ventilation
             "exterior": mean("exterior"),
-            "circulation": 0.5 * circulation + 0.5 * mean("circulation"),   # fraction + hall shape and length
+            "circulation": (0.4 * circulation + 0.4 * mean("circulation")          # fraction, hall shape and length
+                            + 0.2 * shared_bath_doors(layout, rules)),            # S2.2c: shared-bath doors close
             "closets": with_closet / len(sleeping) if sleeping else 1.0,
             "circulation_fraction": frac}
+
+
+def _walk_through_violation(layout: FloorLayout, rules: SpaceRules) -> str | None:
+    """K11 (client 2026-10-12): when the suite has a walk-in on the floor, its bath is reached through it."""
+    if not rules.policy("walk_through_closet") or rules.design_kinds.get("space.policy.walk_through_closet") != "hard":
+        return None
+    specs = layout.specs
+    for b, s in enumerate(specs):
+        if s.space_type != "primary_bath" or not s.host:
+            continue
+        host = layout.node(s.host)
+        walk = next((k for k, w in enumerate(specs) if w.space_type == "walk_in_closet" and w.host == s.host), None)
+        if host is None or walk is None:
+            continue
+        if host in layout.adj.get(b, set()) or walk not in layout.adj.get(b, set()):
+            return "k11:bath_not_through_walk_in"
+    return None
+
+
+def _door_centre(d) -> tuple[float, float] | None:
+    if d.run is None:
+        return None
+    t = 0.5 * (d.t0 + d.t1)
+    return (d.run.k, t) if d.run.vertical else (t, d.run.k)
+
+
+def shared_bath_doors(layout: FloorLayout, rules: SpaceRules) -> float:
+    """1 when the doors of the bedrooms that share a bath are within the registry distance of the bath door,
+    falling with the excess (S2.2c, client 2026-10-12); 1 without shared baths."""
+    limit = float(rules.policy("shared_bath_door_max_ft") or 0.0)
+    if limit <= 0:
+        return 1.0
+    res = layout.floor.res
+    doors = {}
+    for d in layout.doors:
+        c = _door_centre(d)
+        if c is None:
+            continue
+        for n in (d.a, d.b):
+            if n >= 0 and layout.specs[n].between or n >= 0 and layout.specs[n].space_type in rules.sleeping_types:
+                doors.setdefault(n, []).append(c)
+    vals = []
+    for b, s in enumerate(layout.specs):
+        if not s.between or b not in doors:
+            continue
+        for bed in s.between:
+            k = layout.node(bed)
+            if k is None or k not in doors:
+                continue
+            dist = min(abs(p[0] - q[0]) * res + abs(p[1] - q[1]) * res for p in doors[b] for q in doors[k])
+            vals.append(1.0 if dist <= limit else max(0.0, 1.0 - (dist - limit) / limit))
+    return float(np.mean(vals)) if vals else 1.0
 
 
 def _floor_score(parts: dict[str, float], weights: dict[str, float]) -> float:
@@ -164,6 +217,10 @@ def search_floor(floor: SpaceFloor, ctx: S21Context) -> tuple[list[FloorResult],
         layout = compose(floor, tuple(o[i] for o, i in zip(per_unit, idx)))
         place_doors(layout, rules, ctx.matrix)
         if not layout.violations:
+            why = _walk_through_violation(layout, rules)          # S2.2c: suite -> walk-in -> bath
+            if why:
+                layout.violations.append(why)
+        if not layout.violations:
             land = layout.specs[layout.landing_node]
             if land.space_type not in floor.receiving:
                 layout.violations.append(f"landing:{land.space_type}")
@@ -177,7 +234,8 @@ def search_floor(floor: SpaceFloor, ctx: S21Context) -> tuple[list[FloorResult],
             fails[layout.violations[0]] += 1
             continue
         parts = _floor_parts(layout, rel, rules, ctx.catalog)
-        found.append(FloorResult(layout, graph, rel, parts, _floor_score(parts, s21["weights"])))
+        found.append(FloorResult(layout, graph, rel, parts,
+                                 _floor_score(parts, shape_weighted(rules, s21["weights"], floor))))
         if len(found) >= stop:
             break
     summary["valid"] = len(found)
@@ -262,7 +320,8 @@ def _exterior(s1: dict[str, Any], plan: LotPlan, lot_local, site_plan: dict | No
 
 
 def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any], plan: LotPlan,
-               profile: str | None, ctx: S21Context, lot_local=None, site_plan: dict | None = None) -> dict[str, Any]:
+               profile: str | None, ctx: S21Context, lot_local=None, site_plan: dict | None = None,
+               culture: str | None = None) -> dict[str, Any]:
     """Stage S2.1 block of a cell zoned by S2 (`rows` = the area-matrix space split of the cell, after the program
     adjustment of stage S2.1; `lot_local` and `site_plan` give the secondary door its outside)."""
     out: dict[str, Any] = {"stage": "S2.1", "warnings": []}
@@ -280,7 +339,7 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
         tried = []
         for k, block in enumerate(blocks):
             fl = space_floor(level, floors, block, rows, plan, ctx.catalog, ctx.rules, ctx.matrix, res, profile, recv,
-                             variant_of(block), exterior if level == GROUND else None)
+                             variant_of(block), exterior if level == GROUND else None, culture)
             found, summary = search_floor(fl, ctx)
             summary["s2_alternative"] = k
             tried.append(summary)

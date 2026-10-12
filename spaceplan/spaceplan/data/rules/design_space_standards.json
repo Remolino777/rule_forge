@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.3.0",
+  "ruleset_version": "0.4.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile.",
   "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -229,6 +229,79 @@
             "hard"
           ],
           "note": "Off by default in S2.2b: a hall cut by the S2 zone polygon keeps its parts; S2.2d draws the circulation zone in one piece."
+        },
+        "maximum_shape_factor": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "weight",
+          "who": "client",
+          "description": {
+            "es": "Factor del peso de la forma en el perfil máximo (no estirar espacios para llenar)",
+            "en": "Factor on the shape weight in the maximum profile (do not stretch spaces to fill)"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ],
+          "note": "Client decision 2026-10-12."
+        },
+        "walk_through_closet": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Al baño del master se llega por el walk-in (recámara → walk-in → baño)",
+            "en": "The primary bath is reached through the walk-in (bedroom -> walk-in -> bath)"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12."
+        },
+        "walk_through_min_side_ft": {
+          "value": 6.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Ancho mínimo del walk-in de paso (36 in de paso + colgado)",
+            "en": "Least side of a walk-through closet (36 in passage + hanging)"
+          },
+          "range": [
+            5.0,
+            8.0
+          ],
+          "kinds_allowed": [
+            "hard"
+          ]
+        },
+        "shared_bath_door_max_ft": {
+          "value": 6.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Distancia máxima entre la puerta de una recámara y la del baño que comparte",
+            "en": "Maximum distance between a bedroom door and the door of the bath it shares"
+          },
+          "range": [
+            2.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: doors close together for a short route."
         }
       },
       "text": [
@@ -1088,6 +1161,101 @@
             "soft",
             "hard"
           ]
+        },
+        "templates_allowed": {
+          "value": [
+            "inline_tub",
+            "inline_shower"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Plantillas permitidas de bathroom (cumple si cabe alguna)",
+            "en": "Allowed templates of bathroom (passes when any fits)"
+          },
+          "choices": [
+            "inline_tub",
+            "inline_shower"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: any allowed template fits (hard for baths)."
+        },
+        "template_inline_tub_w_ft": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla inline_tub de bathroom",
+            "en": "Width of the inline_tub template of bathroom"
+          },
+          "range": [
+            3.5,
+            7.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_inline_tub_d_ft": {
+          "value": 8.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla inline_tub de bathroom",
+            "en": "Depth of the inline_tub template of bathroom"
+          },
+          "range": [
+            5.6,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_inline_shower_w_ft": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla inline_shower de bathroom",
+            "en": "Width of the inline_shower template of bathroom"
+          },
+          "range": [
+            3.5,
+            7.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_inline_shower_d_ft": {
+          "value": 7.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla inline_shower de bathroom",
+            "en": "Depth of the inline_shower template of bathroom"
+          },
+          "range": [
+            4.8999999999999995,
+            10.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
         }
       },
       "aspect_exempt": false,
@@ -1262,6 +1430,101 @@
           "kinds_allowed": [
             "soft",
             "hard"
+          ]
+        },
+        "templates_allowed": {
+          "value": [
+            "double_vanity",
+            "single_vanity"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Plantillas permitidas de primary_bath (cumple si cabe alguna)",
+            "en": "Allowed templates of primary_bath (passes when any fits)"
+          },
+          "choices": [
+            "double_vanity",
+            "single_vanity"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: any allowed template fits (hard for baths)."
+        },
+        "template_double_vanity_w_ft": {
+          "value": 8.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla double_vanity de primary_bath",
+            "en": "Width of the double_vanity template of primary_bath"
+          },
+          "range": [
+            5.6,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_double_vanity_d_ft": {
+          "value": 9.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla double_vanity de primary_bath",
+            "en": "Depth of the double_vanity template of primary_bath"
+          },
+          "range": [
+            6.3,
+            13.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_single_vanity_w_ft": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla single_vanity de primary_bath",
+            "en": "Width of the single_vanity template of primary_bath"
+          },
+          "range": [
+            3.5,
+            7.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_single_vanity_d_ft": {
+          "value": 8.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla single_vanity de primary_bath",
+            "en": "Depth of the single_vanity template of primary_bath"
+          },
+          "range": [
+            5.6,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
           ]
         }
       },
@@ -1439,6 +1702,101 @@
             "soft",
             "hard"
           ]
+        },
+        "templates_allowed": {
+          "value": [
+            "inline_shower",
+            "inline_tub"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Plantillas permitidas de social_bath (cumple si cabe alguna)",
+            "en": "Allowed templates of social_bath (passes when any fits)"
+          },
+          "choices": [
+            "inline_shower",
+            "inline_tub"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: any allowed template fits (hard for baths)."
+        },
+        "template_inline_shower_w_ft": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla inline_shower de social_bath",
+            "en": "Width of the inline_shower template of social_bath"
+          },
+          "range": [
+            3.5,
+            7.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_inline_shower_d_ft": {
+          "value": 7.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla inline_shower de social_bath",
+            "en": "Depth of the inline_shower template of social_bath"
+          },
+          "range": [
+            4.8999999999999995,
+            10.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_inline_tub_w_ft": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla inline_tub de social_bath",
+            "en": "Width of the inline_tub template of social_bath"
+          },
+          "range": [
+            3.5,
+            7.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_inline_tub_d_ft": {
+          "value": 8.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla inline_tub de social_bath",
+            "en": "Depth of the inline_tub template of social_bath"
+          },
+          "range": [
+            5.6,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
         }
       },
       "aspect_exempt": false,
@@ -1595,6 +1953,101 @@
             "hard"
           ],
           "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
+        },
+        "templates_allowed": {
+          "value": [
+            "inline",
+            "corner"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Plantillas permitidas de half_bath (cumple si cabe alguna)",
+            "en": "Allowed templates of half_bath (passes when any fits)"
+          },
+          "choices": [
+            "inline",
+            "corner"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: any allowed template fits (hard for baths)."
+        },
+        "template_inline_w_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla inline de half_bath",
+            "en": "Width of the inline template of half_bath"
+          },
+          "range": [
+            2.0999999999999996,
+            4.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_inline_d_ft": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla inline de half_bath",
+            "en": "Depth of the inline template of half_bath"
+          },
+          "range": [
+            3.5,
+            7.5
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_corner_w_ft": {
+          "value": 4.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho de la plantilla corner de half_bath",
+            "en": "Width of the corner template of half_bath"
+          },
+          "range": [
+            2.8,
+            6.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "template_corner_d_ft": {
+          "value": 4.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la plantilla corner de half_bath",
+            "en": "Depth of the corner template of half_bath"
+          },
+          "range": [
+            2.8,
+            6.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
         }
       },
       "aspect_exempt": false,
@@ -4611,7 +5064,10 @@
           "value": [
             "kitchen",
             "dining_room",
-            "family_room"
+            "family_room",
+            "living_room",
+            "living_dining",
+            "breakfast_nook"
           ],
           "type": "list",
           "unit": null,
@@ -4626,12 +5082,16 @@
             "dining_room",
             "family_room",
             "living_room",
-            "breakfast_nook"
+            "living_dining",
+            "breakfast_nook",
+            "flex_room",
+            "study"
           ],
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-12: the living room joins the great room; the half bath stays private (never opens onto it)."
         },
         "through_strip_ft": {
           "value": 3.5,
@@ -4658,6 +5118,44 @@
             "unit": "ft",
             "bound": "min"
           }
+        },
+        "open_cultures": {
+          "value": [
+            "anglo",
+            "none"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Culturas (elegidas por el cliente) con planta abierta: cocina, comedor, sala y family en un great room",
+            "en": "Cultures (chosen by the client) with an open plan: kitchen, dining, living and family in one great room"
+          },
+          "choices": [
+            "anglo",
+            "latino",
+            "none"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: anglo open, latino separate with a wide opening, none open (San Diego baseline). Never inferred: the culture is a client input."
+        },
+        "merge_units": {
+          "value": false,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Unir las zonas de cocina y social de S2 en una sola unidad antes de dividir (apagado: empeora los cortes hasta que S2 dimensione las zonas, S2.2d)",
+            "en": "Merge the S2 kitchen and social units into one unit before the layout (off: it worsens the cuts until S2 sizes the zones, step S2.2d)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Measured 2026-10-12 on the corner lot: merged 1 of 12 houses against 3 of 12 unmerged."
         }
       },
       "aspect_exempt": false,

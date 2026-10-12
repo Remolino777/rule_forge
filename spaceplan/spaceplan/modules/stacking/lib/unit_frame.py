@@ -98,6 +98,8 @@ class SpaceFloor:
     notes: list[str] = field(default_factory=list)
     links: dict[str, set] = field(default_factory=dict)      # S2 door links between zone units
     exterior: dict | None = None        # ground floor: lot (local), rear deck, S13 distance, landing depth
+    profile: str | None = None          # S2.2c: maximum profile weighs shape more
+    open_plan: bool = False             # S2.2c: kitchen and social units merged into a great room
 
     @property
     def res(self) -> float:
@@ -140,6 +142,8 @@ def spec_of(catalog, rules: SpaceRules, matrix: ZoneMatrix, row: dict[str, Any],
         min_sqft = max(min_sqft, rules.habitable_min_sqft)
     if st in CIRCULATION_TYPES:
         min_side = max(min_side, rules.hall_min_ft)
+    if st == "walk_in_closet" and row.get("host_space_id") and rules.policy("walk_through_closet"):
+        min_side = max(min_side, float(rules.policy("walk_through_min_side_ft") or 0.0))   # S2.2c: walk-through
     if rules.furniture_hard(st):                       # S2.2b: hard furniture sets the least side of the cuts
         options = rules.furniture_ft(st)
         if options:
@@ -161,7 +165,8 @@ def _fixed_spec(name: str, space_id: str, space_type: str, matrix: ZoneMatrix, e
 
 def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], rows: list[dict[str, Any]],
                 plan: LotPlan, catalog, rules: SpaceRules, matrix: ZoneMatrix, res: float, profile: str | None,
-                receiving: tuple[str, ...], variant: str, exterior: dict | None = None) -> SpaceFloor:
+                receiving: tuple[str, ...], variant: str, exterior: dict | None = None,
+                culture: str | None = None) -> SpaceFloor:
     """The grid, fixed nodes and zone units of one floor of an S2 cell (`floor_block` = s2 upper, or the ground
     block of the chosen option)."""
     if level == GROUND:
@@ -223,8 +228,41 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
     for a, b in floor_block.get("links", []):
         links.setdefault(a, set()).add(b)
         links.setdefault(b, set()).add(a)
+    open_plan = level == GROUND and (culture or "none") in (rules.design.get("space.great_room.open_cultures") or ())
+    if open_plan and rules.design.get("space.great_room.merge_units"):
+        units, links, _ = great_room(units, links)
     return SpaceFloor(level, grid, base, fixed, units, landing, stair, tuple(receiving), accessible, variant, notes,
-                      links, exterior)
+                      links, exterior, profile, open_plan)
+
+
+GREAT_ROOM_ID = "great_room"
+GREAT_ROOM_ZONES = ("social", "kitchen")
+
+
+def great_room(units: list[UnitFrame], links: dict[str, set]) -> tuple[list[UnitFrame], dict[str, set], bool]:
+    """S2.2c open plan (client 2026-10-12, by culture): the kitchen unit and the social unit of the ground floor
+    become one unit when they touch; their S2 links follow the merged unit."""
+    social = [u for u in units if u.zone == "social"]
+    kitchen = [u for u in units if u.zone == "kitchen"]
+    if len(social) != 1 or len(kitchen) != 1:
+        return units, links, False
+    s, k = social[0], kitchen[0]
+    m = s.mask | k.mask
+    touch = (s.mask[:, 1:] & k.mask[:, :-1]).any() or (s.mask[:, :-1] & k.mask[:, 1:]).any() or \
+        (s.mask[1:, :] & k.mask[:-1, :]).any() or (s.mask[:-1, :] & k.mask[1:, :]).any()
+    if not touch:
+        return units, links, False
+    merged = UnitFrame(s.index, GREAT_ROOM_ID, "social", m, mask_bounds(m),
+                       [SpaceSpec(**{**sp.__dict__, "unit_id": GREAT_ROOM_ID}) for sp in s.specs + k.specs])
+    old = {s.unit_id, k.unit_id}
+    out_links: dict[str, set] = {}
+    for a, bs in links.items():
+        a2 = GREAT_ROOM_ID if a in old else a
+        for b in bs:
+            b2 = GREAT_ROOM_ID if b in old else b
+            if a2 != b2:
+                out_links.setdefault(a2, set()).add(b2)
+    return [merged if u is s else u for u in units if u is not k], out_links, True
 
 
 def _fixed_node(name: str, level: int, rows: list[dict], matrix: ZoneMatrix, variant: str) -> SpaceSpec | None:

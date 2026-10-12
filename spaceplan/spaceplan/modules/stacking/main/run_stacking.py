@@ -246,7 +246,7 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                     if s21ctx is not None:
                         def refine(s1_block, s2_block, c=c, plan=plan, lot_local=lot_local, site=site):
                             return space_cell(c.get("space_split") or [], s1_block, s2_block, plan, c["profile"],
-                                              s21ctx, lot_local, site)
+                                              s21ctx, lot_local, site, c.get("culture"))
                     stage_s2(c, s0, out, plan, strategy, ctx, s2ctx, actx, pool, refine,
                              int(scat.s21["fallback"]["max_candidates"]) if s21ctx is not None else None)
                     if s21ctx is not None and "s21" not in out:

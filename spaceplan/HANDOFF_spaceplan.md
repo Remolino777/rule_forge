@@ -1135,6 +1135,41 @@ fachada; S2.2f conecta `run_variant` al pipeline y endurece reglas calibradas.
 - Opción para el cliente: plantilla de baño master de un lavabo (5 × 8) como alternativa permitida, igual que en la cocina.
 - Despensas angostas (3 × 6.5) sin mobiliario.
 
+## 4v. Paso 6.7a, S2.2c (12 oct 2026): plantillas de baño, master por el walk-in, planta abierta, perfil máximo
+
+**Decisiones del cliente (12 oct, 01:59–02:06).**
+- **Plantillas permitidas** (duras, cumple si cabe alguna):
+  - baño master: doble lavabo 8 × 9 o un lavabo 5 × 8;
+  - baño: tina 5 × 8 o ducha 5 × 7;
+  - medio baño: 3 × 5 o esquina 4 × 4.
+- **Master:** al baño se llega por el walk-in (recámara → walk-in → baño; K11 duro).
+- **Baño compartido:** las puertas de las recámaras que lo comparten quedan cerca de la del baño.
+- **Planta abierta por cultura** (anglo y sin cultura abiertas, latino separada): la sala se une al great room y el medio baño sigue privado (K04).
+- **Perfil máximo:** pesa más la proporción (factor 1.6 sobre el peso de forma); nunca se estiran espacios.
+- **Fachada del jardín:** es la del great room. La escalera va entre los cuartiles de los muros laterales (S2.2d).
+- **Planta alta:** áreas óptimas, con el sobrante como techo o terraza de máximo 3 ft (S2.2d).
+
+**Código y datos.**
+- `design_space_standards` 0.4.0:
+  - `templates_allowed` en baños;
+  - `space.great_room.open_cultures`, `zones` (con la sala), `merge_units` (apagado: unir las unidades cocina y social bajó de 3 a 1 de 12 casas en el lote esquina; se retoma en S2.2d);
+  - `space.policy.maximum_shape_factor`, `walk_through_closet`, `walk_through_min_side_ft` (6), `shared_bath_door_max_ft` (6).
+- `unit_frame`: el walk-in del master con lado mínimo de paso; `SpaceFloor.profile` / `open_plan`; `great_room()` (unión opcional).
+- `unit_layout`: orden de la suite [suite, walk-in, baño]; alcance del baño por el walk-in; `shape_weighted` para el perfil máximo.
+- `door_placement`:
+  - el baño del master abre primero al walk-in (las puertas de los walk-ins se colocan antes);
+  - `great_room_pair`: los límites entre zonas del great room son vanos de largo completo (sin muro).
+- `space_relations`: el par D recámara–baño se cumple a través del walk-in.
+- `space_cell`: K11 duro después de las puertas (`k11:bath_not_through_walk_in`), `shared_bath_doors` en el término de circulación, cultura por celda.
+
+**Piloto (`docs/results/s22c_pilot/`).**
+- **39 casas** (intermedio: 43; la diferencia está dentro de la variación de la búsqueda, ±3 por lote).
+- Sin lugar para el mobiliario: 16.5 % (antes 19 %); en recámaras 27 % (antes 38 %).
+- Baños 100 % en rango; 49 clósets de baño, 18 de blancos y 31 de recámara.
+- K11 descarta 9 casas.
+- Bloqueos: zona privada sin corte válido (80), social sin corte (25), cocina sin corte (21). Siguen pidiendo que S2 dimensione las zonas (S2.2d).
+- Pruebas: el fixture de S2.1 pasa a `teens_family.anglo` (la versión sin cultura ya no se completa).
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1194,7 +1229,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); ~~S2.1b puertas, baños, salidas, voladizo, antejardín (4s)~~ **hecho** (45 %, 0 sin acceso); S2.1c cobertura de plantas bajas; S2.2 calidad de espacios: ~~S2.2a registro y KPIs (4t)~~ **hecho**, ~~S2.2b registro en S2.1, perfil intermedio (4u)~~ **hecho** (43 casas, baños 100 % en rango), S2.2c–f (oct–dic 2026) | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); ~~S2.1b puertas, baños, salidas, voladizo, antejardín (4s)~~ **hecho** (45 %, 0 sin acceso); S2.1c cobertura de plantas bajas; S2.2 calidad de espacios: ~~S2.2a registro y KPIs (4t)~~ **hecho**, ~~S2.2b registro en S2.1, perfil intermedio (4u)~~ **hecho** (43 casas, baños 100 % en rango), ~~S2.2c baños, walk-in, planta abierta (4v)~~ **hecho** (39), S2.2d–f (oct–dic 2026) | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
 | 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 
