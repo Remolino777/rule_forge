@@ -29,7 +29,7 @@ graph LR
     stacking -->|17| core
     stacking -->|1| lotcap
     stacking -->|2| zoning
-    stacking -->|1| design
+    stacking -->|3| design
     viz -->|4| core
     viz -->|3| lotcap
     pipeline -->|9| core

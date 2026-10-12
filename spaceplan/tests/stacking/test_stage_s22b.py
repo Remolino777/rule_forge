@@ -89,19 +89,21 @@ def test_catalog_weights_add_furniture_circulation_and_light(scat):
 
 
 def test_client_decisions_are_in_the_registry(rules):
-    assert rules.std("bedroom", "furniture_w_ft") == 11.0 and rules.hard("bedroom", "furniture_w_ft")
-    for st in ("bathroom", "primary_bath", "social_bath", "half_bath", "dining_room", "kitchen"):
+    # intermediate profile (client 2026-10-11 23:54): hard for baths, strong preferences for the rest
+    assert rules.std("bedroom", "furniture_w_ft") == 11.0 and not rules.hard("bedroom", "furniture_w_ft")
+    for st in ("bathroom", "primary_bath", "social_bath", "half_bath"):
         assert rules.hard(st, "aspect_max") and rules.furniture_hard(st), st
-    assert not rules.hard("living_room", "aspect_max")
+    for st in ("dining_room", "kitchen", "living_room"):
+        assert not rules.hard(st, "aspect_max") and not rules.furniture_hard(st), st
     assert (7.5, 10.0) in rules.furniture_ft("kitchen") and len(rules.furniture_ft("kitchen")) == 4
     assert rules.policy("habitable_side_tolerance") == 0.0 and rules.policy("one_piece") is True
-    assert "closet" in rules.policy("full_wall_types")
+    assert "closet" in rules.policy("full_wall_types") and rules.design_kinds["space.policy.full_wall_types"] == "soft"
     assert rules.category("bathroom", 1) == "M" and rules.category("bedroom", 1) == "N"
 
 
 def test_least_side_without_tolerance_and_from_hard_furniture(rules, catalog, matrix):
     bed = spec_of(catalog, rules, matrix, _row("b", "bedroom", 140), "u")
-    assert bed.min_side_ft == pytest.approx(10.0)            # min of the 11 x 10 bed rectangle (hard)
+    assert bed.min_side_ft == pytest.approx(9.0)             # catalog least side, no tolerance (bed is a preference)
     study = spec_of(catalog, rules, matrix, _row("s", "study", 130), "u")
     assert study.min_side_ft == pytest.approx(8.0)           # catalog least side, no tolerance (habitable)
     bath = spec_of(catalog, rules, matrix, _row("x", "bathroom", 55), "u")
@@ -143,7 +145,13 @@ def test_long_bath_gets_a_bath_closet_across_its_short_wall(rules, catalog, matr
     assert closet.any(0).sum() == 10                         # across the whole short wall
 
 
-def test_hard_shape_of_baths_dining_and_kitchen(rules, catalog, matrix):
+def test_hard_shape_of_baths_dining_and_kitchen(scat, catalog, matrix):
+    reg = load_registry()
+    strict = dp.apply(reg, dp.new_profile(reg, "strict"), [
+        {"id": f"space.{t}.{n}", "kind": "hard"} for t in ("dining_room", "kitchen")
+        for n in ("aspect_max", "furniture_w_ft")] + [{"id": "space.kitchen.templates_allowed", "kind": "hard"}],
+        "test", "2026-10-11")
+    rules = _rules(scat, catalog, strict)
     ul, unit = _layout(rules, catalog, matrix, 20, 20, [_row("k", "kitchen", 170), _row("d", "dining_room", 150),
                                                          _row("b", "bathroom", 55)])
     k, d, b = unit.specs
@@ -167,8 +175,9 @@ def test_closet_covers_the_whole_wall_of_its_room(rules, catalog, matrix):
     room = _piece(ul, bed, 0, 24, 4, 28)
     whole = _piece(ul, cl, 0, 24, 0, 4)
     part = _piece(ul, cl, 0, 12, 0, 4)
-    assert ul._full_wall([room, whole]) is None
-    assert ul._full_wall([room, part]) == "full_wall:closet"
+    assert ul._wall_misses([room, whole]) == [] and ul._full_wall([room, part]) is None   # soft by default
+    assert ul._wall_misses([room, part]) == ["closet"]
+    assert ul._score([room, whole], {}, [])["furniture"] > ul._score([room, part], {}, [])["furniture"]
 
 
 def test_small_spaces_are_capped_to_their_typical_size(rules, catalog, matrix):

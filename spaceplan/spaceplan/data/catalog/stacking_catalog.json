@@ -602,8 +602,8 @@
       "target_tolerance_fraction": 0.25,
       "local_weights": {
         "shape": 0.25,
-        "furniture": 0.2,
-        "fit": 0.15,
+        "furniture": 0.25,
+        "fit": 0.1,
         "circulation": 0.15,
         "light": 0.25
       },
@@ -799,6 +799,6 @@
       "citation": "Student design decisions 2026-10-11 (step 6.7a S2.1 plan: E1 chosen candidate with fallback by ranked, E2 rectangles with leftovers as closets or circulation, E3 doors with position, width, swing and hinge, E4 R310 and C03 facade hard, E5 closets from leftovers); values provisional",
       "status": "provisional"
     },
-    "weights_note": "Client decision 2026-10-11 (step S2.2b): circulation and light enter the scores; shape per space type (design registry) with the worst space; furniture that fits. 'exterior' (facade surplus) is now part of 'light'. All editable through the design registry (weights.floor.*, weights.unit.*)."
+    "weights_note": "Client decision 2026-10-11 (step S2.2b): circulation and light enter the scores; shape per space type (design registry) with the worst space; furniture that fits. 'exterior' (facade surplus) is now part of 'light'. All editable through the design registry (weights.floor.*, weights.unit.*). Intermediate profile (client 2026-10-11 23:54): furniture 0.25 and fit 0.10 in the unit score, so the strong preferences (11 x 10 bedroom, whole-wall closets, dining room and kitchen) weigh more than the exact area."
   }
 }

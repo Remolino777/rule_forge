@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.2.0",
+  "ruleset_version": "0.3.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them.",
   "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -162,7 +162,7 @@
           ],
           "type": "list",
           "unit": null,
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Espacios que cubren todo el muro donde se apoyan (nunca parte del muro)",
@@ -180,7 +180,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: a closet covers the whole width of its wall."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard. Scored with the furniture term."
         },
         "full_wall_tolerance_ft": {
           "value": 0.5,
@@ -492,7 +492,7 @@
           "value": 12.5,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de primary_suite",
@@ -506,13 +506,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: 36 in clear at both sides and the foot of the bed; hard."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "furniture_d_ft": {
           "value": 10,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de primary_suite",
@@ -525,7 +525,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "bed": {
           "value": "king",
@@ -684,7 +685,7 @@
           "value": 11.0,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de bedroom",
@@ -698,13 +699,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: 36 in clear at both sides and the foot of the bed; hard."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "furniture_d_ft": {
           "value": 10.0,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de bedroom",
@@ -717,7 +718,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "bed": {
           "value": "queen",
@@ -1025,7 +1027,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_w_ft": {
           "value": 5,
@@ -1045,7 +1047,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_d_ft": {
           "value": 8,
@@ -1065,7 +1067,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "template": {
           "value": "inline_tub",
@@ -1201,7 +1203,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_w_ft": {
           "value": 8,
@@ -1221,7 +1223,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_d_ft": {
           "value": 9,
@@ -1241,7 +1243,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "template": {
           "value": "double_vanity",
@@ -1376,7 +1378,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_w_ft": {
           "value": 5,
@@ -1396,7 +1398,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_d_ft": {
           "value": 7,
@@ -1416,7 +1418,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "template": {
           "value": "inline_shower",
@@ -1552,7 +1554,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_w_ft": {
           "value": 3,
@@ -1572,7 +1574,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         },
         "furniture_d_ft": {
           "value": 5,
@@ -1592,7 +1594,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 (intermediate profile): hard for baths."
         }
       },
       "aspect_exempt": false,
@@ -1694,7 +1696,7 @@
           "value": 1.8,
           "type": "number",
           "unit": "ratio",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de kitchen (preferencia hasta calibrar; puede volverse dura)",
@@ -1708,13 +1710,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "furniture_w_ft": {
           "value": 10,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de kitchen",
@@ -1728,13 +1730,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "furniture_d_ft": {
           "value": 10,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de kitchen",
@@ -1748,7 +1750,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "template": {
           "value": "L",
@@ -1913,7 +1915,7 @@
           ],
           "type": "list",
           "unit": null,
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Plantillas de cocina permitidas (cumple si cabe alguna)",
@@ -1928,7 +1930,8 @@
           "kinds_allowed": [
             "soft",
             "hard"
-          ]
+          ],
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "template_L_w_ft": {
           "value": 10,
@@ -2327,7 +2330,7 @@
           "value": 1.5,
           "type": "number",
           "unit": "ratio",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Proporción largo/ancho máxima de dining_room (preferencia hasta calibrar; puede volverse dura)",
@@ -2341,13 +2344,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "furniture_w_ft": {
           "value": 12,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de dining_room",
@@ -2361,13 +2364,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "furniture_d_ft": {
           "value": 9,
           "type": "number",
           "unit": "ft",
-          "kind": "hard",
+          "kind": "soft",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de dining_room",
@@ -2381,7 +2384,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11: hard for baths, dining room and kitchen."
+          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
         },
         "seats": {
           "value": 6,

@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 11 de octubre de 2026 · Estado: **paso 6.7a S2.2a hecha (sección 4t: módulo `design` con registro de 368 parámetros, perfil del cliente `design_profile`, herramientas para LLM y KPIs de calidad; línea base medida sobre el piloto S2.1b)**; S2.1b (4s); S2.1 v1 (4r); S1.2 (4q); S2 (4o); pasos 1–6, 6.5a–6.5d y 6.6 completos · catálogo de apilamiento 0.11.0 · reglas de aberturas CRC 0.3.0 · reglas de cliente 0.5.0 · registro de diseño 0.1.0 · catálogo residencial 0.13.0
+Fecha: 12 de octubre de 2026 · Estado: **paso 6.7a S2.2b hecha (sección 4u: el registro de diseño dentro de S2.1 con el perfil intermedio del cliente; 43 de 291 casas con planta completa, baños 100 % en rango, clósets de baño, blancos y recámara)**; S2.2a (4t); S2.1b (4s); S2.1 v1 (4r); S1.2 (4q); S2 (4o) · catálogo de apilamiento 0.12.0 · estándares de diseño 0.3.0 · registro de diseño 0.2.0 · reglas de aberturas CRC 0.3.0 · reglas de cliente 0.5.0 · catálogo residencial 0.13.0
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -1075,6 +1075,66 @@ mobiliario, lado mínimo sin tolerancia en habitables) y concilia catálogo y es
 crea `great_room` y las bandas de servicio; S2.2d puertas y circulación; S2.2e luz y ventilación con la prioridad de
 fachada; S2.2f conecta `run_variant` al pipeline y endurece reglas calibradas.
 
+## 4u. Paso 6.7a, S2.2b (11–12 oct 2026): el registro de diseño dentro de S2.1 — perfil intermedio
+
+**Decisiones del cliente.**
+- Cama queen con 36 in a ambos lados y al pie (rectángulo de 11 × 10 ft).
+- Los espacios chicos cubren todo el muro donde se apoyan; se agregan el clóset de blancos y el clóset de baño.
+- Circulación e iluminación entran a los pesos.
+- Un espacio = una pieza.
+- Primero se pidió proporción y mobiliario duros en baños, comedor y cocina. Al medir el perfil estricto (8 de 291 casas) el cliente eligió el **perfil intermedio** (12 oct, 23:54):
+  - **duros:** baños (proporción máxima, mobiliario, clóset de baño) y una pieza por espacio;
+  - **preferencias fuertes** (puntaje): recámara de 11 × 10, clósets a muro completo, comedor y cocina, hasta que S2.2d dimensione las zonas para ellos.
+
+**Datos.**
+- `design_space_standards` 0.3.0:
+  - `space.policy.*`: tolerancia habitable 0, peso del peor espacio, espacios chicos a su tamaño típico (tope 1.25), tipos de muro completo, una pieza (pasillos aparte, `one_piece_circulation` apagado hasta S2.2d);
+  - `space.closets.*`: blancos, baño y recámara;
+  - plantillas de cocina L/U/galley/isla con `templates_allowed`;
+  - kinds según el perfil intermedio.
+- Registro 0.2.0 (396 parámetros).
+- Catálogo de apilamiento 0.12.0, pesos:
+  - planta: relaciones .25, forma .15, mobiliario .10, circulación .15, luz .15, clósets .05, vertical .15;
+  - unidad: forma .25, mobiliario .25, ajuste .10, circulación .15, luz .25.
+
+**Código.**
+- `space_rules`: `design_view(profile)`, `SpaceRules.design/design_kinds`, `std`, `hard`, `policy`, `closets`, `category`, `furniture_ft` (cocina: cualquier plantilla) y `furniture_hard`.
+- `unit_frame`: sin tolerancia en el lado mínimo de habitables; el mobiliario duro fija el lado mínimo de los cortes.
+- `unit_layout`:
+  - pedazos sueltos al vecino con más muro (o al propio pasillo a través de la escalera);
+  - `_cap_small` lleva los espacios chicos a su tamaño típico;
+  - `_carve` talla el clóset de baño (toma el largo sobre la proporción preferida) y el de recámara, lejos de la fachada y de la puerta;
+  - `_linen` pone el clóset de blancos al fondo del pasillo alto;
+  - `_hard_shape` aplica la proporción y el mobiliario duros;
+  - `_full_wall` / `_wall_misses` revisan el muro completo (duro o puntuado);
+  - el puntaje nuevo: forma por tipo con el peor espacio, mobiliario (incluye muro completo), ajuste, circulación (pasillo rectangular y largo máximo), luz (profundidad de luz N, holgura de fachada, fachada ocupada por M, ventilación cruzada).
+- `space_cell`: partes de planta con mobiliario y luz.
+- `space_grid`: `fits_in_mask`, `exterior_cells`, `exposed_sides`, `shared_edge`.
+- `run_stacking(..., design_profile)` y `spaceplan stacking --design-profile`; el meta registra la versión del registro y el perfil.
+- `space_quality`: plantillas de cocina y clósets por rol.
+
+**Piloto (10 lotes, 291 celdas; `docs/results/s22b_pilot/`).**
+
+| Perfil | Casas | Sobre la proporción máxima | Sin mobiliario | Notas |
+|---|---|---|---|---|
+| Antes (S2.1b) | 126 | 41 % | 37 % | baño 5 × 11.5, comedor 8.5 × 20 |
+| Estricto | 8 | 39 % | 23 % | baños, comedores y cocinas 100 % en rango |
+| **Intermedio (línea base)** | **43** | **26 %** | **19 %** | baño 5 × 8 y master 8 × 11 (100 % en rango), 49 clósets de baño, 19 de blancos, 34 de recámara; comedor 9 × 17 |
+| Todo como preferencia (2 lotes) | 30 de 33 | 32 % | 30 % | |
+
+- Bloqueos del intermedio:
+  - zona privada sin corte válido (89): el baño master de 8 × 9 duro exige 8 ft en los cortes;
+  - social sin corte (21);
+  - baño sin alcance (18) o sin mobiliario (16).
+- Por partes (lote esquina): ninguna regla sola explica la caída; las reglas se bloquean entre sí, porque las zonas de S2 no se dimensionaron para ellas.
+- El cómputo pasó de ≈ 1 h a ≈ 1 h 15 min por piloto (dos procesos: 38 min).
+
+**Pendiente.**
+- S2.2c: planta abierta (great room) para la planta baja.
+- S2.2d: S2 dimensiona las zonas con los mínimos de estos tipos; pasillo en una pieza; luego se endurecen las preferencias fuertes.
+- Opción para el cliente: plantilla de baño master de un lavabo (5 × 8) como alternativa permitida, igual que en la cocina.
+- Despensas angostas (3 × 6.5) sin mobiliario.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1134,7 +1194,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); ~~S2.1b puertas, baños, salidas, voladizo, antejardín (4s)~~ **hecho** (45 %, 0 sin acceso); S2.1c cobertura de plantas bajas; S2.2 calidad de espacios: ~~S2.2a registro y KPIs (4t)~~ **hecho**, S2.2b–f (oct–dic 2026) | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); ~~S2.1b puertas, baños, salidas, voladizo, antejardín (4s)~~ **hecho** (45 %, 0 sin acceso); S2.1c cobertura de plantas bajas; S2.2 calidad de espacios: ~~S2.2a registro y KPIs (4t)~~ **hecho**, ~~S2.2b registro en S2.1, perfil intermedio (4u)~~ **hecho** (43 casas, baños 100 % en rango), S2.2c–f (oct–dic 2026) | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
 | 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 
@@ -1223,7 +1283,7 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4r–4t del HANDOFF) con **S2.2b**: usar el registro de diseño en S2.1 (puntaje de forma por tipo y del peor
-> espacio, prueba de mobiliario, lado mínimo sin tolerancia en habitables) y conciliar catálogo y estándares; medir con
-> `spaceplan quality` contra `docs/results/s22a_baseline/`. Respeta las reglas de la sección 1. Primero haz el análisis
-> lógico y el plan, y pregúntame antes de programar.
+> secciones 4t–4u del HANDOFF) con **S2.2c**: planta abierta (great room) en la planta baja y bandas de servicio, para
+> recuperar cobertura con el perfil intermedio (43 de 291 casas). Mide con `spaceplan quality` contra
+> `docs/results/s22b_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y
+> pregúntame antes de programar.

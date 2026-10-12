@@ -209,6 +209,7 @@ def test_shared_bath_sits_between_its_bedrooms_and_opens_onto_the_hall(result):
                 assert bath.intersection(polys[b]).length >= 1.9 or bath.buffer(0.05).intersection(polys[b]).area > 0
             doors = [d for d in block["doors"] if shared["bath"] in (d["a"], d["b"])]
             others = {d["b"] if d["a"] == shared["bath"] else d["a"] for d in doors}
+            others -= {f"{shared['bath']}_bath_closet"}            # S2.2b: its own bath closet
             assert others and all(o.startswith("hall") for o in others)
 
 

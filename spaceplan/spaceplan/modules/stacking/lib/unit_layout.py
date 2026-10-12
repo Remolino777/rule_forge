@@ -575,6 +575,16 @@ class UnitLayout:
         types = set(rules.policy("full_wall_types") or ())
         if not types or rules.design_kinds.get("space.policy.full_wall_types") != "hard":
             return None
+        bad = self._wall_misses(pieces)
+        return f"full_wall:{bad[0]}" if bad else None
+
+    def _wall_misses(self, pieces: list[Piece]) -> list[str]:
+        """Types of the whole-wall pieces that do not cover the whole wall of their room (empty: all do)."""
+        rules = self.rules
+        types = set(rules.policy("full_wall_types") or ())
+        misses: list[str] = []
+        if not types:
+            return misses
         tol = float(rules.policy("full_wall_tolerance_ft") or 0.0) / self.res + 1e-9
         for p in pieces:
             if p.spec.space_type not in types:
@@ -589,13 +599,14 @@ class UnitLayout:
                 host = max(cands, key=lambda c: c[0])[1]
             shared, along_y = shared_edge(p.mask, host.mask)
             if shared == 0:
-                return f"full_wall:{p.spec.space_type}"
+                misses.append(p.spec.space_type)
+                continue
             pb, hb = _box_rect(p.mask), _box_rect(host.mask)
             p_len = (pb[3] - pb[2]) if along_y else (pb[1] - pb[0])
             h_len = (hb[3] - hb[2]) if along_y else (hb[1] - hb[0])
             if shared < p_len - tol or shared < h_len - tol:
-                return f"full_wall:{p.spec.space_type}"
-        return None
+                misses.append(p.spec.space_type)
+        return misses
 
     def _linen(self, pieces: list[Piece]) -> list[Piece] | None:
         """Pieces with a linen closet across the whole width of the upper hall, at its quieter end; None when the
@@ -705,6 +716,11 @@ class UnitLayout:
                     n_daylit += 1
                 if exposed_sides(p.mask, self.ext) >= 2:
                     n_cross += 1
+        wall_types = set(rules.policy("full_wall_types") or ())
+        n_wall = sum(1 for p in pieces if p.spec.space_type in wall_types)
+        if n_wall:                                         # S2.2b: whole-wall rule scored with the furniture term
+            misses = len(self._wall_misses(pieces))
+            furn += [1.0] * max(0, n_wall - misses) + [0.0] * min(misses, n_wall)
         w_worst = float(rules.policy("worst_weight") or 0.0)
         shape = (1.0 - w_worst) * float(np.mean(shapes)) + w_worst * float(min(shapes)) if shapes else 1.0
         full = float(rules.s21["facade"]["surplus_full_ft"])
