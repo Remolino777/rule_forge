@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-circulation-doors",
-  "ruleset_version": "0.2.0",
+  "ruleset_version": "0.3.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice. Version 0.2.0 (2026-10-12, step S2.2e): exact door interference checks (swing vs swing, swing vs the doorway of another door, swing vs the closed leaf of another door, swing outside its room) with their tolerances and the same-suite exception; reported as indicators until the joint placement of step P3.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice. Version 0.2.0 (2026-10-12, step S2.2e): exact door interference checks (swing vs swing, swing vs the doorway of another door, swing vs the closed leaf of another door, swing outside its room) with their tolerances and the same-suite exception; reported as indicators until the joint placement of step P3. Version 0.3.0 (2026-10-12, step S2.2f): compact arrival of the stair upstairs (the circulation zone at most node_short_side_max_ft on its short side, one continuous hall) and grouped bedroom doors (the corner nearer the arrival, spread and route scored).",
   "verification_note": "Design values, not code (the hallway width floor is CRC C06 R311.6 in crc_2025_habitability). The hall design width, the circulation target and warning fractions stay in the residential catalog (circulation block) and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -649,6 +649,164 @@
       },
       "verified": false,
       "param_prefix": "circulation.syntax"
+    },
+    {
+      "rule_id": "P07-STAIR-ARRIVAL",
+      "kind": "design",
+      "magnitude": "stair_arrival",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "circulation.arrival",
+      "parameters": {
+        "node_short_side_max_ft": {
+          "value": 8.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Lado corto máximo de la zona de circulación de la planta alta (nodo de llegada compacto, sin caja-vestíbulo)",
+            "en": "Maximum short side of the upper-floor circulation zone (compact arrival node, no box lobby)"
+          },
+          "range": [
+            5.0,
+            14.0
+          ],
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f)"
+        },
+        "single_hall": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Un solo pasillo continuo arriba: el pasillo de la zona privada continúa el de llegada a todo su ancho",
+            "en": "One continuous hall upstairs: the private-zone hall continues the arrival hall over its whole width"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f)"
+        },
+        "family_loft": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "La sala familiar puede recibir la escalera como loft, sin ser paso a los dormitorios",
+            "en": "The family room may receive the stair as a loft, never as the way to the bedrooms"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f): allowed (bedrooms open only onto circulation)."
+        },
+        "route_max_ft": {
+          "value": 15.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Distancia máxima de la llegada a la puerta de cada dormitorio",
+            "en": "Maximum distance from the arrival to each bedroom door"
+          },
+          "range": [
+            6.0,
+            30.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        }
+      },
+      "text": [
+        "Arrival at the top of the stair: a compact node and one continuous hall that serves every room."
+      ],
+      "source": {
+        "document": "S2.2f analysis (2026-10-12)",
+        "section": "stair arrival"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P08-DOOR-GROUPING",
+      "kind": "design",
+      "magnitude": "door_grouping",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "door.grouping",
+      "parameters": {
+        "nearest_corner": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "La puerta de un dormitorio va en la esquina más cercana a la llegada de la escalera",
+            "en": "A bedroom door goes in the corner nearer the stair arrival"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f)"
+        },
+        "spread_target_ft": {
+          "value": 12.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Tramo de pasillo que contiene las puertas de los dormitorios de una planta",
+            "en": "Length of hall holding the bedroom doors of a floor"
+          },
+          "range": [
+            4.0,
+            30.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "weight": {
+          "value": 0.25,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Peso del agrupamiento y del recorrido en el término de circulación de la planta",
+            "en": "Weight of grouping and route in the floor's circulation term"
+          },
+          "range": [
+            0.0,
+            0.6
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        }
+      },
+      "text": [
+        "Bedroom doors grouped near the arrival: shorter halls and walks."
+      ],
+      "source": {
+        "document": "S2.2f analysis (2026-10-12)",
+        "section": "door grouping"
+      },
+      "verified": false
     }
   ]
 }

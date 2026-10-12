@@ -61,6 +61,7 @@ from spaceplan.modules.stacking.lib_aux.space_grid import (
     realize,
     shared_edge,
 )
+from spaceplan.modules.stacking.lib_aux.structure_grid import box_lines
 from spaceplan.modules.zoning.lib.band_enumeration import band_arrangements
 
 HALL_TYPE = "hall"
@@ -343,6 +344,12 @@ class UnitLayout:
 
     def __init__(self, floor: SpaceFloor, unit: UnitFrame, rules: SpaceRules, catalog, matrix):
         self.floor, self.unit, self.rules = floor, unit, rules
+        walls = getattr(floor, "below_lines", None)            # S2.2f: room walls over the ground walls
+        reach = int(round(float(rules.design.get("structure.snap_max_ft") or 0.0) / floor.res))
+        self.snap = None
+        if walls is not None and reach > 0:
+            xs, ys = box_lines(walls, unit.box, float(rules.design.get("structure.snap_share") or 0.25))
+            self.snap = (xs, ys, reach)
         self.catalog, self.matrix = catalog, matrix
         self.res = floor.res
         s = rules.s21
@@ -904,7 +911,11 @@ class UnitLayout:
         halls = [p for p in pieces if p.spec.circulation]
         if not halls or not self.circ_targets:
             return True
-        return all(any(self._contact(h.mask, t) >= self.need_cells - 1e-9 for t in self.circ_targets) for h in halls)
+        need = self.need_cells
+        if self.floor.level > 0 and self.rules.design.get("circulation.arrival.single_hall"):
+            width = self.rules.hall_width_accessible_ft if self.floor.accessible else self.rules.hall_width_ft
+            need = max(need, self._cells(width))         # S2.2f: one continuous hall, met over its whole width
+        return all(any(self._contact(h.mask, t) >= need - 1e-9 for t in self.circ_targets) for h in halls)
 
     @staticmethod
     def _touch_cells(a: np.ndarray, b: np.ndarray) -> int:
@@ -1189,7 +1200,8 @@ class UnitLayout:
                 parts_list = job if isinstance(job, list) else [job]
                 rects = {}
                 for g, mask, tg in parts_list:
-                    r = realize(mask, unit.box if len(parts_list) == 1 else mask_bounds(mask), g, tg, min_cells)
+                    r = realize(mask, unit.box if len(parts_list) == 1 else mask_bounds(mask), g, tg, min_cells,
+                                self.snap)
                     if r is None:
                         rects = None
                         break

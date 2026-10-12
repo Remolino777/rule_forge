@@ -18,6 +18,12 @@ the columns they fall in. Each realization is checked in this order, stopping at
 
 Valid realizations are scored (relations, shape, anchors, stair access); the receiving unit of the bottom end is
 recorded so the A/B/C start options (K02) can be read from the same search.
+
+Structure (step S2.2f, when a StructureGuide is given): every cut moves to the nearest line of the guide's walls
+within the snap reach (upper floor: the ground floor's zone walls; ground floor: the upper floor's outline over the
+ground interior); on the upper floor the realization must stand on the ground floor (structure: each interior zone
+wall at least min_fraction on ground walls of its line, every beam at most beam_max_ft) and the circulation zone is
+at most node_cells on its short side (compact arrival: what it gives up goes to the other zones of its band).
 """
 
 from __future__ import annotations
@@ -31,15 +37,14 @@ import numpy as np
 
 from spaceplan.modules.stacking.lib.floor_frame import (
     CIRCULATION,
-    FAMILY_ROOM,
     FIXED_ENTRY,
-    arrival_of,
     FIXED_GARAGE,
     FIXED_STAIR,
     FIXED_VESTIBULE,
     GROUND,
     HALF_BATH_USE,
     FloorFrame,
+    arrival_of,
 )
 from spaceplan.modules.stacking.lib.zone_relations import (
     ENTRY,
@@ -51,7 +56,9 @@ from spaceplan.modules.stacking.lib.zone_relations import (
     evaluate_floor,
     floor_graph,
 )
+from spaceplan.modules.stacking.lib_aux.structure_grid import snap_line, support_report
 from spaceplan.modules.stacking.lib_aux.zone_grid import (
+    FREE,
     OUTSIDE,
     Rect,
     bounding_cells,
@@ -63,7 +70,9 @@ from spaceplan.modules.stacking.lib_aux.zone_grid import (
 )
 
 PRIVATE = "private"
-VIOLATION_ORDER = ("width", "area", "landing", "doors", "entry", "K04", "K01", "hall", "anchors", "matrix")
+VIOLATION_ORDER = ("width", "area", "arrival", "structure", "landing", "doors", "entry", "K04", "K01", "hall", "anchors",
+                   "matrix")
+UNIT_LABEL0 = 100                       # labels of the zone units painted on a grid (structure checks)
 
 
 @dataclass(frozen=True)
@@ -89,6 +98,33 @@ class FloorRules:
     stair_hall: dict[str, Any] | None = None  # both floors: stair bordered by circulation, not inside a room
 
 
+@dataclass(frozen=True)
+class StructureGuide:
+    """Walls the cuts of one floor snap to (V / H arrays in this floor's grid) and, on the upper floor, the ground
+    floor it must stand on (labels painted with the ground zones, in the ground grid, and the offset)."""
+
+    v: Any
+    h: Any
+    snap_cells: int
+    min_density: float
+    ground_labels: Any = None
+    di: int = 0
+    dj: int = 0
+    min_fraction: float = 0.0
+    beam_max_ft: float = 0.0
+    node_cells: int = 0                  # upper floor: largest short side of the circulation zone (0: no limit)
+    hard: bool = False                   # structure violations reject the realization (else only scored)
+
+
+def zone_labels(grid, rects) -> Any:
+    """The grid's labels with each zone's free cells painted UNIT_LABEL0 + k."""
+    lab = grid.labels.copy()
+    for k, (i0, i1, j0, j1) in enumerate(rects):
+        sub = lab[j0:j1, i0:i1]
+        sub[sub == FREE] = UNIT_LABEL0 + k
+    return lab
+
+
 @dataclass
 class Realization:
     topology: tuple[str, tuple[tuple[int, ...], ...]]
@@ -105,14 +141,20 @@ class Realization:
     score: float = 0.0
     violation: str | None = None
     frame: Any = None                        # the floor frame (unit set) this realization belongs to
+    structure: dict[str, Any] | None = None  # S2.2f: how the upper floor stands on the ground floor
+    targets: tuple[float, ...] | None = None  # S2.2f: targets after the compact-arrival cap (None: the frame's)
 
 
 class FloorSearch:
     """Every topology of one floor frame, realized and checked; valid ones scored."""
 
-    def __init__(self, frame: FloorFrame, rules: FloorRules, matrix: ZoneMatrix, pin: int | None = None):
-        """`pin`: unit whose column (and band) is stretched to cover the stair's arrival zone on this floor."""
+    def __init__(self, frame: FloorFrame, rules: FloorRules, matrix: ZoneMatrix, pin: int | None = None,
+                 guide: StructureGuide | None = None):
+        """`pin`: unit whose column (and band) is stretched to cover the stair's arrival zone on this floor;
+        `guide`: structure of step S2.2f (None: no snapping, no check)."""
         self.f, self.r, self.m = frame, rules, matrix
+        self.guide = guide
+        self._capped: list = []
         self.pin = pin
         rows, cols = frame.landing
         self.span = ((int(cols.min()), int(cols.max()) + 1, int(rows.min()), int(rows.max()) + 1)
@@ -229,10 +271,39 @@ class FloorSearch:
                 best, best_dev = xs, dev
         return best
 
+    def _node(self) -> int:
+        """Largest short side (cells) of the upper circulation zone: the registry limit, never less than the stair
+        arrival zone needs (S2.2f)."""
+        g = self.guide
+        if g is None or not g.node_cells or self.f.level == GROUND:
+            return 0
+        if self.span is None:
+            return g.node_cells
+        i0, i1, j0, j1 = self.span
+        return max(g.node_cells, min(i1 - i0, j1 - j0))
+
+    def _snap(self, xs: list[int], vertical: bool, lo: int, hi: int) -> list[int]:
+        """Interior cuts moved to the guide's nearest wall lines (S2.2f), order kept."""
+        g = self.guide
+        if g is None or g.snap_cells <= 0 or len(xs) < 3:
+            return xs
+        walls = g.v if vertical else g.h
+        out = list(xs)
+        for k in range(1, len(out) - 1):
+            out[k] = snap_line(walls, vertical, out[k], lo, hi, g.snap_cells, g.min_density, out[k - 1], out[k + 1])
+        return out
+
+    def _columns(self, band, cum, c_lo, c_hi, targets, pin, c_span):
+        return (self._pinned_cuts(cum, c_lo, c_hi, targets, band.index(pin), c_span) if pin in band
+                else self._cuts(cum, c_lo, c_hi, targets))
+
     def realize(self, topology) -> tuple[Rect, ...] | None:
         axis, bands = topology
         i0, i1, j0, j1 = self.bbox
         t = self.f.targets
+        self._capped = []
+        node = self._node()
+        circ = next(iter(sorted(self.circ)), None) if node else None
         # band axis: y -> bands are row ranges, columns run along x; x -> bands are column ranges, columns along y
         b_lo, b_hi, c_lo, c_hi = (j0, j1, i0, i1) if axis == "y" else (i0, i1, j0, j1)
         band_profile, col_profile = ("y", "x") if axis == "y" else ("x", "y")
@@ -247,6 +318,14 @@ class FloorSearch:
         else:
             cum = self._cum_profile(band_profile, c_lo, c_hi)
             cut = cut_index(cum, b_lo, sum(t[u] for u in bands[0]))
+            if circ is not None and c_hi - c_lo > node:     # S2.2f: a band holding only the circulation zone
+                if bands[0] == (circ,) and cut - b_lo > node:
+                    cut = b_lo + node
+                    self._capped.append((bands[1], circ))
+                elif bands[1] == (circ,) and b_hi - cut > node:
+                    cut = b_hi - node
+                    self._capped.append((bands[0], circ))
+            cut = self._snap([b_lo, cut, b_hi], axis == "x", c_lo, c_hi)[1]
             if pin is not None:
                 cut = max(cut, b_span[1]) if pin in bands[0] else min(cut, b_span[0]) if pin in bands[1] else cut
             if not b_lo < cut < b_hi:
@@ -256,10 +335,20 @@ class FloorSearch:
         for band, (lo, hi) in zip(bands, ranges):
             cum = self._cum_profile(col_profile, lo, hi)
             targets = [float(t[u]) for u in band]
-            xs = (self._pinned_cuts(cum, c_lo, c_hi, targets, band.index(pin), c_span) if pin in band
-                  else self._cuts(cum, c_lo, c_hi, targets))
+            xs = self._columns(band, cum, c_lo, c_hi, targets, pin, c_span)
+            if circ in band and len(band) > 1 and hi - lo > node and xs is not None:
+                k = band.index(circ)                         # S2.2f: compact arrival node
+                width = xs[k + 1] - xs[k]
+                if width > node:
+                    cap = targets[k] * node / width
+                    rest = sum(x for q, x in enumerate(targets) if q != k) or 1.0
+                    grow = (sum(targets) - cap) / rest
+                    targets = [cap if q == k else x * grow for q, x in enumerate(targets)]
+                    xs = self._columns(band, cum, c_lo, c_hi, targets, pin, c_span)
+                    self._capped.append((tuple(u for u in band if u != circ), circ))
             if xs is None:
                 return None
+            xs = self._snap(xs, axis == "y", lo, hi)
             for u, a, b in zip(band, xs, xs[1:]):
                 rects[u] = (a, b, lo, hi) if axis == "y" else (lo, hi, a, b)
         return tuple(rects)
@@ -291,9 +380,33 @@ class FloorSearch:
             if min(w, h) < u.min_width_ft - self.tol:
                 rz.violation = f"width:{u.unit_id}"
                 return rz
+        exempt, scale = set(), {}
+        for others, c in self._capped:                    # S2.2f: the capped arrival zone and who took its area
+            exempt.add(c)
+            tt, tc = sum(t[q] for q in others), sum(counts[q] for q in others)
+            for q in others:
+                scale[q] = tc / tt if tt else 1.0
         for k, u in enumerate(units):
-            if t[k] and abs(counts[k] - t[k]) > self.r.area_tolerance * t[k]:
+            tk = t[k] * scale.get(k, 1.0)
+            if k not in exempt and tk and abs(counts[k] - tk) > self.r.area_tolerance * tk:
                 rz.violation = f"area:{u.unit_id}"
+                return rz
+        node = self._node()
+        if node:                                            # S2.2f: compact arrival node (after pins and snaps)
+            for k in self.circ:
+                i0_, i1_, j0_, j1_ = rects[k]
+                if min(i1_ - i0_, j1_ - j0_) > node:
+                    rz.violation = f"arrival:node:{units[k].unit_id}"
+                    return rz
+        if self._capped:
+            rz.targets = tuple(float(counts[k]) if k in exempt else t[k] * scale.get(k, 1.0) for k in range(len(t)))
+        if self.guide is not None and self.guide.ground_labels is not None:
+            rep, bad = support_report(zone_labels(g, rects), OUTSIDE, self.guide.ground_labels, OUTSIDE,
+                                      self.guide.di, self.guide.dj, res, self.guide.min_fraction,
+                                      self.guide.beam_max_ft)
+            rz.structure = rep.to_dict()
+            if bad and self.guide.hard:
+                rz.violation = bad[0]
                 return rz
         # landing of the stair on this floor
         landing = self.f.landing
@@ -362,6 +475,8 @@ class FloorSearch:
             return rz
         rz.parts = {"relations": rz.relations["score"], "shape": self._shape(rects, counts),
                     "stair_access": self._stair_access(rz)}
+        if rz.structure is not None:
+            rz.parts["structure"] = rz.structure["interior_fraction"]
         if self.f.level == GROUND:
             rz.parts["anchors"] = anchor_score
         elif self._order():
@@ -532,4 +647,5 @@ class FloorSearch:
                 | {k: v for k, v in sorted(self.first_violations.items()) if k not in VIOLATION_ORDER}}
 
 
-__all__ = ["PRIVATE", "VIOLATION_ORDER", "FloorRules", "FloorSearch", "Realization"]
+__all__ = ["PRIVATE", "UNIT_LABEL0", "VIOLATION_ORDER", "FloorRules", "FloorSearch", "Realization", "StructureGuide",
+           "zone_labels"]

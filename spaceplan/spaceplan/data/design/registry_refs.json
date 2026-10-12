@@ -1,6 +1,6 @@
 {
   "registry_id": "spaceplan-design-registry",
-  "registry_version": "0.4.0",
+  "registry_version": "0.5.0",
   "note": "Parameters that already live in the residential catalog, the stacking catalog or the client rulesets, registered by reference (path into their store; never copied). '{t}' expands over 'for'. range_rel = range as multiples of the baseline value. The new design parameters are discovered from the design rulesets (parameter objects).",
   "stores": {
     "catalog": "residential catalog (data/catalog, merged fragments)",
@@ -10,7 +10,8 @@
   "design_rulesets": [
     "design_space_standards.json",
     "design_circulation_doors.json",
-    "design_light_ventilation.json"
+    "design_light_ventilation.json",
+    "design_structure.json"
   ],
   "refs": [
     {
@@ -362,7 +363,8 @@
         "circulation",
         "light",
         "closets",
-        "vertical"
+        "vertical",
+        "structure"
       ],
       "store": "stacking_catalog",
       "path": "s21.weights.{t}",
@@ -455,8 +457,9 @@
       "path": "upper_floor.cantilever.depth_ft",
       "type": "number",
       "unit": "ft",
-      "kind": "soft",
+      "kind": "hard",
       "kinds_allowed": [
+        "hard",
         "soft"
       ],
       "who": "client",
@@ -465,8 +468,8 @@
         10.0
       ],
       "description": {
-        "es": "Voladizo de la planta alta sobre el patio",
-        "en": "Upper-floor cantilever over the patio"
+        "es": "Voladizo de la planta alta sobre el patio (3 ft: sin ingeniería, R301.2.2.6)",
+        "en": "Upper-floor cantilever over the patio (3 ft: no engineering, R301.2.2.6)"
       }
     },
     {

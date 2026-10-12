@@ -90,10 +90,15 @@ def _rect_sum(s: np.ndarray, r: Rect) -> int:
     return int(s[j1, i1] - s[j0, i1] - s[j1, i0] + s[j0, i0])
 
 
-def rasterize(floor: BaseGeometry, fixed: list[tuple[str, BaseGeometry]], res: float, pad: int = 1) -> Grid:
+def rasterize(floor: BaseGeometry, fixed: list[tuple[str, BaseGeometry]], res: float, pad: int = 1,
+              anchor: tuple[float, float] | None = None) -> Grid:
     """Grid of `floor` with the `fixed` objects (first listed wins on overlaps) labelled 2, 3, ... by name; cells
-    are classified by their centre. One cell of outside padding surrounds the floor so facades are detectable."""
+    are classified by their centre. One cell of outside padding surrounds the floor so facades are detectable.
+    `anchor`: a point the grid lines pass through (step S2.2f: both floors of a house on the same lines)."""
     minx, miny, maxx, maxy = floor.bounds
+    if anchor is not None:
+        minx = anchor[0] + np.floor((minx - anchor[0]) / res + 1e-9) * res
+        miny = anchor[1] + np.floor((miny - anchor[1]) / res + 1e-9) * res
     x0, y0 = minx - pad * res, miny - pad * res
     nx = int(np.ceil((maxx - minx) / res)) + 2 * pad
     ny = int(np.ceil((maxy - miny) / res)) + 2 * pad

@@ -15,9 +15,16 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+import numpy as np
 from shapely.geometry.base import BaseGeometry
 
-from spaceplan.modules.stacking.lib.core_zoning import FloorRules, FloorSearch, Realization
+from spaceplan.modules.stacking.lib.core_zoning import (
+    FloorRules,
+    FloorSearch,
+    Realization,
+    StructureGuide,
+    zone_labels,
+)
 from spaceplan.modules.stacking.lib.floor_frame import (
     CIRCULATION,
     GROUND,
@@ -43,7 +50,8 @@ from spaceplan.modules.stacking.lib.stair_access import (
 )
 from spaceplan.modules.stacking.lib.zone_relations import ZoneMatrix, vertical_pairs
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
-from spaceplan.modules.stacking.lib_aux.zone_grid import bounding_cells
+from spaceplan.modules.stacking.lib_aux.structure_grid import edge_walls, grid_offset, window
+from spaceplan.modules.stacking.lib_aux.zone_grid import OUTSIDE, bounding_cells
 
 ZONED, UPPER_NOT_ZONED, GROUND_NOT_ZONED, NOT_ZONED, NO_SPACE_SPLIT = (
     "zoned", "upper_not_zoned", "ground_not_zoned", "not_zoned", "no_space_split")
@@ -65,6 +73,7 @@ class S2Context:
     routes: dict[str, Any] | None = None       # stage S1.2: route targets and passable zones (client step 7)
     stair_flights: dict[str, int] = field(default_factory=dict)   # stair_id -> flights (stair walk of the routes)
     alternatives: int = 0                      # stage S2.1: zonings of each floor kept in memory (0: none)
+    structure: dict[str, Any] | None = None    # S2.2f: structure settings (structure_settings); None: off
 
 
 def floor_rules(catalog, s2: dict[str, Any], floor: str, stair_hall: dict[str, Any] | None = None) -> FloorRules:
@@ -92,6 +101,33 @@ def s2_context(scat, catalog, client_rs, matrix: ZoneMatrix) -> S2Context:
     return S2Context(scat, catalog, client_rs, matrix, floor_rules(catalog, s2, "ground", hall),
                      floor_rules(catalog, s2, "upper", hall), access.get("comparison"),
                      {t["stair_id"]: int(t["flights"]) for t in scat.data["stair"]["types"]})
+
+
+def structure_settings(values: dict[str, Any], s2: dict[str, Any]) -> dict[str, Any] | None:
+    """S2.2f settings from the design registry values (None when the structure check is off)."""
+    if not values.get("structure.enabled"):
+        return None
+    res = float(s2["grid_ft"])
+    return {"min_fraction": float(values["structure.support_min_fraction"]),
+            "beam_max_ft": float(values["structure.beam_span_max_ft"]),
+            "joist_span_max_ft": float(values["structure.joist_span_max_ft"]),
+            "snap_cells": int(round(float(values["structure.snap_max_ft"]) / res)),
+            "node_cells": int(round(float(values["circulation.arrival.node_short_side_max_ft"]) / res)),
+            "pair_candidates": max(1, int(values["structure.pair_candidates"])),
+            "family_loft": bool(values.get("circulation.arrival.family_loft", True))}
+
+
+def _upper_guide(uframe: FloorFrame, g_rz: Realization, st: dict[str, Any]) -> StructureGuide:
+    """Upper cuts snap to the ground zone walls; how the zones stand on them is scored (the ground rooms of S2.1 add
+    walls, so the hard check waits for them)."""
+    g, u = g_rz.frame.grid, uframe.grid
+    labels = zone_labels(g, g_rz.rects)
+    gv, gh = edge_walls(labels, OUTSIDE)
+    di, dj = grid_offset(u.x0, u.y0, g.x0, g.y0, g.res)
+    ny, nx = u.labels.shape
+    return StructureGuide(window(gv, (ny, nx + 1), di, dj), window(gh, (ny + 1, nx), di, dj), st["snap_cells"],
+                          st["min_fraction"], labels, di, dj, st["min_fraction"], st["beam_max_ft"], st["node_cells"],
+                          hard=False)       # scored here; the hard check runs in S2.1 on the final ground walls
 
 
 # ------------------------------------------------------------------ output helpers
@@ -161,15 +197,15 @@ def _receives(unit, types: list[str], hall_types: set[str], forbidden: list[str]
     return unit.hosts(types) or (unit.zone == CIRCULATION and bool(set(types) & hall_types))
 
 
-def _search(frames: list[FloorFrame], rules: FloorRules, matrix: ZoneMatrix, pins_of):
+def _search(frames: list[FloorFrame], rules: FloorRules, matrix: ZoneMatrix, pins_of, guide_of=None):
     """One search per frame (unit set) and pinned unit, merged: valid realizations (best first; each knows its
-    frame) and the summary of all runs."""
+    frame) and the summary of all runs. `guide_of(frame)`: the structure guide of S2.2f (None: none)."""
     valid: list[Realization] = []
     summary: dict[str, Any] = {"unit_sets": [], "topologies_tried": 0, "valid": 0, "truncated": False,
                                "first_violations": {}}
     for frame in frames:
         for pin in pins_of(frame):
-            search = FloorSearch(frame, rules, matrix, pin)
+            search = FloorSearch(frame, rules, matrix, pin, guide_of(frame) if guide_of else None)
             found = search.run()
             valid += found
             one = search.summary(found)
@@ -222,7 +258,11 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
 
     # upper floor
     arrival = upper_arrival(catalog, s2, scat.stair_access, rows, client.params(TOP_RULE))
-    u_frames = [upper_frame(floors, units, res, notes) for _, units, notes in
+    st = ctx.structure
+    if st is not None and not st["family_loft"] and len(arrival["order"]) > 1:   # S2.2f: no family-room arrival
+        order = [k for k in arrival["order"] if k != "family_room"]
+        arrival = {**arrival, "order": order, "receiving": order[0]}
+    u_frames = [upper_frame(floors, units, res, notes, anchored=st is not None) for _, units, notes in
                 floor_units(catalog, s2, rows, UPPER, n_floors, stair_type, False, arrival["receiving"])]
     for f in u_frames:
         f.arrival_order = tuple(arrival["order"])
@@ -232,7 +272,27 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
         pins = [k for k, u in enumerate(frame.units) if arrival_of(u, arrival["order"]) is not None]
         return pins or [None]
 
-    u_valid, u_summary = _search(u_frames, u_rules, ctx.matrix, arrival_pins)
+    upper_cache: dict[int, tuple[list[Realization], dict[str, Any]]] = {}
+
+    def upper_for(g_rz: Realization | None) -> tuple[list[Realization], dict[str, Any]]:
+        """The upper floor's valid zonings, standing on `g_rz` (S2.2f) or free (structure off)."""
+        key = id(g_rz) if g_rz is not None else 0
+        if key not in upper_cache:
+            if g_rz is not None:
+                guide = lambda f: _upper_guide(f, g_rz, st)
+            elif st is not None:                     # free zonings keep the compact arrival node (S2.2f)
+                none = np.zeros((1, 1), dtype=bool)
+                guide = lambda f: StructureGuide(none, none, 0, 1.0, node_cells=st["node_cells"])
+            else:
+                guide = None
+            upper_cache[key] = _search(u_frames, u_rules, ctx.matrix, arrival_pins, guide)
+        return upper_cache[key]
+
+    if st is None:
+        u_valid, u_summary = upper_for(None)
+    else:
+        u_valid, u_summary = [], {"unit_sets": [], "topologies_tried": 0, "valid": 0, "truncated": False,
+                                  "first_violations": {}, "ground_candidates": 0}
 
     # ground floor: one search per use of the space under the stair, pinned on every unit that can receive a start
     us = core["under_stair"]
@@ -269,16 +329,50 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
             summary, valid = g_runs[v]
             fit = [rz for rz in valid if _receives(rz.frame.units[rz.landing_unit], o["receiving"], hall_types,
                                                    receiving["forbidden"])]
-            if not fit or not u_valid:
+            if not fit:
                 continue
-            total, g_best, u_best, vert = _combine(ctx, fit, u_valid, keep)
+            if st is None:
+                if not u_valid:
+                    continue
+                total, g_best, u_best, vert = _combine(ctx, fit, u_valid, keep)
+                pairs = None
+            else:                                    # S2.2f: the upper floor stands on each candidate ground floor
+                pairs = []
+                for g_rz in fit[:st["pair_candidates"]]:
+                    fresh = id(g_rz) not in upper_cache
+                    uv, summ = upper_for(g_rz)
+                    if fresh:                          # S2.2f: the upper searches of every ground candidate
+                        u_summary["ground_candidates"] += 1
+                        u_summary["topologies_tried"] += summ["topologies_tried"]
+                        u_summary["valid"] += summ["valid"]
+                        u_summary["truncated"] |= summ["truncated"]
+                        u_summary["unit_sets"] += summ["unit_sets"]
+                        for kk, vv in summ["first_violations"].items():
+                            u_summary["first_violations"][kk] = u_summary["first_violations"].get(kk, 0) + vv
+                    free, _ = upper_for(None)          # the free zonings too: S2.1 decides on the final walls
+                    cands = uv[:keep] + [f for f in free[:keep] if all(f is not x for x in uv[:keep])]
+                    if cands:
+                        u_valid = u_valid or cands
+                        pairs += [_combine(ctx, [g_rz], [u2], 1) for u2 in cands]
+                if not pairs:
+                    continue
+                rank = {id(g_rz): k for k, g_rz in enumerate(fit)}   # round robin over the ground floors in their
+                pairs.sort(key=lambda p: (rank[id(p[1])], -p[0]))    # own order, each one's uppers best first
+                nth: dict[int, int] = {}
+                order = []
+                for p in pairs:
+                    nth[id(p[1])] = nth.get(id(p[1]), -1) + 1
+                    order.append((nth[id(p[1])], rank[id(p[1])], p))
+                pairs = [p for _, _, p in sorted(order, key=lambda x: (x[0], x[1]))]
+                total, g_best, u_best, vert = pairs[0]
             entry.update({"feasible": True, "variant": v,
                           "half_bath": None if not has_hb else ("under_stair" if v == HALF_BATH_USE else "relocated"),
                           "score": round(total, 4), "vertical": {"score": round(vert["score"], 4),
                                                                  "pairs": vert["pairs"]},
                           "ground": _floor_block(g_best.frame, g_best, summary, plan, nd, [g_best] + [
                               rz for rz in fit if rz is not g_best][: keep - 1]),
-                          "_upper": u_best, "_ground": g_best, "_fit": fit})
+                          "_upper": u_best, "_ground": g_best, "_fit": fit, "_pairs": pairs,
+                          "_u_valid": upper_for(g_best)[0] if st is not None else u_valid})
             if ctx.routes is not None and floors.door_area is not None:
                 routes = route_lengths(g_best.frame, g_best.rects, ctx.matrix.roles, ctx.routes, floors.door_area)
                 if routes.get("absent"):          # a target lives upstairs: walk the stair and the upper floor
@@ -306,8 +400,11 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
     if chosen:
         best = portfolio[chosen]
         u_best = best["_upper"]
+        u_list = best["_u_valid"]
         out["upper"] = _floor_block(u_best.frame, u_best, u_summary, plan, nd,
-                                    [u_best] + [rz for rz in u_valid if rz is not u_best][: keep - 1])
+                                    [u_best] + [rz for rz in u_list if rz is not u_best][: keep - 1])
+        if u_best.structure is not None:
+            out["structure"] = {**u_best.structure, "upper_standing_on": best["ground"]["topology"]}
         out["score"] = best["score"]
         out["vertical"] = best["vertical"]
     else:
@@ -316,15 +413,32 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
         # in memory only (stage S2.1 tries them in order; never written to the contract)
         best = portfolio[chosen]
         k = ctx.alternatives
-        out["_alternatives"] = {
-            "upper": [out["upper"]] + [_floor_block(rz.frame, rz, u_summary, plan, nd, [])
-                                       for rz in u_valid if rz is not best["_upper"]][: k - 1],
-            "ground": [best["ground"]] + [_floor_block(rz.frame, rz, {}, plan, nd, [])
-                                          for rz in best["_fit"] if rz is not best["_ground"]][: k - 1]}
+        if best["_pairs"] is not None:             # S2.2f: S2.1 crosses the grounds and the uppers (hard check there)
+            grounds, uppers = [best["_ground"]], [best["_upper"]]
+            for _, g_rz, u_rz, _ in best["_pairs"]:
+                if all(g_rz is not x for x in grounds):
+                    grounds.append(g_rz)
+                if all(u_rz is not x for x in uppers):
+                    uppers.append(u_rz)
+            free, _ = upper_for(None)                 # the best uppers standing on nothing in particular, last
+            uppers += [u_rz for u_rz in free[:k] if all(u_rz.rects != x.rects or u_rz.frame is not x.frame
+                                                         for x in uppers)]
+            out["_alternatives"] = {
+                "cross": True,
+                "upper": [out["upper"]] + [_floor_block(u.frame, u, u_summary, plan, nd, []) for u in uppers[1:2 * k]],
+                "ground": [best["ground"]] + [_floor_block(g.frame, g, {}, plan, nd, []) for g in grounds[1:k]]}
+        else:
+            out["_alternatives"] = {
+                "upper": [out["upper"]] + [_floor_block(rz.frame, rz, u_summary, plan, nd, [])
+                                           for rz in u_valid if rz is not best["_upper"]][: k - 1],
+                "ground": [best["ground"]] + [_floor_block(rz.frame, rz, {}, plan, nd, [])
+                                              for rz in best["_fit"] if rz is not best["_ground"]][: k - 1]}
     for e in portfolio.values():
         e.pop("_upper", None)
         e.pop("_ground", None)
         e.pop("_fit", None)
+        e.pop("_pairs", None)
+        e.pop("_u_valid", None)
     out["options"] = portfolio
     out["matrix_overrides"] = list(ctx.matrix.overrides)
     out["rule_traces"] = _traces(client, out, arrival, portfolio, chosen, u_valid, u_summary, has_hb, us)
@@ -377,5 +491,6 @@ __all__ = [
     "S2Context",
     "floor_rules",
     "s2_context",
+    "structure_settings",
     "zone_cell",
 ]

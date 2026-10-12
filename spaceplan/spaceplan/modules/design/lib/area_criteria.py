@@ -23,8 +23,9 @@ from __future__ import annotations
 
 from typing import Any
 
-AREA, DOORS = "area", "doors"
-GROUPS = (AREA, DOORS)
+AREA, DOORS, STRUCTURE = "area", "doors", "structure"
+GROUPS = (AREA, DOORS, STRUCTURE)
+STRUCTURE_PREFIXES = ("structure.", "circulation.arrival.", "door.grouping.", "upper.cantilever")   # S2.2f
 POLICY_PREFIX = "space.area."
 DOOR_PREFIX = "door.conflicts."
 SUITE, BEDROOM, DINING, LIVING = "primary_suite", "bedroom", "dining_room", "living_room"
@@ -141,6 +142,21 @@ def _row(reg, values: dict[str, Any], kinds: dict[str, str], pid: str, lang: str
 def criteria_view(reg, values: dict[str, Any], kinds: dict[str, str], group: str, space_type: str | None = None,
                   house_net_sqft: float | None = None, lang: str = "es") -> dict[str, Any]:
     """The criteria of a group, by layer, with the effective maximum for a house size when one is given."""
+    if group == STRUCTURE:                      # S2.2f: structure of the upper floor, stair arrival, door grouping
+        rows = [_row(reg, values, kinds, pid, lang) for pid in sorted(values) if pid.startswith(STRUCTURE_PREFIXES)]
+        return {"group": STRUCTURE, "rules": [r for r in rows if r],
+                "how_it_works": {"es": "Planta alta sobre la baja en una retícula común: las líneas portantes (contorno y "
+                                       "muros que se apoyan en muros o vigas de abajo) dejan luces de vigueta de a lo "
+                                       "más joist_span_max_ft; cada viga entre apoyos a lo más beam_span_max_ft; los "
+                                       "muros de zona se corren hacia los ejes de abajo (snap_max_ft). La llegada de "
+                                       "la escalera es un nodo de a lo más node_short_side_max_ft con un solo pasillo; "
+                                       "las puertas de los dormitorios van en la esquina más cercana a la llegada.",
+                                 "en": "Upper floor on the ground floor on one grid: the bearing lines (outline and "
+                                       "walls standing on walls or beams below) keep joist spans within "
+                                       "joist_span_max_ft; every beam between supports within beam_span_max_ft; zone "
+                                       "walls move toward the axes below (snap_max_ft). The stair arrives into a node "
+                                       "at most node_short_side_max_ft wide with one hall; bedroom doors go in the "
+                                       "corner nearer the arrival."}[lang]}
     if group == DOORS:
         rows = [_row(reg, values, kinds, pid, lang) for pid in sorted(values) if pid.startswith(DOOR_PREFIX)]
         return {"group": DOORS, "rules": [r for r in rows if r],
@@ -203,6 +219,12 @@ def criteria_changes(values: dict[str, Any], group: str, changes: dict[str, Any]
             pid = SPACE_KEYS[key].format(t=space_type)
         elif group == AREA:
             pid = POLICY_PREFIX + key
+        elif group == STRUCTURE:
+            ids = [key] if key in values and key.startswith(STRUCTURE_PREFIXES) else \
+                [p + key for p in STRUCTURE_PREFIXES if p.endswith(".") and p + key in values]
+            if len(ids) != 1:
+                raise CriteriaError(f"unknown or ambiguous structure criterion {key!r}")
+            pid = ids[0]
         elif group == DOORS:
             pid = DOOR_PREFIX + key
         else:
@@ -213,6 +235,24 @@ def criteria_changes(values: dict[str, Any], group: str, changes: dict[str, Any]
     return out
 
 
-__all__ = ["AREA", "DOORS", "GROUPS", "HIERARCHY", "SPACE_KEYS", "SUITE_PARTS", "CriteriaError", "cap_types",
-           "criteria_changes", "criteria_view", "drawn_cap", "effective_cap", "enabled", "extra_package", "policy",
-           "size_factor", "suite_total_cap"]
+__all__ = [
+    "AREA",
+    "DOORS",
+    "GROUPS",
+    "HIERARCHY",
+    "SPACE_KEYS",
+    "STRUCTURE",
+    "STRUCTURE_PREFIXES",
+    "SUITE_PARTS",
+    "CriteriaError",
+    "cap_types",
+    "criteria_changes",
+    "criteria_view",
+    "drawn_cap",
+    "effective_cap",
+    "enabled",
+    "extra_package",
+    "policy",
+    "size_factor",
+    "suite_total_cap",
+]

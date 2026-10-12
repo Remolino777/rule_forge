@@ -59,7 +59,7 @@ from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalo
 from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
 from spaceplan.modules.stacking.lib.access_cell import access_context, stage_s1, stage_s2
-from spaceplan.modules.stacking.lib.zone_cell import S2_STATUSES, ZONED, s2_context
+from spaceplan.modules.stacking.lib.zone_cell import S2_STATUSES, ZONED, s2_context, structure_settings
 from spaceplan.modules.stacking.lib.zone_relations import build_matrix
 from spaceplan.modules.stacking.lib.vertical_rules import (
     garage_counts_in_gfa,
@@ -204,9 +204,10 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
     if stage == "S2.1":
         s2ctx = replace(s2ctx, alternatives=int(scat.s21["search"]["s2_alternatives"]))
         crc, openings = load_crc_ruleset(), load_openings_ruleset()
-        s21ctx = S21Context(scat, catalog, s2ctx.matrix,
-                            space_rules(scat, catalog, crc, openings, srs, crs, design_view(design_profile)), crc,
+        dview = design_view(design_profile)
+        s21ctx = S21Context(scat, catalog, s2ctx.matrix, space_rules(scat, catalog, crc, openings, srs, crs, dview), crc,
                             openings, srs, crs, load_ruleset())
+        s2ctx = replace(s2ctx, structure=structure_settings(dview[0], scat.s2))     # S2.2f: S2.1 runs only
     actx = access_context(scat, limits, crs) if drawing else None
 
     lots_out, cells_out, missing = [], [], []

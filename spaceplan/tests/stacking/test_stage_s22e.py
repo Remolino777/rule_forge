@@ -88,7 +88,7 @@ def _row(adjusted, sid):
 
 
 def test_registry_carries_the_area_and_door_criteria(reg, values):
-    assert reg.version == "0.4.0" and reg.self_check() == []
+    assert reg.version >= "0.4.0" and reg.self_check() == []
     assert ac.enabled(values) and ac.policy(values, "extra_room_policy") == "propose"
     assert ac.policy(values, "freed_area") == "unbuilt"
     assert "primary_suite" in ac.cap_types(values) and "garage_2car" not in ac.cap_types(values)

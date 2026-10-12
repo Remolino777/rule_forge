@@ -21,6 +21,7 @@ import numpy as np
 from shapely.geometry import LineString, Point, box
 
 from spaceplan.core.lib_aux.allocation import ranked_product
+from spaceplan.modules.stacking.lib import floor_structure as fs
 from spaceplan.modules.stacking.lib.door_placement import (
     CLOSET_DOOR,
     EXTERIOR,
@@ -125,13 +126,16 @@ def _floor_parts(layout: FloorLayout, rel: dict[str, Any], rules: SpaceRules, ca
     def mean(key: str) -> float:
         return float(np.mean([o.parts.get(key, 1.0) for o in opts])) if opts else 1.0
 
+    w_group = float(rules.design.get("door.grouping.weight") or 0.0)            # S2.2f: grouped bedroom doors
+    group, _ = fs.grouping(layout, rules)
+    base_circ = 0.4 * circulation + 0.4 * mean("circulation") + 0.2 * shared_bath_doors(layout, rules)
     return {"relations": rel["score"],
             "shape": mean("shape"),
             "furniture": mean("furniture"),                        # S2.2b
             "light": mean("light"),                                # S2.2b: daylight, facade use, cross ventilation
             "exterior": mean("exterior"),
-            "circulation": (0.4 * circulation + 0.4 * mean("circulation")          # fraction, hall shape and length
-                            + 0.2 * shared_bath_doors(layout, rules)),            # S2.2c: shared-bath doors close
+            "circulation": (1.0 - w_group) * base_circ + w_group * group,   # fraction, hall, shared baths, grouping
+            "structure": 1.0,                                                 # S2.2f: set by search_floor upstairs
             "closets": with_closet / len(sleeping) if sleeping else 1.0,
             "circulation_fraction": frac}
 
@@ -194,8 +198,15 @@ def _floor_score(parts: dict[str, float], weights: dict[str, float]) -> float:
     return sum(weights[k] * parts[k] for k in keys) / total
 
 
-def search_floor(floor: SpaceFloor, ctx: S21Context) -> tuple[list[FloorResult], dict[str, Any]]:
+def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None = None,
+                 under_upper: np.ndarray | None = None, above: SpaceFloor | None = None
+                 ) -> tuple[list[FloorResult], dict[str, Any]]:
+    """Valid layouts of one floor, best first. S2.2f: `below` (upper floor) is the ground layout the zones must stand
+    on; `under_upper` (ground floor) the cells under the upper floor, whose spaces respect the joist span; `above`
+    (ground floor) the upper floor whose zone walls the ground walls should carry (scored, with the violations)."""
     rules, s21 = ctx.rules, ctx.rules.s21
+    if below is not None:                                  # S2.2f: room cuts upstairs move to the ground walls
+        floor.below_lines = fs.below_walls(floor, below.layout, rules)
     summary: dict[str, Any] = {"units": {}, "combinations": 0, "valid": 0, "first_violations": {}}
     per_unit = []
     for u in floor.units:
@@ -220,6 +231,15 @@ def search_floor(floor: SpaceFloor, ctx: S21Context) -> tuple[list[FloorResult],
             why = _walk_through_violation(layout, rules)          # S2.2c: suite -> walk-in -> bath
             if why:
                 layout.violations.append(why)
+        structure = None
+        if not layout.violations and under_upper is not None:
+            why = fs.span_violation(layout, under_upper, rules)            # S2.2f: joist span below the upper floor
+            if why:
+                layout.violations.append(why)
+        if not layout.violations and below is not None:
+            structure, bad = fs.upper_structure(layout, below.layout, rules)   # S2.2f: zones on the ground walls
+            if bad:
+                layout.violations.append(bad[0])
         if not layout.violations:
             land = layout.specs[layout.landing_node]
             if land.space_type not in floor.receiving:
@@ -234,6 +254,14 @@ def search_floor(floor: SpaceFloor, ctx: S21Context) -> tuple[list[FloorResult],
             fails[layout.violations[0]] += 1
             continue
         parts = _floor_parts(layout, rel, rules, ctx.catalog)
+        if above is not None:
+            share, n_bad = fs.ground_support(layout, above, rules)
+            parts["structure"] = share / (1.0 + n_bad)
+        if structure is not None:
+            w_part = float(rules.design.get("structure.partition_weight") or 0.0)
+            parts["structure"] = ((1.0 - w_part) * structure["zones"]["interior_fraction"]
+                                  + w_part * structure["partitions"]["interior_fraction"])
+            layout.structure = structure
         found.append(FloorResult(layout, graph, rel, parts,
                                  _floor_score(parts, shape_weighted(rules, s21["weights"], floor))))
         if len(found) >= stop:
@@ -347,20 +375,59 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
                 return found, summary, k, fl.notes, tried
         return [], tried[0] if tried else {}, None, [], tried
 
-    u_found, u_summary, u_alt, u_notes, u_tried = search(UPPER, alts["upper"], u_recv, lambda b: "upper")
-    if u_found:
-        g_found, g_summary, g_alt, g_notes, g_tried = search(GROUND, alts["ground"], g_recv, lambda b: b["variant"])
+    if alts.get("cross") and fs.enabled(ctx.rules):
+        # S2.2f: the ground floor first, then every upper zoning on its best layouts (the zones of the upper floor
+        # must stand on the final ground walls: hard check in search_floor)
+        under = fs.under_mask(space_floor(GROUND, floors, alts["ground"][0], rows, plan, ctx.catalog, ctx.rules,
+                                          ctx.matrix, res, profile, g_recv, alts["ground"][0]["variant"], exterior,
+                                          culture).grid, floors.upper)
+        g_found = []
+        u_found, u_tried, g_tried = [], [], []
+        u_summary, g_summary, u_alt, g_alt, u_notes, g_notes = {}, {}, None, None, [], []
+        keep_g = int(ctx.rules.s21["search"]["keep_alternatives"])
+        ufls = [space_floor(UPPER, floors, ub, rows, plan, ctx.catalog, ctx.rules, ctx.matrix, res, profile, u_recv,
+                            "upper", None, culture) for ub in alts["upper"]]
+        for gi, gb in enumerate(alts["ground"]):
+            gfl = space_floor(GROUND, floors, gb, rows, plan, ctx.catalog, ctx.rules, ctx.matrix, res, profile,
+                              g_recv, gb["variant"], exterior, culture)
+            gf, gs = search_floor(gfl, ctx, under_upper=under, above=ufls[0])   # ground walls under the zones
+            gs["s2_alternative"] = gi
+            g_tried.append(gs)
+            g_summary = g_summary or gs
+            for g_res in gf[:keep_g]:
+                for ui, ufl in enumerate(ufls):
+                    uf, us_ = search_floor(ufl, ctx, below=g_res)
+                    us_["s2_alternative"] = ui
+                    u_tried.append(us_)
+                    u_summary = us_
+                    if uf:
+                        g_found, u_found = [g_res], uf
+                        g_summary, g_alt, u_alt, g_notes, u_notes = gs, gi, ui, gfl.notes, ufl.notes
+                        break
+                if u_found:
+                    break
+            if u_found:
+                break
+        if not u_found and not g_tried:
+            g_summary = {"skipped": "no aligned pair"}
     else:
-        g_found, g_summary, g_alt, g_notes, g_tried = [], {"skipped": "upper floor not spaced"}, None, [], []
+        u_found, u_summary, u_alt, u_notes, u_tried = search(UPPER, alts["upper"], u_recv, lambda b: "upper")
+        if u_found:
+            g_found, g_summary, g_alt, g_notes, g_tried = search(GROUND, alts["ground"], g_recv,
+                                                                 lambda b: b["variant"])
+        else:
+            g_found, g_summary, g_alt, g_notes, g_tried = [], {"skipped": "upper floor not spaced"}, None, [], []
     out["warnings"] += u_notes + g_notes
     out["search"] = {"ground": g_summary, "upper": u_summary,
                      "s2_alternatives_tried": {"upper": len(u_tried), "ground": len(g_tried)}}
     out["s2_alternative"] = {"upper": u_alt, "ground": g_alt}
     if not u_found or not g_found:
-        summary = u_summary if not u_found else g_summary
+        failed = "upper" if not u_found else "ground"
+        if alts.get("cross") and fs.enabled(ctx.rules) and not u_tried:
+            failed = "ground"                    # S2.2f: no ground layout of any pair, the upper floor not tried
+        summary = u_summary if failed == "upper" else g_summary
         first = next(iter(summary.get("first_violations", {})), "no layout")
-        out.update({"status": NO_VALID_LAYOUT, "failed_floor": "upper" if not u_found else "ground",
-                    "first_violation": first})
+        out.update({"status": NO_VALID_LAYOUT, "failed_floor": failed, "first_violation": first})
         out["rule_traces"] = _fail_traces(ctx, first)
         return out
     total, g, u, vert = _combine(ctx, g_found, u_found)
@@ -379,6 +446,10 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
     if lot_local is not None and ctx.capacity is not None:
         out["site"] = front_yard(s1, plan, lot_local, ctx.capacity, ctx.openings, ctx.catalog, ctx.scat)
     out["k10"] = _k10_summary(g, u, rows)
+    if getattr(u.layout, "structure", None) is not None:                 # S2.2f
+        out["structure"] = u.layout.structure
+    out["arrival"] = {"ground": {**fs.arrival_metrics(g.layout), **fs.grouping(g.layout, ctx.rules)[1]},
+                      "upper": {**fs.arrival_metrics(u.layout), **fs.grouping(u.layout, ctx.rules)[1]}}
     out["rule_traces"] = _traces(ctx, g, u, s2, out)
     return out
 

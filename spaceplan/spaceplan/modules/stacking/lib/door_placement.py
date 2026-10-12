@@ -75,6 +75,7 @@ class FloorLayout:
     matrix_roles: dict = field(default_factory=dict)
     patio_exit: dict | None = None
     open_air: list = field(default_factory=list)          # S2.2d: (spec, whole-floor mask) of roofs and terraces
+    structure: dict | None = None                          # S2.2f: how the upper floor stands on the ground floor
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)
@@ -195,6 +196,10 @@ class DoorPlacer:
         d = rules.door_ft
         self.corner = d["corner_return"] / self.res
         self.frame = d["frame"] / self.res
+        self.near = None                          # S2.2f: bedroom doors in the corner nearer the stair end
+        if rules.design.get("door.grouping.nearest_corner") and f.landing is not None and f.landing.any():
+            rows, cols = np.nonzero(f.landing)
+            self.near = (float(cols.mean() + 0.5), float(rows.mean() + 0.5))
 
     def runs_between(self, a: int, b: int) -> list[WallRun]:
         return sorted(self.runs.get((min(a, b), max(a, b)), []), key=lambda r: (-r.cells, r.k, r.t0))
@@ -234,7 +239,15 @@ class DoorPlacer:
                 half = min(leaf, run.cells) / 2
                 return Door(served, other, kind, run, mid - half, mid + half, None, None, run.high == served, leaf, clear)
             into_high = run.high == served
-            for toward_plus in (True, False):
+            order = (True, False)
+            if self.near is not None and (self.layout.specs[served].space_type in self.rules.sleeping_types
+                                          and other >= 0 and self.layout.specs[other].circulation):
+                def gap(tp, run=run, corner=corner):
+                    h = run.t0 + corner + self.frame / 2 + leaf / 2 if tp else run.t1 - corner - self.frame / 2 - leaf / 2
+                    x, y = (run.k, h) if run.vertical else (h, run.k)
+                    return (x - self.near[0]) ** 2 + (y - self.near[1]) ** 2
+                order = tuple(sorted(order, key=gap))
+            for toward_plus in order:
                 hinge = run.t0 + corner + self.frame / 2 if toward_plus else run.t1 - corner - self.frame / 2
                 t0, t1 = (hinge, hinge + leaf) if toward_plus else (hinge - leaf, hinge)
                 if not check_swing:

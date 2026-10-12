@@ -1,6 +1,6 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.12.0",
+  "catalog_version": "0.13.0",
   "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft. Version 0.9.0 (S1.2 close, 2026-10-10): route tolerance 25 ft (client decision after the tolerance simulation); small upper floors also try compact_bands (a room band beside a stair band). Version 0.10.0 (stage S2.1, 2026-10-11) adds the s21 block: spaces and doors inside each zone unit (guillotine rectangles on the S2 grid, halls inside private units, closets from the leftovers, doors with position, width, swing and hinge). Version 0.11.0 (stage S2.1b, 2026-10-11) adds door types (main entry with a sidelight, glass patio slider, service exterior door, closet slider), the patio exit, the program adjustment of stage S2.1 (corridor allowance and a bath per bedroom, K10) and the rear cantilever of the upper floor.",
   "units": "ft, sq ft",
   "selection": {
@@ -244,11 +244,11 @@
     ],
     "cantilever": {
       "placement": "cantilever_rear",
-      "depth_ft": 6.0,
+      "depth_ft": 3.0,
       "stages": [
         "S2.1"
       ],
-      "note": "Client decision 2026-10-11: the upper floor may stand out over the patio up to depth_ft beyond the rear face of the ground floor, inside the setback envelope and the FAR; tried after the other placements, only in the stages listed. Structure not considered yet (provisional)."
+      "note": "Client decision 2026-10-11: the upper floor may stand out over the patio up to depth_ft beyond the rear face of the ground floor, inside the setback envelope and the FAR; tried after the other placements, only in the stages listed. Client decision 2026-10-12 12:31 (S2.2f): 3 ft, within four joist depths (R301.2.2.6), so no engineered design is needed."
     }
   },
   "garage": {
@@ -404,7 +404,8 @@
       "shape": 0.25,
       "anchors": 0.15,
       "stair_access": 0.1,
-      "arrival": 0.1
+      "arrival": 0.1,
+      "structure": 0.15
     },
     "keep_alternatives": 3,
     "source": {
@@ -787,7 +788,8 @@
       "circulation": 0.15,
       "light": 0.15,
       "closets": 0.05,
-      "vertical": 0.15
+      "vertical": 0.15,
+      "structure": 0.1
     },
     "fallback": {
       "order": "stair_choice.ranked",

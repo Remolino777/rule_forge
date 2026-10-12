@@ -1,0 +1,356 @@
+{
+  "ruleset_id": "design-structure",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "us-ca",
+  "zone": "*",
+  "code_edition": "design",
+  "kind": "design",
+  "transcribed_from": "Step 6.7a S2.2f (2026-10-12): structure of the upper floor for light wood platform framing. Client decisions 2026-10-12 12:31: joist span 20 ft (I-joists), interior structural axes as a hard rule, upper-floor cantilever 3 ft, family room upstairs allowed as a loft at the arrival. Code references (CRC R602.10 wall bracing, R301.2.2.6 irregular buildings in seismic design category D) are transcribed from secondary sources and stay unverified.",
+  "verification_note": "Design values, not an engineering design: the generator keeps walls stacked and spans within the limits so that a prescriptive (non-engineered) light-frame design stays possible; every value verified=false until an engineer checks it.",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "spaceplan design structure",
+      "section": "all"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [],
+    "depth_methods": [],
+    "default_width_method": null,
+    "default_depth_method": null,
+    "setback_distance_semantics": null,
+    "verified": false,
+    "source": {
+      "document": "spaceplan design structure",
+      "section": "n/a"
+    }
+  },
+  "parameter_schema": {
+    "note": "Every value the client or the designer may define is a parameter object: value, type (number / enum / list / bool), unit, kind (hard / soft / weight / reference), who (client / designer / code), range (numbers), choices (enum / list), kinds_allowed, optional floor (a code rule the value may not cross) and a description in Spanish and English. The design registry (modules/design) reads them; the client's changes go to a design profile, never here."
+  },
+  "rules": [
+    {
+      "rule_id": "T01-STRUCTURE",
+      "kind": "design",
+      "magnitude": "structure",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "structure",
+      "parameters": {
+        "enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Verificar la estructura de la planta alta (ejes compartidos, luces, vigas)",
+            "en": "Check the upper-floor structure (shared axes, spans, beams)"
+          },
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f)"
+        },
+        "system": {
+          "value": "wood_platform",
+          "type": "enum",
+          "unit": null,
+          "kind": "reference",
+          "who": "designer",
+          "choices": [
+            "wood_platform"
+          ],
+          "description": {
+            "es": "Sistema constructivo supuesto: entramado ligero de madera con plataforma",
+            "en": "Assumed system: light wood platform framing"
+          },
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "joist_span_max_ft": {
+          "value": 20.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Luz máxima de las viguetas del entrepiso (sin viga)",
+            "en": "Maximum span of the floor joists (without a beam)"
+          },
+          "range": [
+            12.0,
+            26.0
+          ],
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f): 20 ft (I-joists).",
+          "source": {
+            "document": "S2.2f analysis (2026-10-12): light wood platform framing, CRC R602.10 wall bracing and R301.2.2.6 irregular buildings (SDC D), common span tables; student research, verify with an engineer",
+            "section": "upper-floor structure"
+          }
+        },
+        "beam_span_max_ft": {
+          "value": 20.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Luz máxima de una viga entre apoyos (muros perpendiculares o postes)",
+            "en": "Maximum span of a beam between supports (perpendicular walls or posts)"
+          },
+          "range": [
+            8.0,
+            30.0
+          ],
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "source": {
+            "document": "S2.2f analysis (2026-10-12): light wood platform framing, CRC R602.10 wall bracing and R301.2.2.6 irregular buildings (SDC D), common span tables; student research, verify with an engineer",
+            "section": "upper-floor structure"
+          }
+        },
+        "support_min_fraction": {
+          "value": 0.0,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Fracción mínima de cada muro de zona de la planta alta apoyada sobre un muro de la planta baja en el mismo eje (el resto, vigas)",
+            "en": "Least share of each upper-floor zone wall standing on a ground-floor wall on the same axis (the rest on beams)"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f): the interior structural axes are a hard rule. Pilot 2026-10-12: 0.5 left 1 of 36 houses of the interior lot (5 without the rule); 0.0 keeps the bearing lines hard (on ground walls or on flush beams between ground walls, each at most beam_span_max_ft) and scores the stacking. The client may raise it.",
+          "source": {
+            "document": "S2.2f analysis (2026-10-12): light wood platform framing, CRC R602.10 wall bracing and R301.2.2.6 irregular buildings (SDC D), common span tables; student research, verify with an engineer",
+            "section": "upper-floor structure"
+          }
+        },
+        "axes_rule": {
+          "value": "bearing",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "choices": [
+            "bearing",
+            "all_zone_walls"
+          ],
+          "description": {
+            "es": "Qué muros de la planta alta deben compartir eje con un muro de abajo: los portantes que la luz exige (bearing) o todos los muros de zona (all_zone_walls)",
+            "en": "Which upper-floor walls must share an axis with a wall below: the bearing ones the span needs (bearing) or every zone wall (all_zone_walls)"
+          },
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12 12:31 (S2.2f): hard rule; 'bearing' keeps the joists within joist_span_max_ft between stacked walls, the other walls are partitions."
+        },
+        "snap_max_ft": {
+          "value": 2.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Distancia máxima a la que un corte de zona se corre hacia un eje de la otra planta",
+            "en": "Farthest a zone cut moves toward an axis of the other floor"
+          },
+          "range": [
+            0.0,
+            6.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "snap_share": {
+          "value": 0.25,
+          "type": "number",
+          "unit": "fraction",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Un muro de abajo cuenta como eje para los cortes de un ambiente si recorre al menos esta fracción de la zona",
+            "en": "A wall below counts as an axis for the room cuts of a zone when it runs along at least this share of the zone"
+          },
+          "range": [
+            0.05,
+            1.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "partition_weight": {
+          "value": 0.15,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Peso de la alineación de los tabiques interiores (dentro de las zonas) en el puntaje de la planta alta",
+            "en": "Weight of the interior partitions' alignment (inside the zones) in the upper-floor score"
+          },
+          "range": [
+            0.0,
+            0.5
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        },
+        "pair_candidates": {
+          "value": 3,
+          "type": "number",
+          "unit": "count",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Plantas bajas candidatas para las que se busca una planta alta alineada",
+            "en": "Ground floors searched for an aligned upper floor"
+          },
+          "range": [
+            1,
+            6
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        }
+      },
+      "text": [
+        "Walls of the upper floor are perimeter, structural (zone walls: on an axis shared with a ground-floor wall) or partitions (inside a zone, on the floor joists).",
+        "A wall run stands on the ground-floor walls of the same line; the unsupported pieces are beams between supports (ground walls on the line or crossing it), each at most beam_span_max_ft.",
+        "Ground spaces under the upper floor span at most joist_span_max_ft on their short side; an open boundary of the great room under the upper floor is a beam."
+      ],
+      "source": {
+        "document": "S2.2f analysis (2026-10-12): light wood platform framing, CRC R602.10 wall bracing and R301.2.2.6 irregular buildings (SDC D), common span tables; student research, verify with an engineer",
+        "section": "upper-floor structure"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "T02-CODE-BRACING",
+      "kind": "design",
+      "magnitude": "code_reference",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "structure.code",
+      "parameters": {
+        "braced_line_offset_max_ft": {
+          "value": 4.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "code",
+          "description": {
+            "es": "Desvío máximo de un muro exterior respecto de su línea arriostrada",
+            "en": "Maximum offset of an exterior wall from its braced wall line"
+          },
+          "range": [
+            0.0,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ],
+          "source": {
+            "document": "CRC 2025 / IRC",
+            "section": "R602.10.1.2"
+          }
+        },
+        "braced_panel_end_max_ft": {
+          "value": 10.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "code",
+          "description": {
+            "es": "Un panel arriostrado empieza a menos de esta distancia del extremo de la línea",
+            "en": "A braced panel begins within this distance of the line end"
+          },
+          "range": [
+            0.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ],
+          "source": {
+            "document": "CRC 2025 / IRC",
+            "section": "R602.10.2.2"
+          }
+        },
+        "braced_panel_gap_max_ft": {
+          "value": 20.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "code",
+          "description": {
+            "es": "Distancia máxima entre paneles arriostrados de una línea",
+            "en": "Maximum distance between braced panels of a line"
+          },
+          "range": [
+            0.0,
+            40.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ],
+          "source": {
+            "document": "CRC 2025 / IRC",
+            "section": "R602.10.2.2"
+          }
+        },
+        "cantilever_joist_depth_factor": {
+          "value": 4.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "reference",
+          "who": "code",
+          "description": {
+            "es": "Voladizo que soporta muros: hasta este múltiplo del peralte de la vigueta sin volverse irregular (SDC D)",
+            "en": "Cantilever supporting walls: up to this multiple of the joist depth without becoming irregular (SDC D)"
+          },
+          "range": [
+            0.0,
+            8.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ],
+          "source": {
+            "document": "CRC 2025 / IRC",
+            "section": "R301.2.2.6 item 1"
+          }
+        }
+      },
+      "text": [
+        "Reference values for the indicators; the generator does not enforce them yet."
+      ],
+      "source": {
+        "document": "CRC 2025 (IRC 2024 base), secondary sources",
+        "section": "R602.10, R301.2.2.6"
+      },
+      "verified": false
+    }
+  ]
+}

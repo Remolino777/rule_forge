@@ -36,6 +36,8 @@ OVERALL_LABELS = {
     "floors_with_door_conflicts": "plantas con alguna interferencia de puertas",
     "floors": "plantas medidas",
     "extra_room": "ambiente adicional: casas donde cabe / agregado",
+    "structure": "estructura de la planta alta (muros sobre muros de abajo, luces, vigas, postes) (S2.2f)",
+    "arrival": "llegada de la escalera arriba (halls, lado corto de la llegada, puertas de dormitorios) (S2.2f)",
 }
 
 

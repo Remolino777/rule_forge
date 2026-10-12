@@ -239,7 +239,7 @@ def _check_s1(data: dict[str, Any]) -> list[str]:
 
 
 S2_AXES = ("x", "y")
-S2_WEIGHTS = ("relations", "vertical", "shape", "anchors", "stair_access", "arrival")
+S2_WEIGHTS = ("relations", "vertical", "shape", "anchors", "stair_access", "arrival", "structure")  # S2.2f
 ARRIVALS = ("family_room", "upper_vestibule", "hall")
 
 
@@ -286,7 +286,8 @@ def _check_s2(data: dict[str, Any]) -> list[str]:
     return problems
 
 
-S21_WEIGHTS = ("relations", "shape", "furniture", "circulation", "light", "closets", "vertical")  # S2.2b
+S21_WEIGHTS = ("relations", "shape", "furniture", "circulation", "light", "closets", "vertical",
+               "structure")  # S2.2b; structure: S2.2f
 S21_LOCAL_WEIGHTS = ("shape", "furniture", "fit", "circulation", "light")  # S2.2b
 S21_SIDES = ("low_x", "high_x", "low_y", "high_y")
 S21_DOOR_NUMBERS = ("interior_clear_width_in", "closet_clear_width_in", "leaf_over_clear_in", "frame_in",

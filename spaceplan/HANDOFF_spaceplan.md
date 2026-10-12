@@ -1269,6 +1269,77 @@ recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote
 - P5, asignación MILP y aplicación de la propuesta del ambiente adicional.
 - Decidir si se baja la mínima del catálogo de la suite (250 → 150–180), lo que requiere refrescar los golden.
 
+## 4y. Paso 6.7a, S2.2f (12 oct 2026): estructura de la planta alta, llegada de la escalera y puertas agrupadas
+
+**Decisiones del cliente (12 oct, 12:31).**
+- Vigueta de 20 ft.
+- Ejes interiores como regla obligatoria.
+- Voladizo de 3 ft.
+- Sala familiar arriba permitida como loft.
+
+**Datos.**
+- `design_structure.json` 0.1.0 (ruleset nuevo del registro):
+  - T01 `structure.*`:
+    - `joist_span_max_ft` 20 y `beam_span_max_ft` 20;
+    - `axes_rule`: `bearing` o `all_zone_walls`;
+    - `support_min_fraction` **0.0** (ver piloto); `snap_max_ft` 2.5; `snap_share` 0.25;
+    - `partition_weight`, `pair_candidates`.
+  - T02 `structure.code.*`: referencias CRC R602.10 y R301.2.2.6, sin verificar.
+- `design_circulation_doors` 0.3.0:
+  - P07 `circulation.arrival.*`: `node_short_side_max_ft` 8, `single_hall`, `family_loft`, `route_max_ft` 15;
+  - P08 `door.grouping.*`: `nearest_corner`, `spread_target_ft` 12, `weight`.
+- `stacking_catalog` 0.13.0:
+  - voladizo de 3 ft (hard);
+  - peso `structure` en S2 (0.15) y en S2.1 (0.1).
+- Registro 0.5.0, con 508 parámetros.
+- Herramientas LLM 0.3.0: `get_criteria` y `set_criteria` con el grupo `structure`.
+- CLI: `spaceplan design criteria --group structure`.
+
+**Código.**
+- `lib_aux/structure_grid.py`:
+  - muros como aristas V/H de una retícula de etiquetas; desplazamiento entre retículas;
+  - `support_report`: muros sobre muros, vigas entre apoyos de abajo, postes; los muros exteriores sobre el
+    interior de abajo se parten con postes;
+  - `bearing_spans`: luces de vigueta entre líneas portantes, en x o en y;
+  - `snap_line` y `box_lines`.
+- `zone_grid.rasterize(anchor)`: la planta alta sobre las líneas de la baja (`upper_frame(anchored)`, `space_floor`).
+- `core_zoning`:
+  - `StructureGuide`: los cortes se corren a los muros de abajo y la llegada es un nodo de ≤ 8 ft, ajustado al
+    descanso; la circulación cede su área a las otras zonas de su banda;
+  - puntaje `structure`; violaciones `arrival:node` y `structure:*` (en S2 solo puntúan).
+- `zone_cell`:
+  - con estructura (solo etapa S2.1), la planta baja se busca primero; para las 3 mejores, la alta guiada sobre
+    cada una más las libres (con nodo);
+  - las alternativas se cruzan (`cross`).
+- `space_cell` (S2.1):
+  - planta baja primero, puntuada por cuánto carga los muros de zona de arriba (`above`), con la luz de vigueta
+    obligatoria bajo la planta alta;
+  - luego cada zonificación alta sobre las mejores bajas;
+  - los cortes de los cuartos se corren a los muros de abajo (`below_lines`);
+  - verificación obligatoria `structure:bearing`; bloques `structure` y `arrival` en la salida.
+- `lib/floor_structure.py`: muros de abajo sin los bordes abiertos de la gran sala, verificación, luces de
+  vigueta, agrupamiento de puertas, métricas de llegada.
+- `door_placement`: la puerta del dormitorio va en la esquina más cercana a la llegada.
+- `unit_layout`: un solo pasillo (contacto a todo el ancho) y cortes imantados.
+- `space_quality`:
+  - `structure_summary` y `arrival_summary`;
+  - esquema: `s21.structure`, `s21.arrival`, `upper_placement: cantilever_rear` (faltaba).
+
+**Piloto (`docs/results/s22f_pilot/`).**
+- 25 casas (S2.2e: 32).
+- Todas con luces de vigueta ≤ 20 ft (mediana 15.5).
+- Llegada con lado corto ≤ 8 ft (mediana 5.5; antes llegaba a 16).
+- Recorrido a los dormitorios: mediana 9.7 ft (antes 12.6).
+- Muros de arriba sobre muros de abajo: 4 % → 9 % (mediana).
+- Con `support_min_fraction` 0.5 el lote interior baja de 5 casas a 1. Queda en 0.0: líneas portantes
+  obligatorias sobre muros o vigas, alineación premiada.
+
+**Pendiente (S2.2g, propuesto).**
+- Retícula estructural primero: crujías ≤ 20 ft definidas en la planta baja y zonas altas como fusión o
+  subdivisión de esas bahías.
+- Después, subir `support_min_fraction`.
+- Láminas con vigas y postes.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1417,7 +1488,8 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4x del HANDOFF). S2.2e cerró los topes de área y el detector exacto de puertas. Siguen P3
-> (colocación conjunta de puertas con R1–R3) y S2.2d parte 2 (zonificación con la escalera central). Mide con
-> `spaceplan quality` contra `docs/results/s22e_pilot/after/`. Respeta las reglas de la sección 1. Primero haz el
-> análisis lógico y el plan, y pregúntame antes de programar.
+> secciones 4t–4y del HANDOFF). S2.2f dejó la estructura de la planta alta verificada (luces ≤ 20 ft, vigas, postes),
+> la llegada compacta y las puertas agrupadas, pero la alineación de muros entre plantas sigue baja (9 %). Propuesta:
+> S2.2g, retícula estructural primero (crujías de la planta baja heredadas por la alta). Mide con `spaceplan
+> quality` contra `docs/results/s22f_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y
+> el plan, y pregúntame antes de programar.

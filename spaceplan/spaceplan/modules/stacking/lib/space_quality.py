@@ -12,6 +12,9 @@ Reads the `s21` block of stack_plan cells and the effective design values (regis
   S2.2e       area against the effective maximum (the cap the program adjustment gave the space, else the
               absolute design cap) plus the drawn-plan wall allowance; whole primary suite against the 2-car garage;
               exact door interference per floor (lib_aux.door_geometry: R1 / E1 / R1b / R2 / R3);
+  S2.2f       structure of the upper floor (zone walls and partitions on ground walls, bearing spans, beams,
+              posts) and the stair arrival (halls, short side of the arrival, bedroom doors' spread and route),
+              read from the s21 block;
   summary     per space type and overall, plus the coverage of the stage (cells with a drawn floor plan).
 
 Values come from the design registry ids (space.<type>.aspect_max, light.category.<type>...), never literals.
@@ -162,7 +165,45 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
     suite = suite_metrics(spaces, garage)
     extra = ((cell.get("program_adjustment") or {}).get("area_criteria") or {}).get("extra_room")
     return {"cell_id": cid, "lot_id": cell.get("lot_id"), "profile": cell.get("profile"), "floors": floors,
-            "spaces": spaces, "suite": suite, "extra_room": extra}
+            "spaces": spaces, "suite": suite, "extra_room": extra, "structure": s21.get("structure"),
+            "arrival": s21.get("arrival")}
+
+
+def _stats(vals: list[float]) -> dict[str, float] | None:
+    vals = sorted(v for v in vals if v is not None)
+    if not vals:
+        return None
+    return {"median": round(st.median(vals), 3), "max": round(vals[-1], 3), "min": round(vals[0], 3)}
+
+
+def structure_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """S2.2f indicators over the cells that carry a structure block."""
+    rows = [c["structure"] for c in cells if c.get("structure")]
+    if not rows:
+        return None
+    beams = [b for r in rows for b in r["zones"]["beams_ft"]]
+    return {"n": len(rows),
+            "zone_walls_on_ground_walls": _stats([r["zones"]["interior_fraction"] for r in rows]),
+            "all_walls_on_ground_walls": _stats([r["partitions"]["interior_fraction"] for r in rows]),
+            "bearing_ok": sum(1 for r in rows if r["bearing"]["ok"]),
+            "joist_span_ft": _stats([min(r["bearing"]["span_x_ft"], r["bearing"]["span_y_ft"]) for r in rows]),
+            "beams": len(beams), "beam_max_ft": round(max(beams), 2) if beams else 0.0,
+            "posts": sum(r["zones"]["posts"] for r in rows)}
+
+
+def arrival_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """S2.2f indicators of the upper floor: halls, arrival, bedroom doors."""
+    rows = [c["arrival"]["upper"] for c in cells if c.get("arrival")]
+    if not rows:
+        return None
+    halls: dict[str, int] = defaultdict(int)
+    for r in rows:
+        halls[str(r["halls"])] += 1
+    with_beds = [r for r in rows if r["bedroom_doors"] > 1]
+    return {"n": len(rows), "halls": dict(sorted(halls.items())),
+            "arrival_short_side_ft": _stats([r["arrival_short_side_ft"] for r in rows]),
+            "bedroom_door_spread_ft": _stats([r["spread_ft"] for r in with_beds]),
+            "route_to_bedroom_ft": _stats([r["route_ft"] for r in rows if r["bedroom_doors"]])}
 
 
 def suite_metrics(spaces: list[dict[str, Any]], garage_sqft: float) -> dict[str, Any] | None:
@@ -263,12 +304,15 @@ def quality_report(stack_plans: list[dict[str, Any]], values: dict[str, Any]) ->
         "suite": _suite_summary([c["suite"] for c in cells if c["suite"]]),
         "extra_room": {"fits": sum(1 for c in cells if (c["extra_room"] or {}).get("fits")),
                        "applied": sum(1 for c in cells if (c["extra_room"] or {}).get("applied"))},
+        "structure": structure_summary(cells),
+        "arrival": arrival_summary(cells),
     }
     return {"overall": overall, "by_type": type_summary(spaces), "cells": cells}
 
 
 __all__ = [
     "GRID_FT",
+    "arrival_summary",
     "category",
     "cell_metrics",
     "closet_role",
@@ -276,6 +320,7 @@ __all__ = [
     "furniture_options",
     "quality_report",
     "space_metrics",
+    "structure_summary",
     "suite_metrics",
     "type_summary",
 ]

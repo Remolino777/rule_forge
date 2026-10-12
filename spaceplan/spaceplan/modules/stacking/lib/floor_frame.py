@@ -308,9 +308,11 @@ def ground_frame(floors: CellFloors, units: list[ZoneUnit], res: float, use: str
                       targets, landing, use, grid.free_cells * grid.cell_area / total, list(notes), in_entry)
 
 
-def upper_frame(floors: CellFloors, units: list[ZoneUnit], res: float, notes: list[str]) -> FloorFrame:
+def upper_frame(floors: CellFloors, units: list[ZoneUnit], res: float, notes: list[str],
+                anchored: bool = False) -> FloorFrame:
+    """`anchored` (S2.2f): the grid on the ground floor's lines, so walls of both floors can be compared."""
     fixed = upper_fixed(floors)
-    grid = rasterize(floors.upper, fixed, res)
+    grid = rasterize(floors.upper, fixed, res, anchor=floors.ground.bounds[:2] if anchored else None)
     targets, total = _scaled(units, grid.free_cells)
     taken = unary_union([g for _, g in fixed if g is not None])
     return FloorFrame(UPPER, floors.upper, floors.upper.difference(taken), dict(fixed), grid, tuple(units),

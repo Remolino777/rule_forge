@@ -88,8 +88,8 @@ def explain_lines(reg: DesignRegistry, profile: dict, param_id: str, lang: str =
 
 def criteria_lines(view: dict[str, Any]) -> list[str]:
     """Plain-text table of a criteria view (area or doors)."""
-    if view["group"] == ac.DOORS:
-        return ["door interference criteria"] + [f"  {r['id']:42s} {_fmt(r['value']):>8s} {r['unit'] or '':6s} "
+    if view["group"] in (ac.DOORS, ac.STRUCTURE):
+        return [f"{view['group']} criteria"] + [f"  {r['id']:42s} {_fmt(r['value']):>8s} {r['unit'] or '':6s} "
                                                  f"{r['kind']:9s} {r['description']}" for r in view["rules"]]
     lines = [f"area criteria{' for a house of ' + format(view['house_net_sqft'], '.0f') + ' sq ft net (size factor ' + format(view['size_factor'], '.3f') + ')' if view.get('house_net_sqft') else ''}"]
     lines.append("  policy:")

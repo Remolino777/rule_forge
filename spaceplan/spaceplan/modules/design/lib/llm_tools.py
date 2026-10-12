@@ -16,7 +16,7 @@ from spaceplan.modules.design.lib import area_criteria as ac
 from spaceplan.modules.design.lib import design_profile as dp
 from spaceplan.modules.design.lib.design_registry import KINDS, WHO, DesignRegistry
 
-TOOLS_VERSION = "0.2.0"
+TOOLS_VERSION = "0.3.0"
 VALUE_SCHEMA = {"description": "New value: number, text (enum), true/false or a list of texts",
                 "anyOf": [{"type": "number"}, {"type": "string"}, {"type": "boolean"},
                           {"type": "array", "items": {"type": "string"}}]}
@@ -63,7 +63,9 @@ def tool_definitions(reg: DesignRegistry) -> dict[str, Any]:
                         "(recommended, absolute cap, share of the net program area), the policy (hierarchy ratios, "
                         "suite vs garage, size factor, use of the freed area, extra-room policy) and, given "
                         "house_net_sqft, the effective maximum and which limit binds. group=doors: the door "
-                        "interference rules and tolerances.",
+                        "interference rules and tolerances. group=structure: the upper floor's structure (joist and "
+                        "beam spans, which walls must share an axis, snap reach, cantilever), the stair arrival node "
+                        "and the grouping of bedroom doors.",
          "input_schema": {"type": "object", "properties": {
              "group": {"type": "string", "enum": list(ac.GROUPS)},
              "space_type": {"type": "string", "enum": ac.cap_types(reg.baseline())},
@@ -73,7 +75,9 @@ def tool_definitions(reg: DesignRegistry) -> dict[str, Any]:
          "description": "Change area or door criteria with a reason (validated like apply_changes; fails as a whole). "
                         "group=area with space_type: keys " + ", ".join(sorted(ac.SPACE_KEYS)) + ". group=area "
                         "without space_type: policy keys (the id after 'space.area.', e.g. suite_to_bedroom_max, "
-                        "extra_room_policy). group=doors: the id after 'door.conflicts.' (e.g. approach_depth_ft).",
+                        "extra_room_policy). group=doors: the id after 'door.conflicts.' (e.g. approach_depth_ft). "
+                        "group=structure: the full id or its last part (e.g. joist_span_max_ft, "
+                        "node_short_side_max_ft, nearest_corner).",
          "input_schema": {"type": "object", "properties": {
              "group": {"type": "string", "enum": list(ac.GROUPS)},
              "space_type": {"type": "string", "enum": ac.cap_types(reg.baseline())},

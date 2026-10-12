@@ -182,9 +182,9 @@ def test_files_follow_plan_table():
                          "space_rules", "unit_frame", "unit_layout", "door_placement", "space_relations",
                          "space_cell",  # S2.1
                          "program_adjust", "front_yard",  # S2.1b
-                         "space_quality"},  # S2.2a
+                         "space_quality", "floor_structure"},  # S2.2a; floor_structure: S2.2f
         "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry", "zone_grid",
-                             "space_grid", "door_geometry"},  # space_grid: S2.1; door_geometry: S2.2e
+                             "space_grid", "door_geometry", "structure_grid"},  # space_grid: S2.1; door_geometry: S2.2e; structure_grid: S2.2f
         "stacking/main": {"run_stacking", "contract", "run_quality"},  # run_quality: S2.2a
         "design/lib": {"design_registry", "design_profile", "llm_tools", "area_criteria"},  # S2.2a; S2.2e
         "design/lib_aux": {"param_paths", "units"},

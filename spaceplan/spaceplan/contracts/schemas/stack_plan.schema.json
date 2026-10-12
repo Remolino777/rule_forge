@@ -254,7 +254,8 @@
             "front",
             "over_garage",
             "compact_bands",
-            "compact"
+            "compact",
+            "cantilever_rear"
           ]
         },
         "upper_candidates": {
@@ -1643,6 +1644,14 @@
         "k10": {
           "type": "object",
           "description": "Baths per bedroom (K10): en-suite baths and baths shared between two bedrooms."
+        },
+        "structure": {
+          "type": "object",
+          "description": "S2.2f: how the upper floor stands on the ground floor: zone walls, all walls (partitions), bearing spans (joist direction, largest span), unsupported stretches and posts."
+        },
+        "arrival": {
+          "type": "object",
+          "description": "S2.2f: per floor, connected circulation pieces, short side of the space receiving the stair and the bedroom doors' spread and route from the stair end (ft)."
         }
       }
     }

@@ -101,6 +101,7 @@ class SpaceFloor:
     exterior: dict | None = None        # ground floor: lot (local), rear deck, S13 distance, landing depth
     profile: str | None = None          # S2.2c: maximum profile weighs shape more
     open_plan: bool = False             # S2.2c: kitchen and social units merged into a great room
+    below_lines: tuple | None = None    # S2.2f: (V, H) ground walls seen from this upper floor's grid
 
     @property
     def res(self) -> float:
@@ -177,7 +178,8 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
     else:
         fixed_objs = upper_fixed(floors)
         polygon = floors.upper
-    grid = rasterize(polygon, fixed_objs, res)
+    anchored = level != GROUND and bool(rules.design.get("structure.enabled"))     # S2.2f: same lines as below
+    grid = rasterize(polygon, fixed_objs, res, anchor=floors.ground.bounds[:2] if anchored else None)
     base = np.full(grid.labels.shape, UNASSIGNED, dtype=np.int32)
     base[grid.labels == OUTSIDE] = OUT
     by_id = {r["space_id"]: r for r in rows}

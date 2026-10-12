@@ -153,10 +153,31 @@ def _names(part) -> tuple[str, ...]:
     return part if isinstance(part, tuple) else (part,)
 
 
+def _snap_edges(edges: list[int], mins: list[int], lines, offset: int, reach: int) -> list[int]:
+    """Interior edges moved to the nearest of `lines` (absolute indices; edges are relative to `offset`) within
+    `reach` cells, keeping every part at least its minimum (S2.2f: walls over the walls below)."""
+    if not lines or reach <= 0 or len(edges) < 3:
+        return edges
+    out = list(edges)
+    for k in range(1, len(out) - 1):
+        best = None
+        for c in lines:
+            e = c - offset
+            d = abs(e - out[k])
+            if d > reach or e - out[k - 1] < mins[k - 1] or out[k + 1] - e < mins[k]:
+                continue
+            if best is None or d < best[0]:
+                best = (d, e)
+        if best is not None:
+            out[k] = best[1]
+    return out
+
+
 def realize(mask: np.ndarray, box: Rect, g: Guillotine, targets: dict[str, float],
-            min_cells: dict[str, int]) -> dict[str, Rect] | None:
+            min_cells: dict[str, int], snap: tuple | None = None) -> dict[str, Rect] | None:
     """Rectangles of a guillotine arrangement inside `box`, cut where the free cells of `mask` match the targets;
-    every part keeps at least its minimum length (cells) in both directions when the box allows it."""
+    every part keeps at least its minimum length (cells) in both directions when the box allows it. `snap`
+    (S2.2f): (x lines, y lines, reach) the cuts move to when near, keeping the minimums."""
     i0, i1, j0, j1 = box
     sub = mask[j0:j1, i0:i1]
     main_counts = sub.sum(0) if g.along_x else sub.sum(1)
@@ -167,14 +188,21 @@ def realize(mask: np.ndarray, box: Rect, g: Guillotine, targets: dict[str, float
     edges = _fit(_cuts(main_counts, col_targets), col_mins)
     if edges is None:
         return None
+    if snap is not None:
+        xs, ys, reach = snap
+        edges = _snap_edges(edges, col_mins, xs if g.along_x else ys, i0 if g.along_x else j0, reach)
     out: dict[str, Rect] = {}
     for col, a, b in zip(g.columns, edges, edges[1:]):
         part_mask = sub[:, a:b] if g.along_x else sub[a:b, :]
         cross_counts = part_mask.sum(1) if g.along_x else part_mask.sum(0)
         stack = _cuts(cross_counts, [sum(targets[n] for n in _names(p)) for p in col])
-        stack = _fit(stack, [max(min_cells[n] for n in _names(p)) for p in col])
+        stack_mins = [max(min_cells[n] for n in _names(p)) for p in col]
+        stack = _fit(stack, stack_mins)
         if stack is None:
             return None
+        if snap is not None:
+            stack = _snap_edges(stack, stack_mins, snap[1] if g.along_x else snap[0], j0 if g.along_x else i0,
+                                snap[2])
         for part, c, d in zip(col, stack, stack[1:]):
             names = _names(part)
             if len(names) == 1:

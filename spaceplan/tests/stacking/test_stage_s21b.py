@@ -93,12 +93,12 @@ def _cell(beds: int, baths: int, gross: float):
 
 
 def test_catalog_adds_door_types_exits_program_and_cantilever(scat):
-    assert scat.version == "0.12.0" and "cantilever_rear" in PLACEMENTS
+    assert scat.version == "0.13.0" and "cantilever_rear" in PLACEMENTS
     types = scat.s21["doors"]["types"]
     assert types["main_entry"]["leaf_in"] == 36 and types["main_entry"]["sidelight_in"] > 0
     assert types["patio_slider"]["width_in"] >= 60 and "closet" in scat.s21["doors"]["sliding_space_types"]
     assert scat.s21["exits"]["patio"]["order"][:2] == ["dining_room", "living_dining"]
-    assert scat.data["upper_floor"]["cantilever"]["depth_ft"] == 6.0
+    assert scat.data["upper_floor"]["cantilever"]["depth_ft"] == 3.0      # S2.2f: within four joist depths
 
 
 def test_k10_gives_each_bedroom_a_bath_when_the_far_allows(catalog, scat, client):
