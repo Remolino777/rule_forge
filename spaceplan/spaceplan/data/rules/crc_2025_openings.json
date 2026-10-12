@@ -1,16 +1,16 @@
 {
   "ruleset_id": "crc-2025-openings",
-  "ruleset_version": "0.2.0",
+  "ruleset_version": "0.3.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "CRC-2025",
-  "transcribed_from": "IRC/CRC model-code values for emergency escape openings (R310), openings between the garage and the dwelling (R302.5.1) and the natural light and ventilation of habitable rooms (R303.1), transcribed for step 6.7a stage S2.1 (2026-10-11) from the model-code text as known to the student; the CRC 2025 adoption text was not read. Version 0.2.0 (stage S2.1b, 2026-10-11) adds the egress door (R311.2) and the landings at exterior doors (R311.3).",
+  "transcribed_from": "IRC/CRC model-code values for emergency escape openings (R310), openings between the garage and the dwelling (R302.5.1) and the natural light and ventilation of habitable rooms (R303.1), transcribed for step 6.7a stage S2.1 (2026-10-11) from the model-code text as known to the student; the CRC 2025 adoption text was not read. Version 0.2.0 (stage S2.1b, 2026-10-11) adds the egress door (R311.2) and the landings at exterior doors (R311.3). Version 0.3.0 (step S2.2a, 2026-10-11) adds the bathroom light and ventilation alternative (R303.3) and the whole-dwelling and local exhaust rates (Title 24 Part 6 150.0(o), ASHRAE 62.2, CMC Appendix E E605.2).",
   "verification_note": "Separate ruleset for the space level of the vertical layer (step 6.7a S2.1) so the habitability ruleset and the golden packages stay unchanged. The glazing and ventilation ratios are not repeated here: they are read from crc_2025_habitability.json (C03). All entries verified=false until checked against the CRC 2025 text (California amendments and renumbering of the 2025 cycle).",
   "scope": {
     "excluded_overlays": [],
     "source": {
       "document": "CRC 2025",
-      "section": "R310, R302.5.1, R303.1, R311.2, R311.3"
+      "section": "R310, R302.5.1, R303.1, R311.2, R311.3, R303.3, Title 24 Part 6 150.0(o)"
     }
   },
   "lot_measurement": {
@@ -147,6 +147,57 @@
       "source": {
         "document": "CRC 2025",
         "section": "R311.3, R311.3.1, R311.3.2 (verify; City of Greenfield CA patio-door handout)"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "O06-BATHROOM-LIGHT-VENT",
+      "magnitude": "bathroom_light_ventilation",
+      "operator": ">=",
+      "value": 3.0,
+      "unit": "sq_ft",
+      "parameters": {
+        "glazing_sqft": 3.0,
+        "openable_fraction": 0.5,
+        "artificial_light": true,
+        "exhaust_intermittent_cfm": 50,
+        "exhaust_continuous_cfm": 20,
+        "exhaust_to": "outdoors",
+        "space_types": [
+          "bathroom",
+          "primary_bath",
+          "social_bath",
+          "half_bath"
+        ]
+      },
+      "text": [
+        "R303.3: bathrooms, water closet compartments and similar rooms shall have aggregate glazing of not less than 3 sq ft, one-half openable; not required where artificial light and a mechanical ventilation system are provided (50 cfm intermittent or 20 cfm continuous, exhausted directly outdoors)."
+      ],
+      "note": "In California every room with a bathtub or shower needs the exhaust fan anyway (CMC Appendix E E605.2), so a window is optional.",
+      "source": {
+        "document": "CRC 2025",
+        "section": "R303.3 (verify; IRC text via a building-department light and ventilation handout); CMC Appendix E E605.2"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "O07-WHOLE-HOUSE-VENTILATION",
+      "magnitude": "whole_dwelling_ventilation",
+      "operator": ">=",
+      "value": null,
+      "unit": "cfm",
+      "parameters": {
+        "area_cfm_per_sqft": 0.03,
+        "occupant_cfm": 7.5,
+        "occupants": "bedrooms_plus_one",
+        "windows_count": false
+      },
+      "text": [
+        "Title 24 Part 6 150.0(o) / ASHRAE 62.2 as amended: whole-dwelling mechanical ventilation Qtot = 0.03 x conditioned floor area + 7.5 x (bedrooms + 1) cfm; window operation is not a permissible method."
+      ],
+      "source": {
+        "document": "Title 24 Part 6 2025",
+        "section": "150.0(o), ASHRAE 62.2 (verify; summary via gocodebook CRC/CMC pages)"
       },
       "verified": false
     }

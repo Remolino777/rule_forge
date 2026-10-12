@@ -1,0 +1,693 @@
+{
+  "registry_id": "spaceplan-design-registry",
+  "registry_version": "0.1.0",
+  "note": "Parameters that already live in the residential catalog, the stacking catalog or the client rulesets, registered by reference (path into their store; never copied). '{t}' expands over 'for'. range_rel = range as multiples of the baseline value. The new design parameters are discovered from the design rulesets (parameter objects).",
+  "stores": {
+    "catalog": "residential catalog (data/catalog, merged fragments)",
+    "stacking_catalog": "data/catalog/stacking_catalog.json",
+    "ruleset": "data/rules/<file>"
+  },
+  "design_rulesets": [
+    "design_space_standards.json",
+    "design_circulation_doors.json",
+    "design_light_ventilation.json"
+  ],
+  "refs": [
+    {
+      "id": "space.{t}.area_min_sqft",
+      "for": [
+        "living_dining",
+        "living_room",
+        "dining_room",
+        "family_room",
+        "study",
+        "breakfast_nook",
+        "primary_suite",
+        "bedroom",
+        "flex_room"
+      ],
+      "store": "catalog",
+      "path": "space_types[space_type={t}].area.min",
+      "type": "number",
+      "unit": "sq_ft",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range_rel": [
+        0.6,
+        1.5
+      ],
+      "floor": {
+        "ruleset": "crc_2025_habitability.json",
+        "rule_id": "C01-HABITABLE-AREA",
+        "key": "value",
+        "unit": "sq_ft",
+        "bound": "min"
+      },
+      "description": {
+        "es": "Área mínima de {t}",
+        "en": "Minimum area of {t}"
+      }
+    },
+    {
+      "id": "space.{t}.area_min_sqft",
+      "for": [
+        "kitchen",
+        "pantry",
+        "social_bath",
+        "primary_bath",
+        "bathroom",
+        "walk_in_closet",
+        "closet",
+        "half_bath",
+        "laundry",
+        "storage",
+        "mechanical",
+        "foyer",
+        "hall",
+        "laundry_closet",
+        "mudroom",
+        "work_kitchen"
+      ],
+      "store": "catalog",
+      "path": "space_types[space_type={t}].area.min",
+      "type": "number",
+      "unit": "sq_ft",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range_rel": [
+        0.6,
+        1.5
+      ],
+      "description": {
+        "es": "Área mínima de {t}",
+        "en": "Minimum area of {t}"
+      }
+    },
+    {
+      "id": "space.{t}.area_target_sqft",
+      "for": [
+        "living_dining",
+        "living_room",
+        "dining_room",
+        "family_room",
+        "study",
+        "kitchen",
+        "breakfast_nook",
+        "pantry",
+        "primary_suite",
+        "bedroom",
+        "social_bath",
+        "primary_bath",
+        "bathroom",
+        "walk_in_closet",
+        "closet",
+        "half_bath",
+        "laundry",
+        "storage",
+        "mechanical",
+        "foyer",
+        "hall",
+        "laundry_closet",
+        "flex_room",
+        "mudroom",
+        "work_kitchen"
+      ],
+      "store": "catalog",
+      "path": "space_types[space_type={t}].area.target",
+      "type": "number",
+      "unit": "sq_ft",
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "range_rel": [
+        0.6,
+        1.6
+      ],
+      "description": {
+        "es": "Área objetivo de {t}",
+        "en": "Target area of {t}"
+      }
+    },
+    {
+      "id": "space.{t}.area_max_sqft",
+      "for": [
+        "living_dining",
+        "living_room",
+        "dining_room",
+        "family_room",
+        "study",
+        "kitchen",
+        "breakfast_nook",
+        "pantry",
+        "primary_suite",
+        "bedroom",
+        "social_bath",
+        "primary_bath",
+        "bathroom",
+        "walk_in_closet",
+        "closet",
+        "half_bath",
+        "laundry",
+        "storage",
+        "mechanical",
+        "foyer",
+        "hall",
+        "laundry_closet",
+        "flex_room",
+        "mudroom",
+        "work_kitchen"
+      ],
+      "store": "catalog",
+      "path": "space_types[space_type={t}].area.max",
+      "type": "number",
+      "unit": "sq_ft",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range_rel": [
+        0.6,
+        2.0
+      ],
+      "description": {
+        "es": "Área máxima de {t}",
+        "en": "Maximum area of {t}"
+      }
+    },
+    {
+      "id": "space.{t}.min_side_ft",
+      "for": [
+        "living_dining",
+        "living_room",
+        "dining_room",
+        "family_room",
+        "study",
+        "breakfast_nook",
+        "primary_suite",
+        "bedroom",
+        "flex_room"
+      ],
+      "store": "catalog",
+      "path": "space_types[space_type={t}].min_side_ft",
+      "type": "number",
+      "unit": "ft",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range_rel": [
+        0.7,
+        1.5
+      ],
+      "floor": {
+        "ruleset": "crc_2025_habitability.json",
+        "rule_id": "C01-HABITABLE-DIMENSION",
+        "key": "value",
+        "unit": "ft",
+        "bound": "min"
+      },
+      "description": {
+        "es": "Lado mínimo de {t}",
+        "en": "Least side of {t}"
+      }
+    },
+    {
+      "id": "space.{t}.min_side_ft",
+      "for": [
+        "kitchen",
+        "pantry",
+        "social_bath",
+        "primary_bath",
+        "bathroom",
+        "walk_in_closet",
+        "closet",
+        "half_bath",
+        "laundry",
+        "storage",
+        "mechanical",
+        "foyer",
+        "hall",
+        "laundry_closet",
+        "mudroom",
+        "work_kitchen"
+      ],
+      "store": "catalog",
+      "path": "space_types[space_type={t}].min_side_ft",
+      "type": "number",
+      "unit": "ft",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range_rel": [
+        0.7,
+        1.5
+      ],
+      "description": {
+        "es": "Lado mínimo de {t}",
+        "en": "Least side of {t}"
+      }
+    },
+    {
+      "id": "circulation.hall.design_width_ft",
+      "store": "catalog",
+      "path": "circulation.design_width_ft",
+      "type": "number",
+      "unit": "ft",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range": [
+        3.0,
+        5.0
+      ],
+      "floor": {
+        "ruleset": "crc_2025_habitability.json",
+        "rule_id": "C06-HALLWAY-WIDTH",
+        "key": "value",
+        "unit": "ft",
+        "bound": "min"
+      },
+      "description": {
+        "es": "Ancho de diseño del pasillo",
+        "en": "Hall design width"
+      }
+    },
+    {
+      "id": "circulation.share.target_fraction",
+      "store": "catalog",
+      "path": "circulation.target_fraction",
+      "type": "number",
+      "unit": "ratio",
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "range": [
+        0.08,
+        0.25
+      ],
+      "description": {
+        "es": "Fracción de circulación objetivo",
+        "en": "Target circulation fraction"
+      }
+    },
+    {
+      "id": "circulation.share.warn_fraction",
+      "store": "catalog",
+      "path": "circulation.warn_fraction",
+      "type": "number",
+      "unit": "ratio",
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "range": [
+        0.1,
+        0.3
+      ],
+      "description": {
+        "es": "Fracción de circulación de alerta",
+        "en": "Warning circulation fraction"
+      }
+    },
+    {
+      "id": "circulation.accessible.passage_width_ft",
+      "store": "catalog",
+      "path": "accessibility.passage_width_ft",
+      "type": "number",
+      "unit": "ft",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range": [
+        3.5,
+        5.0
+      ],
+      "floor": {
+        "ruleset": "crc_2025_habitability.json",
+        "rule_id": "C06-HALLWAY-WIDTH",
+        "key": "value",
+        "unit": "ft",
+        "bound": "min"
+      },
+      "description": {
+        "es": "Ancho de paso accesible",
+        "en": "Accessible passage width"
+      }
+    },
+    {
+      "id": "weights.floor.{t}",
+      "for": [
+        "relations",
+        "shape",
+        "circulation",
+        "exterior",
+        "closets",
+        "vertical"
+      ],
+      "store": "stacking_catalog",
+      "path": "s21.weights.{t}",
+      "type": "number",
+      "unit": null,
+      "kind": "weight",
+      "kinds_allowed": [
+        "weight"
+      ],
+      "who": "designer",
+      "range": [
+        0.0,
+        1.0
+      ],
+      "description": {
+        "es": "Peso '{t}' del puntaje de planta (S2.1)",
+        "en": "Weight '{t}' of the floor score (S2.1)"
+      }
+    },
+    {
+      "id": "weights.unit.{t}",
+      "for": [
+        "shape",
+        "fit",
+        "exterior"
+      ],
+      "store": "stacking_catalog",
+      "path": "s21.layout.local_weights.{t}",
+      "type": "number",
+      "unit": null,
+      "kind": "weight",
+      "kinds_allowed": [
+        "weight"
+      ],
+      "who": "designer",
+      "range": [
+        0.0,
+        1.0
+      ],
+      "description": {
+        "es": "Peso '{t}' del puntaje de unidad (S2.1)",
+        "en": "Weight '{t}' of the unit score (S2.1)"
+      }
+    },
+    {
+      "id": "layout.area_tolerance_fraction",
+      "store": "stacking_catalog",
+      "path": "s21.layout.target_tolerance_fraction",
+      "type": "number",
+      "unit": "ratio",
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "designer",
+      "range": [
+        0.0,
+        0.5
+      ],
+      "description": {
+        "es": "Tolerancia del área contra el objetivo",
+        "en": "Area tolerance against the target"
+      }
+    },
+    {
+      "id": "layout.side_tolerance_fraction",
+      "store": "stacking_catalog",
+      "path": "s21.layout.side_tolerance_fraction",
+      "type": "number",
+      "unit": "ratio",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range": [
+        0.0,
+        0.25
+      ],
+      "description": {
+        "es": "Tolerancia bajo el lado mínimo del catálogo",
+        "en": "Tolerance below the catalog least side"
+      }
+    },
+    {
+      "id": "upper.cantilever_depth_ft",
+      "store": "stacking_catalog",
+      "path": "upper_floor.cantilever.depth_ft",
+      "type": "number",
+      "unit": "ft",
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "range": [
+        0.0,
+        10.0
+      ],
+      "description": {
+        "es": "Voladizo de la planta alta sobre el patio",
+        "en": "Upper-floor cantilever over the patio"
+      }
+    },
+    {
+      "id": "exits.patio.order",
+      "store": "stacking_catalog",
+      "path": "s21.exits.patio.order",
+      "type": "list",
+      "unit": null,
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "choices": [
+        "dining_room",
+        "living_dining",
+        "kitchen",
+        "family_room",
+        "living_room",
+        "great_room",
+        "laundry",
+        "mudroom"
+      ],
+      "description": {
+        "es": "Orden de preferencia de la salida al patio",
+        "en": "Preference order of the patio exit"
+      }
+    },
+    {
+      "id": "door.patio_slider.width_in",
+      "store": "stacking_catalog",
+      "path": "s21.doors.types.patio_slider.width_in",
+      "type": "number",
+      "unit": "in",
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "range": [
+        60,
+        144
+      ],
+      "description": {
+        "es": "Ancho de la corrediza al patio",
+        "en": "Width of the patio slider"
+      }
+    },
+    {
+      "id": "door.main_entry.sidelight_in",
+      "store": "stacking_catalog",
+      "path": "s21.doors.types.main_entry.sidelight_in",
+      "type": "number",
+      "unit": "in",
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "range": [
+        0,
+        24
+      ],
+      "description": {
+        "es": "Ancho del panel lateral de la puerta principal",
+        "en": "Sidelight width of the main door"
+      }
+    },
+    {
+      "id": "door.main_entry.double",
+      "store": "stacking_catalog",
+      "path": "s21.doors.types.main_entry.double_variant.enabled",
+      "type": "bool",
+      "unit": null,
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "description": {
+        "es": "Puerta principal de dos hojas",
+        "en": "Double-leaf main door"
+      }
+    },
+    {
+      "id": "program.fos",
+      "store": "ruleset:client_design_variables.json",
+      "path": "rules[rule_id=D01-DESIGN-FOS].value",
+      "type": "number",
+      "unit": "ratio",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "range": [
+        0.3,
+        0.8
+      ],
+      "description": {
+        "es": "Ocupación de diseño (FOS)",
+        "en": "Design lot coverage (FOS)"
+      }
+    },
+    {
+      "id": "program.floors_policy",
+      "store": "ruleset:client_design_variables.json",
+      "path": "rules[rule_id=D03-FLOORS-POLICY].parameters.policy",
+      "type": "enum",
+      "unit": null,
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "choices": [
+        "one_floor_first",
+        "score"
+      ],
+      "description": {
+        "es": "Política de pisos",
+        "en": "Floors policy"
+      }
+    },
+    {
+      "id": "program.master_first",
+      "store": "ruleset:client_stair_rules.json",
+      "path": "rules[rule_id=K10-BATHS-PER-BEDROOM].parameters.master_first",
+      "type": "list",
+      "unit": null,
+      "kind": "soft",
+      "kinds_allowed": [
+        "soft"
+      ],
+      "who": "client",
+      "choices": [
+        "primary_bath",
+        "walk_in_closet"
+      ],
+      "description": {
+        "es": "Lo que el master recibe primero (K10)",
+        "en": "What the primary suite gets first (K10)"
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "le": [
+        "space.{t}.area_min_sqft",
+        "space.{t}.area_target_sqft",
+        "space.{t}.area_max_sqft"
+      ],
+      "for": [
+        "living_dining",
+        "living_room",
+        "dining_room",
+        "family_room",
+        "study",
+        "kitchen",
+        "breakfast_nook",
+        "pantry",
+        "primary_suite",
+        "bedroom",
+        "social_bath",
+        "primary_bath",
+        "bathroom",
+        "walk_in_closet",
+        "closet",
+        "half_bath",
+        "laundry",
+        "storage",
+        "mechanical",
+        "foyer",
+        "hall",
+        "laundry_closet",
+        "flex_room",
+        "mudroom",
+        "work_kitchen"
+      ],
+      "description": {
+        "es": "mínima ≤ objetivo ≤ máxima",
+        "en": "min ≤ target ≤ max"
+      }
+    },
+    {
+      "le": [
+        "space.{t}.aspect_pref_max",
+        "space.{t}.aspect_max"
+      ],
+      "for": "design_spaces",
+      "description": {
+        "es": "proporción preferida ≤ máxima",
+        "en": "preferred ≤ maximum ratio"
+      }
+    },
+    {
+      "le": [
+        "circulation.share.target_fraction",
+        "circulation.share.warn_fraction"
+      ],
+      "description": {
+        "es": "objetivo ≤ alerta",
+        "en": "target ≤ warning"
+      }
+    },
+    {
+      "le": [
+        "space.kitchen.aisle_one_cook_in",
+        "space.kitchen.aisle_two_cooks_in"
+      ],
+      "description": {
+        "es": "pasillo de 1 ≤ pasillo de 2",
+        "en": "one-cook aisle ≤ two-cook aisle"
+      }
+    },
+    {
+      "le": [
+        "space.kitchen.triangle_leg_min_ft",
+        "space.kitchen.triangle_leg_max_ft"
+      ],
+      "description": {
+        "es": "lado mínimo ≤ máximo",
+        "en": "min leg ≤ max leg"
+      }
+    }
+  ]
+}

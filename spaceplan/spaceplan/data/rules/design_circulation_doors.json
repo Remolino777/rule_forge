@@ -1,0 +1,535 @@
+{
+  "ruleset_id": "design-circulation-doors",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "us-ca",
+  "zone": "*",
+  "code_edition": "design",
+  "kind": "design",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice.",
+  "verification_note": "Design values, not code (the hallway width floor is CRC C06 R311.6 in crc_2025_habitability). The hall design width, the circulation target and warning fractions stay in the residential catalog (circulation block) and are registered by reference.",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "spaceplan design circulation and doors",
+      "section": "all"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [],
+    "depth_methods": [],
+    "default_width_method": null,
+    "default_depth_method": null,
+    "setback_distance_semantics": null,
+    "verified": false,
+    "source": {
+      "document": "spaceplan design circulation and doors",
+      "section": "n/a"
+    }
+  },
+  "parameter_schema": {
+    "note": "Every value the client or the designer may define is a parameter object: value, type (number / enum / list / bool), unit, kind (hard / soft / weight / reference), who (client / designer / code), range (numbers), choices (enum / list), kinds_allowed, optional floor (a code rule the value may not cross) and a description in Spanish and English. The design registry (modules/design) reads them; the client's changes go to a design profile, never here."
+  },
+  "rules": [
+    {
+      "rule_id": "P01-HALL-SHAPE",
+      "kind": "design",
+      "magnitude": "hall_shape",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "max_length_ft": {
+          "value": 30,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Largo máximo preferido de un tramo de pasillo",
+            "en": "Preferred maximum length of a hall run"
+          },
+          "range": [
+            12,
+            60
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "rectangular": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "El pasillo es rectangular (sin quiebres)",
+            "en": "The hall is rectangular (no jogs)"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "foyer_rectangular": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "El foyer es rectangular",
+            "en": "The foyer is rectangular"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Halls and foyer: rectangular runs of limited length."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "circulation.hall"
+    },
+    {
+      "rule_id": "P02-DOOR-CLEARANCE",
+      "kind": "design",
+      "magnitude": "door_clearance",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "clear_width_in": {
+          "value": 32,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Paso libre de puertas interiores (NKBA 1)",
+            "en": "Clear opening of interior doors (NKBA 1)"
+          },
+          "range": [
+            28,
+            36
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "pull_latch_side_in": {
+          "value": 18,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Holgura del lado del picaporte al tirar (NKBA 2)",
+            "en": "Latch-side clearance, pull side (NKBA 2)"
+          },
+          "range": [
+            12,
+            24
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "pull_depth_in": {
+          "value": 60,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Fondo libre al tirar (NKBA 2)",
+            "en": "Clear depth, pull side (NKBA 2)"
+          },
+          "range": [
+            48,
+            60
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "push_latch_side_in": {
+          "value": 12,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Holgura del lado del picaporte al empujar (NKBA 2)",
+            "en": "Latch-side clearance, push side (NKBA 2)"
+          },
+          "range": [
+            0,
+            18
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "push_depth_in": {
+          "value": 48,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Fondo libre al empujar (NKBA 2)",
+            "en": "Clear depth, push side (NKBA 2)"
+          },
+          "range": [
+            36,
+            60
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "NKBA 2: pull side door width + 18 in x 60 in; push side door width + 12 in x 48 in."
+      ],
+      "source": {
+        "document": "NKBA Kitchen Planning Guidelines (2022)",
+        "section": "guidelines 1, 2, 3, 6, 7, 8, 25"
+      },
+      "verified": false,
+      "param_prefix": "door.clearance"
+    },
+    {
+      "rule_id": "P03-DOOR-CONFLICTS",
+      "kind": "design",
+      "magnitude": "door_conflicts",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "no_swing_overlap": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Los giros de dos puertas no se cruzan",
+            "en": "Two door swings do not overlap"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "no_swing_on_fixture": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "El giro no barre un artefacto ni el rectángulo de mobiliario",
+            "en": "A swing does not sweep a fixture or the furniture rectangle"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "keep_furniture_wall": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Muro de cabecera y de sofá sin puertas",
+            "en": "Headboard and sofa walls without doors"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Door conflicts checked at the space level."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "door.conflicts"
+    },
+    {
+      "rule_id": "P04-PRIVACY",
+      "kind": "design",
+      "magnitude": "door_privacy",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "bath_door_not_onto": {
+          "value": [
+            "living_room",
+            "family_room",
+            "living_dining",
+            "dining_room",
+            "great_room",
+            "kitchen",
+            "foyer"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Espacios a los que no debe abrir directo la puerta de un baño",
+            "en": "Spaces a bath door should not open onto directly"
+          },
+          "choices": [
+            "living_room",
+            "family_room",
+            "living_dining",
+            "dining_room",
+            "great_room",
+            "kitchen",
+            "foyer",
+            "hall"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bedroom_door_from": {
+          "value": [
+            "hall",
+            "foyer"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Desde dónde se entra a una recámara",
+            "en": "Where a bedroom is entered from"
+          },
+          "choices": [
+            "hall",
+            "foyer",
+            "living_room",
+            "family_room",
+            "great_room"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "no_pass_through_living": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "No cruzar una estancia para llegar a la zona privada",
+            "en": "Do not cross a living space to reach the private zone"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Privacy gradient: public to private without crossing living spaces."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "door.privacy"
+    },
+    {
+      "rule_id": "P05-ROUTES",
+      "kind": "design",
+      "magnitude": "route_lengths",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "garage_to_kitchen_max_ft": {
+          "value": 30,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Recorrido máximo garaje → cocina",
+            "en": "Maximum route garage → kitchen"
+          },
+          "range": [
+            10,
+            60
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "entry_to_half_bath_max_ft": {
+          "value": 25,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Recorrido máximo entrada → medio baño",
+            "en": "Maximum route entry → half bath"
+          },
+          "range": [
+            10,
+            50
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bedroom_to_bath_max_ft": {
+          "value": 15,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Recorrido máximo recámara → baño",
+            "en": "Maximum route bedroom → bath"
+          },
+          "range": [
+            6,
+            30
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "kitchen_to_patio_max_ft": {
+          "value": 20,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Recorrido máximo cocina → patio",
+            "en": "Maximum route kitchen → patio"
+          },
+          "range": [
+            5,
+            40
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Route lengths measured along the door graph between door centres."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "circulation.routes"
+    },
+    {
+      "rule_id": "P06-SPACE-SYNTAX",
+      "kind": "design",
+      "magnitude": "space_syntax",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "weight": {
+          "value": 0.0,
+          "type": "number",
+          "unit": null,
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Peso de la sintaxis espacial en el puntaje (0 = solo reporte)",
+            "en": "Weight of space syntax in the score (0 = report only)"
+          },
+          "range": [
+            0.0,
+            0.3
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        },
+        "public_types": {
+          "value": [
+            "living_room",
+            "family_room",
+            "living_dining",
+            "dining_room",
+            "great_room",
+            "kitchen"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Espacios públicos",
+            "en": "Public spaces"
+          },
+          "choices": [
+            "living_room",
+            "family_room",
+            "living_dining",
+            "dining_room",
+            "great_room",
+            "kitchen",
+            "breakfast_nook",
+            "foyer"
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        }
+      },
+      "text": [
+        "Integration and depth of the door graph (Hillier-Hanson); public-space dominance as in the space-syntax literature on RPLAN plans."
+      ],
+      "source": {
+        "document": "Space Syntax-guided Post-training for Residential Floor Plan Generation (arXiv 2602.22507)",
+        "section": "integration, public-space dominance"
+      },
+      "verified": false,
+      "param_prefix": "circulation.syntax"
+    }
+  ]
+}

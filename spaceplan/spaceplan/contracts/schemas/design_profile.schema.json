@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://municipal-permit-intelligence/spaceplan/contracts/design_profile/0.2.0",
+  "title": "Design profile",
+  "description": "Client changes on top of the design registry baseline (step 6.7a S2.2a): each change names a registered parameter, its new value and/or kind, the author, the date and the reason. The baseline catalogs and rulesets are never edited.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "version",
+    "produced_by",
+    "input_sha256",
+    "design_profile"
+  ],
+  "properties": {
+    "contract": {
+      "const": "design_profile"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "produced_by": {
+      "const": "design"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the registry identity and baseline stores the profile was made on."
+    },
+    "brief_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "consumers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "design_profile": {
+      "$ref": "#/$defs/profile"
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "profile_version",
+        "registry_id",
+        "registry_version",
+        "base_stores_sha256",
+        "changes"
+      ],
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "registry_id": {
+          "type": "string"
+        },
+        "registry_version": {
+          "type": "string"
+        },
+        "base_stores_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "note": {
+          "type": "string"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/change"
+          }
+        }
+      }
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "author",
+        "date"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "value"
+          ]
+        },
+        {
+          "required": [
+            "kind"
+          ]
+        }
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "array"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "hard",
+            "soft",
+            "weight",
+            "reference"
+          ]
+        },
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

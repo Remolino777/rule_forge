@@ -80,7 +80,7 @@ def test_no_crc_numbers_in_program_review():
 # ------------------------------------------------------------------ architecture v3 (refactor tanda 2)
 # REFACTOR_PLAN.md section 3: modules/<m>/{main,lib,lib_aux} + pipeline, acyclic module graph (3.2).
 
-MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "stacking", "viz")
+MODULES = ("lotcap", "site", "household", "cost", "profiles", "zoning", "areas", "stacking", "viz", "design")
 ALLOWED = {  # plan 3.2: module -> modules it may import (besides itself)
     "core": set(),
     "lotcap": {"core"},
@@ -90,7 +90,8 @@ ALLOWED = {  # plan 3.2: module -> modules it may import (besides itself)
     "profiles": {"core", "household", "cost"},
     "zoning": {"core", "lotcap", "site"},
     "areas": {"core", "lotcap", "site", "household", "cost", "profiles"},
-    "stacking": {"core", "lotcap", "site", "cost", "zoning", "areas"},  # step 6.7 (S0-S1 core only; S2 zoning)
+    "stacking": {"core", "lotcap", "site", "cost", "zoning", "areas", "design"},  # step 6.7 (S2.2a: design registry)
+    "design": {"core"},  # step 6.7a S2.2a: registry of design parameters, profiles, LLM tools
     "viz": {"core", "lotcap"},  # contracts, plus lotcap types to draw the lot
     "pipeline": {"core", *MODULES},
 }
@@ -180,10 +181,14 @@ def test_files_follow_plan_table():
                          "access_core", "access_stair", "access_rank", "routes", "access_cell",  # S1.2
                          "space_rules", "unit_frame", "unit_layout", "door_placement", "space_relations",
                          "space_cell",  # S2.1
-                         "program_adjust", "front_yard"},  # S2.1b
+                         "program_adjust", "front_yard",  # S2.1b
+                         "space_quality"},  # S2.2a
         "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry", "zone_grid",
                              "space_grid"},  # space_grid: S2.1
-        "stacking/main": {"run_stacking", "contract"},
+        "stacking/main": {"run_stacking", "contract", "run_quality"},  # run_quality: S2.2a
+        "design/lib": {"design_registry", "design_profile", "llm_tools"},  # S2.2a
+        "design/lib_aux": {"param_paths", "units"},
+        "design/main": {"run_design", "contract"},
         "viz/lib": {"review_notes", "lot_site_plots", "zoning_plots", "review_sheets", "portfolio_sheet",
                     "area_matrix_plots",  # tanda 3: visualize split by topic; tanda 4: facade removed
                     "stack_plan_plots",  # step 6.7a S1

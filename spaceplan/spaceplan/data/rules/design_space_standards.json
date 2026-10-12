@@ -1,0 +1,4129 @@
+{
+  "ruleset_id": "design-space-standards",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "us-ca",
+  "zone": "*",
+  "code_edition": "design",
+  "kind": "design",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice.",
+  "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "spaceplan design space standards",
+      "section": "all"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [],
+    "depth_methods": [],
+    "default_width_method": null,
+    "default_depth_method": null,
+    "setback_distance_semantics": null,
+    "verified": false,
+    "source": {
+      "document": "spaceplan design space standards",
+      "section": "n/a"
+    }
+  },
+  "parameter_schema": {
+    "note": "Every value the client or the designer may define is a parameter object: value, type (number / enum / list / bool), unit, kind (hard / soft / weight / reference), who (client / designer / code), range (numbers), choices (enum / list), kinds_allowed, optional floor (a code rule the value may not cross) and a description in Spanish and English. The design registry (modules/design) reads them; the client's changes go to a design profile, never here."
+  },
+  "rules": [
+    {
+      "rule_id": "S01-PRIMARY-SUITE",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "primary_suite",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 14,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de primary_suite",
+            "en": "Typical width of primary_suite"
+          },
+          "range": [
+            7.0,
+            28.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 16,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de primary_suite",
+            "en": "Typical depth of primary_suite"
+          },
+          "range": [
+            8.0,
+            32.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 20,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de primary_suite",
+            "en": "Preferred longest side of primary_suite"
+          },
+          "range": [
+            14.0,
+            30.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.3,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de primary_suite",
+            "en": "Preferred (upper) long/short ratio of primary_suite"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de primary_suite (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of primary_suite (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 12.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de primary_suite",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of primary_suite"
+          },
+          "range": [
+            7.5,
+            19.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de primary_suite",
+            "en": "Depth of the clear furniture rectangle of primary_suite"
+          },
+          "range": [
+            6.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bed": {
+          "value": "king",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Cama de referencia",
+            "en": "Reference bed"
+          },
+          "choices": [
+            "queen",
+            "king"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bed_clearance_in": {
+          "value": 36,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Holgura libre a los lados y al pie de la cama",
+            "en": "Clear space at the sides and foot of the bed"
+          },
+          "range": [
+            24,
+            42
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "King bed 76 x 80 in with 36 in clear at both sides and the foot; headboard wall without doors; bath and walk-in reached from the room.",
+      "text": [
+        "Design standard of primary_suite: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Dimensions.com, Queen Bedroom Layouts",
+        "section": "queen 60 x 80 in, 30 in min / 36 in comfortable clearance; king extrapolated (verify)"
+      },
+      "verified": false,
+      "param_prefix": "space.primary_suite"
+    },
+    {
+      "rule_id": "S02-BEDROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "bedroom",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 11,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de bedroom",
+            "en": "Typical width of bedroom"
+          },
+          "range": [
+            5.5,
+            22.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de bedroom",
+            "en": "Typical depth of bedroom"
+          },
+          "range": [
+            6.0,
+            24.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 16,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de bedroom",
+            "en": "Preferred longest side of bedroom"
+          },
+          "range": [
+            11.0,
+            24.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.3,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de bedroom",
+            "en": "Preferred (upper) long/short ratio of bedroom"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de bedroom (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of bedroom (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de bedroom",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of bedroom"
+          },
+          "range": [
+            6.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 9.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de bedroom",
+            "en": "Depth of the clear furniture rectangle of bedroom"
+          },
+          "range": [
+            5.5,
+            14.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bed": {
+          "value": "queen",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Cama de referencia",
+            "en": "Reference bed"
+          },
+          "choices": [
+            "full",
+            "queen",
+            "king"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bed_clearance_in": {
+          "value": 30,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Holgura libre a los lados y al pie de la cama",
+            "en": "Clear space at the sides and foot of the bed"
+          },
+          "range": [
+            24,
+            42
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Queen bed 60 x 80 in with 30 in clear at both sides and the foot; headboard wall without doors; reach-in closet 24 in deep.",
+      "text": [
+        "Design standard of bedroom: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Dimensions.com, Queen Bedroom Layouts",
+        "section": "queen 60 x 80 in, 30 in min / 36 in comfortable clearance; king extrapolated (verify)"
+      },
+      "verified": false,
+      "param_prefix": "space.bedroom"
+    },
+    {
+      "rule_id": "S03-WALK-IN-CLOSET",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "walk_in_closet",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de walk_in_closet",
+            "en": "Typical width of walk_in_closet"
+          },
+          "range": [
+            2.5,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 7,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de walk_in_closet",
+            "en": "Typical depth of walk_in_closet"
+          },
+          "range": [
+            3.5,
+            14.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de walk_in_closet",
+            "en": "Preferred longest side of walk_in_closet"
+          },
+          "range": [
+            8.5,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de walk_in_closet",
+            "en": "Preferred (upper) long/short ratio of walk_in_closet"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de walk_in_closet (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of walk_in_closet (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de walk_in_closet",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of walk_in_closet"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de walk_in_closet",
+            "en": "Depth of the clear furniture rectangle of walk_in_closet"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "One side: 24 in hanging + 36 in aisle (5 ft); two sides 6-7 ft wide; U-shaped from 7 ft.",
+      "text": [
+        "Design standard of walk_in_closet: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Wayfair, Walk-In Closet Sizes",
+        "section": "24 in hanging + 36 in aisle; 5 x 7 average; double 6-7 ft wide"
+      },
+      "verified": false,
+      "param_prefix": "space.walk_in_closet"
+    },
+    {
+      "rule_id": "S04-BATHROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "bathroom",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de bathroom",
+            "en": "Typical width of bathroom"
+          },
+          "range": [
+            2.5,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de bathroom",
+            "en": "Typical depth of bathroom"
+          },
+          "range": [
+            4.0,
+            16.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de bathroom",
+            "en": "Preferred longest side of bathroom"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de bathroom",
+            "en": "Preferred (upper) long/short ratio of bathroom"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.7,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de bathroom (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of bathroom (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de bathroom",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of bathroom"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de bathroom",
+            "en": "Depth of the clear furniture rectangle of bathroom"
+          },
+          "range": [
+            5.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "template": {
+          "value": "inline_tub",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Plantilla de baño",
+            "en": "Bath template"
+          },
+          "choices": [
+            "inline_tub",
+            "inline_shower",
+            "split"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Fixtures in line on the long wall (tub 60 in across the short side); toilet axis 15 in (code) / 18 in (NKBA) from a wall; 21 in (code) / 30 in (NKBA) clear in front; shower 30 x 30 (code) / 36 x 36 in (NKBA).",
+      "text": [
+        "Design standard of bathroom: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "NKBA Kitchen & Bath Planning Guidelines (bath), via InspectAPedia Bathroom Design Guide",
+        "section": "fixture clearances; 5 x 8 full bath is common practice (verify)"
+      },
+      "verified": false,
+      "param_prefix": "space.bathroom"
+    },
+    {
+      "rule_id": "S05-PRIMARY-BATH",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "primary_bath",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de primary_bath",
+            "en": "Typical width of primary_bath"
+          },
+          "range": [
+            4.0,
+            16.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de primary_bath",
+            "en": "Typical depth of primary_bath"
+          },
+          "range": [
+            5.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 14,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de primary_bath",
+            "en": "Preferred longest side of primary_bath"
+          },
+          "range": [
+            10.0,
+            21.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de primary_bath",
+            "en": "Preferred (upper) long/short ratio of primary_bath"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de primary_bath (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of primary_bath (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de primary_bath",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of primary_bath"
+          },
+          "range": [
+            5.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 9,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de primary_bath",
+            "en": "Depth of the clear furniture rectangle of primary_bath"
+          },
+          "range": [
+            5.5,
+            13.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "template": {
+          "value": "double_vanity",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Plantilla del baño master",
+            "en": "Primary bath template"
+          },
+          "choices": [
+            "double_vanity",
+            "single_vanity"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Double vanity with sink axes at least 30 in apart; separate shower and tub, or a large shower.",
+      "text": [
+        "Design standard of primary_bath: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "NKBA Kitchen & Bath Planning Guidelines (bath), via InspectAPedia Bathroom Design Guide",
+        "section": "fixture clearances; 5 x 8 full bath is common practice (verify)"
+      },
+      "verified": false,
+      "param_prefix": "space.primary_bath"
+    },
+    {
+      "rule_id": "S06-SOCIAL-BATH",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "social_bath",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de social_bath",
+            "en": "Typical width of social_bath"
+          },
+          "range": [
+            2.5,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 7,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de social_bath",
+            "en": "Typical depth of social_bath"
+          },
+          "range": [
+            3.5,
+            14.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 9,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de social_bath",
+            "en": "Preferred longest side of social_bath"
+          },
+          "range": [
+            6.5,
+            13.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de social_bath",
+            "en": "Preferred (upper) long/short ratio of social_bath"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de social_bath (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of social_bath (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de social_bath",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of social_bath"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 7,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de social_bath",
+            "en": "Depth of the clear furniture rectangle of social_bath"
+          },
+          "range": [
+            4.0,
+            10.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "template": {
+          "value": "inline_shower",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Plantilla de baño",
+            "en": "Bath template"
+          },
+          "choices": [
+            "inline_tub",
+            "inline_shower",
+            "split"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Three-quarter bath on the ground floor: shower, toilet and sink in line.",
+      "text": [
+        "Design standard of social_bath: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "NKBA Kitchen & Bath Planning Guidelines (bath), via InspectAPedia Bathroom Design Guide",
+        "section": "fixture clearances; 5 x 8 full bath is common practice (verify)"
+      },
+      "verified": false,
+      "param_prefix": "space.social_bath"
+    },
+    {
+      "rule_id": "S07-HALF-BATH",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "half_bath",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 4,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de half_bath",
+            "en": "Typical width of half_bath"
+          },
+          "range": [
+            2.0,
+            8.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de half_bath",
+            "en": "Typical depth of half_bath"
+          },
+          "range": [
+            3.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de half_bath",
+            "en": "Preferred longest side of half_bath"
+          },
+          "range": [
+            5.5,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de half_bath",
+            "en": "Preferred (upper) long/short ratio of half_bath"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de half_bath (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of half_bath (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 3,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de half_bath",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of half_bath"
+          },
+          "range": [
+            2.0,
+            4.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de half_bath",
+            "en": "Depth of the clear furniture rectangle of half_bath"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Toilet and sink; ground floor only (client decision K10).",
+      "text": [
+        "Design standard of half_bath: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "NKBA Kitchen & Bath Planning Guidelines (bath), via InspectAPedia Bathroom Design Guide",
+        "section": "fixture clearances; 5 x 8 full bath is common practice (verify)"
+      },
+      "verified": false,
+      "param_prefix": "space.half_bath"
+    },
+    {
+      "rule_id": "S08-KITCHEN",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "kitchen",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de kitchen",
+            "en": "Typical width of kitchen"
+          },
+          "range": [
+            6.0,
+            24.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 13,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de kitchen",
+            "en": "Typical depth of kitchen"
+          },
+          "range": [
+            6.5,
+            26.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 20,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de kitchen",
+            "en": "Preferred longest side of kitchen"
+          },
+          "range": [
+            14.0,
+            30.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de kitchen",
+            "en": "Preferred (upper) long/short ratio of kitchen"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de kitchen (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of kitchen (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de kitchen",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of kitchen"
+          },
+          "range": [
+            6.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de kitchen",
+            "en": "Depth of the clear furniture rectangle of kitchen"
+          },
+          "range": [
+            6.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "template": {
+          "value": "L",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Plantilla de cocina",
+            "en": "Kitchen template"
+          },
+          "choices": [
+            "L",
+            "U",
+            "galley",
+            "island"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aisle_one_cook_in": {
+          "value": 42,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Pasillo de trabajo, un cocinero (NKBA 6)",
+            "en": "Work aisle, one cook (NKBA 6)"
+          },
+          "range": [
+            36,
+            54
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aisle_two_cooks_in": {
+          "value": 48,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Pasillo de trabajo, dos cocineros (NKBA 6)",
+            "en": "Work aisle, two cooks (NKBA 6)"
+          },
+          "range": [
+            42,
+            60
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "triangle_max_ft": {
+          "value": 26,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Suma máxima del triángulo de trabajo (NKBA 3)",
+            "en": "Maximum work-triangle total (NKBA 3)"
+          },
+          "range": [
+            18,
+            30
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "triangle_leg_min_ft": {
+          "value": 4,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Lado mínimo del triángulo (NKBA 3)",
+            "en": "Minimum triangle leg (NKBA 3)"
+          },
+          "range": [
+            3,
+            6
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "triangle_leg_max_ft": {
+          "value": 9,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Lado máximo del triángulo (NKBA 3)",
+            "en": "Maximum triangle leg (NKBA 3)"
+          },
+          "range": [
+            7,
+            12
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "counter_frontage_in": {
+          "value": 158,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Frente total de mesada (NKBA 25)",
+            "en": "Total countertop frontage (NKBA 25)"
+          },
+          "range": [
+            100,
+            240
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "island_clearance_in": {
+          "value": 42,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Holgura alrededor de la isla (NKBA 6/7)",
+            "en": "Clearance around the island (NKBA 6/7)"
+          },
+          "range": [
+            36,
+            54
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Template L, U, galley or island; work aisle 42 in (one cook) / 48 in (two); triangle legs 4-9 ft, total 26 ft or less; 158 in of counter frontage.",
+      "text": [
+        "Design standard of kitchen: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "NKBA Kitchen Planning Guidelines (2022)",
+        "section": "guidelines 1, 2, 3, 6, 7, 8, 25"
+      },
+      "verified": false,
+      "param_prefix": "space.kitchen"
+    },
+    {
+      "rule_id": "S09-WORK-KITCHEN",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "work_kitchen",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de work_kitchen",
+            "en": "Typical width of work_kitchen"
+          },
+          "range": [
+            3.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de work_kitchen",
+            "en": "Typical depth of work_kitchen"
+          },
+          "range": [
+            5.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 14,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de work_kitchen",
+            "en": "Preferred longest side of work_kitchen"
+          },
+          "range": [
+            10.0,
+            21.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de work_kitchen",
+            "en": "Preferred (upper) long/short ratio of work_kitchen"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de work_kitchen (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of work_kitchen (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de work_kitchen",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of work_kitchen"
+          },
+          "range": [
+            3.5,
+            9.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de work_kitchen",
+            "en": "Depth of the clear furniture rectangle of work_kitchen"
+          },
+          "range": [
+            5.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Galley with two counters and a 42 in aisle.",
+      "text": [
+        "Design standard of work_kitchen: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "NKBA Kitchen Planning Guidelines (2022)",
+        "section": "guidelines 1, 2, 3, 6, 7, 8, 25"
+      },
+      "verified": false,
+      "param_prefix": "space.work_kitchen"
+    },
+    {
+      "rule_id": "S10-DINING-ROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "dining_room",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 13,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de dining_room",
+            "en": "Typical width of dining_room"
+          },
+          "range": [
+            6.5,
+            26.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de dining_room",
+            "en": "Typical depth of dining_room"
+          },
+          "range": [
+            5.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 18,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de dining_room",
+            "en": "Preferred longest side of dining_room"
+          },
+          "range": [
+            12.5,
+            27.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.4,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de dining_room",
+            "en": "Preferred (upper) long/short ratio of dining_room"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de dining_room (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of dining_room (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de dining_room",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of dining_room"
+          },
+          "range": [
+            7.0,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 9,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de dining_room",
+            "en": "Depth of the clear furniture rectangle of dining_room"
+          },
+          "range": [
+            5.5,
+            13.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "seats": {
+          "value": 6,
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Personas en la mesa de referencia",
+            "en": "Seats of the reference table"
+          },
+          "choices": [
+            4,
+            6,
+            8
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "table_clearance_in": {
+          "value": 36,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Holgura de la mesa a muro u obstáculo",
+            "en": "Clearance from table edge to wall"
+          },
+          "range": [
+            30,
+            48
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Table for 6 (72 x 36 in) with 36 in clear on every side; round 60 in table needs 11 x 11.",
+      "text": [
+        "Design standard of dining_room: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "ArchitectGPT, Dining Table Size Guide",
+        "section": "72 x 36 in table for 6, 36 in minimum / 42-48 in comfortable clearance"
+      },
+      "verified": false,
+      "param_prefix": "space.dining_room"
+    },
+    {
+      "rule_id": "S11-BREAKFAST-NOOK",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "breakfast_nook",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de breakfast_nook",
+            "en": "Typical width of breakfast_nook"
+          },
+          "range": [
+            4.0,
+            16.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de breakfast_nook",
+            "en": "Typical depth of breakfast_nook"
+          },
+          "range": [
+            5.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de breakfast_nook",
+            "en": "Preferred longest side of breakfast_nook"
+          },
+          "range": [
+            8.5,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.4,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de breakfast_nook",
+            "en": "Preferred (upper) long/short ratio of breakfast_nook"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de breakfast_nook (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of breakfast_nook (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de breakfast_nook",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of breakfast_nook"
+          },
+          "range": [
+            5.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de breakfast_nook",
+            "en": "Depth of the clear furniture rectangle of breakfast_nook"
+          },
+          "range": [
+            5.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Table for 4 (48 x 30 in or 42 in round) with 30-36 in clear.",
+      "text": [
+        "Design standard of breakfast_nook: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "ArchitectGPT, Dining Table Size Guide",
+        "section": "72 x 36 in table for 6, 36 in minimum / 42-48 in comfortable clearance"
+      },
+      "verified": false,
+      "param_prefix": "space.breakfast_nook"
+    },
+    {
+      "rule_id": "S12-LIVING-ROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "living_room",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 14,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de living_room",
+            "en": "Typical width of living_room"
+          },
+          "range": [
+            7.0,
+            28.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 18,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de living_room",
+            "en": "Typical depth of living_room"
+          },
+          "range": [
+            9.0,
+            36.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 24,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de living_room",
+            "en": "Preferred longest side of living_room"
+          },
+          "range": [
+            17.0,
+            36.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de living_room",
+            "en": "Preferred (upper) long/short ratio of living_room"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de living_room (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of living_room (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 11,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de living_room",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of living_room"
+          },
+          "range": [
+            6.5,
+            16.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de living_room",
+            "en": "Depth of the clear furniture rectangle of living_room"
+          },
+          "range": [
+            7.0,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Sofa on a wall without doors, facing a TV or fireplace wall; conversation area about 11 x 12.",
+      "text": [
+        "Design standard of living_room: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.living_room"
+    },
+    {
+      "rule_id": "S13-FAMILY-ROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "family_room",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 14,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de family_room",
+            "en": "Typical width of family_room"
+          },
+          "range": [
+            7.0,
+            28.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 18,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de family_room",
+            "en": "Typical depth of family_room"
+          },
+          "range": [
+            9.0,
+            36.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 24,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de family_room",
+            "en": "Preferred longest side of family_room"
+          },
+          "range": [
+            17.0,
+            36.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de family_room",
+            "en": "Preferred (upper) long/short ratio of family_room"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.8,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de family_room (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of family_room (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 11,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de family_room",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of family_room"
+          },
+          "range": [
+            6.5,
+            16.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de family_room",
+            "en": "Depth of the clear furniture rectangle of family_room"
+          },
+          "range": [
+            7.0,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Same as the living room; in an open plan it is a zone of the great room.",
+      "text": [
+        "Design standard of family_room: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.family_room"
+    },
+    {
+      "rule_id": "S14-LIVING-DINING",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "living_dining",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 16,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de living_dining",
+            "en": "Typical width of living_dining"
+          },
+          "range": [
+            8.0,
+            32.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 22,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de living_dining",
+            "en": "Typical depth of living_dining"
+          },
+          "range": [
+            11.0,
+            44.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 28,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de living_dining",
+            "en": "Preferred longest side of living_dining"
+          },
+          "range": [
+            19.5,
+            42.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de living_dining",
+            "en": "Preferred (upper) long/short ratio of living_dining"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.9,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de living_dining (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of living_dining (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de living_dining",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of living_dining"
+          },
+          "range": [
+            7.0,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 18,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de living_dining",
+            "en": "Depth of the clear furniture rectangle of living_dining"
+          },
+          "range": [
+            11.0,
+            27.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Living and dining zones side by side, each with its furniture rectangle.",
+      "text": [
+        "Design standard of living_dining: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.living_dining"
+    },
+    {
+      "rule_id": "S15-STUDY",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "study",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de study",
+            "en": "Typical width of study"
+          },
+          "range": [
+            5.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de study",
+            "en": "Typical depth of study"
+          },
+          "range": [
+            6.0,
+            24.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 16,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de study",
+            "en": "Preferred longest side of study"
+          },
+          "range": [
+            11.0,
+            24.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.4,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de study",
+            "en": "Preferred (upper) long/short ratio of study"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de study (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of study (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de study",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of study"
+          },
+          "range": [
+            5.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 9,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de study",
+            "en": "Depth of the clear furniture rectangle of study"
+          },
+          "range": [
+            5.5,
+            13.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Desk and chair on the window wall, shelving on one side.",
+      "text": [
+        "Design standard of study: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.study"
+    },
+    {
+      "rule_id": "S16-FLEX-ROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "flex_room",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de flex_room",
+            "en": "Typical width of flex_room"
+          },
+          "range": [
+            5.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 11,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de flex_room",
+            "en": "Typical depth of flex_room"
+          },
+          "range": [
+            5.5,
+            22.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 15,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de flex_room",
+            "en": "Preferred longest side of flex_room"
+          },
+          "range": [
+            10.5,
+            22.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.4,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de flex_room",
+            "en": "Preferred (upper) long/short ratio of flex_room"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de flex_room (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of flex_room (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 9,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de flex_room",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of flex_room"
+          },
+          "range": [
+            5.5,
+            13.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 9.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de flex_room",
+            "en": "Depth of the clear furniture rectangle of flex_room"
+          },
+          "range": [
+            5.5,
+            14.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bed": {
+          "value": "queen",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Cama de referencia",
+            "en": "Reference bed"
+          },
+          "choices": [
+            "full",
+            "queen",
+            "king"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bed_clearance_in": {
+          "value": 30,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Holgura libre a los lados y al pie de la cama",
+            "en": "Clear space at the sides and foot of the bed"
+          },
+          "range": [
+            24,
+            42
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Guest bed (queen) or office; same rules as a bedroom.",
+      "text": [
+        "Design standard of flex_room: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.flex_room"
+    },
+    {
+      "rule_id": "S17-FOYER",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "foyer",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de foyer",
+            "en": "Typical width of foyer"
+          },
+          "range": [
+            3.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de foyer",
+            "en": "Typical depth of foyer"
+          },
+          "range": [
+            4.0,
+            16.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de foyer",
+            "en": "Preferred longest side of foyer"
+          },
+          "range": [
+            8.5,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de foyer",
+            "en": "Preferred (upper) long/short ratio of foyer"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de foyer (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of foyer (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de foyer",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of foyer"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de foyer",
+            "en": "Depth of the clear furniture rectangle of foyer"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Rectangular; swing of the main door plus 18 in on its latch side; closet optional.",
+      "text": [
+        "Design standard of foyer: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.foyer"
+    },
+    {
+      "rule_id": "S18-LAUNDRY",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "laundry",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de laundry",
+            "en": "Typical width of laundry"
+          },
+          "range": [
+            3.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de laundry",
+            "en": "Typical depth of laundry"
+          },
+          "range": [
+            4.0,
+            16.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de laundry",
+            "en": "Preferred longest side of laundry"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de laundry",
+            "en": "Preferred (upper) long/short ratio of laundry"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de laundry (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of laundry (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de laundry",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of laundry"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de laundry",
+            "en": "Depth of the clear furniture rectangle of laundry"
+          },
+          "range": [
+            3.5,
+            9.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Washer and dryer side by side (54-60 x 30 in) with 36-42 in clear in front.",
+      "text": [
+        "Design standard of laundry: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.laundry"
+    },
+    {
+      "rule_id": "S19-LAUNDRY-CLOSET",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "laundry_closet",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 3,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de laundry_closet",
+            "en": "Typical width of laundry_closet"
+          },
+          "range": [
+            1.5,
+            6.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de laundry_closet",
+            "en": "Typical depth of laundry_closet"
+          },
+          "range": [
+            3.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de laundry_closet",
+            "en": "Preferred longest side of laundry_closet"
+          },
+          "range": [
+            5.5,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de laundry_closet",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of laundry_closet"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 2.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de laundry_closet",
+            "en": "Depth of the clear furniture rectangle of laundry_closet"
+          },
+          "range": [
+            1.5,
+            4.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": true,
+      "layout": "Washer and dryer behind doors on the long side.",
+      "text": [
+        "Design standard of laundry_closet: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.laundry_closet"
+    },
+    {
+      "rule_id": "S20-PANTRY",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "pantry",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de pantry",
+            "en": "Typical width of pantry"
+          },
+          "range": [
+            2.5,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de pantry",
+            "en": "Typical depth of pantry"
+          },
+          "range": [
+            2.5,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de pantry",
+            "en": "Preferred longest side of pantry"
+          },
+          "range": [
+            5.5,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de pantry",
+            "en": "Preferred (upper) long/short ratio of pantry"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de pantry (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of pantry (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 4,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de pantry",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of pantry"
+          },
+          "range": [
+            2.5,
+            6.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 4,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de pantry",
+            "en": "Depth of the clear furniture rectangle of pantry"
+          },
+          "range": [
+            2.5,
+            6.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Shelves in L or U.",
+      "text": [
+        "Design standard of pantry: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.pantry"
+    },
+    {
+      "rule_id": "S21-MUDROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "mudroom",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de mudroom",
+            "en": "Typical width of mudroom"
+          },
+          "range": [
+            3.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de mudroom",
+            "en": "Typical depth of mudroom"
+          },
+          "range": [
+            4.0,
+            16.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 12,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de mudroom",
+            "en": "Preferred longest side of mudroom"
+          },
+          "range": [
+            8.5,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de mudroom",
+            "en": "Preferred (upper) long/short ratio of mudroom"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de mudroom (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of mudroom (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de mudroom",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of mudroom"
+          },
+          "range": [
+            3.0,
+            7.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de mudroom",
+            "en": "Depth of the clear furniture rectangle of mudroom"
+          },
+          "range": [
+            3.5,
+            9.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Bench and hooks on one wall; door to the garage or the yard.",
+      "text": [
+        "Design standard of mudroom: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.mudroom"
+    },
+    {
+      "rule_id": "S22-STORAGE",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "storage",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 4,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de storage",
+            "en": "Typical width of storage"
+          },
+          "range": [
+            2.0,
+            8.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de storage",
+            "en": "Typical depth of storage"
+          },
+          "range": [
+            2.5,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de storage",
+            "en": "Preferred longest side of storage"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de storage",
+            "en": "Preferred (upper) long/short ratio of storage"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de storage (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of storage (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Shelving.",
+      "text": [
+        "Design standard of storage: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.storage"
+    },
+    {
+      "rule_id": "S23-MECHANICAL",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "mechanical",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 3,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de mechanical",
+            "en": "Typical width of mechanical"
+          },
+          "range": [
+            1.5,
+            6.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de mechanical",
+            "en": "Typical depth of mechanical"
+          },
+          "range": [
+            2.5,
+            10.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 8,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de mechanical",
+            "en": "Preferred longest side of mechanical"
+          },
+          "range": [
+            5.5,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de mechanical",
+            "en": "Preferred (upper) long/short ratio of mechanical"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de mechanical (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of mechanical (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 3,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de mechanical",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of mechanical"
+          },
+          "range": [
+            2.0,
+            4.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 3,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de mechanical",
+            "en": "Depth of the clear furniture rectangle of mechanical"
+          },
+          "range": [
+            2.0,
+            4.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Water heater and furnace; access in front.",
+      "text": [
+        "Design standard of mechanical: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.mechanical"
+    },
+    {
+      "rule_id": "S24-CLOSET",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "closet",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 2,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de closet",
+            "en": "Typical width of closet"
+          },
+          "range": [
+            1.0,
+            4.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 6,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de closet",
+            "en": "Typical depth of closet"
+          },
+          "range": [
+            3.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 10,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de closet",
+            "en": "Preferred longest side of closet"
+          },
+          "range": [
+            7.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "aspect_exempt": true,
+      "layout": "Reach-in closet 24 in deep behind sliding doors.",
+      "text": [
+        "Design standard of closet: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "param_prefix": "space.closet"
+    },
+    {
+      "rule_id": "S25-GREAT-ROOM",
+      "kind": "design",
+      "magnitude": "space_standard",
+      "space_type": "great_room",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "typical_w_ft": {
+          "value": 22,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Ancho típico de great_room",
+            "en": "Typical width of great_room"
+          },
+          "range": [
+            11.0,
+            44.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "typical_d_ft": {
+          "value": 32,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Fondo típico de great_room",
+            "en": "Typical depth of great_room"
+          },
+          "range": [
+            16.0,
+            64.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "max_side_ft": {
+          "value": 40,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Lado máximo preferido de great_room",
+            "en": "Preferred longest side of great_room"
+          },
+          "range": [
+            28.0,
+            60.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_pref_max": {
+          "value": 1.6,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho preferida (máxima) de great_room",
+            "en": "Preferred (upper) long/short ratio of great_room"
+          },
+          "range": [
+            1.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "aspect_max": {
+          "value": 2.2,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Proporción largo/ancho máxima de great_room (preferencia hasta calibrar; puede volverse dura)",
+            "en": "Maximum long/short ratio of great_room (soft until calibrated; may become hard)"
+          },
+          "range": [
+            1.2,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_w_ft": {
+          "value": 20,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de great_room",
+            "en": "Width of the clear furniture rectangle (furniture + clearances) of great_room"
+          },
+          "range": [
+            12.0,
+            30.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "furniture_d_ft": {
+          "value": 28,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario de great_room",
+            "en": "Depth of the clear furniture rectangle of great_room"
+          },
+          "range": [
+            17.0,
+            42.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "zones": {
+          "value": [
+            "kitchen",
+            "dining_room",
+            "family_room"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Zonas del great room",
+            "en": "Zones of the great room"
+          },
+          "choices": [
+            "kitchen",
+            "dining_room",
+            "family_room",
+            "living_room",
+            "breakfast_nook"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "through_strip_ft": {
+          "value": 3.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Franja de paso dentro del great room",
+            "en": "Through strip inside the great room"
+          },
+          "range": [
+            3.0,
+            5.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "floor": {
+            "ruleset": "crc_2025_habitability.json",
+            "rule_id": "C06-HALLWAY-WIDTH",
+            "key": "value",
+            "unit": "ft",
+            "bound": "min"
+          }
+        }
+      },
+      "aspect_exempt": false,
+      "layout": "Open plan (client decision 2026-10-11, baseline of the anglo / San Diego profile): kitchen, dining and family as zones without walls, each with its furniture rectangle, plus a through strip of the hall design width; sizes to verify against San Diego tract plans.",
+      "text": [
+        "Design standard of great_room: typical size, preferred and maximum proportion, longest side and the clear furniture rectangle (furniture plus clearances) that must fit."
+      ],
+      "source": {
+        "document": "Common US residential practice (student research 2026-10-11)",
+        "section": "typical sizes; verify against San Diego tract plans"
+      },
+      "verified": false,
+      "catalog_type": false,
+      "note": "great_room is not a catalog space type yet: step S2.2c adds it as the open-plan unit.",
+      "param_prefix": "space.great_room"
+    }
+  ]
+}

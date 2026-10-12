@@ -357,6 +357,16 @@ def _add_module_parsers(sub) -> None:
     p_viz.add_argument("--lang", choices=("es", "en"))
 
 
+def _run_quality_command(args) -> int:
+    from spaceplan.modules.design.main.run_design import load_profile
+    from spaceplan.modules.stacking.main.run_quality import quality_lines, run_quality
+
+    report = run_quality(args.stack_plans, load_profile(args.profile), args.out)
+    print(json.dumps({k: v for k, v in report.items() if k != "cells"}, indent=2, ensure_ascii=False) if args.json
+          else "\n".join(quality_lines(report)))
+    return 0
+
+
 def _run_module_command(args) -> int:
     from spaceplan.pipeline.main.run_modules import (
         CONTRACT_OF_MODULE,
@@ -601,8 +611,20 @@ def main(argv: list[str] | None = None) -> int:
     p_sens.add_argument("--json", action="store_true")
     _add_design_args(p_sens)
     _add_module_parsers(sub)
+    from spaceplan.modules.design.main.run_design import add_design_parser, run_design_command
+
+    add_design_parser(sub)
+    p_q = sub.add_parser("quality", help="space-quality indicators of S2.1 stack_plan contracts (step 6.7a S2.2a)")
+    p_q.add_argument("stack_plans", nargs="+")
+    p_q.add_argument("--profile", help="design profile (default: the baseline)")
+    p_q.add_argument("--out", help="directory for quality_summary.json, quality_by_type.csv, quality_spaces.csv, quality.md")
+    p_q.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     try:
+        if args.command == "design":
+            return run_design_command(args)
+        if args.command == "quality":
+            return _run_quality_command(args)
         if args.command in ("lotcap", "site", "zoning", "cost", "viz", "stacking"):
             return _run_module_command(args)
         if args.command == "validate":

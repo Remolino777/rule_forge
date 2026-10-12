@@ -1,0 +1,891 @@
+{
+  "ruleset_id": "design-light-ventilation",
+  "ruleset_version": "0.1.0",
+  "jurisdiction_id": "us-ca",
+  "zone": "*",
+  "code_edition": "design",
+  "kind": "design",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): IRC/CRC R303.1 and R303.3 (via a building-department handout of the IRC text), CMC Appendix E E605.2 and Title 24 Part 6 150.0(o) / ASHRAE 62.2 (via gocodebook), daylight rule of thumb (ASEE paper), natural-ventilation depth rules (Essex Design Guide).",
+  "verification_note": "Categories: N = natural light and ventilation required (habitable rooms; bedrooms also need the R310 escape opening), P = natural preferred, mechanical allowed, M = mechanical (artificial light and exhaust; no facade needed). Client decision 2026-10-11: walk-in closets and upper-floor baths may be mechanical so bedrooms always get the best facade. Code values live in crc_2025_habitability (C03) and crc_2025_openings (O06, O07).",
+  "scope": {
+    "excluded_overlays": [],
+    "source": {
+      "document": "spaceplan design light and ventilation",
+      "section": "all"
+    }
+  },
+  "lot_measurement": {
+    "width_methods": [],
+    "depth_methods": [],
+    "default_width_method": null,
+    "default_depth_method": null,
+    "setback_distance_semantics": null,
+    "verified": false,
+    "source": {
+      "document": "spaceplan design light and ventilation",
+      "section": "n/a"
+    }
+  },
+  "parameter_schema": {
+    "note": "Every value the client or the designer may define is a parameter object: value, type (number / enum / list / bool), unit, kind (hard / soft / weight / reference), who (client / designer / code), range (numbers), choices (enum / list), kinds_allowed, optional floor (a code rule the value may not cross) and a description in Spanish and English. The design registry (modules/design) reads them; the client's changes go to a design profile, never here."
+  },
+  "rules": [
+    {
+      "rule_id": "L01-CATEGORIES",
+      "kind": "design",
+      "magnitude": "light_ventilation_category",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "primary_suite": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "code",
+          "description": {
+            "es": "Categoría de luz y ventilación de primary_suite",
+            "en": "Light and ventilation category of primary_suite"
+          },
+          "choices": [
+            "N"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "R310 escape opening: a sleeping room keeps an exterior wall."
+        },
+        "bedroom": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "code",
+          "description": {
+            "es": "Categoría de luz y ventilación de bedroom",
+            "en": "Light and ventilation category of bedroom"
+          },
+          "choices": [
+            "N"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "R310 escape opening: a sleeping room keeps an exterior wall."
+        },
+        "living_room": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de living_room",
+            "en": "Light and ventilation category of living_room"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "family_room": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de family_room",
+            "en": "Light and ventilation category of family_room"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "living_dining": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de living_dining",
+            "en": "Light and ventilation category of living_dining"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "great_room": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de great_room",
+            "en": "Light and ventilation category of great_room"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "dining_room": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de dining_room",
+            "en": "Light and ventilation category of dining_room"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "kitchen": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de kitchen",
+            "en": "Light and ventilation category of kitchen"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "study": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de study",
+            "en": "Light and ventilation category of study"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "flex_room": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de flex_room",
+            "en": "Light and ventilation category of flex_room"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "breakfast_nook": {
+          "value": "N",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de breakfast_nook",
+            "en": "Light and ventilation category of breakfast_nook"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Habitable room: N by client decision E4; P or M would use the R303.1 exception (artificial light 6 fc and mechanical ventilation)."
+        },
+        "social_bath": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de social_bath",
+            "en": "Light and ventilation category of social_bath"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "half_bath": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de half_bath",
+            "en": "Light and ventilation category of half_bath"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "laundry": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de laundry",
+            "en": "Light and ventilation category of laundry"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "mudroom": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de mudroom",
+            "en": "Light and ventilation category of mudroom"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "foyer": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de foyer",
+            "en": "Light and ventilation category of foyer"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "hall": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de hall",
+            "en": "Light and ventilation category of hall"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "work_kitchen": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de work_kitchen",
+            "en": "Light and ventilation category of work_kitchen"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bathroom": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de bathroom",
+            "en": "Light and ventilation category of bathroom"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "primary_bath": {
+          "value": "P",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de primary_bath",
+            "en": "Light and ventilation category of primary_bath"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "walk_in_closet": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de walk_in_closet",
+            "en": "Light and ventilation category of walk_in_closet"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "pantry": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de pantry",
+            "en": "Light and ventilation category of pantry"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "storage": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de storage",
+            "en": "Light and ventilation category of storage"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "mechanical": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de mechanical",
+            "en": "Light and ventilation category of mechanical"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "closet": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de closet",
+            "en": "Light and ventilation category of closet"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "laundry_closet": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de luz y ventilación de laundry_closet",
+            "en": "Light and ventilation category of laundry_closet"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "bathroom__upper": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de bathroom en la planta alta (decisión del cliente: mecánica permitida)",
+            "en": "Category of bathroom on the upper floor (client decision: mechanical allowed)"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "primary_bath__upper": {
+          "value": "M",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Categoría de primary_bath en la planta alta (decisión del cliente: mecánica permitida)",
+            "en": "Category of primary_bath on the upper floor (client decision: mechanical allowed)"
+          },
+          "choices": [
+            "N",
+            "P",
+            "M"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Light and ventilation category per space type; '__upper' entries override on the upper floor."
+      ],
+      "source": {
+        "document": "CRC 2025 R303.1, R303.3, R310 (verify) and client decision 2026-10-11",
+        "section": "categories"
+      },
+      "verified": false,
+      "param_prefix": "light.category"
+    },
+    {
+      "rule_id": "L02-FACADE-PRIORITY",
+      "kind": "design",
+      "magnitude": "facade_priority",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "order": {
+          "value": [
+            "primary_suite",
+            "bedroom",
+            "living_room",
+            "family_room",
+            "great_room",
+            "living_dining",
+            "dining_room",
+            "kitchen",
+            "study",
+            "flex_room",
+            "breakfast_nook",
+            "work_kitchen",
+            "social_bath",
+            "bathroom",
+            "primary_bath",
+            "half_bath",
+            "laundry",
+            "mudroom",
+            "foyer",
+            "hall"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Orden de prioridad para repartir la fachada (recámaras primero)",
+            "en": "Priority order to share the facade (bedrooms first)"
+          },
+          "choices": [
+            "primary_suite",
+            "bedroom",
+            "living_room",
+            "family_room",
+            "great_room",
+            "living_dining",
+            "dining_room",
+            "kitchen",
+            "study",
+            "flex_room",
+            "breakfast_nook",
+            "work_kitchen",
+            "social_bath",
+            "bathroom",
+            "primary_bath",
+            "half_bath",
+            "laundry",
+            "mudroom",
+            "foyer",
+            "hall",
+            "walk_in_closet",
+            "pantry",
+            "storage",
+            "mechanical",
+            "closet",
+            "laundry_closet"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "sleeping_first": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Las recámaras toman fachada antes que cualquier otro espacio",
+            "en": "Bedrooms take facade before any other space"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Facade is shared in this order; M spaces never take facade from an N space."
+      ],
+      "source": {
+        "document": "Client decision 2026-10-11",
+        "section": "bedrooms always best lit"
+      },
+      "verified": true,
+      "param_prefix": "light.facade"
+    },
+    {
+      "rule_id": "L03-DAYLIGHT",
+      "kind": "design",
+      "magnitude": "daylight",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "glazing_pref_sleeping": {
+          "value": 0.15,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Vidrio preferido / área en recámaras",
+            "en": "Preferred glazing / floor area, bedrooms"
+          },
+          "range": [
+            0.08,
+            0.3
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "floor": {
+            "ruleset": "crc_2025_habitability.json",
+            "rule_id": "C03-GLAZING",
+            "key": "value",
+            "unit": "ratio",
+            "bound": "min"
+          }
+        },
+        "glazing_pref_living": {
+          "value": 0.15,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Vidrio preferido / área en estancias",
+            "en": "Preferred glazing / floor area, living spaces"
+          },
+          "range": [
+            0.08,
+            0.3
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "floor": {
+            "ruleset": "crc_2025_habitability.json",
+            "rule_id": "C03-GLAZING",
+            "key": "value",
+            "unit": "ratio",
+            "bound": "min"
+          }
+        },
+        "window_head_ft": {
+          "value": 6.67,
+          "type": "number",
+          "unit": "ft",
+          "kind": "reference",
+          "who": "designer",
+          "description": {
+            "es": "Altura del dintel de ventanas",
+            "en": "Window head height"
+          },
+          "range": [
+            6.67,
+            9.0
+          ],
+          "kinds_allowed": [
+            "reference"
+          ]
+        },
+        "depth_factor": {
+          "value": 2.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Profundidad iluminada = factor × altura del dintel",
+            "en": "Daylit depth = factor x window head height"
+          },
+          "range": [
+            1.5,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Rule calibrated near 51 degrees latitude; it overestimates at 32.7 (San Diego): kept as a preference."
+        }
+      },
+      "text": [
+        "Side-lighting is effective up to about 2.5 times the window head height."
+      ],
+      "source": {
+        "document": "ASEE, Daylight rules of thumb experimentally examined",
+        "section": "2.5 rule"
+      },
+      "verified": false,
+      "param_prefix": "light.daylight"
+    },
+    {
+      "rule_id": "L04-NATURAL-VENTILATION",
+      "kind": "design",
+      "magnitude": "natural_ventilation",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "single_sided_factor": {
+          "value": 2.5,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Fondo máximo con ventilación de una cara = factor × altura de techo",
+            "en": "Maximum depth, single-sided ventilation = factor x ceiling height"
+          },
+          "range": [
+            2.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "cross_factor": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Fondo máximo con ventilación cruzada = factor × altura de techo",
+            "en": "Maximum depth, cross ventilation = factor x ceiling height"
+          },
+          "range": [
+            4.0,
+            6.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "cross_bonus_weight": {
+          "value": 0.1,
+          "type": "number",
+          "unit": null,
+          "kind": "weight",
+          "who": "client",
+          "description": {
+            "es": "Bono por ventilación cruzada (espacio en esquina)",
+            "en": "Bonus for cross ventilation (corner space)"
+          },
+          "range": [
+            0.0,
+            0.3
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        }
+      },
+      "text": [
+        "Single-sided ventilation up to 2.5 x ceiling height deep; cross ventilation up to 5 x."
+      ],
+      "source": {
+        "document": "Essex Design Guide, Natural ventilation",
+        "section": "room depth rules"
+      },
+      "verified": false,
+      "param_prefix": "light.ventilation"
+    }
+  ]
+}

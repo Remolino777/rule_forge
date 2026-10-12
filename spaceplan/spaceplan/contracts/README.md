@@ -47,6 +47,7 @@ Todo contrato lleva:
 | `zoning_scheme` | zoning | viz, pipeline | `zoning`, `unit`, `corrections` (del paquete), `dwelling_type`, `realization_strategy` |
 | `area_matrix` | areas | viz, stacking | salida de `run_area_matrix`: `meta`, `lots` (presupuesto, resumen, E2), `cells` |
 | `stack_plan` | stacking | viz, pipeline | paso 6.7 (`run_stacking`): `meta` (etapa S0/S1/S2, selección, reglas y catálogo con hash), `lots` (plano envolvente, pisos que permite la altura, sondeo bajo terreno), `cells` (niveles respecto del terreno, altura por tipo de techo, estado, etapa siguiente) |
+| `design_profile` | design | stacking, pipeline | paso 6.7a S2.2a (`spaceplan design apply`): cambios del cliente sobre la línea base del registro de parámetros de diseño (id, valor y/o tipo, autor, fecha, motivo); la línea base (catálogos y rulesets) nunca se edita |
 
 `brief` (0.5) y `package` (0.9) ya existen en `data/schemas/` y no cambian.
 

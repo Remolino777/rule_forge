@@ -25,9 +25,11 @@ graph LR
     areas -->|2| household
     areas -->|2| cost
     areas -->|1| profiles
-    stacking -->|16| core
+    design -->|4| core
+    stacking -->|17| core
     stacking -->|1| lotcap
     stacking -->|2| zoning
+    stacking -->|1| design
     viz -->|4| core
     viz -->|3| lotcap
     pipeline -->|9| core
@@ -38,13 +40,14 @@ graph LR
     pipeline -->|4| profiles
     pipeline -->|1| zoning
     pipeline -->|4| areas
+    pipeline -->|1| design
     pipeline -->|2| stacking
     pipeline -->|4| viz
 ```
 
 | Módulo | Importa | Importado por |
 |---|---|---|
-| `core` | — | lotcap, site, household, cost, profiles, zoning, areas, stacking, viz, pipeline |
+| `core` | — | lotcap, site, household, cost, profiles, zoning, areas, design, stacking, viz, pipeline |
 | `lotcap` | core | site, areas, stacking, viz, pipeline |
 | `site` | core, lotcap | zoning, areas, pipeline |
 | `household` | core | profiles, areas, pipeline |
@@ -52,9 +55,10 @@ graph LR
 | `profiles` | core, household, cost | areas, pipeline |
 | `zoning` | core, site | stacking, pipeline |
 | `areas` | core, lotcap, site, household, cost, profiles | pipeline |
-| `stacking` | core, lotcap, zoning | pipeline |
+| `design` | core | stacking, pipeline |
+| `stacking` | core, lotcap, zoning, design | pipeline |
 | `viz` | core, lotcap | pipeline |
-| `pipeline` | core, lotcap, site, household, cost, profiles, zoning, areas, stacking, viz | — |
+| `pipeline` | core, lotcap, site, household, cost, profiles, zoning, areas, design, stacking, viz | — |
 
 ## Archivos por módulo y capa
 
@@ -68,7 +72,8 @@ graph LR
 | `profiles` | `contract`, `run_profiles` | `program_profiles` | — |
 | `zoning` | `contract`, `run_corrections`, `run_zoning` | `band_enumeration`, `circulation`, `corrections`, `polygonal`, `realization`, `relation_matrix`, `space_layout`, `unit`, `zoning` | — |
 | `areas` | `contract`, `run_area_matrix` | `area_budget`, `area_matrix`, `building_indices`, `floor_balance`, `lot_minimum`, `sensitivity`, `vertical_split` | — |
-| `stacking` | `contract`, `run_stacking` | `access_cell`, `access_core`, `access_rank`, `access_stair`, `cell_geometry`, `cell_selection`, `core_zoning`, `door_placement`, `floor_frame`, `front_yard`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `program_adjust`, `roof_plane`, `routes`, `space_cell`, `space_relations`, `space_rules`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `unit_frame`, `unit_layout`, `vertical_rules`, `zone_cell`, `zone_relations` | `plan_geometry`, `space_grid`, `stair_geometry`, `vertical_geometry`, `zone_grid` |
+| `design` | `contract`, `run_design` | `design_profile`, `design_registry`, `llm_tools` | `param_paths`, `units` |
+| `stacking` | `contract`, `run_quality`, `run_stacking` | `access_cell`, `access_core`, `access_rank`, `access_stair`, `cell_geometry`, `cell_selection`, `core_zoning`, `door_placement`, `floor_frame`, `front_yard`, `height_check`, `levels`, `lot_plan`, `lot_vertical`, `plan_levels`, `program_adjust`, `roof_plane`, `routes`, `space_cell`, `space_quality`, `space_relations`, `space_rules`, `stacking_catalog`, `stair`, `stair_access`, `stair_rules`, `unit_frame`, `unit_layout`, `vertical_rules`, `zone_cell`, `zone_relations` | `plan_geometry`, `space_grid`, `stair_geometry`, `vertical_geometry`, `zone_grid` |
 | `viz` | `run_viz` | `area_matrix_plots`, `lot_site_plots`, `portfolio_sheet`, `review_notes`, `review_sheets`, `sensitivity_plots`, `stack_plan_plots`, `zoning_plots` | — |
 | `pipeline` | `cli`, `run_area_analysis`, `run_capacity`, `run_catalog`, `run_household_report`, `run_modules`, `run_portfolio`, `run_sensitivity` | `catalog_table`, `package` | — |
 
@@ -87,6 +92,7 @@ productor), `brief_id` y `consumers` (informativos). Esquemas en `spaceplan/cont
 | `zoning_scheme` | `zoning` | viz, pipeline | `zoning` | `unit`, `corrections`, `dwelling_type`, `realization_strategy` |
 | `area_matrix` | `areas` | viz, stacking | `meta`, `lots`, `cells` | `figures` |
 | `stack_plan` | `stacking` | viz, pipeline | `meta`, `lots`, `cells` | `figures` |
+| `design_profile` | `design` | stacking, pipeline | `design_profile` | — |
 
 Cada productor tiene `modules/<m>/main/contract.py` con `to_contract` (valida al producir) y
 `from_contract` (valida al leer). El `pipeline` arma el paquete solo desde los contratos
