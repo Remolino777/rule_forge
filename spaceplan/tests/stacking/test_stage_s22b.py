@@ -301,3 +301,28 @@ def test_roof_on_the_facade_and_terrace_by_the_bedroom(rules, catalog, matrix):
     assert len(terrace) == 1 and terrace[0].spec.host == "bed"
     assert terrace[0].mask.any(0).sum() * RES <= rules.design["space.upper.terrace_max_depth_ft"] + 1e-9
     assert terrace[0].mask.any(1).sum() == 28                    # along the whole wall of the bedroom
+
+
+def test_terrace_gets_a_slider_from_its_room(rules):
+    from spaceplan.modules.stacking.lib.door_placement import (
+        EXTERIOR,
+        PATIO_SLIDER,
+        DoorPlacer,
+        place_terrace_doors,
+    )
+    from spaceplan.modules.stacking.lib.unit_frame import SpaceSpec as S
+
+    labels = np.full((30, 40), -1, dtype=np.int32)
+    labels[1:29, 1:31] = 0                                       # the bedroom, 15 x 14 ft
+    terrace = np.zeros_like(labels, dtype=bool)
+    terrace[1:29, 31:37] = True                                  # a 3 ft terrace along its +x wall
+    bed = S("bed", "bedroom", "private", "u", 140, 0, 0, True, False, False, frozenset())
+    tspec = S("terrace_u", "terrace", "exterior", "u", 40, 0, 0, False, False, False, frozenset(), "bed", False, True)
+    floor = SimpleNamespace(res=RES, level=1, stair=np.zeros_like(terrace), landing=np.zeros_like(terrace))
+    lay = SimpleNamespace(floor=floor, specs=[bed], labels=labels, open_air=[(tspec, terrace)], doors=[],
+                          node=lambda sid: 0 if sid == "bed" else None)
+    placer = DoorPlacer.__new__(DoorPlacer)
+    placer.res, placer.corner = RES, rules.door_ft["corner_return"] / RES
+    assert place_terrace_doors(lay, placer, rules) == 1
+    d = lay.doors[0]
+    assert (d.a, d.b, d.kind) == (0, EXTERIOR, PATIO_SLIDER) and d.run.vertical and d.run.k == 31

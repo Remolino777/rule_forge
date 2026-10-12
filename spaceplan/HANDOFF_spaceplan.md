@@ -1201,9 +1201,17 @@ fachada; S2.2f conecta `run_variant` al pipeline y endurece reglas calibradas.
   - sobre la proporción máxima 23.9 %; sin mobiliario 17.2 %; espacios N sin luz suficiente 21.9 %.
 - Pruebas: los fixtures de S2.1 pasan a `teens_family.latino`.
 
+**Puerta a la terraza.** `place_terrace_doors`: corrediza de vidrio (72 in) centrada en el muro común entre la
+recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote angosto).
+
+**Diagnóstico de K12.**
+- Sin K12, 92 celdas elegían la estrategia D (escalera en la fachada del jardín, hoy prohibida); con K12 caen a B (junta, 107 celdas), que S2 zonifica mal.
+- Las candidatas A en la franja se zonifican menos (276 contra 471).
+- Mandar más candidatas por estrategia a S2 (`top_k` 3 → 6) no cambia la cobertura del subconjunto esquina.
+- La palanca es S2: zonificar alrededor de un núcleo de escalera en la franja media.
+
 **Pendiente (S2.2d parte 2).**
 - S1/S2 con la escalera central: zonificación de ambas plantas alrededor de un núcleo en la franja media (pasillo-espina desde la puerta) y búsqueda de posiciones A dentro de la franja.
-- Puerta corrediza de la recámara a su terraza.
 - Techos en varios planos sobre `open_air`.
 - Endurecer las preferencias fuertes cuando las zonas vengan dimensionadas.
 

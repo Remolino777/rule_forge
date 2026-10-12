@@ -452,6 +452,8 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
         layout.patio_exit = place_patio_exit(layout, placer, rules)
         if layout.patio_exit is None:
             layout.violations.append("exit:patio")
+    if f.level > 0 and not layout.violations and layout.open_air:
+        place_terrace_doors(layout, placer, rules)                 # S2.2d: room -> terrace slider
     return layout
 
 
@@ -524,6 +526,36 @@ def _landing_local(floor: SpaceFloor, run: WallRun, t0: float, t1: float, depth_
         return box(x - depth_ft, a, x, b) if run.low == EXTERIOR else box(x, a, x + depth_ft, b)
     y = g.y0 + run.k * g.res
     return box(a, y - depth_ft, b, y) if run.low == EXTERIOR else box(a, y, b, y + depth_ft)
+
+
+def place_terrace_doors(layout: FloorLayout, placer: DoorPlacer, rules: SpaceRules) -> int:
+    """S2.2d: a glass slider from each room to the terrace it serves (centred on their common wall); returns how
+    many were placed. A terrace without a long enough wall stays a plain roof edge (no door)."""
+    placed = 0
+    types = rules.s21["doors"]["types"]["patio_slider"]
+    for spec, mask in layout.open_air:
+        if spec.space_type != "terrace" or not spec.host:
+            continue
+        k = layout.node(spec.host)
+        if k is None:
+            continue
+        lab = np.where(layout.labels == EXTERIOR, -9, layout.labels)
+        lab[mask] = EXTERIOR                      # only the terrace counts as outside here
+        best = None
+        for side in ("low_x", "high_x", "low_y", "high_y"):
+            for run in exterior_runs(lab, k, side):
+                if best is None or run.cells > best.cells:
+                    best = run
+        if best is None:
+            continue
+        w = float(types["width_in"]) / 12.0 / placer.res
+        room = best.cells - 2 * placer.corner
+        if room + 1e-9 < w:
+            continue
+        mid = 0.5 * (best.t0 + best.t1)
+        layout.doors.append(Door(k, EXTERIOR, PATIO_SLIDER, best, mid - w / 2, mid + w / 2, clear_ft=w * placer.res))
+        placed += 1
+    return placed
 
 
 def place_patio_exit(layout: FloorLayout, placer: DoorPlacer, rules: SpaceRules) -> dict | None:
@@ -604,7 +636,6 @@ __all__ = [
     "FIXED_DOOR",
     "GARAGE_DOOR",
     "OPENING",
-    "great_room_pair",
     "PATIO_SLIDER",
     "SLIDER",
     "STAIR_LINK",
@@ -613,5 +644,7 @@ __all__ = [
     "FloorLayout",
     "compose",
     "door_choices",
+    "great_room_pair",
     "place_doors",
+    "place_terrace_doors",
 ]
