@@ -7,7 +7,9 @@ orientations, every direction and hand, positions along the whole wall) and filt
   door          the footprint or the half bath under it hits the door swing or the vestibule;
   circulation   the stair (and the void) cut off more than the catalog share of the free floor from the vestibule
                 (ground) or from the arrival (upper);
-  K06           no natural light where the client requires it (A, C, D).
+  K06           no natural light where the client requires it (A, C, D);
+  K12           outside the band between the quartiles of the side walls, or on the garden facade
+                (client 2026-10-12, step S2.2d).
 Survivors are pre-ranked inside each strategy by occupied area, then by the distance from the vestibule to the
 stair start; the best few of each strategy go on to S2, which zones them and measures the routes (client step 7).
 """
@@ -66,6 +68,8 @@ def _evaluate(c: StairCandidate, strategy: str, wall: Wall, walls: list[Wall], u
               door: EntryDoor, acc: dict[str, Any], stair_rs, required: dict[str, bool],
               fallback: bool) -> tuple[AccessCandidate | None, str | None]:
     fp = c.geom.footprint
+    if not in_band(fp, ground, acc.get("band")):
+        return None, "K12"                                     # S2.2d: between the quartiles of the side walls
     blocked = unary_union([door.swing, door.vestibule])
     if fp.intersection(blocked).area > TOL:
         return None, "door"
@@ -90,6 +94,25 @@ def _evaluate(c: StairCandidate, strategy: str, wall: Wall, walls: list[Wall], u
     entry = door.vestibule.centroid.distance(c.bottom_zone.centroid)
     stacked = c.bottom_zone.centroid.distance(c.top_zone.centroid)
     return AccessCandidate(c, strategy, wall, light, well, occupied, entry, stacked, fallback), None
+
+
+def in_band(fp, ground, band: dict[str, Any] | None) -> bool:
+    """K12 (client 2026-10-12): the stair footprint lies between the band fractions of the ground floor's depth
+    from the street facade (local frame: street at low y, garden at high y); the garden facade stays free."""
+    if not band:
+        return True
+    lo_f, hi_f = band["band"]
+    y0, y1 = ground.bounds[1], ground.bounds[3]
+    depth = y1 - y0
+    lo, hi = y0 + lo_f * depth, y0 + hi_f * depth
+    if band.get("measure") == "centre":
+        cy = fp.centroid.y
+        ok = lo - TOL <= cy <= hi + TOL
+    else:
+        ok = fp.bounds[1] >= lo - TOL and fp.bounds[3] <= hi + TOL
+    if ok and band.get("garden_facade_free") and fp.bounds[3] >= y1 - TOL:
+        return False
+    return ok
 
 
 def _sub_line(line, bounds, window: float):

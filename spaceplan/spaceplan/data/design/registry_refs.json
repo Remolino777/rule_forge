@@ -1,6 +1,6 @@
 {
   "registry_id": "spaceplan-design-registry",
-  "registry_version": "0.2.0",
+  "registry_version": "0.3.0",
   "note": "Parameters that already live in the residential catalog, the stacking catalog or the client rulesets, registered by reference (path into their store; never copied). '{t}' expands over 'for'. range_rel = range as multiples of the baseline value. The new design parameters are discovered from the design rulesets (parameter objects).",
   "stores": {
     "catalog": "residential catalog (data/catalog, merged fragments)",
@@ -609,6 +609,49 @@
       "description": {
         "es": "Lo que el master recibe primero (K10)",
         "en": "What the primary suite gets first (K10)"
+      }
+    },
+    {
+      "id": "stair.band",
+      "store": "ruleset:client_stair_rules.json",
+      "path": "rules[rule_id=K12-STAIR-BAND].parameters.band",
+      "type": "list",
+      "unit": "fraction",
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "choices": [
+        0.0,
+        0.125,
+        0.25,
+        0.375,
+        0.5,
+        0.625,
+        0.75,
+        0.875,
+        1.0
+      ],
+      "description": {
+        "es": "Franja de la escalera a lo largo de los muros laterales (fracciones de la profundidad desde la calle)",
+        "en": "Band of the stair along the side walls (fractions of the depth from the street)"
+      }
+    },
+    {
+      "id": "stair.garden_facade_free",
+      "store": "ruleset:client_stair_rules.json",
+      "path": "rules[rule_id=K12-STAIR-BAND].parameters.garden_facade_free",
+      "type": "bool",
+      "unit": null,
+      "kind": "hard",
+      "kinds_allowed": [
+        "hard"
+      ],
+      "who": "client",
+      "description": {
+        "es": "La escalera nunca ocupa la fachada del jardín",
+        "en": "The stair never takes the garden facade"
       }
     }
   ],

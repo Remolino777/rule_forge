@@ -462,6 +462,10 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
                 k: (polygon_json(plan.to_world(v), nd) if k == "landing" else v)
                 for k, v in lay.patio_exit.items() if k != "door"},
             "doors": [_door_block(lay, d, plan, nd) for d in lay.doors],
+            "open_air": [{"space_id": s.space_id, "kind": s.space_type, "serves": s.host,
+                          "area_sqft": round(int(m.sum()) * ca, 1),
+                          "polygon": polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)}
+                         for s, m in lay.open_air],
             "score": round(r.score, 4),
             "relations": {"hard_failed": r.relations["hard_failed"],
                           "met": sorted(p for p, v in r.relations["results"].items() if v == "met")}}

@@ -38,6 +38,7 @@ from spaceplan.modules.stacking.lib.zone_cell import ZONED, S2Context, zone_cell
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
 
 LIGHT_RULE, STRATEGY_RULE = "K06-STAIR-NATURAL-LIGHT", "K07-STAIR-STRATEGY"
+BAND_RULE = "K12-STAIR-BAND"
 
 
 @dataclass(frozen=True)
@@ -57,6 +58,7 @@ def access_context(scat, limits, client_rs) -> AccessContext:
     design = {**scat.stair_design, "u_well_gap_ft": acc["void"]["well_ft"], "u_min_span_ft": u_min_span_ft(client_rs)}
     ftf = scat.levels["floor_to_floor_ft"]
     shapes = {t["stair_id"]: stair_shape(t, ftf, limits, design) for t in scat.data["stair"]["types"]}
+    acc = {**acc, "band": client_rs.params(BAND_RULE)}          # S2.2d: K12 stair band (client 2026-10-12)
     return AccessContext(acc, shapes, client_rs.params(LIGHT_RULE)["required_by_strategy"],
                          list(client_rs.params(STRATEGY_RULE)["preference"]),
                          float(acc["comparison"]["route_tolerance_ft"]), int(acc["comparison"]["top_k_per_strategy"]))

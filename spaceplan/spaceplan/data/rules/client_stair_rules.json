@@ -1,6 +1,6 @@
 {
   "ruleset_id": "client-stair-rules",
-  "ruleset_version": "0.5.0",
+  "ruleset_version": "0.6.0",
   "jurisdiction_id": "client",
   "zone": "*",
   "code_edition": "client decisions 2026-10-09 / 2026-10-10",
@@ -434,6 +434,31 @@
         "document": "Client decisions",
         "section": "client decision 2026-10-11 (step 6.7a S2.1b)"
       }
+    },
+    {
+      "rule_id": "K12-STAIR-BAND",
+      "kind": "client",
+      "magnitude": "stair_position_band",
+      "operator": "within",
+      "value": null,
+      "unit": "fraction",
+      "parameters": {
+        "band": [
+          0.25,
+          0.75
+        ],
+        "measure": "centre",
+        "axis": "depth_from_street",
+        "garden_facade_free": true
+      },
+      "text": [
+        "The stair stands between the first and the third quartile of the length of the side walls (depth of the ground floor from the street facade) and never takes the garden facade, which belongs to the great room and its light."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-12, stair position"
+      },
+      "verified": true
     }
   ]
 }

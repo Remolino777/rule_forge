@@ -39,6 +39,7 @@ OPENING, DOOR, CLOSET_DOOR, FIXED_DOOR, GARAGE_DOOR, STAIR_LINK = (
     "opening", "door", "closet_door", "fixed", "garage_door", "stair")
 SLIDER, PATIO_SLIDER, EXTERIOR_DOOR = "closet_slider", "patio_slider", "exterior_door"   # stage S2.1b
 EXTERIOR = -1                                    # the other side of an exterior door
+OPEN_AIR_TYPES, OUT_LABEL = ("upper_roof", "terrace"), -1   # S2.2d (unit_layout.OPEN_AIR, unit_frame.OUT)
 WALK_IN_TYPE, WALK_THROUGH_BATHS = "walk_in_closet", ("primary_bath",)   # S2.2c: the suite only
 
 
@@ -73,6 +74,7 @@ class FloorLayout:
     swept: np.ndarray | None = None
     matrix_roles: dict = field(default_factory=dict)
     patio_exit: dict | None = None
+    open_air: list = field(default_factory=list)          # S2.2d: (spec, whole-floor mask) of roofs and terraces
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)
@@ -87,11 +89,18 @@ class FloorLayout:
 def compose(floor: SpaceFloor, options: tuple[UnitOption, ...]) -> FloorLayout:
     labels = floor.base.copy()
     specs = list(floor.fixed)
+    open_air = []
     for o in options:
         u = floor.units[[x.index for x in floor.units].index(o.unit)]
         i0, i1, j0, j1 = u.box
         view = labels[j0:j1, i0:i1]
         for p in o.pieces:
+            if p.spec.space_type in OPEN_AIR_TYPES:        # S2.2d: roof or terrace, outside the house
+                view[p.mask] = OUT_LABEL
+                whole = np.zeros(labels.shape, dtype=bool)
+                whole[j0:j1, i0:i1] = p.mask
+                open_air.append((p.spec, whole))
+                continue
             view[p.mask] = len(specs)
             specs.append(p.spec)
     landing = _majority(labels, floor.landing)
@@ -99,7 +108,7 @@ def compose(floor: SpaceFloor, options: tuple[UnitOption, ...]) -> FloorLayout:
         root = next((k for k, s in enumerate(specs) if s.space_type == "entry_vestibule"), None)
     else:
         root = next((k for k, s in enumerate(specs) if s.space_type == STAIR_TYPE), None)
-    return FloorLayout(floor, options, specs, labels, root, landing)
+    return FloorLayout(floor, options, specs, labels, root, landing, open_air=open_air)
 
 
 def _majority(labels: np.ndarray, mask: np.ndarray) -> int | None:

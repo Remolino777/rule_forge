@@ -57,7 +57,7 @@ def rules(catalog, scat, client):
 def result():
     from spaceplan.pipeline.main.run_modules import area_matrix_contract_for
 
-    am = area_matrix_contract_for(lots=["interior_50x100"], households=[("teens_family", "anglo")], zone_top=0)
+    am = area_matrix_contract_for(lots=["interior_50x100"], households=[("teens_family", "latino")], zone_top=0)
     return run_stacking(am, [load_fixture("lot_capacity", "interior_50x100")], stage="S2.1")
 
 

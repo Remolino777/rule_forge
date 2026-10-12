@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.4.0",
+  "ruleset_version": "0.5.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile. Version 0.5.0 (2026-10-12): upper floor at optimal areas, the rest as roof or a terrace up to 3 ft deep (client decision).",
   "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -456,6 +456,124 @@
       "source": {
         "document": "Client decisions 2026-10-11",
         "section": "S2.2b"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "S00-UPPER-FLOOR",
+      "kind": "design",
+      "magnitude": "upper_floor_massing",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.upper",
+      "parameters": {
+        "optimal_enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Planta alta con los espacios en su área óptima; el sobrante de la unidad pasa a techo o terraza",
+            "en": "Upper floor with the spaces at their optimal area; the rest of the unit becomes roof or terrace"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: more varied roofs, no stretched rooms (also in the maximum profile)."
+        },
+        "min_roof_sqft": {
+          "value": 15.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Área mínima del sobrante para dejarlo como techo",
+            "en": "Least leftover area kept as roof"
+          },
+          "range": [
+            5.0,
+            100.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "terrace_enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Terraza junto a una estancia o recámara de la planta alta",
+            "en": "Terrace next to an upper-floor living space or bedroom"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ]
+        },
+        "terrace_max_depth_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Fondo máximo de la terraza",
+            "en": "Maximum depth of the terrace"
+          },
+          "range": [
+            2.0,
+            8.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-12: at most 3 ft."
+        },
+        "terrace_from": {
+          "value": [
+            "primary_suite",
+            "bedroom",
+            "family_room",
+            "flex_room",
+            "study"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Espacios que pueden abrir a una terraza",
+            "en": "Spaces that may open onto a terrace"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "choices": [
+            "primary_suite",
+            "bedroom",
+            "family_room",
+            "flex_room",
+            "study",
+            "hall"
+          ]
+        }
+      },
+      "text": [
+        "Upper floor massing (step S2.2d): rooms at their optimal areas; the part of a unit they do not need, on the facade, becomes a lower roof or a terrace."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-12"
       },
       "verified": true
     },

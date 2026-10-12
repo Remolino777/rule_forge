@@ -22,6 +22,12 @@ Step S2.2b (client decisions 2026-10-11) reads the design registry through Space
   * score: shape per type (preferred and maximum ratio, longest side, worst space), furniture that fits, fit to
     target, circulation (rectangular halls of limited length) and light (daylit depth of N spaces, facade surplus,
     facade held by M spaces, cross ventilation).
+
+Step S2.2c-d (client decisions 2026-10-12): the suite is ordered suite -> walk-in -> bath; the maximum profile weighs
+shape more (`shape_weighted`); on the upper floor each unit is also tried with its spaces at their optimal areas and
+the rest as open air on the facade (`_roof_spec`, `_roof_piece`): a lower roof, or a terrace at most the registry depth
+along the whole wall of the room it serves (`_terraces`); open-air cells are outside for the facade checks and leave
+the floor in `compose`.
 """
 
 from __future__ import annotations
@@ -297,6 +303,8 @@ def _closet_spec(rules: SpaceRules, host: SpaceSpec, k: int, sqft: float, role: 
 
 
 BATH_TYPES = ("bathroom", "primary_bath", "social_bath", "half_bath")
+ROOF_TYPE, TERRACE_TYPE = "upper_roof", "terrace"              # S2.2d: open air left on the upper floor
+OPEN_AIR = (ROOF_TYPE, TERRACE_TYPE)
 WALK_IN = "walk_in_closet"
 
 
@@ -311,6 +319,17 @@ def shape_weighted(rules: SpaceRules, weights: dict[str, float], floor) -> dict[
 def _aspect(rect: tuple[int, int, int, int]) -> float:
     w, h = rect[1] - rect[0], rect[3] - rect[2]
     return max(w, h) / max(min(w, h), 1)
+
+
+def _with_outside(ext, outside: np.ndarray):
+    """Exterior flags (-x, +x, -y, +y) with `outside` (box coordinates) added as outside neighbours."""
+    lo_x, hi_x, lo_y, hi_y = ext
+    nb = [np.zeros_like(outside) for _ in range(4)]
+    nb[0][:, 1:] = outside[:, :-1]
+    nb[1][:, :-1] = outside[:, 1:]
+    nb[2][1:, :] = outside[:-1, :]
+    nb[3][:-1, :] = outside[1:, :]
+    return (lo_x | nb[0], hi_x | nb[1], lo_y | nb[2], hi_y | nb[3])
 
 
 def _box_rect(mask: np.ndarray) -> tuple[int, int, int, int] | None:
@@ -371,6 +390,7 @@ class UnitLayout:
             self.circ_targets.append(self.fixed_circ)
         self.ext = (out[j0:j1, i0 - 1:i1 - 1], out[j0:j1, i0 + 1:i1 + 1],      # neighbour at -x, +x
                     out[j0 - 1:j1 - 1, i0:i1], out[j0 + 1:j1 + 1, i0:i1])      # neighbour at -y, +y
+        self.base_ext = self.ext                                               # S2.2d: roof pieces add outside
 
     # ---------------------------------------------------------------- helpers
 
@@ -408,6 +428,16 @@ class UnitLayout:
         pieces: list[Piece] = []
         facade_slack = []
         stray: list[tuple[np.ndarray, SpaceSpec]] = []          # parts cut off their space (one space, one piece)
+        roofs: list[Piece] = []
+        for sid, r in rects.items():                          # S2.2d: open air first (it is outside for the rooms)
+            if specs[sid].space_type == ROOF_TYPE:
+                got = self._roof_piece(area_box, specs[sid], r)
+                if got is None:
+                    return None, "roof:inside"
+                roofs.append(got)
+        if roofs:
+            self.ext = _with_outside(self.base_ext, np.logical_or.reduce([p.mask for p in roofs]))
+        rects = {sid: r for sid, r in rects.items() if specs[sid].space_type != ROOF_TYPE}
         for sid, (a0, a1, b0, b1) in rects.items():          # cheap bounds first: a clipped rectangle only shrinks
             spec = specs[sid]
             if min(a1 - a0, b1 - b0) * self.res < spec.min_side_ft - 1e-9:
@@ -502,7 +532,105 @@ class UnitLayout:
         why = self._full_wall(pieces)
         if why:
             return None, why
+        if roofs:
+            pieces += self._terraces(roofs, pieces)
         return (pieces, facade_slack), None
+
+    # ---------------------------------------------------------------- S2.2d: roof and terrace
+
+    def _roof_spec(self, specs: dict[str, SpaceSpec]) -> SpaceSpec | None:
+        """The open-air part of an upper unit when its spaces at their optimal areas leave enough of it."""
+        rules = self.rules
+        if self.floor.level <= 0 or self.unit.zone == "circulation" or not rules.design.get("space.upper.optimal_enabled"):
+            return None
+        small = set(rules.policy("typical_area_types") or ())
+        cap_f = float(rules.policy("typical_area_cap") or 1.0)
+        need = 0.0
+        for sp in specs.values():
+            t = sp.target_sqft
+            w, d = rules.std(sp.space_type, "typical_w_ft"), rules.std(sp.space_type, "typical_d_ft")
+            if sp.space_type in small and w and d:
+                t = min(t, float(w) * float(d) * cap_f)
+            need += t
+        free = self.unit.cells * self.res * self.res
+        slack = free - need
+        if slack < float(rules.design.get("space.upper.min_roof_sqft") or 0.0):
+            return None
+        return SpaceSpec(f"roof_{self.unit.unit_id.replace(':', '_')}", ROOF_TYPE, "exterior", self.unit.unit_id,
+                         slack, 0.0, self.res, False, False, False, frozenset(), None, False, True)
+
+    def _roof_variants(self, roof: SpaceSpec) -> list[tuple[str, np.ndarray, SpaceSpec, None]]:
+        """(tag, area left for the rooms, roof spec, None) per unit side on the facade: a strip deep enough to
+        hold the slack, along the whole side, entirely on the facade."""
+        unit = self.unit
+        i0, i1, j0, j1 = unit.box
+        out = []
+        slack = roof.target_sqft / (self.res * self.res)
+        for side in self.rules.s21["layout"]["hall_sides"]:
+            length = (j1 - j0) if side in ("low_x", "high_x") else (i1 - i0)
+            depth = int(np.ceil(slack / max(length, 1)))
+            if depth <= 0:
+                continue
+            strip = _hall_strip(unit, side, depth)
+            if strip is None:
+                continue
+            box = strip[j0:j1, i0:i1]
+            sb = _box_rect(box)
+            if sb is None or exterior_run(box, self.base_ext) < max(sb[1] - sb[0], sb[3] - sb[2]) - 1:
+                continue                          # the strip must stand on the facade along its whole length
+            out.append((f"roof:{side}", unit.mask & ~strip, roof, None))
+        return out
+
+    def _roof_piece(self, area_box: np.ndarray, spec: SpaceSpec, rect) -> Piece | None:
+        """The roof part of a realization: on the facade along its whole long side (no roof inside the house)."""
+        i0, _, j0, _ = self.unit.box
+        a0, a1, b0, b1 = rect
+        m = np.zeros_like(area_box)
+        m[b0 - j0:b1 - j0, a0 - i0:a1 - i0] = area_box[b0 - j0:b1 - j0, a0 - i0:a1 - i0]
+        box = _box_rect(m)
+        if box is None:
+            return None
+        long_ = max(box[1] - box[0], box[3] - box[2])
+        if exterior_run(m, self.base_ext) < long_ - 1:
+            return None
+        return Piece(spec, m, rect)
+
+    def _terraces(self, roofs: list[Piece], pieces: list[Piece]) -> list[Piece]:
+        """Roof pieces, each split into a terrace (at most the registry depth, along the whole wall of the room it
+        serves) and the rest as roof, when a room that may open onto a terrace borders it."""
+        rules = self.rules
+        out: list[Piece] = []
+        allowed = set(rules.design.get("space.upper.terrace_from") or ())
+        depth = self._cells(float(rules.design.get("space.upper.terrace_max_depth_ft") or 0.0))
+        for r in roofs:
+            room = None
+            if rules.design.get("space.upper.terrace_enabled"):
+                cands = [(shared_edge(r.mask, q.mask), q) for q in pieces if q.spec.space_type in allowed]
+                cands = [c for c in cands if c[0][0] > 0]
+                if cands:
+                    room = max(cands, key=lambda c: c[0][0])
+            if room is None:
+                out.append(r)
+                continue
+            (_, along_y), q = room
+            box = _box_rect(r.mask)
+            terrace = np.zeros_like(r.mask)
+            if along_y:                            # common wall on a vertical line: the terrace is a band in x
+                left = (q.mask[:, :-1] & r.mask[:, 1:]).any()          # the room is on the low-x side
+                x0, x1 = (box[0], min(box[0] + depth, box[1])) if left else (max(box[1] - depth, box[0]), box[1])
+                terrace[:, x0:x1] = r.mask[:, x0:x1]
+            else:
+                below = (q.mask[:-1, :] & r.mask[1:, :]).any()
+                y0, y1 = (box[2], min(box[2] + depth, box[3])) if below else (max(box[3] - depth, box[2]), box[3])
+                terrace[y0:y1, :] = r.mask[y0:y1, :]
+            rest = r.mask & ~terrace
+            tspec = SpaceSpec(r.spec.space_id.replace("roof_", "terrace_"), TERRACE_TYPE, "exterior", r.spec.unit_id,
+                              float(terrace.sum()) * self.res * self.res, 0.0, 0.0, False, False, False, frozenset(),
+                              q.spec.space_id, False, True)
+            out.append(Piece(tspec, terrace, r.rect))
+            if rest.any():
+                out.append(Piece(r.spec, rest, r.rect))
+        return out
 
     # ---------------------------------------------------------------- S2.2b: carving, hard shape, whole wall
 
@@ -704,6 +832,8 @@ class UnitLayout:
         factor = float(rules.light("daylight.depth_factor") or 0.0)
         for p in pieces:
             t = p.spec.space_type
+            if t in OPEN_AIR:
+                continue
             s = self._shape_of(p)
             if s is not None:
                 (circ_parts if p.spec.circulation else shapes).append(s)
@@ -788,7 +918,7 @@ class UnitLayout:
         rules = self.rules
         for p in pieces:
             sp = p.spec
-            if sp.circulation:
+            if sp.circulation or sp.space_type in OPEN_AIR:
                 continue
             if sp.passable:                       # a passable room joins the corridor or a linked unit
                 if not (any(self._contact(p.mask, t) >= need for t in self.circ_targets + self.room_targets)
@@ -912,6 +1042,9 @@ class UnitLayout:
         closets built into their rooms (layout.mergeable_into_host); best of each hall side first."""
         base = {s.space_id: s for s in self.unit.specs}
         found = self._options(base, ())
+        roof = self._roof_spec(base)
+        if roof is not None:                      # S2.2d: rooms at their optimal areas, the rest roof or terrace
+            found += self._options(base, (), roof)
         merge = set(self.rules.s21["layout"]["mergeable_into_host"])
         merged = [k for k, sp in base.items() if sp.space_type in merge and sp.host in base]
         if merged:
@@ -935,17 +1068,23 @@ class UnitLayout:
         out.sort(key=lambda o: (-o.score, o.hall_side))
         return out[: max(self.keep, len(sides))]
 
-    def _options(self, specs: dict[str, SpaceSpec], merged: tuple[str, ...]) -> list[UnitOption]:
+    def _options(self, specs: dict[str, SpaceSpec], merged: tuple[str, ...],
+                 roof: SpaceSpec | None = None) -> list[UnitOption]:
         unit = self.unit
         if not specs:
             return [UnitOption(unit.index, NO_HALL, (), 1.0, {"total": 1.0})]
         width = self.rules.hall_width_accessible_ft if self.floor.accessible else self.rules.hall_width_ft
         variants: list[tuple[str, np.ndarray, SpaceSpec | None, str | None]] = [(NO_HALL, unit.mask, None, None)]
-        if unit.zone != "circulation":
+        if roof is not None:                      # S2.2d: a strip of the slack along one facade side of the unit
+            variants = self._roof_variants(roof)
+            if not variants:
+                return []
+        if roof is None and unit.zone != "circulation":
             for side in self.rules.s21["layout"]["hall_sides"]:          # the circulation unit already on a side
                 if self._edge_contact(side) >= self.need_cells - 1e-9:
                     variants.append((f"edge:{side}", unit.mask, None, side))
-        if unit.zone != "circulation" and _terminals(unit.specs, self.rules) >= self.rules.hall_min_terminals:
+        if roof is None and unit.zone != "circulation" and \
+                _terminals(unit.specs, self.rules) >= self.rules.hall_min_terminals:
             width = self.rules.hall_width_accessible_ft if self.floor.accessible else self.rules.hall_width_ft
             hspec = self.hall_spec()
             for side in self.rules.s21["layout"]["hall_sides"]:
@@ -953,7 +1092,8 @@ class UnitLayout:
                 if strip is not None:
                     variants.append((side, unit.mask & ~strip, hspec, side))
         mids = []
-        if unit.zone != "circulation" and _terminals(unit.specs, self.rules) >= self.rules.hall_min_terminals:
+        if roof is None and unit.zone != "circulation" and \
+                _terminals(unit.specs, self.rules) >= self.rules.hall_min_terminals:
             cells_w = self._cells(width)
             for runs_along_y in (True, False):
                 starts = [None]                    # through the middle, and wherever it meets the circulation
@@ -1028,7 +1168,9 @@ class UnitLayout:
                 if key in seen:
                     continue
                 seen.add(key)
+                is_roof = hall_piece is not None and hall_piece.spec.space_type == ROOF_TYPE
                 for with_closets in (True, False):
+                    self.ext = _with_outside(self.base_ext, hall_piece.mask) if is_roof else self.base_ext
                     got, why = self._pieces(area_box, rects, specs, with_closets,
                                             hall_piece.mask if hall_piece is not None else None)
                     if got is None:
@@ -1036,7 +1178,9 @@ class UnitLayout:
                         break
                     pieces, slack = got
                     has_closet = any(p.spec.synthetic and p.spec.space_type == self.rules.closet_type for p in pieces)
-                    if hall_piece is not None:
+                    if is_roof:
+                        pieces = pieces + self._terraces([hall_piece], pieces)
+                    elif hall_piece is not None:
                         pieces = pieces + [hall_piece]
                     variants = [pieces]
                     linen = self._linen(pieces) if with_closets else None

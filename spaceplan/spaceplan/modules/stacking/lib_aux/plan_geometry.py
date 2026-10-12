@@ -155,7 +155,11 @@ def polygon_json(geom: BaseGeometry | None, ndigits: int = 3) -> dict | None:
     if geom is None or geom.is_empty:
         return None
     polys = [geom] if isinstance(geom, Polygon) else [g for g in getattr(geom, "geoms", []) if isinstance(g, Polygon)]
-    rings = [[[[round(x, ndigits), round(y, ndigits)] for x, y in p.exterior.coords]] for p in polys if p.area > TOL]
+    def ring(r):
+        return [[round(x, ndigits), round(y, ndigits)] for x, y in r.coords]
+
+    rings = [[ring(p.exterior)] + [ring(h) for h in p.interiors if Polygon(h).area > TOL]   # holes kept (S2.2d)
+             for p in polys if p.area > TOL]
     if not rings:
         return None
     if len(rings) == 1:

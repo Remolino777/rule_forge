@@ -1514,6 +1514,43 @@
             "null"
           ],
           "description": "Secondary door of the ground floor (stage S2.1b): space, facade, kind, width, glass area, landing (R311.3), whether the landing meets the rear deck."
+        },
+        "open_air": {
+          "type": "array",
+          "description": "Step S2.2d: the part of an upper unit its spaces at optimal areas leave: lower roof, or a terrace (at most the registry depth) serving a room.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "space_id",
+              "kind",
+              "area_sqft",
+              "polygon"
+            ],
+            "properties": {
+              "space_id": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "upper_roof",
+                  "terrace"
+                ]
+              },
+              "serves": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "area_sqft": {
+                "type": "number"
+              },
+              "polygon": {
+                "type": "object"
+              }
+            }
+          }
         }
       }
     },

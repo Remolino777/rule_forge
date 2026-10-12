@@ -258,3 +258,46 @@ def test_maximum_profile_weighs_shape_more(rules):
     w = {"shape": 0.25, "fit": 0.1}
     assert shape_weighted(rules, w, SimpleNamespace(profile="maximum"))["shape"] == pytest.approx(0.25 * 1.6)
     assert shape_weighted(rules, w, SimpleNamespace(profile="accessible")) == w
+
+
+# ------------------------------------------------------------------ step S2.2d (client 2026-10-12)
+
+
+def test_stair_band_between_the_quartiles():
+    from shapely.geometry import box as sbox
+
+    from spaceplan.modules.stacking.lib.access_stair import in_band
+
+    ground = sbox(0, 0, 30, 40)                                  # street at y = 0, garden at y = 40
+    band = {"band": [0.25, 0.75], "measure": "footprint", "garden_facade_free": True}
+    assert in_band(sbox(0, 12, 4, 26), ground, band)
+    assert not in_band(sbox(0, 2, 4, 14), ground, band)          # starts before the first quartile
+    assert not in_band(sbox(0, 30, 4, 40), ground, band)         # on the garden facade
+    centre = {**band, "measure": "centre"}
+    assert in_band(sbox(0, 6, 4, 18), ground, centre) and not in_band(sbox(0, 28, 4, 40), ground, centre)
+    assert in_band(sbox(0, 0, 4, 8), ground, None)
+
+
+def test_upper_unit_leaves_its_slack_as_roof(rules, catalog, matrix):
+    ul, unit = _layout(rules, catalog, matrix, 24, 14, [_row("bed", "bedroom", 140), _row("b", "bathroom", 55)])
+    roof = ul._roof_spec({s.space_id: s for s in unit.specs})
+    assert roof is not None and roof.space_type == "upper_roof"
+    assert roof.target_sqft == pytest.approx(24 * 14 - 140 - 5 * 8 * 1.25)
+    ground, gunit = _layout(rules, catalog, matrix, 24, 14, [_row("bed", "bedroom", 140)], level=0)
+    assert ground._roof_spec({s.space_id: s for s in gunit.specs}) is None
+
+
+def test_roof_on_the_facade_and_terrace_by_the_bedroom(rules, catalog, matrix):
+    ul, unit = _layout(rules, catalog, matrix, 20, 14, [_row("bed", "bedroom", 140)])
+    roof = ul._roof_spec({s.space_id: s for s in unit.specs}) or SpaceSpec(
+        "roof_u", "upper_roof", "exterior", "u", 100.0, 0.0, RES, False, False, False, frozenset(), None, False, True)
+    area = np.ones((28, 40), dtype=bool)
+    edge = ul._roof_piece(area, roof, (31, 41, 1, 29))           # last 5 ft, on the +x facade
+    assert edge is not None
+    assert ul._roof_piece(area, roof, (11, 21, 1, 29)) is None    # in the middle of the unit: not a roof
+    bed = _piece(ul, unit.specs[0], 0, 30, 0, 28)
+    parts = ul._terraces([edge], [bed])
+    terrace = [p for p in parts if p.spec.space_type == "terrace"]
+    assert len(terrace) == 1 and terrace[0].spec.host == "bed"
+    assert terrace[0].mask.any(0).sum() * RES <= rules.design["space.upper.terrace_max_depth_ft"] + 1e-9
+    assert terrace[0].mask.any(1).sum() == 28                    # along the whole wall of the bedroom

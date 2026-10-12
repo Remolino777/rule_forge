@@ -271,6 +271,11 @@ def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None, s
     if level == 0:
         _site_panel(ax, site)
     _fill(ax, floor_poly, color="#ffffff", ec=INK2, lw=0.6)
+    for oa in block.get("open_air") or []:               # S2.2d: lower roof (hatched) and terrace (deck)
+        if oa["kind"] == "terrace":
+            _fill(ax, oa["polygon"], color=DECK_FILL, ec=INK2, lw=0.4)
+        else:
+            _fill(ax, oa["polygon"], color="#e7e5df", ec=INK2, lw=0.4, hatch="\\\\\\")
     for sp in block["spaces"]:
         if sp["space_type"].startswith("garage"):
             _fill(ax, sp["polygon"], color=GARAGE_FILL, ec=INK2, lw=0.5, hatch="///")

@@ -9,7 +9,7 @@
 
 Módulo `spaceplan` de Municipal Permit Intelligence.
 
-Fecha: 12 de octubre de 2026 · Estado: **paso 6.7a S2.2b hecha (sección 4u: el registro de diseño dentro de S2.1 con el perfil intermedio del cliente; 43 de 291 casas con planta completa, baños 100 % en rango, clósets de baño, blancos y recámara)**; S2.2a (4t); S2.1b (4s); S2.1 v1 (4r); S1.2 (4q); S2 (4o) · catálogo de apilamiento 0.12.0 · estándares de diseño 0.3.0 · registro de diseño 0.2.0 · reglas de aberturas CRC 0.3.0 · reglas de cliente 0.5.0 · catálogo residencial 0.13.0
+Fecha: 12 de octubre de 2026 · Estado: **paso 6.7a S2.2d parte 1 hecha (sección 4w: escalera en la franja central K12, planta alta óptima con techo y terraza de 3 ft; 26 de 291 casas)**; S2.2c (4v, 39 casas); S2.2b (4u); S2.2a (4t) · catálogo de apilamiento 0.12.0 · estándares de diseño 0.5.0 · registro de diseño 0.3.0 · reglas de cliente 0.6.0 · reglas de aberturas CRC 0.3.0 · catálogo residencial 0.13.0
 Capstone MS-AAI, University of San Diego (18 meses desde sept. 2026; cierre feb. 2028). Preparado con asistencia de
 Claude (Anthropic); declararlo en el informe según la política de IA de USD.
 
@@ -1170,6 +1170,43 @@ fachada; S2.2f conecta `run_variant` al pipeline y endurece reglas calibradas.
 - Bloqueos: zona privada sin corte válido (80), social sin corte (25), cocina sin corte (21). Siguen pidiendo que S2 dimensione las zonas (S2.2d).
 - Pruebas: el fixture de S2.1 pasa a `teens_family.anglo` (la versión sin cultura ya no se completa).
 
+## 4w. Paso 6.7a, S2.2d parte 1 (12 oct 2026): escalera en la franja central (K12), planta alta óptima con techo y terraza
+
+**Decisiones del cliente (12 oct, 02:06).**
+- **Escalera (K12):** entre los cuartiles del largo de los muros laterales y nunca sobre la fachada del jardín, que es la del great room y su luz.
+- **Planta alta:** espacios en su área óptima, también en el perfil máximo; el sobrante va a techo o a terraza de máximo 3 ft.
+
+**Código y datos.**
+- `client_stair_rules` 0.6.0 con K12-STAIR-BAND:
+  - `band` [0.25, 0.75] de la profundidad desde la calle; `measure: centre`;
+  - con la huella completa dentro de la franja, 5 de 12 casas del subconjunto esquina se quedaban sin escalera y ninguna se completaba;
+  - `garden_facade_free`.
+  - `access_stair.in_band` filtra las candidatas («K12» en los descartes); `access_cell` pasa la regla.
+  - Registro: `stair.band`, `stair.garden_facade_free`. Los cambios de perfil a stores que no son del diseño (reglas de escalera, catálogos) aún no llegan al pipeline: se materializan en S2.2f.
+- `design_space_standards` 0.5.0, `space.upper.*`: `optimal_enabled`, `min_roof_sqft` 15, `terrace_enabled`, `terrace_max_depth_ft` 3, `terrace_from`.
+- `unit_layout`:
+  - en la planta alta, cada unidad (no circulación) se prueba además con sus espacios en área óptima y el sobrante como franja sobre una fachada (`_roof_variants`, como la franja de pasillo; las opciones de techo dentro del corte en columnas se rechazaban casi siempre por quedar adentro);
+  - la franja se divide en terraza (≤ 3 ft, a lo largo de todo el muro de la recámara o estancia que sirve) y techo (`_terraces`);
+  - las celdas al aire son exteriores para la fachada.
+- `door_placement.compose` deja el techo y la terraza fuera de la planta (`FloorLayout.open_air`).
+- `space_cell` emite `open_air` por planta (esquema `s21_floor.open_air`); las láminas dibujan el techo rayado y la terraza como deck.
+- `plan_geometry.polygon_json` conserva los huecos de los polígonos (un foyer que rodea el medio baño se exportaba sin hueco).
+
+**Piloto (`docs/results/s22d_pilot/`).**
+- **Solo con K12: 26 casas** (S2.2c: 39).
+- La escalera central deja 10 celdas sin escalera que quepa (S1) y 40 más sin zonificar en S2. Las candidatas que quedan suelen ser de la estrategia B (junta), que S2 no zonifica.
+- Pasillos más cortos (17.5 ft contra 22) y casi sin espacios partidos (4 contra 19).
+- **Con techo y terraza: 26 casas;**
+  - 6 eligen techo (314 sq ft) y 2 terrazas de 3 ft junto al master (111 sq ft);
+  - sobre la proporción máxima 23.9 %; sin mobiliario 17.2 %; espacios N sin luz suficiente 21.9 %.
+- Pruebas: los fixtures de S2.1 pasan a `teens_family.latino`.
+
+**Pendiente (S2.2d parte 2).**
+- S1/S2 con la escalera central: zonificación de ambas plantas alrededor de un núcleo en la franja media (pasillo-espina desde la puerta) y búsqueda de posiciones A dentro de la franja.
+- Puerta corrediza de la recámara a su terraza.
+- Techos en varios planos sobre `open_air`.
+- Endurecer las preferencias fuertes cuando las zonas vengan dimensionadas.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1229,7 +1266,7 @@ Las opciones de 2 pisos (n2) quedan `deferred_to_stacking` (paso 7).
 | 6.5c | ~~Capa cultural latina/anglosajona: tipologías de cocina, matriz D/I/N, programa, patio, pesos~~ **hecho** | oct 2026 | 7 | Mismo lote y hogar con dos perfiles → programas, relaciones y patio distintos y trazables |
 | 6.5d | ~~Generador mínimo/óptimo/máximo + por etapas + accesible, contra la etapa siguiente, láminas~~ **hecho** | oct 2026 | 8.5 | 5 perfiles por brief con curva, techo activo y láminas |
 | 6.6 | ~~Análisis de áreas por lote: programa × esquema vertical × estrategia, IC/IO, 4 lotes nuevos~~ **hecho** | oct 2026 | 8 | Tabla y figuras por lote del piloto |
-| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); ~~S2.1b puertas, baños, salidas, voladizo, antejardín (4s)~~ **hecho** (45 %, 0 sin acceso); S2.1c cobertura de plantas bajas; S2.2 calidad de espacios: ~~S2.2a registro y KPIs (4t)~~ **hecho**, ~~S2.2b registro en S2.1, perfil intermedio (4u)~~ **hecho** (43 casas, baños 100 % en rango), ~~S2.2c baños, walk-in, planta abierta (4v)~~ **hecho** (39), S2.2d–f (oct–dic 2026) | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
+| 6.7a | Apilamiento: ~~S0 niveles y altura (sección 4j)~~ **hecho**; ~~S1 escalera, polígono por nivel con 131.0444, contención (sección 4k)~~ **hecho**; ~~S1.1 configuraciones, bajo escalera, llegada y arranque (4l)~~ **hecho**; ~~S2 zonificación de ambas plantas alrededor del núcleo (4o)~~ **hecho**; ~~S1.2 escalera desde la puerta (4p, 4q)~~ **hecho**; ~~S2.1 v1 espacios y puertas (4r)~~ **hecho** (47 %); ~~S2.1b puertas, baños, salidas, voladizo, antejardín (4s)~~ **hecho** (45 %, 0 sin acceso); S2.1c cobertura de plantas bajas; S2.2 calidad de espacios: ~~S2.2a registro y KPIs (4t)~~ **hecho**, ~~S2.2b registro en S2.1, perfil intermedio (4u)~~ **hecho** (43 casas, baños 100 % en rango), ~~S2.2c baños, walk-in, planta abierta (4v)~~ **hecho** (39), S2.2d parte 1 escalera K12 + techo/terraza (4w) **hecho** (26), S2.2d parte 2–f (oct–dic 2026) | oct 2026–ene 2027 | 8 | Los mejores esquemas de 2 pisos de 6.6 con planta dibujada |
 | 6.7b | Nivel −1: sótano de servicio y walkout (B0–B3), terreno por borde (brief 0.6), costo de excavación | ene 2027 | 4–6 | Hipótesis H1–H4 contrastadas |
 | 6.8 | Puntaje de calidad común, Pareto del portafolio, codo costo–calidad, detector de soluciones forzadas, retroceso por columna, perfiles por tipo de lote | feb 2027 | 8 | Opción recomendada con alternativas y explicación |
 
@@ -1318,7 +1355,7 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4u del HANDOFF) con **S2.2c**: planta abierta (great room) en la planta baja y bandas de servicio, para
-> recuperar cobertura con el perfil intermedio (43 de 291 casas). Mide con `spaceplan quality` contra
-> `docs/results/s22b_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y
-> pregúntame antes de programar.
+> secciones 4t–4w del HANDOFF) con **S2.2d parte 2**: S1/S2 con la escalera en la franja central (K12): búsqueda de
+> posiciones dentro de la franja y zonificación alrededor de un núcleo central, para recuperar cobertura (26 de 291
+> casas); puerta a la terraza; techos en varios planos. Mide con `spaceplan quality` contra `docs/results/s22d_pilot/`.
+> Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.
