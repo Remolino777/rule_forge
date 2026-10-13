@@ -1631,6 +1631,27 @@
               }
             }
           }
+        },
+        "hall_trim": {
+          "type": "object",
+          "description": "S2.2h (upper floor): the hall trimmed to what it serves: dead end before and after, linen closet, closets of the rooms, roof, area joined to rooms, distance of the bedroom doors to the stair landing; applied false with the reason when a check failed.",
+          "properties": {
+            "applied": {
+              "type": "boolean"
+            },
+            "dead_end_sqft": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "door_gaps_ft": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
         }
       }
     },

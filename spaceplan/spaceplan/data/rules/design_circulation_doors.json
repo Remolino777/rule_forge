@@ -1,6 +1,6 @@
 {
   "ruleset_id": "design-circulation-doors",
-  "ruleset_version": "0.3.0",
+  "ruleset_version": "0.4.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
@@ -805,6 +805,188 @@
       "source": {
         "document": "S2.2f analysis (2026-10-12)",
         "section": "door grouping"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P09-UPPER-HALL",
+      "kind": "design",
+      "magnitude": "upper_hall",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "circulation.upper_hall",
+      "parameters": {
+        "trim": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Recortar el pasillo alto a lo que sirve: vestíbulo, clóset de blancos y el remanente a clósets, cuartos o techo",
+            "en": "Trim the upper hall to what it serves: vestibule, linen closet and the rest to closets, rooms or roof"
+          },
+          "note": "Client decision 2026-10-12 22:03 (S2.2h)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "vestibule_min_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Distancia mínima del borde del descanso de llegada a la puerta de un dormitorio (vestíbulo)",
+            "en": "Least distance from the edge of the stair landing to a bedroom door (vestibule)"
+          },
+          "range": [
+            0.0,
+            6.0
+          ],
+          "note": "Client decision 2026-10-12 22:03 (S2.2h): between 3 and 4 ft; 3 ft is the top landing of R311.7.6",
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ]
+        },
+        "vestibule_pref_ft": {
+          "value": 4.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Distancia preferida máxima a la primera puerta de dormitorio (las puertas cerca de la escalera)",
+            "en": "Preferred largest distance to the first bedroom door (doors near the stair)"
+          },
+          "range": [
+            3.0,
+            8.0
+          ],
+          "note": "Client decision 2026-10-12 22:03 (S2.2h)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "door_margin_ft": {
+          "value": 0.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Pasillo que se conserva más allá del marco de la puerta más lejana",
+            "en": "Hall kept beyond the jamb of the farthest door"
+          },
+          "range": [
+            0.0,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "linen": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Clóset de blancos al fondo del pasillo servido, con el ancho del pasillo de muro a muro (fondo: space.closets.linen_depth_ft)",
+            "en": "Linen closet closing the served hall, as wide as the hall wall to wall (depth: space.closets.linen_depth_ft)"
+          },
+          "note": "Client decision 2026-10-12 22:03 (S2.2h)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "walk_in_from_ft": {
+          "value": 5.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Desde este ancho, el remanente entre dos dormitorios es un walk-in; por debajo, clóset de space.closets.reach_in_depth_ft y el resto al cuarto",
+            "en": "From this width the remainder between two bedrooms is a walk-in; below it, a closet space.closets.reach_in_depth_ft deep and the rest to the room"
+          },
+          "range": [
+            4.0,
+            8.0
+          ],
+          "note": "Client decision 2026-10-12 22:03 (S2.2h)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "tail_one_room": {
+          "value": "roof",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Remanente que toca un solo dormitorio: techo (si da a fachada) o clóset / cuarto",
+            "en": "Remainder touching one bedroom: roof (on a facade) or closet / room"
+          },
+          "choices": [
+            "roof",
+            "closet"
+          ],
+          "note": "Client decision 2026-10-12 22:03 (S2.2h) (21:57: roof; interior: closet or added to the room)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "tail_no_room": {
+          "value": "roof",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Remanente que no toca dormitorios: techo (si da a fachada) o se suma al espacio vecino",
+            "en": "Remainder touching no bedroom: roof (on a facade) or added to the neighbour space"
+          },
+          "choices": [
+            "roof",
+            "neighbour"
+          ],
+          "note": "Client decision 2026-10-12 22:03 (S2.2h)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "dead_end_target_sqft": {
+          "value": 15.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Objetivo de pasillo muerto por planta alta (indicador)",
+            "en": "Target of dead-end hall per upper floor (indicator)"
+          },
+          "range": [
+            0.0,
+            60.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        }
+      },
+      "text": [
+        "The upper hall keeps what it serves: the stair landing, a vestibule of vestibule_min_ft..vestibule_pref_ft before the first bedroom door, and the strip in front of every door; a linen closet as wide as the hall closes it.",
+        "The remainder becomes: closets of the two bedrooms it lies between (a walk-in from walk_in_from_ft wide); roof when it touches one bedroom or none and reaches a facade; otherwise a closet of its room, or it joins the neighbour space."
+      ],
+      "source": {
+        "document": "S2.2h plan (2026-10-12)",
+        "section": "upper hall"
       },
       "verified": false
     }

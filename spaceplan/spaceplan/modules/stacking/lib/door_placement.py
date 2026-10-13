@@ -77,6 +77,7 @@ class FloorLayout:
     open_air: list = field(default_factory=list)          # S2.2d: (spec, whole-floor mask) of roofs and terraces
     structure: dict | None = None                          # S2.2f: how the upper floor stands on the ground floor
     frame: dict | None = None                              # S2.2g: how the ground floor carries the frame's axes
+    trim: dict | None = None                               # S2.2h: the upper hall trimmed (report)
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)
@@ -201,6 +202,13 @@ class DoorPlacer:
         if rules.design.get("door.grouping.nearest_corner") and f.landing is not None and f.landing.any():
             rows, cols = np.nonzero(f.landing)
             self.near = (float(cols.mean() + 0.5), float(rows.mean() + 0.5))
+        self.vestibule = 0.0                      # S2.2h: bedroom doors at least this far (cells) from the landing
+        self._landing_pts = None
+        vmin = float(rules.design.get("circulation.upper_hall.vestibule_min_ft") or 0.0)
+        if f.level > 0 and vmin > 0 and f.landing is not None and f.landing.any():
+            rows, cols = np.nonzero(f.landing)
+            self.vestibule = vmin / self.res
+            self._landing_pts = np.column_stack([cols + 0.5, rows + 0.5])
 
     def runs_between(self, a: int, b: int) -> list[WallRun]:
         return sorted(self.runs.get((min(a, b), max(a, b)), []), key=lambda r: (-r.cells, r.k, r.t0))
@@ -248,12 +256,14 @@ class DoorPlacer:
                     x, y = (run.k, h) if run.vertical else (h, run.k)
                     return (x - self.near[0]) ** 2 + (y - self.near[1]) ** 2
                 order = tuple(sorted(order, key=gap))
-            for toward_plus in order:
-                hinge = run.t0 + corner + self.frame / 2 if toward_plus else run.t1 - corner - self.frame / 2
+            vest = self._vestibule_applies(served, other)
+            for toward_plus, hinge, at_corner in self._positions(run, order, corner, leaf, vest):
                 t0, t1 = (hinge, hinge + leaf) if toward_plus else (hinge - leaf, hinge)
                 if not check_swing:
                     return Door(served, other, kind, run, t0, t1, hinge, toward_plus, into_high, leaf, clear)
-                if not self._supported(run, into_high, toward_plus, served, leaf):
+                if vest and self.landing_gap(run, t0 - self.frame / 2, t1 + self.frame / 2) < self.vestibule - 1e-9:
+                    continue                          # S2.2h: the vestibule before the first bedroom door
+                if at_corner and not self._supported(run, into_high, toward_plus, served, leaf):
                     continue                          # the open leaf would stand in the air
                 sw = swing_cells(labels.shape, run, into_high, hinge, leaf, toward_plus)
                 if not sw.any():
@@ -270,6 +280,40 @@ class DoorPlacer:
             self.layout.swept |= fallback[1]
             return fallback[0]
         return None
+
+    def _vestibule_applies(self, served: int, other: int) -> bool:
+        specs = self.layout.specs
+        return (self.vestibule > 0 and other >= 0 and specs[served].space_type in self.rules.sleeping_types
+                and specs[other].circulation)
+
+    def landing_gap(self, run: WallRun, t0: float, t1: float) -> float:
+        """Distance (cells) from a stretch of wall line to the nearest landing cell edge (S2.2h)."""
+        if self._landing_pts is None:
+            return float("inf")
+        pts = self._landing_pts
+        along, across = (pts[:, 1], pts[:, 0]) if run.vertical else (pts[:, 0], pts[:, 1])
+        da = np.maximum(0.0, np.maximum(t0 - along, along - t1))
+        dc = np.abs(across - run.k)
+        return float(max(0.0, np.min(np.hypot(da, dc)) - 0.5))
+
+    def _positions(self, run: WallRun, order, corner: float, leaf: float, vest: bool):
+        """(toward_plus, hinge, at_corner) of a door on a run: the corners in the given order; with the vestibule
+        rule (S2.2h) each corner is followed by the positions stepping away from it, one cell at a time, so the door
+        stops just past the vestibule instead of jumping to the far corner."""
+        out = []
+        for toward_plus in order:
+            hinge = run.t0 + corner + self.frame / 2 if toward_plus else run.t1 - corner - self.frame / 2
+            out.append((toward_plus, hinge, True))
+            if not vest:
+                continue
+            step = 1.0 if toward_plus else -1.0
+            for n in range(1, int(run.cells) + 1):
+                h = hinge + step * n
+                t0, t1 = (h, h + leaf) if toward_plus else (h - leaf, h)
+                if t0 - self.frame / 2 < run.t0 - 1e-9 or t1 + self.frame / 2 > run.t1 + 1e-9:
+                    break
+                out.append((toward_plus, h, False))
+        return out
 
     def _supported(self, run: WallRun, into_high: bool, toward_plus: bool, served: int, leaf: float) -> bool:
         """The open leaf rests on a wall: the hinge end of the run is a corner of the served space whose wall runs

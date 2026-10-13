@@ -1407,6 +1407,47 @@ recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote
 - Limitar la profundidad de los techos de una caída (cortar a dos aguas o en varios tramos).
 - Láminas de techos en el módulo `viz`.
 
+## 4aa. Paso 6.7a, S2.2h (12 oct 2026): pasillo de la planta alta recortado
+
+**Decisiones del cliente (21:42–22:03).**
+- Vestíbulo de 3 ft como mínimo (obligatorio) y hasta 4 ft (preferido) antes de la primera puerta de dormitorio.
+- Clóset de blancos con el ancho del pasillo, de muro a muro, y 2 ft de fondo.
+- Remanente entre dos cuartos: clósets de 2 ft y el resto al cuarto (walk-in desde 5 ft).
+- Remanente de un cuarto o sin dormitorio: techo si da a fachada; si no, clóset o se suma al vecino.
+- Fase 2 (circulación por servicio en S2) después de medir.
+
+**Datos.**
+- `design_circulation_doors` 0.4.0, P09 `circulation.upper_hall.*`: `trim`, `vestibule_min_ft` 3 (hard),
+  `vestibule_pref_ft` 4, `door_margin_ft` 0.5, `linen`, `walk_in_from_ft` 5, `tail_one_room` roof/closet,
+  `tail_no_room` roof/neighbour, `dead_end_target_sqft` 15.
+- Registro de 535 parámetros. El grupo LLM `structure` incluye `circulation.upper_hall.`.
+
+**Código.**
+- `door_placement`:
+  - las puertas de dormitorio sobre circulación quedan al menos a `vestibule_min_ft` del descanso
+    (`landing_gap`);
+  - posiciones que se alejan de la esquina celda por celda (`_positions`).
+- `lib/hall_trim.py` + `lib_aux/hall_geometry.py`:
+  - pasillo servido (descanso + franja frente a cada puerta);
+  - remanentes por rectángulo;
+  - clóset de blancos de muro a muro;
+  - remanentes a clósets, walk-in, techo (`upper_roof`), cuarto o vecino.
+- `space_cell._trimmed`: tras las puertas, recorte; puertas otra vez; si falla, se conserva el pasillo. Bloque
+  `s21.upper.hall_trim`.
+- `space_quality.circulation_summary`. Esquema: `s21_floor.hall_trim`. Pruebas: `tests/stacking/test_stage_s22h.py`.
+
+**Piloto (`docs/results/s22h_pilot/`).**
+- 39 casas, sin pérdida; 30 plantas recortadas.
+- Pasillo más allá de lo que sirve: mediana 20.8 → 0 ft².
+- Pasillo arriba: 157 → 118 ft².
+- Circulación: 20.6 → 18.2 %.
+- 0 puertas a menos de 3 ft del descanso.
+- 31 clósets de blancos y 27 de dormitorio; 605 ft² a techo.
+
+**Pendiente (fase 2).**
+- Pasillos anchos de llegada (6.5–8 ft) y franjas junto a la escalera: dimensionar la circulación por servicio desde
+  S2.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1555,8 +1596,8 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4z del HANDOFF). S2.2g dejó el marco estructural primero: 39 casas, las dos plantas sobre los mismos
-> ejes (muro o viga en cada uno) y techos en varios planos. Falta alinear los tabiques de los cuartos entre plantas
-> (26 %) y limitar la profundidad de los techos de una caída. Mide con `spaceplan quality` contra
-> `docs/results/s22g_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y
+> secciones 4t–4aa del HANDOFF). S2.2h recortó el pasillo de la planta alta: vestíbulo de 3–4 ft, clóset de blancos
+> de muro a muro y remanentes a clósets o techo, sin perder casas (39). Falta la fase 2: dimensionar la circulación
+> por servicio desde S2 (pasillos de llegada anchos). Mide con `spaceplan quality` contra
+> `docs/results/s22h_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y
 > pregúntame antes de programar.

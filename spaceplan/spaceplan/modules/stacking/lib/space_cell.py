@@ -35,6 +35,12 @@ from spaceplan.modules.stacking.lib.door_placement import (
 )
 from spaceplan.modules.stacking.lib.floor_frame import GROUND, UPPER, cell_floors
 from spaceplan.modules.stacking.lib.front_yard import front_yard
+from spaceplan.modules.stacking.lib.hall_trim import (
+    dead_end_sqft,
+    door_gaps,
+    trim_hall,
+    trim_settings,
+)
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
 from spaceplan.modules.stacking.lib.roof_planes import roof_pieces, roof_settings
 from spaceplan.modules.stacking.lib.space_relations import evaluate_space_floor, space_graph
@@ -207,6 +213,24 @@ def _merge_lines(a, b):
     return a[0] | b[0], a[1] | b[1]
 
 
+def _trimmed(layout, rules, ctx: S21Context):
+    """S2.2h: the layout with its upper hall trimmed when the doors and checks still hold; else the layout, with
+    the reason in its trim report."""
+    trimmed, report = trim_hall(layout, rules)
+    if trimmed is None:
+        layout.trim = {**report, "applied": False, "door_gaps_ft": door_gaps(layout, rules)} if report else None
+        return layout
+    place_doors(trimmed, rules, ctx.matrix)
+    if trimmed.violations:
+        layout.trim = {**report, "applied": False, "reason": trimmed.violations[0],
+                       "dead_end_sqft": report.get("dead_end_before_sqft"), "door_gaps_ft": door_gaps(layout, rules)}
+        return layout
+    st = trim_settings(rules)
+    trimmed.trim = {**report, "applied": True, "dead_end_sqft": round(dead_end_sqft(trimmed, st["margin_ft"]), 1),
+                    "door_gaps_ft": door_gaps(trimmed, rules)}
+    return trimmed
+
+
 def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None = None,
                  under_upper: np.ndarray | None = None, above: SpaceFloor | None = None,
                  frame: dict[str, Any] | None = None) -> tuple[list[FloorResult], dict[str, Any]]:
@@ -240,6 +264,8 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
         summary["combinations"] += 1
         layout = compose(floor, tuple(o[i] for o, i in zip(per_unit, idx)))
         place_doors(layout, rules, ctx.matrix)
+        if not layout.violations and floor.level > 0:           # S2.2h: the hall trimmed to what it serves
+            layout = _trimmed(layout, rules, ctx)
         if not layout.violations:
             why = _walk_through_violation(layout, rules)          # S2.2c: suite -> walk-in -> bath
             if why:
@@ -597,6 +623,7 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
                           "area_sqft": round(int(m.sum()) * ca, 1),
                           "polygon": polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)}
                          for s, m in lay.open_air],
+            **({"hall_trim": lay.trim} if lay.trim else {}),
             "score": round(r.score, 4),
             "relations": {"hard_failed": r.relations["hard_failed"],
                           "met": sorted(p for p, v in r.relations["results"].items() if v == "met")}}

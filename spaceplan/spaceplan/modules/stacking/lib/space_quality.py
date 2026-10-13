@@ -166,7 +166,9 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
     extra = ((cell.get("program_adjustment") or {}).get("area_criteria") or {}).get("extra_room")
     return {"cell_id": cid, "lot_id": cell.get("lot_id"), "profile": cell.get("profile"), "floors": floors,
             "spaces": spaces, "suite": suite, "extra_room": extra, "structure": s21.get("structure"),
-            "arrival": s21.get("arrival"), "frame": s21.get("frame"), "roofs": s21.get("roofs")}
+            "arrival": s21.get("arrival"), "frame": s21.get("frame"), "roofs": s21.get("roofs"),
+            "hall_trim": (s21.get("upper") or {}).get("hall_trim"),
+            "upper_sqft": sum(sp.get("area_sqft", 0.0) for sp in (s21.get("upper") or {}).get("spaces", []))}
 
 
 def _stats(vals: list[float]) -> dict[str, float] | None:
@@ -215,6 +217,37 @@ def frame_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
             "upper_zone_walls_on_ground_walls": _stats([r["upper_zone_walls_on_ground_walls"] for r in rows
                                                         if r.get("upper_zone_walls_on_ground_walls") is not None]),
             "open_air_sqft": {k: round(v, 1) for k, v in sorted(open_air.items())}}
+
+
+def circulation_summary(cells: list[dict[str, Any]], vestibule_min_ft: float) -> dict[str, Any] | None:
+    """S2.2h indicators of the upper hall: dead end before and after the trim, hall share, what the remainder
+    became, the vestibule before the bedroom doors."""
+    rows = [c for c in cells if c.get("hall_trim")]
+    if not rows:
+        return None
+    t = [c["hall_trim"] for c in rows]
+    applied = [x for x in t if x.get("applied")]
+    reasons: dict[str, int] = defaultdict(int)
+    for x in t:
+        if not x.get("applied") and x.get("reason"):
+            reasons[x["reason"].split(":")[0]] += 1
+    gaps = [g for x in t for g in x.get("door_gaps_ft", [])]
+    closets = [k for x in applied for k in x.get("closets", [])]
+    return {"n": len(rows), "trimmed": len(applied), "not_trimmed": dict(sorted(reasons.items())),
+            "dead_end_before_sqft": _stats([x.get("dead_end_before_sqft", 0.0) for x in t]),
+            "dead_end_sqft": _stats([x.get("dead_end_sqft", 0.0) for x in t]),
+            "hall_share_before": _stats([x["hall_before_sqft"] / c["upper_sqft"] for x, c in zip(t, rows)
+                                         if x.get("hall_before_sqft") and c.get("upper_sqft")]),
+            "hall_share_after": _stats([(x["hall_after_sqft"] if x.get("applied") else x["hall_before_sqft"])
+                                        / c["upper_sqft"] for x, c in zip(t, rows)
+                                        if x.get("hall_before_sqft") and c.get("upper_sqft")]),
+            "linen": sum(1 for x in applied if x.get("linen_sqft")),
+            "closets": sum(1 for k in closets if k["kind"] == "closet"),
+            "walk_ins": sum(1 for k in closets if k["kind"] != "closet"),
+            "roof_sqft": round(sum(x.get("roof_sqft", 0.0) for x in applied), 1),
+            "joined_sqft": round(sum(x.get("joined_sqft", 0.0) for x in applied), 1),
+            "bedroom_door_gap_ft": _stats(gaps),
+            "bedroom_doors_inside_vestibule": sum(1 for g in gaps if g < vestibule_min_ft - 1e-6)}
 
 
 def roofs_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -350,6 +383,7 @@ def quality_report(stack_plans: list[dict[str, Any]], values: dict[str, Any]) ->
         "arrival": arrival_summary(cells),
         "frame": frame_summary(cells),
         "roofs": roofs_summary(cells),
+        "circulation": circulation_summary(cells, float(values.get("circulation.upper_hall.vestibule_min_ft") or 0.0)),
     }
     return {"overall": overall, "by_type": type_summary(spaces), "cells": cells}
 
@@ -359,6 +393,7 @@ __all__ = [
     "arrival_summary",
     "category",
     "cell_metrics",
+    "circulation_summary",
     "closet_role",
     "fits_rectangle",
     "frame_summary",
