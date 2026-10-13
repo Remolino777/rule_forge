@@ -7,6 +7,11 @@
     cell         -> per option: best pair (ground x upper) by floor scores and the pairs measured through the stair;
                     the preferred option when it is feasible, else the first feasible; traces K01-K05
 
+Structural frame (step S2.2g, `structure.frame.enabled`): the cell's frame variants (lib/structural_frame) are
+built first; both floors are zoned on the same frame (lib/frame_bands) and a ground floor pairs only with uppers of
+its own frame. When no frame zones the cell, the free zoning of S2.2f runs instead if the frame rule is soft (the
+cell says so); a hard frame rule leaves the cell not zoned.
+
 Only reads the S1 block, the space split of the area matrix and the catalogs: no lotcap, site or areas code runs.
 """
 
@@ -21,6 +26,7 @@ from shapely.geometry.base import BaseGeometry
 from spaceplan.modules.stacking.lib.core_zoning import (
     FloorRules,
     FloorSearch,
+    FrameGuide,
     Realization,
     StructureGuide,
     zone_labels,
@@ -39,6 +45,8 @@ from spaceplan.modules.stacking.lib.floor_frame import (
     upper_arrival,
     upper_frame,
 )
+from spaceplan.modules.stacking.lib.frame_bands import ROOF
+from spaceplan.modules.stacking.lib.frame_positions import optimize_pair, positions_settings
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
 from spaceplan.modules.stacking.lib.routes import route_lengths, stair_walk_ft, two_floor_routes
 from spaceplan.modules.stacking.lib.stair_access import (
@@ -47,6 +55,12 @@ from spaceplan.modules.stacking.lib.stair_access import (
     NOT_EVALUATED,
     PASS,
     trace,
+)
+from spaceplan.modules.stacking.lib.structural_frame import (
+    SPINE,
+    Frame,
+    build_frames,
+    frame_settings,
 )
 from spaceplan.modules.stacking.lib.zone_relations import ZoneMatrix, vertical_pairs
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
@@ -103,12 +117,20 @@ def s2_context(scat, catalog, client_rs, matrix: ZoneMatrix) -> S2Context:
                      {t["stair_id"]: int(t["flights"]) for t in scat.data["stair"]["types"]})
 
 
-def structure_settings(values: dict[str, Any], s2: dict[str, Any]) -> dict[str, Any] | None:
-    """S2.2f settings from the design registry values (None when the structure check is off)."""
+def structure_settings(values: dict[str, Any], s2: dict[str, Any],
+                       kinds: dict[str, str] | None = None) -> dict[str, Any] | None:
+    """S2.2f settings from the design registry values (None when the structure check is off); S2.2g adds the frame
+    (`frame`: None when off; `frame_hard`: no free zoning when no frame zones the cell)."""
     if not values.get("structure.enabled"):
         return None
     res = float(s2["grid_ft"])
-    return {"min_fraction": float(values["structure.support_min_fraction"]),
+    frame = frame_settings(values, float(values["circulation.hall.design_width_ft"]), res)
+    return {"frame": frame, "positions": positions_settings(values, s2) if frame is not None else None,
+            "frame_hard": (kinds or {}).get("structure.frame.enabled", "hard") == "hard",
+            "surplus_min_cells": round(float(values.get("structure.frame.surplus_min_sqft", 0.0)) / (res * res)),
+            "ground_surplus": str(values.get("structure.frame.ground_surplus", "either")),
+            "line_bonus": float(values.get("structure.frame.line_wall_bonus", 0.0)),
+            "min_fraction": float(values["structure.support_min_fraction"]),
             "beam_max_ft": float(values["structure.beam_span_max_ft"]),
             "joist_span_max_ft": float(values["structure.joist_span_max_ft"]),
             "snap_cells": int(round(float(values["structure.snap_max_ft"]) / res)),
@@ -151,8 +173,9 @@ def _unit_blocks(frame: FloorFrame, rz: Realization, plan: LotPlan, nd: int) -> 
     out = []
     for k, (u, r) in enumerate(zip(frame.units, rz.rects)):
         poly: BaseGeometry = _unit_box(frame, r).intersection(frame.free_polygon)
+        target = rz.targets[k] if rz.targets is not None else frame.targets[k]
         out.append({"unit_id": u.unit_id, "zone": u.zone, "space_ids": list(u.space_ids),
-                    "target_sqft": round(frame.targets[k] * g.cell_area, 1),
+                    "target_sqft": round(target * g.cell_area, 1),
                     "area_sqft": round(poly.area, 1),
                     "width_ft": round((r[1] - r[0]) * g.res, 2), "depth_ft": round((r[3] - r[2]) * g.res, 2),
                     "polygon": polygon_json(plan.to_world(poly), nd)})
@@ -162,12 +185,18 @@ def _unit_blocks(frame: FloorFrame, rz: Realization, plan: LotPlan, nd: int) -> 
 def _floor_block(frame: FloorFrame, rz: Realization, summary: dict[str, Any], plan: LotPlan, nd: int,
                  alternatives: list[Realization]) -> dict[str, Any]:
     units = frame.units
-    axis, bands = rz.topology
-    return {
+    axis, bands = rz.topology[0], rz.topology[1]
+    topology: dict[str, Any] = {"axis": axis, "bands": [[units[u].unit_id for u in band] for band in bands]}
+    if len(rz.topology) == 4:                              # S2.2g: bands on the structural frame
+        g = frame.grid
+        origin = g.x0 if axis == "x" else g.y0
+        topology.update({"framed": True, "cuts_ft": [round(origin + c * g.res, 3) for c in rz.topology[2]],
+                         "split_bay": rz.topology[3]})
+    block = {
         "level": frame.level,
         "variant": frame.variant,
         "units": _unit_blocks(frame, rz, plan, nd),
-        "topology": {"axis": axis, "bands": [[units[u].unit_id for u in band] for band in bands]},
+        "topology": topology,
         "landing_unit": units[rz.landing_unit].unit_id,
         "arrival_kind": arrival_of(units[rz.landing_unit], list(frame.arrival_order)) if frame.level else None,
         "landing_share": round(rz.landing_share, 3),
@@ -184,6 +213,22 @@ def _floor_block(frame: FloorFrame, rz: Realization, summary: dict[str, Any], pl
                                        "bands": [[a.frame.units[u].unit_id for u in band] for band in a.topology[1]]},
                           "score": round(a.score, 4)} for a in alternatives[1:]],
     }
+    if len(rz.topology) == 4:
+        block["open_air"] = _open_air_blocks(frame, rz, plan, nd)
+        if rz.carried is not None and frame.level == GROUND:
+            block["frame_lines_carried"] = round(rz.carried, 3)
+    return block
+
+
+def _open_air_blocks(frame: FloorFrame, rz: Realization, plan: LotPlan, nd: int) -> list[dict[str, Any]]:
+    """S2.2g: the open ends of the bands (roof upstairs, porch or unbuilt downstairs)."""
+    out = []
+    for r, kind in rz.open_air:
+        poly = _unit_box(frame, r).intersection(frame.free_polygon)
+        if poly.is_empty:
+            continue
+        out.append({"kind": kind, "area_sqft": round(poly.area, 1), "polygon": polygon_json(plan.to_world(poly), nd)})
+    return out
 
 
 # ------------------------------------------------------------------ receiving predicates
@@ -197,15 +242,46 @@ def _receives(unit, types: list[str], hall_types: set[str], forbidden: list[str]
     return unit.hosts(types) or (unit.zone == CIRCULATION and bool(set(types) & hall_types))
 
 
-def _search(frames: list[FloorFrame], rules: FloorRules, matrix: ZoneMatrix, pins_of, guide_of=None):
+def frame_guide(frame: Frame, floor: FloorFrame, st: dict[str, Any], ground_bands: int = 2) -> FrameGuide | None:
+    """The guide of a structural frame in one floor's grid: band cuts on the frame's lines (upper floor: its
+    interior axes, the central hall's two lines a hall width apart, the circulation strip; ground floor: the axes and
+    the joint over the ground floor, at most the catalog's bands). None when an upper axis falls outside the floor."""
+    axis, g = frame.axis, floor.grid
+    i0, i1, j0, j1 = bounding_cells(g)
+    lo, hi = (i0, i1) if axis == "x" else (j0, j1)
+    origin = g.x0 if axis == "x" else g.y0
+    smin = st["surplus_min_cells"]
+    if floor.level != GROUND:
+        if not frame.axes:
+            return FrameGuide(axis, (), surplus=ROOF, surplus_min_cells=smin, max_cuts=0, free_cut=True, strip=True,
+                              line_bonus=st["line_bonus"], ref=frame)
+        first = round((frame.axes[0].pos - origin) / g.res)
+        lines = (first,) if frame.pattern != SPINE else (first, first + round(frame.hall_ft / g.res))
+        if not all(lo < k < hi for k in lines):
+            return None
+        return FrameGuide(axis, lines, spine=lines if frame.pattern == SPINE else None, surplus=ROOF,
+                          surplus_min_cells=smin, max_cuts=len(lines), free_cut=True, strip=True,
+                          line_bonus=st["line_bonus"], ref=frame)
+    lines = tuple(sorted({k for c in frame.ground_lines() if lo < (k := round((c - origin) / g.res)) < hi}))
+    return FrameGuide(axis, lines, surplus=st["ground_surplus"], surplus_min_cells=smin,
+                      max_cuts=max(0, ground_bands - 1), free_cut=True, line_bonus=st["line_bonus"], free=True,
+                      ref=frame)
+
+
+def _search(frames: list[FloorFrame], rules: FloorRules, matrix: ZoneMatrix, pins_of, guide_of=None,
+            fguide_of=None):
     """One search per frame (unit set) and pinned unit, merged: valid realizations (best first; each knows its
-    frame) and the summary of all runs. `guide_of(frame)`: the structure guide of S2.2f (None: none)."""
+    frame) and the summary of all runs. `guide_of(frame)`: the structure guide of S2.2f (None: none);
+    `fguide_of(frame)`: the structural frame guide of S2.2g (None: free band cuts)."""
     valid: list[Realization] = []
     summary: dict[str, Any] = {"unit_sets": [], "topologies_tried": 0, "valid": 0, "truncated": False,
                                "first_violations": {}}
     for frame in frames:
         for pin in pins_of(frame):
-            search = FloorSearch(frame, rules, matrix, pin, guide_of(frame) if guide_of else None)
+            fg = fguide_of(frame) if fguide_of else None
+            if fguide_of and fg is None:
+                continue                              # S2.2g: the frame does not fit this floor
+            search = FloorSearch(frame, rules, matrix, pin, guide_of(frame) if guide_of else None, fg)
             found = search.run()
             valid += found
             one = search.summary(found)
@@ -239,7 +315,75 @@ def _combine(ctx: S2Context, ground: list[Realization], upper: list[Realization]
 
 
 def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Context) -> dict[str, Any]:
-    """Stage S2 block of a cell drawn by S1 (`cell` is the area-matrix cell with its space split)."""
+    """Stage S2 block of a cell drawn by S1 (`cell` is the area-matrix cell with its space split); with the
+    structural frame of S2.2g, the block says how the frame went (`frame`)."""
+    st = ctx.structure
+    if st is None or st.get("frame") is None or not cell.get("space_split"):
+        return _zone_cell(cell, s1, plan, ctx, [])
+    frames = build_frames(cell_floors(s1, plan), st["frame"])
+    if not frames:
+        out = _zone_cell(cell, s1, plan, ctx, [])
+        out["frame"] = {"status": "none", "reason": "upper floor deeper than two joist spans and a hall"}
+        return out
+    out = _zone_cell(cell, s1, plan, ctx, frames)
+    if out["status"] == ZONED:
+        return out
+    variants = [f.to_dict() for f in frames]
+    if st["frame_hard"]:
+        out["frame"] = {"status": "failed", "variants": variants}
+        return out
+    free = _zone_cell(cell, s1, plan, ctx, [])
+    free["warnings"].append("S2.2g: no structural frame zones the cell; free zoning (frame rule soft)")
+    free["frame"] = {"status": "fallback", "variants": variants}
+    return free
+
+
+def _interleave(rzs: list[Realization]) -> list[Realization]:
+    """S2.2g: the ground floors on the frame's lines and the S2 ones (lines inside zones) taken in turn, each kind in
+    its own order: stage S2.1 gets both."""
+    framed = [r for r in rzs if len(r.topology) == 4]
+    free = [r for r in rzs if len(r.topology) != 4]
+    out = []
+    for k in range(max(len(framed), len(free))):
+        out += [x[k] for x in (framed, free) if k < len(x)]
+    return out
+
+
+def _same_frame(a: Realization, b: Realization) -> bool:
+    """S2.2g: both zoned on the same frame variant with its axes at the same positions."""
+    fa, fb = a.sframe, b.sframe
+    return fa is not None and fb is not None and fa.variant == fb.variant and \
+        [x.pos for x in fa.axes] == [x.pos for x in fb.axes]
+
+
+def _round_robin(pairs: list, fit: list[Realization]) -> list:
+    """Pairs in rounds over the ground floors (in their own order), each one's uppers best first."""
+    rank = {id(g_rz): k for k, g_rz in enumerate(fit)}
+    pairs = sorted(pairs, key=lambda p: (rank[id(p[1])], -p[0]))
+    nth: dict[int, int] = {}
+    order = []
+    for p in pairs:
+        nth[id(p[1])] = nth.get(id(p[1]), -1) + 1
+        order.append((nth[id(p[1])], rank[id(p[1])], p))
+    return [p for _, _, p in sorted(order, key=lambda x: (x[0], x[1]))]
+
+
+def _merge(summary: dict[str, Any], one: dict[str, Any]) -> None:
+    summary["topologies_tried"] += one["topologies_tried"]
+    summary["valid"] += one["valid"]
+    summary["truncated"] |= one["truncated"]
+    summary["unit_sets"] += one["unit_sets"]
+    for k, v in one["first_violations"].items():
+        summary["first_violations"][k] = summary["first_violations"].get(k, 0) + v
+
+
+def _empty_summary() -> dict[str, Any]:
+    return {"unit_sets": [], "topologies_tried": 0, "valid": 0, "truncated": False, "first_violations": {}}
+
+
+def _zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Context,
+               frames: list[Frame]) -> dict[str, Any]:
+    """`frames`: the structural frame variants both floors are zoned on (S2.2g; []: free zoning)."""
     scat, catalog, client = ctx.scat, ctx.catalog, ctx.client_rs
     s2 = scat.s2
     nd = int(scat.geometry["round_ft"])
@@ -288,7 +432,31 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
             upper_cache[key] = _search(u_frames, u_rules, ctx.matrix, arrival_pins, guide)
         return upper_cache[key]
 
-    if st is None:
+    framed = bool(frames)
+    u_by: dict[int, list[Realization]] = {}
+    optimized: dict[tuple[int, int], tuple] = {}         # S2.2g: (ground, upper) -> (pair, positions report)
+
+    def optimize(p):
+        """S2.2g: the pair on its best axis position with its zone walls aligned across floors."""
+        key = (id(p[1]), id(p[2]))
+        if key not in optimized:
+            g2, u2, report = optimize_pair(p[1], p[2], st["positions"])
+            q = p if (g2 is p[1] and u2 is p[2]) else _combine(ctx, [g2], [u2], 1)
+            optimized[key] = (q, report)
+            optimized[(id(q[1]), id(q[2]))] = (q, report)
+        return optimized[key][0]
+    if framed:                                       # S2.2g: one upper search per frame variant
+        u_valid, u_summary = [], _empty_summary()
+        none = np.zeros((1, 1), dtype=bool)
+        for fr in frames:
+            found, one = _search(u_frames, u_rules, ctx.matrix, arrival_pins,
+                                 lambda f: StructureGuide(none, none, 0, 1.0, node_cells=st["node_cells"]),
+                                 lambda f, fr=fr: frame_guide(fr, f, st))
+            u_by[id(fr)] = found
+            u_valid += found
+            _merge(u_summary, one)
+        u_valid.sort(key=lambda x: -x.score)
+    elif st is None:
         u_valid, u_summary = upper_for(None)
     else:
         u_valid, u_summary = [], {"unit_sets": [], "topologies_tried": 0, "valid": 0, "truncated": False,
@@ -307,9 +475,18 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
 
     g_runs: dict[str, tuple[dict[str, Any], list[Realization]]] = {}
     for v in variants:
-        frames = [ground_frame(floors, units, res, v, notes) for _, units, notes in
+        g_frames = [ground_frame(floors, units, res, v, notes) for _, units, notes in
                   floor_units(catalog, s2, rows, GROUND, n_floors, stair_type, v == HALF_BATH_USE, None)]
-        valid, summary = _search(frames, ctx.ground_rules, ctx.matrix, start_pins)
+        if framed:                                   # S2.2g: the ground floor on each frame variant
+            valid, summary = [], _empty_summary()
+            for fr in frames:
+                found, one = _search(g_frames, ctx.ground_rules, ctx.matrix, start_pins, None,
+                                     lambda f, fr=fr: frame_guide(fr, f, st, ctx.ground_rules.max_bands))
+                valid += found
+                _merge(summary, one)
+            valid.sort(key=lambda x: -x.score)
+        else:
+            valid, summary = _search(g_frames, ctx.ground_rules, ctx.matrix, start_pins)
         g_runs[v] = (summary, valid)
 
     options = [o["option"] for o in receiving["options"]]
@@ -336,6 +513,16 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
                     continue
                 total, g_best, u_best, vert = _combine(ctx, fit, u_valid, keep)
                 pairs = None
+            elif framed:                                 # S2.2g: a ground floor pairs with uppers of its frame
+                pairs, picked = [], []
+                for fr in frames:
+                    for g_rz in _interleave([g for g in fit if g.sframe is fr])[:st["pair_candidates"]]:
+                        picked.append(g_rz)
+                        pairs += [_combine(ctx, [g_rz], [u2], 1) for u2 in u_by[id(fr)][:keep]]
+                if not pairs:
+                    continue
+                pairs = [optimize(p) for p in _round_robin(pairs, picked)]
+                total, g_best, u_best, vert = pairs[0]
             else:                                    # S2.2f: the upper floor stands on each candidate ground floor
                 pairs = []
                 for g_rz in fit[:st["pair_candidates"]]:
@@ -356,14 +543,7 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
                         pairs += [_combine(ctx, [g_rz], [u2], 1) for u2 in cands]
                 if not pairs:
                     continue
-                rank = {id(g_rz): k for k, g_rz in enumerate(fit)}   # round robin over the ground floors in their
-                pairs.sort(key=lambda p: (rank[id(p[1])], -p[0]))    # own order, each one's uppers best first
-                nth: dict[int, int] = {}
-                order = []
-                for p in pairs:
-                    nth[id(p[1])] = nth.get(id(p[1]), -1) + 1
-                    order.append((nth[id(p[1])], rank[id(p[1])], p))
-                pairs = [p for _, _, p in sorted(order, key=lambda x: (x[0], x[1]))]
+                pairs = _round_robin(pairs, fit)
                 total, g_best, u_best, vert = pairs[0]
             entry.update({"feasible": True, "variant": v,
                           "half_bath": None if not has_hb else ("under_stair" if v == HALF_BATH_USE else "relocated"),
@@ -371,8 +551,11 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
                                                                  "pairs": vert["pairs"]},
                           "ground": _floor_block(g_best.frame, g_best, summary, plan, nd, [g_best] + [
                               rz for rz in fit if rz is not g_best][: keep - 1]),
-                          "_upper": u_best, "_ground": g_best, "_fit": fit, "_pairs": pairs,
-                          "_u_valid": upper_for(g_best)[0] if st is not None else u_valid})
+                          "_upper": u_best, "_ground": g_best, "_pairs": pairs,
+                          "_fit": [g for g in fit if _same_frame(g, g_best)] if framed else fit,
+                          "_u_valid": (u_by[id(frames[g_best.sframe.variant])] if framed
+                                       else upper_for(g_best)[0] if st is not None
+                                       else u_valid)})
             if ctx.routes is not None and floors.door_area is not None:
                 routes = route_lengths(g_best.frame, g_best.rects, ctx.matrix.roles, ctx.routes, floors.door_area)
                 if routes.get("absent"):          # a target lives upstairs: walk the stair and the upper floor
@@ -405,6 +588,12 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
                                     [u_best] + [rz for rz in u_list if rz is not u_best][: keep - 1])
         if u_best.structure is not None:
             out["structure"] = {**u_best.structure, "upper_standing_on": best["ground"]["topology"]}
+        if framed:
+            g_best = best["_ground"]
+            u_best = best["_upper"]
+            out["frame"] = {"status": "framed", **g_best.sframe.to_dict(), "variants": len(frames),
+                            "ground_lines_carried": g_best.carried, "upper_lines_carried": u_best.carried,
+                            "positions": optimized.get((id(g_best), id(u_best)), (None, {}))[1]}
         out["score"] = best["score"]
         out["vertical"] = best["vertical"]
     else:
@@ -416,13 +605,16 @@ def zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2Co
         if best["_pairs"] is not None:             # S2.2f: S2.1 crosses the grounds and the uppers (hard check there)
             grounds, uppers = [best["_ground"]], [best["_upper"]]
             for _, g_rz, u_rz, _ in best["_pairs"]:
+                if framed and not (_same_frame(g_rz, best["_ground"]) and _same_frame(u_rz, best["_ground"])):
+                    continue                          # S2.2g: S2.1 crosses floors of the chosen frame only
                 if all(g_rz is not x for x in grounds):
                     grounds.append(g_rz)
                 if all(u_rz is not x for x in uppers):
                     uppers.append(u_rz)
-            free, _ = upper_for(None)                 # the best uppers standing on nothing in particular, last
-            uppers += [u_rz for u_rz in free[:k] if all(u_rz.rects != x.rects or u_rz.frame is not x.frame
-                                                         for x in uppers)]
+            if not framed:
+                free, _ = upper_for(None)             # the best uppers standing on nothing in particular, last
+                uppers += [u_rz for u_rz in free[:k] if all(u_rz.rects != x.rects or u_rz.frame is not x.frame
+                                                             for x in uppers)]
             out["_alternatives"] = {
                 "cross": True,
                 "upper": [out["upper"]] + [_floor_block(u.frame, u, u_summary, plan, nd, []) for u in uppers[1:2 * k]],

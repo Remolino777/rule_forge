@@ -201,6 +201,11 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
         base[cells] = len(fixed)
         fixed.append(spec)
 
+    for o in floor_block.get("open_air", []):     # S2.2g: open ends of the bands (roof, porch, unbuilt) are outside
+        rr, cc = cells_of(grid, plan.frame.to_local(shape(o["polygon"])))
+        keep = base[rr, cc] == UNASSIGNED
+        base[rr[keep], cc[keep]] = OUT
+
     # zone units from their S2 polygons
     owner = np.full(base.shape, UNASSIGNED, dtype=np.int32)
     owner[base != UNASSIGNED] = OUT

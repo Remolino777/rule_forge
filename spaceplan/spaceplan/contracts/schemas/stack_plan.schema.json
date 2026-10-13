@@ -1040,6 +1040,35 @@
         },
         "alternatives": {
           "type": "array"
+        },
+        "open_air": {
+          "type": "array",
+          "description": "S2.2g: open ends of the bands (roof upstairs; porch or unbuilt downstairs).",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "area_sqft",
+              "polygon"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "roof",
+                  "porch",
+                  "unbuilt"
+                ]
+              },
+              "area_sqft": {
+                "type": "number"
+              },
+              "polygon": {}
+            }
+          }
+        },
+        "frame_lines_carried": {
+          "type": "number",
+          "description": "S2.2g: share of the frame lines that are zone walls on the ground floor."
         }
       }
     },
@@ -1282,6 +1311,52 @@
               "items": {
                 "type": "string"
               }
+            }
+          }
+        },
+        "frame": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "description": "S2.2g: the structural frame both floors are zoned on (framed), or why not (failed: no frame zones the cell and the frame rule is hard; fallback: free zoning, frame rule soft; none: no frame fits the upper floor).",
+          "properties": {
+            "status": {
+              "enum": [
+                "framed",
+                "failed",
+                "fallback",
+                "none"
+              ]
+            },
+            "axis": {
+              "enum": [
+                "x",
+                "y"
+              ]
+            },
+            "pattern": {
+              "enum": [
+                "single",
+                "two_bay",
+                "spine"
+              ]
+            },
+            "axes": {
+              "type": "array"
+            },
+            "joints": {
+              "type": "array"
+            },
+            "bays_ft": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "variants": {},
+            "positions": {
+              "type": "object"
             }
           }
         }
@@ -1652,6 +1727,61 @@
         "arrival": {
           "type": "object",
           "description": "S2.2f: per floor, connected circulation pieces, short side of the space receiving the stair and the bedroom doors' spread and route from the stair end (ft)."
+        },
+        "frame": {
+          "type": "object",
+          "description": "S2.2g: the frame's axes, how the ground floor carries them (wall or beam, posts), upper walls on ground walls and the open ends of the bands."
+        },
+        "roofs": {
+          "type": "object",
+          "required": [
+            "multi_plane",
+            "pieces"
+          ],
+          "description": "S2.2g: roofs in several planes (upper roof, one-story lower roofs, garage and porch roofs) with plate height, slope and top.",
+          "properties": {
+            "multi_plane": {
+              "type": "boolean"
+            },
+            "pieces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "piece",
+                  "kind",
+                  "area_sqft",
+                  "polygon"
+                ],
+                "properties": {
+                  "piece": {
+                    "enum": [
+                      "upper",
+                      "lower",
+                      "garage",
+                      "porch"
+                    ]
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "area_sqft": {
+                    "type": "number"
+                  },
+                  "plate_ft": {
+                    "type": "number"
+                  },
+                  "top_ft": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "polygon": {}
+                }
+              }
+            }
+          }
         }
       }
     }

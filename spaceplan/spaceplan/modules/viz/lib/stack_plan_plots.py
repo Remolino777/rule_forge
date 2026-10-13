@@ -15,6 +15,7 @@ GROUND_FILL, UPPER_FILL, GARAGE_FILL, STAIR_FILL = "#d7e6f5", "#eb6834", "#c9c7c
 BOTTOM_EDGE, TOP_EDGE, HALF_BATH_FILL, VESTIBULE_EDGE = "#008300", "#a8467a", "#2a78d6", "#2a78d6"
 DOOR_FILL, ENTRY_EDGE, VOID_EDGE = "#d03b3b", "#d03b3b", "#52514e"
 SLIDER_EDGE, DECK_FILL, DRIVE_FILL, WALK_FILL, GREEN_FILL = "#2a78d6", "#d9b98c", "#bdbbb4", "#e6e2d6", "#cfe3c4"
+AXIS_INK = "#a8467a"                  # S2.2g: structural axes
 WORDS = {
     "es": {"title": "Plantas apiladas (6.7a S1)", "ground": "Planta baja", "upper": "Planta alta",
            "garage": "Garaje", "stair": "Escalera", "envelope": "Envolvente de retiros", "roof": "techo",
@@ -239,12 +240,13 @@ S21_WORDS = {
            "closet": "Clóset de sobrante", "more": "celdas más no mostradas", "rank": "escalera n.º",
            "built_in": "clósets integrados", "slider": "Corrediza / vidrio", "deck": "Deck y rellano",
            "driveway": "Entrada vehicular", "walkway": "Sendero", "garden": "Jardín",
-           "cantilever": "voladizo"},
+           "cantilever": "voladizo", "axis": "Eje estructural", "porch": "Porche", "roof": "Techo bajo"},
     "en": {"title": "Spaces and doors (6.7a S2.1)", "ground": "Ground floor", "upper": "Upper floor",
            "stair": "Stair", "garage": "Garage", "door": "Door (swing)", "opening": "Opening",
            "closet": "Leftover closet", "more": "more cells not shown", "rank": "stair rank",
            "built_in": "built-in closets", "slider": "Slider / glass", "deck": "Deck and landing",
-           "driveway": "Driveway", "walkway": "Walkway", "garden": "Garden", "cantilever": "cantilever"},
+           "driveway": "Driveway", "walkway": "Walkway", "garden": "Garden", "cantilever": "cantilever",
+           "axis": "Structural axis", "porch": "Porch", "roof": "Lower roof"},
 }
 SHORT = {"primary_suite": "suite", "primary_bath": "bath P", "walk_in_closet": "w-i cl", "bedroom": "bed",
          "bathroom": "bath", "living_room": "living", "dining_room": "dining", "family_room": "family",
@@ -267,10 +269,33 @@ def _site_panel(ax, site: dict | None) -> None:
             ax.plot(xs, ys, color=color, lw=lw, solid_capstyle="butt")
 
 
-def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None, site=None):
+def _frame_open(ax, frame: dict | None, level: int) -> None:
+    """S2.2g: open ends of the bands (porch: deck, hatched; unbuilt: dashed; roof: hatched like a lower roof)."""
+    if not frame:
+        return
+    for oa in (frame.get("open_air") or {}).get("ground" if level == 0 else "upper", []):
+        if not oa.get("polygon"):
+            continue
+        if oa["kind"] == "porch":
+            _fill(ax, oa["polygon"], color=DECK_FILL, ec=INK2, lw=0.4, hatch="xx")
+        elif oa["kind"] == "unbuilt":
+            _fill(ax, oa["polygon"], color=SURFACE, ec=INK2, lw=0.4, ls=(0, (2, 2)))
+        else:
+            _fill(ax, oa["polygon"], color="#e7e5df", ec=INK2, lw=0.4, hatch="\\\\\\")
+
+
+def _frame_axes(ax, frame: dict | None) -> None:
+    """S2.2g: the structural axes shared by both floors (dash-dot)."""
+    for line in (frame or {}).get("axis_lines", []):
+        xs, ys = zip(*line)
+        ax.plot(xs, ys, color=AXIS_INK, lw=0.8, ls=(0, (6, 2, 1, 2)), zorder=5)
+
+
+def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None, site=None, frame=None):
     if level == 0:
         _site_panel(ax, site)
     _fill(ax, floor_poly, color="#ffffff", ec=INK2, lw=0.6)
+    _frame_open(ax, frame, level)
     for oa in block.get("open_air") or []:               # S2.2d: lower roof (hatched) and terrace (deck)
         if oa["kind"] == "terrace":
             _fill(ax, oa["polygon"], color=DECK_FILL, ec=INK2, lw=0.4)
@@ -306,6 +331,7 @@ def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None, s
     ex = block.get("patio_exit")
     if ex:
         _fill(ax, ex.get("landing"), color=DECK_FILL, ec=INK2, lw=0.4)
+    _frame_axes(ax, frame)
     ax.set_aspect("equal")
     ax.set_xticks([])
     ax.set_yticks([])
@@ -337,8 +363,9 @@ def plot_space_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors:
         for ax in (ax_g, ax_u):
             ax.set_axis_on()
         _space_panel(ax_g, s1["levels"][0]["polygon"], s21["ground"], colors, s1["stair"]["polygon"], s1, 0,
-                     site=s21.get("site"))
-        _space_panel(ax_u, s1["levels"][1]["polygon"], s21["upper"], colors, s1["stair"]["polygon"], s1, 1)
+                     site=s21.get("site"), frame=s21.get("frame"))
+        _space_panel(ax_u, s1["levels"][1]["polygon"], s21["upper"], colors, s1["stair"]["polygon"], s1, 1,
+                     frame=s21.get("frame"))
         built = len(s21["ground"].get("closets_in_rooms", [])) + len(s21["upper"].get("closets_in_rooms", []))
         ax_g.set_title(f"{c['household_id']} · {c['profile']} · {c['scheme_id']}\n{w['ground']} · "
                        f"{w['rank']} {s21.get('stair_rank', 0)}", fontsize=6, color=INK, loc="left")
@@ -360,6 +387,10 @@ def plot_space_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors:
                 Line2D([0], [0], color=INK2, lw=0.6, ls=(0, (1.2, 1.2)), label=w["opening"]),
                 Patch(color=DECK_FILL, label=w["deck"]), Patch(color=DRIVE_FILL, label=w["driveway"]),
                 Patch(color=WALK_FILL, label=w["walkway"]), Patch(color=GREEN_FILL, label=w["garden"])]
+    if any(c["s21"].get("frame") for c in shown):           # S2.2g
+        handles += [Line2D([0], [0], color=AXIS_INK, lw=0.8, ls=(0, (6, 2, 1, 2)), label=w["axis"]),
+                    Patch(facecolor=DECK_FILL, hatch="xx", label=w["porch"]),
+                    Patch(facecolor="#e7e5df", hatch="\\\\\\", label=w["roof"])]
     fig.legend(handles=handles, loc="lower center", ncol=min(len(handles), 9), fontsize=6.5, frameon=False)
     fig.tight_layout(rect=(0, 0.05, 1, 0.97))
     out = Path(out_path)

@@ -166,7 +166,7 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
     extra = ((cell.get("program_adjustment") or {}).get("area_criteria") or {}).get("extra_room")
     return {"cell_id": cid, "lot_id": cell.get("lot_id"), "profile": cell.get("profile"), "floors": floors,
             "spaces": spaces, "suite": suite, "extra_room": extra, "structure": s21.get("structure"),
-            "arrival": s21.get("arrival")}
+            "arrival": s21.get("arrival"), "frame": s21.get("frame"), "roofs": s21.get("roofs")}
 
 
 def _stats(vals: list[float]) -> dict[str, float] | None:
@@ -189,6 +189,48 @@ def structure_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
             "joist_span_ft": _stats([min(r["bearing"]["span_x_ft"], r["bearing"]["span_y_ft"]) for r in rows]),
             "beams": len(beams), "beam_max_ft": round(max(beams), 2) if beams else 0.0,
             "posts": sum(r["zones"]["posts"] for r in rows)}
+
+
+def frame_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """S2.2g indicators over the cells spaced on a structural frame: patterns, axes on walls, beams and posts, upper
+    walls on ground walls, open ends of the bands."""
+    rows = [c["frame"] for c in cells if c.get("frame")]
+    if not rows:
+        return None
+    patterns: dict[str, int] = defaultdict(int)
+    open_air: dict[str, float] = defaultdict(float)
+    for r in rows:
+        patterns[r["pattern"]] += 1
+        for floor in ("ground", "upper"):
+            for o in r["open_air"][floor]:
+                open_air[f"{floor}:{o['kind']}"] += o["area_sqft"]
+    ground = [r["ground"] for r in rows if r.get("ground")]
+    return {"n": len(rows), "patterns": dict(sorted(patterns.items())),
+            "bays_ft": _stats([b for r in rows for b in r["bays_ft"]]),
+            "axes_shared": sum(len(r["axes"]) for r in rows),
+            "axis_wall_fraction": _stats([g["wall_fraction"] for g in ground]),
+            "beam_ft": round(sum(g["beam_ft"] for g in ground), 1), "posts": sum(g["posts"] for g in ground),
+            "upper_walls_on_ground_walls": _stats([r["upper_walls_on_ground_walls"] for r in rows
+                                                   if r.get("upper_walls_on_ground_walls") is not None]),
+            "upper_zone_walls_on_ground_walls": _stats([r["upper_zone_walls_on_ground_walls"] for r in rows
+                                                        if r.get("upper_zone_walls_on_ground_walls") is not None]),
+            "open_air_sqft": {k: round(v, 1) for k, v in sorted(open_air.items())}}
+
+
+def roofs_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """S2.2g roof pieces: planes per house, area by piece, kinds."""
+    rows = [c["roofs"] for c in cells if c.get("roofs") and c["roofs"].get("multi_plane")]
+    if not rows:
+        return None
+    kinds: dict[str, int] = defaultdict(int)
+    area: dict[str, float] = defaultdict(float)
+    for r in rows:
+        for p in r["pieces"]:
+            kinds[f"{p['piece']}:{p['kind']}"] += 1
+            area[p["piece"]] += p["area_sqft"]
+    return {"n": len(rows), "planes": _stats([r["planes"] for r in rows]), "kinds": dict(sorted(kinds.items())),
+            "area_sqft": {k: round(v, 1) for k, v in sorted(area.items())},
+            "top_ft": _stats([p["top_ft"] for r in rows for p in r["pieces"] if p.get("top_ft") is not None])}
 
 
 def arrival_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -306,6 +348,8 @@ def quality_report(stack_plans: list[dict[str, Any]], values: dict[str, Any]) ->
                        "applied": sum(1 for c in cells if (c["extra_room"] or {}).get("applied"))},
         "structure": structure_summary(cells),
         "arrival": arrival_summary(cells),
+        "frame": frame_summary(cells),
+        "roofs": roofs_summary(cells),
     }
     return {"overall": overall, "by_type": type_summary(spaces), "cells": cells}
 
@@ -317,8 +361,10 @@ __all__ = [
     "cell_metrics",
     "closet_role",
     "fits_rectangle",
+    "frame_summary",
     "furniture_options",
     "quality_report",
+    "roofs_summary",
     "space_metrics",
     "structure_summary",
     "suite_metrics",

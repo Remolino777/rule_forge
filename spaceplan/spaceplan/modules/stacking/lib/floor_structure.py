@@ -10,6 +10,13 @@
                    distance from the stair end), scored against the registry targets; halls (connected pieces of
                    circulation) and the stair end's short side for the indicators.
 
+Structural frame (step S2.2g, the S2 block carries `frame`): the frame's axes (and, downstairs, the joint of the
+upper floor) are the bearing lines. Room cuts of both floors snap to them; on the ground floor each axis under the
+upper floor is a wall or a beam on the axis: the beams longer than beam_span_max_ft need posts, at most
+posts_per_axis_max per axis (hard when the registry says so). The joist spans hold by construction (bays at most
+the joist span), so the span checks of S2.2f give way to this one; how the upper walls stand on the ground walls is
+still measured and scored.
+
 Values come from the design registry through SpaceRules.design; no numbers live here.
 """
 
@@ -137,6 +144,76 @@ def span_violation(ground: FloorLayout, under_upper: np.ndarray | None, rules: S
     return None
 
 
+def frame_lines(floor, frame: dict[str, Any] | None, joints: bool) -> tuple[np.ndarray, np.ndarray] | None:
+    """(V, H) wall arrays of a floor's grid holding the frame's axes (and the joints): the lines room cuts snap to."""
+    if not frame or frame.get("status") != "framed":
+        return None
+    g = floor.grid
+    ny, nx = g.labels.shape
+    v, h = np.zeros((ny, nx + 1), dtype=bool), np.zeros((ny + 1, nx), dtype=bool)
+    for k in axis_cells(g, frame, joints):
+        if frame["axis"] == "x" and 0 <= k <= nx:
+            v[:, k] = True
+        elif frame["axis"] == "y" and 0 <= k <= ny:
+            h[k, :] = True
+    return v, h
+
+
+def axis_cells(grid, frame: dict[str, Any], joints: bool) -> list[int]:
+    """Grid lines of the frame's axes (and joints), ascending."""
+    origin = grid.x0 if frame["axis"] == "x" else grid.y0
+    pos = [a["pos"] for a in frame["axes"]] + (list(frame.get("joints", [])) if joints else [])
+    return sorted({round((p - origin) / grid.res) for p in pos})
+
+
+def frame_report(ground: FloorLayout, frame: dict[str, Any], under: np.ndarray, rules: SpaceRules
+                 ) -> tuple[dict[str, Any], list[str]]:
+    """Each frame line under the upper floor on the ground layout: wall or beam on the axis, posts the beams need."""
+    d = rules.design
+    beam_max = float(d["structure.beam_span_max_ft"])
+    posts_max = int(d.get("structure.frame.posts_per_axis_max", 0))
+    hard = rules.design_kinds.get("structure.frame.posts_per_axis_max", "hard") == "hard"
+    g = ground.floor.grid
+    res = g.res
+    v, h = edge_walls(ground_wall_labels(ground, rules), OUT)
+    inside = ground.labels != OUT
+    out, bad = [], []
+    for k in axis_cells(g, frame, True):
+        if frame["axis"] == "x":                           # line x = k between columns k - 1 and k
+            if not 0 < k < g.nx:
+                continue
+            seg = (under[:, k - 1] | under[:, k]) & inside[:, k - 1] & inside[:, k]
+            wall = v[:, k]
+        else:
+            if not 0 < k < g.ny:
+                continue
+            seg = (under[k - 1, :] | under[k, :]) & inside[k - 1, :] & inside[k, :]
+            wall = h[k, :]
+        if not seg.any():
+            continue
+        beams, run = [], 0
+        for on, w in zip(seg, wall, strict=True):
+            if on and not w:
+                run += 1
+            elif run:
+                beams.append(run * res)
+                run = 0
+        if run:
+            beams.append(run * res)
+        posts = sum(max(0, int(np.ceil(b / beam_max - 1e-9)) - 1) for b in beams)
+        origin = g.x0 if frame["axis"] == "x" else g.y0
+        out.append({"pos_ft": round(origin + k * res, 3), "length_ft": round(float(seg.sum()) * res, 2),
+                    "wall_ft": round(float((seg & wall).sum()) * res, 2), "beams_ft": [round(b, 2) for b in beams],
+                    "posts": posts})
+        if posts > posts_max and hard:
+            bad.append("structure:frame:posts")
+    total = sum(a["length_ft"] for a in out)
+    walls = sum(a["wall_ft"] for a in out)
+    return {"axes": out, "wall_fraction": round(walls / total, 3) if total else 1.0,
+            "beam_ft": round(sum(sum(a["beams_ft"]) for a in out), 2),
+            "posts": sum(a["posts"] for a in out), "posts_per_axis_max": posts_max}, bad
+
+
 def under_mask(grid, polygon) -> np.ndarray:
     """Cells of a grid whose centre lies in `polygon` (the upper floor seen from the ground floor)."""
     xs = grid.x0 + (np.arange(grid.nx) + 0.5) * grid.res
@@ -213,10 +290,13 @@ def arrival_metrics(layout: FloorLayout) -> dict[str, Any]:
 __all__ = [
     "UNIT_LABEL0",
     "arrival_metrics",
+    "axis_cells",
     "bedroom_doors",
     "below_walls",
     "enabled",
     "floor_zone_labels",
+    "frame_lines",
+    "frame_report",
     "ground_support",
     "ground_wall_labels",
     "grouping",

@@ -207,7 +207,7 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
         dview = design_view(design_profile)
         s21ctx = S21Context(scat, catalog, s2ctx.matrix, space_rules(scat, catalog, crc, openings, srs, crs, dview), crc,
                             openings, srs, crs, load_ruleset())
-        s2ctx = replace(s2ctx, structure=structure_settings(dview[0], scat.s2))     # S2.2f: S2.1 runs only
+        s2ctx = replace(s2ctx, structure=structure_settings(dview[0], scat.s2, dview[1]))     # S2.2f: S2.1 runs only
     actx = access_context(scat, limits, crs) if drawing else None
 
     lots_out, cells_out, missing = [], [], []

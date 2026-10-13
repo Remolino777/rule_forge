@@ -1340,6 +1340,73 @@ recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote
 - Después, subir `support_min_fraction`.
 - Láminas con vigas y postes.
 
+## 4z. Paso 6.7a, S2.2g (12 oct 2026): marco estructural primero, posiciones por optimización y techos en varios planos
+
+**Decisiones del cliente (18:45–18:51).**
+- Enfoque C + E: soporte primero (Habraken/SAR), con posiciones por MILP.
+- Planta alta de 30–40 ft: pasillo central con 2 ejes.
+- Sobrante de la planta baja: porche o huella menor.
+- El eje del núcleo de la escalera es un candidato más.
+- Techos en varios planos.
+
+**Datos.**
+- `design_structure.json` 0.2.0:
+  - T03 `structure.frame.*`:
+    - `enabled` (hard), `bay_min_ft` 10, `spine_from_ft` 30, `variants` 3;
+    - `axis_window_ft` 2, `fixed_pull_ft` 2.5, `surplus_min_sqft` 15;
+    - `ground_surplus` (porch / unbuilt / either), `surplus_weight` 0.2;
+    - `posts_per_axis_max` 1, `optimize`, `align_bonus_sqft` 10, `line_wall_bonus` 0.1.
+  - T04 `structure.roofs.*`: `multi_plane`, `lower_kind` shed, `porch_kind` shed, `lower_pitch` 0.25,
+    `min_piece_sqft` 20.
+- Registro de 526 parámetros; `design_tools.json` regenerado. El grupo `structure` de las herramientas LLM ya los
+  cubre.
+
+**Código.**
+- `lib/structural_frame.py` + `lib_aux/frame_geometry.py`:
+  - patrón por el lado corto de la planta alta: una crujía, dos crujías o pasillo central;
+  - candidatos: núcleo, garage, posición equilibrada y extremos de ventana;
+  - junta de la planta alta sobre la baja; 3 variantes.
+- `lib/frame_bands.py` + `core_zoning` (modo enmarcado, `FrameGuide`):
+  - cortes de banda sobre las líneas del marco (cualquier subconjunto; la línea que no es corte queda dentro de una
+    zona, con muro o viga en S2.1);
+  - la crujía del pasillo central solo lleva circulación;
+  - franja de circulación junto a un eje, con un pasillo mínimo junto a la escalera;
+  - unidades al área de programa; el sobrante de cada banda queda al aire libre (techo arriba; porche o huella menor
+    abajo);
+  - la planta baja también prueba las topologías libres de S2 (ejes con viga);
+  - bono por líneas que son muros de zona.
+- `zone_cell`:
+  - una búsqueda por variante de marco;
+  - la baja solo se empareja con altas de su marco;
+  - las alternativas de S2.1 alternan bajas enmarcadas y libres;
+  - bloque `s2.frame` (estado framed / failed / fallback / none);
+  - `open_air` por planta.
+- `lib/frame_positions.py` + `lib_aux/milp_tools.py`:
+  - corrimiento exacto de ejes libres dentro de su ventana;
+  - MILP (HiGHS, sin presolve) para alinear muros de zona entre plantas;
+  - verificación exacta (`FloorSearch.recheck`).
+- S2.1:
+  - el aire libre de S2 queda fuera (`unit_frame`);
+  - cortes imantados a los ejes;
+  - `floor_structure.frame_report`: muro o viga en cada eje, con postes como máximo `posts_per_axis_max` (hard);
+  - en modo enmarcado no se aplican las verificaciones de luz de S2.2f;
+  - bloques `s21.frame` y `s21.roofs` (`lib/roof_planes.py` + `lib_aux/roof_geometry.py`).
+- `space_quality`: `frame_summary` y `roofs_summary`. Esquema: `s2.frame`, `s2_floor.open_air`, `s21.frame`,
+  `s21.roofs`. Láminas: ejes, porche, techo bajo.
+- Pruebas: `tests/stacking/test_stage_s22g.py`.
+
+**Piloto (`docs/results/s22g_pilot/`).**
+- 39 casas (S2.2f: 25; S2.2e: 32).
+- Misma dirección en 39 / 39; 43 ejes compartidos, todos con muro o viga; 67 % de su largo con muro; 20 postes.
+- Muros de zona sobre muros de abajo: 48 % (S2.2f: 39 %). Todos los muros: 26 %, sin cambio.
+- Proporciones algo mejores; R3 sube a 95.
+- Techos: mediana de 5 planos por casa.
+
+**Pendiente.**
+- Alinear tabiques en S2.1: los cuartos de arriba se cortan sobre los de abajo, con un MILP de cortes de cuarto.
+- Limitar la profundidad de los techos de una caída (cortar a dos aguas o en varios tramos).
+- Láminas de techos en el módulo `viz`.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1488,8 +1555,8 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4y del HANDOFF). S2.2f dejó la estructura de la planta alta verificada (luces ≤ 20 ft, vigas, postes),
-> la llegada compacta y las puertas agrupadas, pero la alineación de muros entre plantas sigue baja (9 %). Propuesta:
-> S2.2g, retícula estructural primero (crujías de la planta baja heredadas por la alta). Mide con `spaceplan
-> quality` contra `docs/results/s22f_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y
-> el plan, y pregúntame antes de programar.
+> secciones 4t–4z del HANDOFF). S2.2g dejó el marco estructural primero: 39 casas, las dos plantas sobre los mismos
+> ejes (muro o viga en cada uno) y techos en varios planos. Falta alinear los tabiques de los cuartos entre plantas
+> (26 %) y limitar la profundidad de los techos de una caída. Mide con `spaceplan quality` contra
+> `docs/results/s22g_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y
+> pregúntame antes de programar.

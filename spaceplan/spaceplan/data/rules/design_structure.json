@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-structure",
-  "ruleset_version": "0.1.0",
+  "ruleset_version": "0.2.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Step 6.7a S2.2f (2026-10-12): structure of the upper floor for light wood platform framing. Client decisions 2026-10-12 12:31: joist span 20 ft (I-joists), interior structural axes as a hard rule, upper-floor cantilever 3 ft, family room upstairs allowed as a loft at the arrival. Code references (CRC R602.10 wall bracing, R301.2.2.6 irregular buildings in seismic design category D) are transcribed from secondary sources and stay unverified.",
+  "transcribed_from": "Step 6.7a S2.2f (2026-10-12): structure of the upper floor for light wood platform framing. Client decisions 2026-10-12 12:31: joist span 20 ft (I-joists), interior structural axes as a hard rule, upper-floor cantilever 3 ft, family room upstairs allowed as a loft at the arrival. Code references (CRC R602.10 wall bracing, R301.2.2.6 irregular buildings in seismic design category D) are transcribed from secondary sources and stay unverified. Version 0.2.0 (S2.2g, client 2026-10-12 18:45): structural frame first (support and infill, SAR) with positions by optimization; central hall with two axes for upper floors 30-40 ft deep; ground surplus to a porch or a smaller footprint; the stair core is one more axis candidate; multi-plane roofs.",
   "verification_note": "Design values, not an engineering design: the generator keeps walls stacked and spans within the limits so that a prescriptive (non-engineered) light-frame design stays possible; every value verified=false until an engineer checks it.",
   "scope": {
     "excluded_overlays": [],
@@ -349,6 +349,372 @@
       "source": {
         "document": "CRC 2025 (IRC 2024 base), secondary sources",
         "section": "R602.10, R301.2.2.6"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "T03-FRAME",
+      "kind": "design",
+      "magnitude": "structural_frame",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "structure.frame",
+      "parameters": {
+        "enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Marco estructural primero: las dos plantas se zonifican sobre las mismas crujías",
+            "en": "Structural frame first: both floors are zoned on the same bays"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 18:45-18:51 (S2.2g): approach C + E."
+        },
+        "bay_min_ft": {
+          "value": 10.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Crujía mínima (fondo útil de un dormitorio)",
+            "en": "Least bay (useful depth of a bedroom)"
+          },
+          "range": [
+            8.0,
+            14.0
+          ],
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ]
+        },
+        "spine_from_ft": {
+          "value": 30.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Desde este lado corto de la planta alta, pasillo central con dos ejes",
+            "en": "From this short side of the upper floor, a central hall with two axes"
+          },
+          "range": [
+            24.0,
+            40.0
+          ],
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 18:45-18:51 (S2.2g): central hall with two axes for 30-40 ft."
+        },
+        "variants": {
+          "value": 3,
+          "type": "number",
+          "unit": "count",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Variantes de marco por casa",
+            "en": "Frame variants per house"
+          },
+          "range": [
+            1,
+            6
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "axis_window_ft": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Cuánto puede moverse un eje libre al optimizar las posiciones",
+            "en": "How far a free axis may move when the positions are optimized"
+          },
+          "range": [
+            0.0,
+            6.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "fixed_pull_ft": {
+          "value": 2.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Un eje libre se corre a un elemento fijo (núcleo, garage) a esta distancia o menos",
+            "en": "A free axis moves onto a fixed element (core, garage) within this distance"
+          },
+          "range": [
+            0.0,
+            6.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 18:45-18:51 (S2.2g): the stair core is one more candidate (no priority)."
+        },
+        "surplus_min_sqft": {
+          "value": 15.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Sobrante mínimo de una crujía para dejarlo como techo o porche",
+            "en": "Least surplus of a bay kept as roof or porch"
+          },
+          "range": [
+            5.0,
+            100.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "ground_surplus": {
+          "value": "either",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "choices": [
+            "porch",
+            "unbuilt",
+            "either"
+          ],
+          "description": {
+            "es": "Destino del sobrante de la planta baja: porche techado, huella más chica o cualquiera (porche en la fachada del jardín o de la calle)",
+            "en": "Use of the ground surplus: covered porch, smaller footprint or either (porch on the garden or street facade)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 18:45-18:51 (S2.2g)"
+        },
+        "surplus_weight": {
+          "value": 0.2,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Costo por pie² de techo o porche frente al desvío de área en la optimización",
+            "en": "Cost per sq ft of roof or porch against the area deviation in the optimization"
+          },
+          "range": [
+            0.0,
+            2.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        },
+        "posts_per_axis_max": {
+          "value": 1,
+          "type": "number",
+          "unit": "count",
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Postes permitidos por eje bajo una viga sobre el eje",
+            "en": "Posts allowed per axis under a beam on the axis"
+          },
+          "range": [
+            0,
+            3
+          ],
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ]
+        },
+        "optimize": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Optimizar posiciones: ejes libres dentro de su ventana y muros de zona alineados entre plantas (MILP)",
+            "en": "Optimize positions: free axes within their window and zone walls aligned across floors (MILP)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 18:45-18:51 (S2.2g): approach C + E."
+        },
+        "align_bonus_sqft": {
+          "value": 10.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Cuánto vale un muro de zona de arriba alineado con uno de abajo, en pies² de desvío de área",
+            "en": "Worth of an upper zone wall aligned with a ground one, in sq ft of area deviation"
+          },
+          "range": [
+            0.0,
+            60.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        },
+        "line_wall_bonus": {
+          "value": 0.1,
+          "type": "number",
+          "unit": "score",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Bono de puntaje de una zonificación cuyos ejes son todos muros de zona (proporcional a los que lo son)",
+            "en": "Score bonus of a zoning whose frame lines are all zone walls (in proportion to those that are)"
+          },
+          "range": [
+            0.0,
+            0.5
+          ],
+          "kinds_allowed": [
+            "weight"
+          ],
+          "note": "A frame line inside a zone needs a wall or a beam in stage S2.1; a line that is a zone wall has it by construction."
+        }
+      },
+      "text": [
+        "The joists span the upper floor's short side S; the axes run along its long side.",
+        "S <= joist span: no interior axis; up to spine_from_ft: one axis; up to twice the joist span: a central hall with two axes. The upper outline lines and the joint over the ground floor are axes too.",
+        "Both floors band on the same axes; the upper bands are the bays; the ground band cut lies on an axis and the other axes are walls or beams on the axis.",
+        "Positions (optimize): a free axis moves within its window to the position with the least area deviation plus the surplus cost; then the zone walls of both floors move (within the snap reach) to align across floors, each aligned wall worth align_bonus_sqft of area deviation (a small MILP on HiGHS); every result is checked again exactly."
+      ],
+      "source": {
+        "document": "S2.2g research (2026-10-12): Habraken/SAR support and infill; Merrell et al. 2010; MIQP/MILP layout (Wu et al. 2018)",
+        "section": "frame"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "T04-ROOFS",
+      "kind": "design",
+      "magnitude": "roof_planes",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "structure.roofs",
+      "parameters": {
+        "multi_plane": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Techos en varios planos: techo alto, techos bajos de un piso, porche y garage por separado",
+            "en": "Multi-plane roofs: upper roof, one-story lower roofs, porch and garage apart"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-12 18:45-18:51 (S2.2g) (18:51)."
+        },
+        "lower_kind": {
+          "value": "shed",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "choices": [
+            "shed",
+            "gable",
+            "flat"
+          ],
+          "description": {
+            "es": "Techo de las partes de un piso (pendiente que baja desde el muro de la planta alta)",
+            "en": "Roof of the one-story parts (sloping down from the upper-floor wall)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "porch_kind": {
+          "value": "shed",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "choices": [
+            "shed",
+            "flat"
+          ],
+          "description": {
+            "es": "Techo del porche",
+            "en": "Roof of the porch"
+          },
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "lower_pitch": {
+          "value": 0.25,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Pendiente de los techos bajos (3:12)",
+            "en": "Pitch of the lower roofs (3:12)"
+          },
+          "range": [
+            0.0,
+            0.6
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "min_piece_sqft": {
+          "value": 20.0,
+          "type": "number",
+          "unit": "sq_ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Área mínima de una pieza de techo",
+            "en": "Least area of a roof piece"
+          },
+          "range": [
+            5.0,
+            100.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        }
+      },
+      "text": [
+        "Roof pieces: the upper roof (stage S1 kind and ridge), the lower roofs over the ground floor outside the built upper floor (bays left as roof included), the porch and the garage when nothing stands on it."
+      ],
+      "source": {
+        "document": "S2.2g plan (2026-10-12)",
+        "section": "roofs"
       },
       "verified": false
     }

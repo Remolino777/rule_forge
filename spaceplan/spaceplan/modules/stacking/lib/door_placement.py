@@ -76,6 +76,7 @@ class FloorLayout:
     patio_exit: dict | None = None
     open_air: list = field(default_factory=list)          # S2.2d: (spec, whole-floor mask) of roofs and terraces
     structure: dict | None = None                          # S2.2f: how the upper floor stands on the ground floor
+    frame: dict | None = None                              # S2.2g: how the ground floor carries the frame's axes
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)

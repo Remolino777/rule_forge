@@ -24,6 +24,11 @@ within the snap reach (upper floor: the ground floor's zone walls; ground floor:
 ground interior); on the upper floor the realization must stand on the ground floor (structure: each interior zone
 wall at least min_fraction on ground walls of its line, every beam at most beam_max_ft) and the circulation zone is
 at most node_cells on its short side (compact arrival: what it gives up goes to the other zones of its band).
+
+Frame (step S2.2g, when a FrameGuide is given): the band cuts are the structural frame's axes (lib/frame_bands); each
+band holds its units at their program area (between the area tolerance below it and the floor-filling S2 target
+above it) and what is left at one end of a band is open (roof upstairs, porch or unbuilt downstairs): those cells
+count as outside for the facade rules.
 """
 
 from __future__ import annotations
@@ -45,6 +50,13 @@ from spaceplan.modules.stacking.lib.floor_frame import (
     HALF_BATH_USE,
     FloorFrame,
     arrival_of,
+)
+from spaceplan.modules.stacking.lib.frame_bands import (
+    FrameGuide,
+    bay_ranges,
+    framed_topologies,
+    side_order,
+    surplus_kind,
 )
 from spaceplan.modules.stacking.lib.zone_relations import (
     ENTRY,
@@ -143,17 +155,26 @@ class Realization:
     frame: Any = None                        # the floor frame (unit set) this realization belongs to
     structure: dict[str, Any] | None = None  # S2.2f: how the upper floor stands on the ground floor
     targets: tuple[float, ...] | None = None  # S2.2f: targets after the compact-arrival cap (None: the frame's)
+    open_air: tuple[tuple[Rect, str], ...] = ()  # S2.2g: open ends of the bands (rect, roof / porch / unbuilt)
+    carried: float | None = None             # S2.2g: share of the frame lines that are zone walls (ground)
+    sframe: Any = None                       # S2.2g: the structural frame (structural_frame.Frame) zoned on
+    exempt: frozenset[int] = frozenset()     # S2.2g: units out of the area check (hall bay or strip, capped node)
+    search: Any = None                       # S2.2g: the FloorSearch that found it (positions, lib/frame_positions)
 
 
 class FloorSearch:
     """Every topology of one floor frame, realized and checked; valid ones scored."""
 
     def __init__(self, frame: FloorFrame, rules: FloorRules, matrix: ZoneMatrix, pin: int | None = None,
-                 guide: StructureGuide | None = None):
+                 guide: StructureGuide | None = None, fguide: FrameGuide | None = None):
         """`pin`: unit whose column (and band) is stretched to cover the stair's arrival zone on this floor;
-        `guide`: structure of step S2.2f (None: no snapping, no check)."""
+        `guide`: structure of step S2.2f (None: no snapping, no check); `fguide`: the structural frame of step S2.2g
+        (None: free band cuts)."""
         self.f, self.r, self.m = frame, rules, matrix
         self.guide = guide
+        self.fg = fguide
+        self._framed: tuple = ((), set(), ())
+        self._early: str | None = None
         self._capped: list = []
         self.pin = pin
         rows, cols = frame.landing
@@ -173,6 +194,8 @@ class FloorSearch:
         self.types = [u.space_types for u in self.units]
         self.circ = {k for k, u in enumerate(self.units) if u.zone == CIRCULATION}
         self.tol = g.res
+        self.opt = tuple(u.target_sqft / g.cell_area for u in frame.units)   # S2.2g: program area in cells
+        self._role = {side: role for role, sides in rules.facade_sides.items() for side in sides}
         self.tried = 0
         self.truncated = False
         self.first_violations: Counter = Counter()
@@ -182,6 +205,16 @@ class FloorSearch:
     def topologies(self):
         n = len(self.units)
         count = 0
+        if self.fg is not None:
+            circ = next(iter(sorted(self.circ)), None)
+            for topology in framed_topologies(n, circ, self.fg):
+                if count >= self.r.max_topologies:
+                    self.truncated = True
+                    return
+                count += 1
+                yield topology
+            if not self.fg.free:
+                return
         for axis in self.r.axes:
             orders = [(perm,) for perm in permutations(range(n))]
             if self.r.max_bands == 2 and n >= 2:
@@ -297,7 +330,156 @@ class FloorSearch:
         return (self._pinned_cuts(cum, c_lo, c_hi, targets, band.index(pin), c_span) if pin in band
                 else self._cuts(cum, c_lo, c_hi, targets))
 
+    def _strip(self, axis: str, lo: int, hi: int, a: int, b: int) -> Rect:
+        return (a, b, lo, hi) if axis == "y" else (lo, hi, a, b)
+
+    def _open_end(self, cum, axis: str, lo: int, hi: int, c_lo: int, c_hi: int, surplus: float,
+                  c_span: tuple[int, int] | None):
+        """The open strip holding a band's surplus at one of its ends: ((a, b) left to the units, strip, kind) or
+        None (no end free of fixed objects and of the stair's landing, or the policy allows none)."""
+        g = self.f.grid
+        away = None
+        if c_span is not None:
+            away = 1 if (c_span[0] + c_span[1]) < (c_lo + c_hi) else 0
+        for side in side_order(self.fg.surplus, axis, self._role.get, away):
+            kind = surplus_kind(self.fg.surplus, axis, side, self._role.get)
+            if kind is None:
+                continue
+            if side == 1:
+                s_ = self._cut_back(cum, c_hi, surplus)
+                keep, strip = (c_lo, s_), self._strip(axis, lo, hi, s_, c_hi)
+            else:
+                e_ = cut_index(cum, c_lo, round(surplus))
+                keep, strip = (e_, c_hi), self._strip(axis, lo, hi, c_lo, e_)
+            edge = keep[0] if side == 0 else keep[1]
+            if not c_lo < edge < c_hi or keep[1] - keep[0] < 2:
+                continue
+            if g.count(strip) == 0 or g.count(strip) != g.inside_count(strip):
+                continue
+            if len(self.f.landing[0]) and cells_in(self.f.landing, strip):
+                continue
+            return keep, strip, kind
+        return None
+
+    def _clear_stair(self, axis: str, cut: int, lo: int, hi: int, low: bool, high: bool, circ: int | None) -> int:
+        """A circulation strip that takes the stair in holds a hall of its least width beside it (no sliver)."""
+        if circ is None or not (low or high) or self.stair is None or not self.stair.any():
+            return cut
+        across = np.nonzero(self.stair.any(axis=1) if axis == "y" else self.stair.any(axis=0))[0]
+        across = across[(across >= lo) & (across < hi)]
+        if not len(across):
+            return cut
+        s0, s1 = int(across.min()), int(across.max()) + 1
+        hall = int(np.ceil(self.units[circ].min_width_ft / self.f.grid.res - 1e-9))
+        node = self._node() or (hi - lo)
+        # only a stair against the strip's outer side (no hall can pass there), and within the compact node
+        if low and s0 - lo < hall and s0 < cut < s1 + hall and s1 + hall - lo <= node:
+            cut = min(s1 + hall, hi - 1)
+        elif high and hi - s1 < hall and s0 - hall < cut < s1 and hi - (s0 - hall) <= node:
+            cut = max(s0 - hall, lo + 1)
+        return cut
+
+    def _realize_framed(self, topology) -> tuple[Rect, ...] | None:
+        """Bands on the frame's lines (S2.2g); the units of each band at their program area, the surplus open."""
+        axis, bands, cuts, split = topology
+        i0, i1, j0, j1 = self.bbox
+        b_lo, b_hi, c_lo, c_hi = (j0, j1, i0, i1) if axis == "y" else (i0, i1, j0, j1)
+        band_profile, col_profile = ("y", "x") if axis == "y" else ("x", "y")
+        bays = bay_ranges(b_lo, b_hi, cuts)
+        if bays is None:
+            return None
+        opt, node = self.opt, self._node()
+        circ = next(iter(sorted(self.circ)), None)
+        pin, span = self.pin, self.span
+        if span is None:
+            pin, span = None, (0, 0, 0, 0)
+        b_span, c_span = ((span[2], span[3]), (span[0], span[1])) if axis == "y" else \
+            ((span[0], span[1]), (span[2], span[3]))
+        hall = (cuts.index(self.fg.spine[0]) + 1) if self.fg.spine and all(x in cuts for x in self.fg.spine) else None
+        ranges, whole, q = [], [], 0                           # whole: the hall bay or a strip (no area check)
+        for b, (lo, hi) in enumerate(bays):
+            if b != split:
+                ranges.append((lo, hi))
+                whole.append(b == hall)
+                q += 1
+                continue
+            if q + 1 >= len(bands):
+                return None
+            g0, g1 = bands[q], bands[q + 1]
+            cum = self._cum_profile(band_profile, c_lo, c_hi)
+            if g1 == (circ,):                                  # a circulation strip on the high side
+                cut = self._cut_back(cum, hi, opt[circ])
+            elif g0 == (circ,):
+                cut = cut_index(cum, lo, round(opt[circ]))
+            else:                                              # by area, as the S2 band cut
+                w0, w1 = sum(opt[u] for u in g0), sum(opt[u] for u in g1)
+                cut = cut_index(cum, lo, round(self._count(cum, lo, hi) * w0 / ((w0 + w1) or 1.0)))
+            cut = self._clear_stair(axis, cut, lo, hi, g0 == (circ,), g1 == (circ,), circ)
+            if node and g0 == (circ,) and cut - lo > node:
+                cut = lo + node
+            if node and g1 == (circ,) and hi - cut > node:
+                cut = hi - node
+            if pin is not None:
+                cut = max(cut, b_span[1]) if pin in g0 else min(cut, b_span[0]) if pin in g1 else cut
+            if not lo < cut < hi:
+                return None
+            ranges += [(lo, cut), (cut, hi)]
+            whole += [g0 == (circ,), g1 == (circ,)]
+            q += 2
+        if q != len(bands):
+            return None
+        tol = self.r.area_tolerance
+        for band, (lo, hi) in zip(bands, ranges, strict=True):   # a band short of its units' area: no columns
+            if len(band) > 1 or band != (circ,):
+                cum = self._cum_profile(col_profile, lo, hi)
+                if self._count(cum, c_lo, c_hi) < (1.0 - tol) * sum(opt[u] for u in band):
+                    self._early = "area:band"
+                    return None
+        rects: list[Rect | None] = [None] * len(self.units)
+        t_eff = [0.0] * len(self.units)
+        exempt: set[int] = set()
+        open_air = []
+        landing_cols = c_span if pin is not None else None
+        for band, (lo, hi), full in zip(bands, ranges, whole, strict=True):
+            cum = self._cum_profile(col_profile, lo, hi)
+            room = self._count(cum, c_lo, c_hi)
+            want = sum(opt[u] for u in band) or 1.0
+            a, b = c_lo, c_hi
+            if full:
+                exempt.add(circ)                               # the hall bay or strip: the whole band
+            elif self.fg.surplus_min_cells and room - want >= self.fg.surplus_min_cells:
+                got = self._open_end(cum, axis, lo, hi, c_lo, c_hi, room - want,
+                                     landing_cols if pin in band else None)
+                if got is not None:
+                    (a, b), strip, kind = got
+                    open_air.append((strip, kind))
+            targets = [opt[u] * self._count(cum, a, b) / want for u in band]
+            xs = self._columns(band, cum, a, b, targets, pin, c_span)
+            if circ in band and len(band) > 1 and node and hi - lo > node and xs is not None:
+                k = band.index(circ)                           # S2.2f: compact arrival node
+                width = xs[k + 1] - xs[k]
+                if width > node:
+                    cap = targets[k] * node / width
+                    rest = sum(x for p, x in enumerate(targets) if p != k) or 1.0
+                    grow = (sum(targets) - cap) / rest
+                    targets = [cap if p == k else x * grow for p, x in enumerate(targets)]
+                    xs = self._columns(band, cum, a, b, targets, pin, c_span)
+                    exempt.add(circ)
+            if xs is None:
+                return None
+            xs = self._snap(xs, axis == "y", lo, hi)
+            for u, x0, x1, tk in zip(band, xs, xs[1:], targets):
+                rects[u] = (x0, x1, lo, hi) if axis == "y" else (lo, hi, x0, x1)
+                t_eff[u] = tk
+        if any(r is None for r in rects):
+            return None
+        self._framed = (tuple(t_eff), exempt, tuple(open_air))
+        return tuple(rects)
+
     def realize(self, topology) -> tuple[Rect, ...] | None:
+        if len(topology) == 4:
+            self._capped = []
+            return self._realize_framed(topology)
         axis, bands = topology
         i0, i1, j0, j1 = self.bbox
         t = self.f.targets
@@ -368,10 +550,37 @@ class FloorSearch:
         return True
 
     def evaluate(self, topology) -> Realization:
-        g, units, t = self.f.grid, self.units, self.f.targets
+        self._early = None
         rects = self.realize(topology)
         if rects is None:
-            return Realization(topology, (), (), violation="width:cut")
+            return Realization(topology, (), (), violation=self._early or "width:cut")
+        if len(topology) == 4 and self._framed[2]:          # S2.2g: open band ends count as outside
+            outside = self.outside
+            self.outside = outside.copy()
+            for (i0, i1, j0, j1), _ in self._framed[2]:
+                self.outside[j0:j1, i0:i1] = True
+            try:
+                return self._evaluate(topology, rects)
+            finally:
+                self.outside = outside
+        return self._evaluate(topology, rects)
+
+    def _framed_area(self, rz: Realization, counts) -> str | None:
+        """S2.2g: each unit between its program area (less the tolerance) and its S2 target (plus the tolerance)."""
+        t_eff, exempt, open_air = self._framed
+        tol, t = self.r.area_tolerance, self.f.targets
+        for k, u in enumerate(self.units):
+            if k in exempt:
+                continue
+            if not self.opt[k] * (1.0 - tol) <= counts[k] <= max(self.opt[k], t[k]) * (1.0 + tol):
+                return f"area:{u.unit_id}"
+        rz.targets, rz.open_air, rz.exempt = t_eff, open_air, frozenset(exempt)
+        lines = self.fg.lines
+        rz.carried = (len(set(rz.topology[2]) & set(lines)) / len(lines)) if lines else 1.0
+        return None
+
+    def _evaluate(self, topology, rects) -> Realization:
+        g, units, t = self.f.grid, self.units, self.f.targets
         counts = tuple(g.count(r) for r in rects)
         rz = Realization(topology, rects, counts)
         res = g.res
@@ -381,6 +590,12 @@ class FloorSearch:
                 rz.violation = f"width:{u.unit_id}"
                 return rz
         exempt, scale = set(), {}
+        if len(topology) == 4:
+            bad = self._framed_area(rz, counts)
+            if bad:
+                rz.violation = bad
+                return rz
+            exempt = set(range(len(units)))                 # checked above
         for others, c in self._capped:                    # S2.2f: the capped arrival zone and who took its area
             exempt.add(c)
             tt, tc = sum(t[q] for q in others), sum(counts[q] for q in others)
@@ -473,16 +688,22 @@ class FloorSearch:
         if rz.relations["hard_failed"]:
             rz.violation = f"matrix:{rz.relations['hard_failed'][0]}"
             return rz
+        if self.fg is not None and len(topology) == 2:      # S2.2g: an S2 topology on a frame (free ground)
+            rz.carried = 0.0 if self.fg.lines else 1.0
         rz.parts = {"relations": rz.relations["score"], "shape": self._shape(rects, counts),
                     "stair_access": self._stair_access(rz)}
         if rz.structure is not None:
             rz.parts["structure"] = rz.structure["interior_fraction"]
+        elif rz.carried is not None:                        # S2.2g: frame lines carried by zone walls
+            rz.parts["structure"] = rz.carried
         if self.f.level == GROUND:
             rz.parts["anchors"] = anchor_score
         elif self._order():
             rz.parts["arrival"] = self._arrival_score(rz.landing_unit)
         w = self.r.weights
         rz.score = sum(w[k] * v for k, v in rz.parts.items()) / (sum(w[k] for k in rz.parts) or 1.0)
+        if rz.carried is not None and self.fg is not None:   # S2.2g: frame lines that are zone walls
+            rz.score += self.fg.line_bonus * rz.carried
         return rz
 
     def _entry(self, rects) -> tuple[int, bool] | None:
@@ -634,11 +855,35 @@ class FloorSearch:
             rz = self.evaluate(topology)
             if rz.violation is None:
                 rz.frame = self.f
+                if self.fg is not None:
+                    rz.sframe, rz.search = self.fg.ref, self
                 valid.append(rz)
             else:
                 self.first_violations[rz.violation.split(":")[0]] += 1
         valid.sort(key=lambda x: (-x.score, x.topology))
         return valid
+
+    def recheck(self, rz: Realization, rects: tuple[Rect, ...]) -> Realization:
+        """S2.2g: a framed realization with its columns moved (same bands and open ends), checked again."""
+        self._framed = (rz.targets, set(rz.exempt), rz.open_air)
+        self._capped = []
+        if rz.open_air:
+            outside = self.outside
+            self.outside = outside.copy()
+            for (i0, i1, j0, j1), _ in rz.open_air:
+                self.outside[j0:j1, i0:i1] = True
+            try:
+                out = self._evaluate(rz.topology, rects)
+            finally:
+                self.outside = outside
+        else:
+            out = self._evaluate(rz.topology, rects)
+        out.frame, out.sframe, out.search = rz.frame, rz.sframe, self
+        return out
+
+    def shifted(self, fg: FrameGuide) -> FloorSearch:
+        """S2.2g: the same floor search on another position of the frame's lines."""
+        return FloorSearch(self.f, self.r, self.m, self.pin, self.guide, fg)
 
     def summary(self, valid: list[Realization]) -> dict[str, Any]:
         return {"units": len(self.units), "topologies_tried": self.tried, "valid": len(valid),
@@ -647,5 +892,5 @@ class FloorSearch:
                 | {k: v for k, v in sorted(self.first_violations.items()) if k not in VIOLATION_ORDER}}
 
 
-__all__ = ["PRIVATE", "UNIT_LABEL0", "VIOLATION_ORDER", "FloorRules", "FloorSearch", "Realization", "StructureGuide",
-           "zone_labels"]
+__all__ = ["PRIVATE", "UNIT_LABEL0", "VIOLATION_ORDER", "FloorRules", "FloorSearch", "FrameGuide", "Realization",
+           "StructureGuide", "zone_labels"]
