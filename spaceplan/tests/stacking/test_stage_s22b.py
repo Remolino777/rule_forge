@@ -83,7 +83,7 @@ def _piece(ul, spec, i0, i1, j0, j1):
 
 
 def test_catalog_weights_add_furniture_circulation_and_light(scat):
-    assert scat.version == "0.13.0"
+    assert scat.version == "0.14.0"
     assert set(scat.s21["weights"]) == set(S21_WEIGHTS) and "light" in S21_WEIGHTS and "furniture" in S21_WEIGHTS
     assert set(scat.s21["layout"]["local_weights"]) == set(S21_LOCAL_WEIGHTS)
 

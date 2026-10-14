@@ -33,9 +33,11 @@ def _dominated(a: tuple[float, float], b: tuple[float, float]) -> bool:
 
 
 def rank_stair_candidates(trials: list[dict[str, Any]], tolerance_ft: float, strategy_order: list[str],
-                          arrival_order: list[str] | None = None) -> list[Ranked]:
+                          arrival_order: list[str] | None = None, stair_order: list[str] | None = None) -> list[Ranked]:
     """Order the feasible trials, best first. A trial is a dict with route_ft, occupied_sqft, strategy and,
-    optionally, arrival_kind and half_bath (True when the half bath sits under the stair)."""
+    optionally, arrival_kind, half_bath (True when the half bath sits under the stair), stair_id and along (S2.2k:
+    inside the near-best set, the configuration order of the catalog and a U turned along its wall come right after
+    the strategy)."""
     feasible = [t for t in trials if t.get("route_ft") is not None]
     if not feasible:
         return []
@@ -49,10 +51,15 @@ def rank_stair_candidates(trials: list[dict[str, Any]], tolerance_ft: float, str
         a_order = arrival_order or []
         kind = t.get("arrival_kind")
         a_rank = a_order.index(kind) if kind in a_order else len(a_order)
-        key = (0 if near else 1, s_rank if near else 0, a_rank if near else 0,
-               0 if t.get("half_bath") else 1, round(p[0], 2), round(p[1], 1))
+        so = stair_order or []
+        sid = t.get("stair_id")
+        d_rank = so.index(sid) if sid in so else len(so)
+        al = 0 if t.get("along") else 1
+        key = (0 if near else 1, s_rank if near else 0, d_rank if near else 0, al if near else 0,
+               a_rank if near else 0, 0 if t.get("half_bath") else 1, round(p[0], 2), round(p[1], 1))
         reason = (f"{'near-best' if near else 'outside tolerance'} (route {p[0]:.1f} ft, best {best:.1f} + "
-                  f"{tolerance_ft:g}); strategy {t['strategy']}; arrival {kind}; "
+                  f"{tolerance_ft:g}); strategy {t['strategy']}; stair {sid}{' along' if t.get('along') else ''}; "
+                  f"arrival {kind}; "
                   f"half bath {'under stair' if t.get('half_bath') else 'no'}; area {p[1]:.0f} sq ft"
                   + ("; Pareto" if pareto else ""))
         out.append(Ranked(t, p[0], p[1], pareto, near, key, reason))

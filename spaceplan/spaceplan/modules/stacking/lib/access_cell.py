@@ -51,6 +51,7 @@ class AccessContext:
     preference: list[str]
     tolerance_ft: float
     top_k: int
+    stair_order: tuple = ()                   # S2.2k: configurations in the client's order (U first)
 
 
 def access_context(scat, limits, client_rs) -> AccessContext:
@@ -61,7 +62,8 @@ def access_context(scat, limits, client_rs) -> AccessContext:
     acc = {**acc, "band": client_rs.params(BAND_RULE)}          # S2.2d: K12 stair band (client 2026-10-12)
     return AccessContext(acc, shapes, client_rs.params(LIGHT_RULE)["required_by_strategy"],
                          list(client_rs.params(STRATEGY_RULE)["preference"]),
-                         float(acc["comparison"]["route_tolerance_ft"]), int(acc["comparison"]["top_k_per_strategy"]))
+                         float(acc["comparison"]["route_tolerance_ft"]), int(acc["comparison"]["top_k_per_strategy"]),
+                         tuple(acc["comparison"].get("stair_order") or ()))
 
 
 @dataclass
@@ -76,7 +78,10 @@ class CellPool:
 
 def _proxy_key(actx: AccessContext, a: AccessCandidate) -> tuple:
     rank = actx.preference.index(a.strategy) if a.strategy in actx.preference else len(actx.preference)
-    return (rank, 0 if a.light.source != "none" else 1, round(a.occupied_sqft), round(a.entry_ft, 1), a.cand.key)
+    so = list(actx.stair_order)
+    sid = so.index(a.stair_id) if a.stair_id in so else len(so)
+    return (rank, sid, 0 if a.along else 1, 0 if a.light.source != "none" else 1, round(a.occupied_sqft),
+            round(a.entry_ft, 1), a.cand.key)
 
 
 def _access_block(plan, door: EntryDoor, a: AccessCandidate, placement: str, provisional: bool) -> dict[str, Any]:
@@ -125,7 +130,7 @@ def stage_s1(cell, s0, plan, strategy, ctx: S1Context, actx: AccessContext, site
                                 "door": None if pool.door is None else polygon_json(plan.to_world(pool.door.segment.buffer(0.25, cap_style="flat")))}
         return probe, pool
     placement_of = {id(a): p for p, a in found}
-    originals = preselect([a for _, a in found], actx.top_k)
+    originals = preselect([a for _, a in found], actx.top_k, list(actx.stair_order))
     placements = [placement_of[id(o)] for o in originals]
     chosen = with_half_bath(originals, ground_ref["ground"], ground_ref["garage"], pool.door, ground_ref["cfg"])
     pool.picks = list(zip(placements, chosen))
@@ -157,7 +162,8 @@ def stage_s2(cell, s0, out: dict[str, Any], plan, strategy, ctx: S1Context, s2ct
         s2 = zone_cell(cell, s1, plan, s2ctx)
         opt = s2["options"].get(s2.get("chosen_option")) if s2["status"] == ZONED else None
         routes = (opt or {}).get("routes") or {}
-        trials.append({"s1": s1, "s2": s2, "strategy": a.strategy, "stair_id": a.stair_id, "placement": placement,
+        trials.append({"s1": s1, "s2": s2, "strategy": a.strategy, "stair_id": a.stair_id, "along": a.along,
+                       "placement": placement,
                        "route_ft": routes.get("total_ft") if opt else None,
                        "occupied_sqft": a.occupied_sqft, "light": a.light.source,
                        "arrival_kind": (s2.get("upper") or {}).get("arrival_kind"),
@@ -165,10 +171,11 @@ def stage_s2(cell, s0, out: dict[str, Any], plan, strategy, ctx: S1Context, s2ct
     order = None
     for t in trials:
         order = (t["s2"].get("arrival") or {}).get("order") or order
-    ranked = rank_stair_candidates(trials, actx.tolerance_ft, actx.preference, order)
+    ranked = rank_stair_candidates(trials, actx.tolerance_ft, actx.preference, order, actx.stair_order)
 
     def summary(t, r=None):
-        return {"strategy": t["strategy"], "stair_id": t["stair_id"], "placement": t["placement"],
+        return {"strategy": t["strategy"], "stair_id": t["stair_id"], "along": t.get("along"),
+                "placement": t["placement"],
                 "route_ft": t["route_ft"], "occupied_sqft": round(t["occupied_sqft"], 1), "light": t["light"],
                 "arrival_kind": t["arrival_kind"], "half_bath": t["half_bath"], "s2_status": t["s2"]["status"],
                 **({"pareto": r.pareto, "near_best": r.near_best, "reason": r.reason} if r else {})}

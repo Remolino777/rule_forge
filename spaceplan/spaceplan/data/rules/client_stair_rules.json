@@ -1,6 +1,6 @@
 {
   "ruleset_id": "client-stair-rules",
-  "ruleset_version": "0.6.0",
+  "ruleset_version": "0.7.0",
   "jurisdiction_id": "client",
   "zone": "*",
   "code_edition": "client decisions 2026-10-09 / 2026-10-10",
@@ -344,16 +344,18 @@
           "D": "rear facade band"
         },
         "preference": [
+          "B",
           "A",
           "D",
-          "C",
-          "B"
+          "C"
         ],
         "chosen_by": "client",
-        "fallback": "B"
+        "fallback": "A",
+        "decided": "2026-10-14 (V6.8): the joint first (the stair at the centre of the ground floor and at the edge of the upper floor; a U turned to start and arrive on the hall), the side wall as the fallback; no L stair"
       },
       "text": [
-        "Stair placement strategy chosen by the client (never inferred): A side wall, D rear facade, C interior void with skylight, B centre as the last resort. Stage S2 compares the best candidates of each strategy; the preference breaks ties."
+        "Stair placement strategy chosen by the client (never inferred): A side wall, D rear facade, C interior void with skylight, B centre as the last resort. Stage S2 compares the best candidates of each strategy; the preference breaks ties.",
+        "2026-10-14 (V6.8, client): B joint first, then A, D, C; L stairs removed."
       ],
       "source": {
         "document": "Client decisions",

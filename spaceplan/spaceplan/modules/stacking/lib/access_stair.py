@@ -54,6 +54,12 @@ class AccessCandidate:
     def stair_id(self) -> str:
         return self.cand.shape.stair_id
 
+    @property
+    def along(self) -> bool:
+        """The flights run along the wall: the start lies beside the footprint in the wall's direction (a U turned
+        to start and arrive on a hall that runs across the wall; S2.2k, client 2026-10-14)."""
+        return flights_along(self.cand, self.wall.line)
+
     def summary(self) -> dict[str, Any]:
         return {"strategy": self.strategy, "stair_id": self.stair_id, "wall": self.wall.kind,
                 "fire_separation_ft": None if self.wall.fire_separation_ft is None
@@ -94,6 +100,19 @@ def _evaluate(c: StairCandidate, strategy: str, wall: Wall, walls: list[Wall], u
     entry = door.vestibule.centroid.distance(c.bottom_zone.centroid)
     stacked = c.bottom_zone.centroid.distance(c.top_zone.centroid)
     return AccessCandidate(c, strategy, wall, light, well, occupied, entry, stacked, fallback), None
+
+
+def flights_along(c: StairCandidate, line) -> bool:
+    """Does the stair start beside its footprint along `line` (rather than in front of it, across the line)?"""
+    (x0, y0), (x1, y1) = line.coords[0], line.coords[-1]
+    dx, dy = x1 - x0, y1 - y0
+    n = (dx * dx + dy * dy) ** 0.5 or 1.0
+    fx, fy = c.geom.footprint.centroid.coords[0]
+    bx, by = c.bottom_zone.centroid.coords[0]
+    vx, vy = bx - fx, by - fy
+    along = abs(vx * dx + vy * dy) / n
+    across = abs(-vx * dy + vy * dx) / n
+    return along > across
 
 
 def in_band(fp, ground, band: dict[str, Any] | None) -> bool:
@@ -196,10 +215,12 @@ def access_candidates(upper, ground, garage, door: EntryDoor, walls: list[Wall],
     return out, stats
 
 
-def preselect(cands: list[AccessCandidate], top_k: int) -> list[AccessCandidate]:
-    """Few candidates of each strategy for S2: the least occupied, the nearest start to the vestibule, then other
-    configurations (so a strategy offers its U and its L) and the half bath under the stair when one fits."""
+def preselect(cands: list[AccessCandidate], top_k: int, stair_order: list[str] | None = None) -> list[AccessCandidate]:
+    """Few candidates of each strategy for S2. S2.2k (client 2026-10-14): first one of each configuration in the
+    catalog's stair order, a U turned along its wall (start and arrival on a hall) before a U across it, then the
+    least occupied, the nearest start to the vestibule and the half bath under the stair when one fits."""
     out = []
+    order_ids = list(stair_order or [])
     for strategy in sorted({a.strategy for a in cands}):
         mine = [a for a in cands if a.strategy == strategy]
         orders = [sorted(mine, key=lambda a: (round(a.occupied_sqft), a.entry_ft, a.cand.key)),
@@ -210,11 +231,18 @@ def preselect(cands: list[AccessCandidate], top_k: int) -> list[AccessCandidate]
             if a not in picked and len(picked) < top_k:
                 picked.append(a)
 
+        sids = sorted({a.stair_id for a in mine},
+                      key=lambda sid: (order_ids.index(sid) if sid in order_ids else len(order_ids), sid))
+        for sid in sids:
+            of = [a for a in orders[0] if a.stair_id == sid]
+            add(next((a for a in of if a.along), of[0]))
+        for sid in sids:                          # the other turn of a U
+            of = [a for a in orders[0] if a.stair_id == sid and not a.along]
+            if of and sid.startswith("u_"):
+                add(of[0])
         for order in orders:
             if order:
                 add(order[0])
-        for sid in sorted({a.stair_id for a in mine}):
-            add(next(a for a in orders[0] if a.stair_id == sid))
         hb = [a for a in orders[0] if a.cand.half_bath is not None]
         if hb:
             add(hb[0])
@@ -244,4 +272,4 @@ def with_half_bath(cands: list[AccessCandidate], ground, garage, door: EntryDoor
     return out
 
 
-__all__ = ["AccessCandidate", "access_candidates", "preselect", "with_half_bath"]
+__all__ = ["AccessCandidate", "access_candidates", "flights_along", "preselect", "with_half_bath"]

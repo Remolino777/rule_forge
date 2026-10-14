@@ -1,6 +1,6 @@
 {
   "catalog_id": "spaceplan-stacking-catalog",
-  "catalog_version": "0.13.0",
+  "catalog_version": "0.14.0",
   "note": "Design parameters of the stacking module (step 6.7). Separate catalog owned by the module, like the household catalog, so the residential catalog and the golden packages stay unchanged. Normative values live in data/rules/sdmc_rs_1_7_vertical.json and sdmc_rs_1_7_capacity.json. Version 0.2.0 (stage S1) adds the stair types and their design values, the upper-floor placements, the garage stand-in and the roof-orientation policy. Version 0.3.0 (stage S1.1) compares stair configurations and directions, adds the space under the stair, the receiving spaces at each end and the small-house threshold. Version 0.4.0 (2026-10-09): small house = one room upstairs (client decision). Version 0.5.0 (stage S2) adds the s2 block: zoning of each drawn floor around the stair core (grid, topologies, arrival order, zone door rules, small-zone merge, scoring weights). Version 0.6.0 (stage S1.2, short test) adds the access_core block (main door from the site's entry deck, swing, vestibule, permitted walls, strategies A-D, interior void with skylight, light, comparison by occupied area and route length) and the u_well stair (U with a central void); u_well is used only by S1.2 and is not enabled for S1. Version 0.7.0 (stage S1.2 close): no skylight; U stairs at least 2.5 m wide (client rule K08); arrival and half bath as preferences; selector in three levels; two-level search; stair hall rule. Version 0.8.0 (stage S1.2 integrated): the joint selector and the S2 backtrack are gone (client decision 2026-10-10, option B; the previous results are frozen in docs/baselines/stack_plan_04bbba2); route tolerance 15 ft. Version 0.9.0 (S1.2 close, 2026-10-10): route tolerance 25 ft (client decision after the tolerance simulation); small upper floors also try compact_bands (a room band beside a stair band). Version 0.10.0 (stage S2.1, 2026-10-11) adds the s21 block: spaces and doors inside each zone unit (guillotine rectangles on the S2 grid, halls inside private units, closets from the leftovers, doors with position, width, swing and hinge). Version 0.11.0 (stage S2.1b, 2026-10-11) adds door types (main entry with a sidelight, glass patio slider, service exterior door, closet slider), the patio exit, the program adjustment of stage S2.1 (corridor allowance and a bath per bedroom, K10) and the rear cantilever of the upper floor.",
   "units": "ft, sq ft",
   "selection": {
@@ -476,7 +476,7 @@
       "fallback": [
         "joint"
       ],
-      "note": "Walls the stair may sit against: exterior side and rear walls of the ground floor that continue on the upper floor, and the edge of the interior void; never the street facade of the door nor the garage wall; the joint (centre) only as the last resort. Structure not considered yet (client decision 2026-10-10)."
+      "note": "Walls the stair may sit against: exterior side and rear walls of the ground floor that continue on the upper floor, and the edge of the interior void; never the street facade of the door nor the garage wall; the joint (centre) only as the last resort. Structure not considered yet (client decision 2026-10-10). 2026-10-14 (V6.8, client): the joint is tried first (K07), the side wall is the fallback; no L stairs."
     },
     "strategies": {
       "A": {
@@ -484,8 +484,7 @@
           "side"
         ],
         "stair_ids": [
-          "u_turn",
-          "l_turn"
+          "u_turn"
         ]
       },
       "D": {
@@ -493,8 +492,7 @@
           "rear"
         ],
         "stair_ids": [
-          "u_turn",
-          "l_turn"
+          "u_turn"
         ]
       },
       "C": {
@@ -512,7 +510,6 @@
         ],
         "stair_ids": [
           "u_turn",
-          "l_turn",
           "straight",
           "straight_landing"
         ]
@@ -540,7 +537,7 @@
         "arrival",
         "half_bath"
       ],
-      "top_k_per_strategy": 3,
+      "top_k_per_strategy": 4,
       "route_targets": [
         "living",
         "dining",
@@ -553,7 +550,13 @@
         "kitchen",
         "service"
       ],
-      "note": "Three levels: hard filters (geometry, door, circulation, light K06, allowed arrival, stair hall); the Pareto front of route length and occupied area; among the front, the candidates within route_tolerance_ft of the shortest route are ordered by the client preferences (strategy K07, arrival K01, half bath K09), then by route and area."
+      "note": "Three levels: hard filters (geometry, door, circulation, light K06, allowed arrival, stair hall); the Pareto front of route length and occupied area; among the front, the candidates within route_tolerance_ft of the shortest route are ordered by the client preferences (strategy K07, arrival K01, half bath K09), then by route and area. 2026-10-14 (V6.8): inside the near-best set the configurations follow stair_order (U first) and a U turned along its wall (start and arrival on the hall) comes before a U across it; four candidates per strategy so the joint offers both turns of the U and the straight stairs.",
+      "stair_order": [
+        "u_turn",
+        "straight",
+        "straight_landing",
+        "u_well"
+      ]
     },
     "positions": {
       "coarse_step_ft": 2.0,
