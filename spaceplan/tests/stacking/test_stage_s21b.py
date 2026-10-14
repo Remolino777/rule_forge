@@ -174,6 +174,9 @@ def test_closets_slide_and_no_hinged_leaf_stands_in_the_air(result):
                 if not d.get("swing") or d["a"] not in polys:
                     continue
                 hinge, r = Point(d["hinge"]), d["leaf_ft"]
+                corners = [Point(p) for p in polys[d["a"]].exterior.coords]
+                if min(hinge.distance(p) for p in corners) > 1.0:
+                    continue        # S2.2i (client 2026-10-13): a door slid off its corner (vestibule, clear of a door)
                 sw, seg = shape(d["swing"]), LineString(d["segment"])
                 tip = max((Point(p) for p in sw.exterior.coords if abs(Point(p).distance(hinge) - r) < 0.05),
                           key=seg.distance)

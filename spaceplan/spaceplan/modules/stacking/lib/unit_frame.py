@@ -102,6 +102,7 @@ class SpaceFloor:
     profile: str | None = None          # S2.2c: maximum profile weighs shape more
     open_plan: bool = False             # S2.2c: kitchen and social units merged into a great room
     below_lines: tuple | None = None    # S2.2f: (V, H) ground walls seen from this upper floor's grid
+    stair_cover: np.ndarray | None = None   # S2.2i: covered start of the stair left with the stair (a closet later)
 
     @property
     def res(self) -> float:
@@ -163,6 +164,31 @@ def _fixed_spec(name: str, space_id: str, space_type: str, matrix: ZoneMatrix, e
                      circ, roles_of(matrix, space_type) | frozenset(extra_roles), None, True)
 
 
+def _covered_stair(grid: Grid, base: np.ndarray, owner: np.ndarray, free_mask: np.ndarray, floors,
+                   fixed: list) -> tuple[np.ndarray, np.ndarray | None]:
+    """Cells of the stair footprint the upper floor covers (S2.2i) stay with the unit that took them when its cells
+    remain a full rectangle; otherwise they go back to the stair (base and owner) and are returned (the layout may
+    make them a closet)."""
+    rr, cc = cells_of(grid, floors.stair)
+    covered = np.zeros(base.shape, dtype=bool)
+    covered[rr, cc] = True
+    covered &= free_mask
+    if not covered.any():
+        return owner, None
+    back_all = np.zeros(base.shape, dtype=bool)
+    stair_label = next((k for k, s in enumerate(fixed) if s.space_type == STAIR_TYPE), None)
+    for k in sorted({int(x) for x in owner[covered] if x >= 0}):
+        mask = free_mask & (owner == k)
+        box = mask_bounds(mask)
+        if box is not None and int(mask.sum()) == (box[1] - box[0]) * (box[3] - box[2]):
+            continue
+        back = covered & (owner == k)
+        owner[back] = OUT if stair_label is None else stair_label
+        base[back] = OUT if stair_label is None else stair_label
+        back_all |= back
+    return owner, (back_all if back_all.any() else None)
+
+
 # ------------------------------------------------------------------ one floor
 
 
@@ -216,6 +242,10 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
         owner[rr[free], cc[free]] = k
     free_mask = base == UNASSIGNED
     owner = fill_unassigned(owner, free_mask, UNASSIGNED)
+    cover = None
+    if level != GROUND and floors.stair_opening is not None:   # S2.2i: the covered start of the stair joins the
+        owner, cover = _covered_stair(grid, base, owner, free_mask, floors, fixed)   # unit beside it when it stays
+        free_mask = base == UNASSIGNED                                                # square
     if (free_mask & (owner == UNASSIGNED)).any():
         notes.append(f"{int((free_mask & (owner == UNASSIGNED)).sum())} free cells outside every unit")
     accessible = profile == ACCESSIBLE_PROFILE
@@ -233,6 +263,9 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
     rr, cc = cells_of(grid, landing_zone)
     landing[rr, cc] = True
     stair = grid.mask_of(FIXED_STAIR) if FIXED_STAIR in grid.label_ids else np.zeros(base.shape, dtype=bool)
+    k_stair = next((k for k, sp in enumerate(fixed) if sp.space_type == STAIR_TYPE), None)
+    if k_stair is not None:                       # S2.2i: with the covered cells that went back to the stair
+        stair = stair | (base == k_stair)
     links: dict[str, set] = {}
     for a, b in floor_block.get("links", []):
         links.setdefault(a, set()).add(b)
@@ -240,8 +273,10 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
     open_plan = level == GROUND and (culture or "none") in (rules.design.get("space.great_room.open_cultures") or ())
     if open_plan and rules.design.get("space.great_room.merge_units"):
         units, links, _ = great_room(units, links)
-    return SpaceFloor(level, grid, base, fixed, units, landing, stair, tuple(receiving), accessible, variant, notes,
-                      links, exterior, profile, open_plan)
+    out = SpaceFloor(level, grid, base, fixed, units, landing, stair, tuple(receiving), accessible, variant, notes,
+                     links, exterior, profile, open_plan)
+    out.stair_cover = cover
+    return out
 
 
 GREAT_ROOM_ID = "great_room"

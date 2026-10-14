@@ -33,11 +33,17 @@ from spaceplan.modules.stacking.lib.door_placement import (
     compose,
     place_doors,
 )
-from spaceplan.modules.stacking.lib.floor_frame import GROUND, UPPER, cell_floors
+from spaceplan.modules.stacking.lib.floor_frame import (
+    GROUND,
+    UPPER,
+    cell_floors,
+    with_stair_opening,
+)
 from spaceplan.modules.stacking.lib.front_yard import front_yard
 from spaceplan.modules.stacking.lib.hall_trim import (
     dead_end_sqft,
     door_gaps,
+    stair_cover_closet,
     trim_hall,
     trim_settings,
 )
@@ -136,6 +142,13 @@ def _floor_parts(layout: FloorLayout, rel: dict[str, Any], rules: SpaceRules, ca
     w_group = float(rules.design.get("door.grouping.weight") or 0.0)            # S2.2f: grouped bedroom doors
     group, _ = fs.grouping(layout, rules)
     base_circ = 0.4 * circulation + 0.4 * mean("circulation") + 0.2 * shared_bath_doors(layout, rules)
+    w_near = float(rules.design.get("circulation.upper_rooms.bed_near_weight") or 0.0)   # S2.2i: doors near the stair
+    gaps = door_gaps(layout, rules) if layout.floor.level > 0 and w_near else []
+    if gaps:
+        vmin = float(rules.design.get("circulation.upper_hall.vestibule_min_ft") or 0.0)
+        scale = float(rules.design.get("circulation.upper_rooms.near_scale_ft") or 1.0)
+        near = float(np.mean([1.0 / (1.0 + max(0.0, g - vmin) / scale) for g in gaps]))
+        base_circ = (1.0 - w_near) * base_circ + w_near * near
     return {"relations": rel["score"],
             "shape": mean("shape"),
             "furniture": mean("furniture"),                        # S2.2b
@@ -213,6 +226,21 @@ def _merge_lines(a, b):
     return a[0] | b[0], a[1] | b[1]
 
 
+def _stair_closet(layout, rules, ctx: S21Context):
+    """S2.2i: the covered start of the stair as a closet when its door fits and every check holds."""
+    new, report = stair_cover_closet(layout, rules)
+    if new is None:
+        layout.stair_cover = report or None
+        return layout
+    place_doors(new, rules, ctx.matrix)
+    if new.violations:
+        layout.stair_cover = {**report, "applied": False, "reason": new.violations[0]}
+        return layout
+    new.trim = layout.trim
+    new.stair_cover = {**report, "applied": True}
+    return new
+
+
 def _trimmed(layout, rules, ctx: S21Context):
     """S2.2h: the layout with its upper hall trimmed when the doors and checks still hold; else the layout, with
     the reason in its trim report."""
@@ -266,6 +294,7 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
         place_doors(layout, rules, ctx.matrix)
         if not layout.violations and floor.level > 0:           # S2.2h: the hall trimmed to what it serves
             layout = _trimmed(layout, rules, ctx)
+            layout = _stair_closet(layout, rules, ctx)           # S2.2i: a closet over the covered stair start
         if not layout.violations:
             why = _walk_through_violation(layout, rules)          # S2.2c: suite -> walk-in -> bath
             if why:
@@ -403,6 +432,10 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
         return {**out, "status": NOT_EVALUATED_S21, "rule_traces": []}
     option = s2["options"][s2["chosen_option"]]
     floors = cell_floors(s1, plan)
+    d = ctx.rules.design
+    if d.get("structure.enabled") and d.get("structure.stair_opening"):   # S2.2i: the upper floor's stair opening
+        # (S2 zones on the whole footprint; the covered start joins the neighbouring unit here)
+        floors = with_stair_opening(floors, s1, float(d["structure.floor_depth_in"]))
     res = float(ctx.scat.s2["grid_ft"])
     g_recv, u_recv = _receiving(s2, option)
     alts = s2.get("_alternatives") or {"upper": [s2["upper"]], "ground": [option["ground"]]}
@@ -493,6 +526,12 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
     if lot_local is not None and ctx.capacity is not None:
         out["site"] = front_yard(s1, plan, lot_local, ctx.capacity, ctx.openings, ctx.catalog, ctx.scat)
     out["k10"] = _k10_summary(g, u, rows)
+    if floors.stair_opening is not None:                                  # S2.2i: what the upper floor leaves open
+        uf = u.layout.floor
+        k_stair = next((k for k, sp in enumerate(u.layout.specs) if sp.space_type == "stair"), None)
+        opening = mask_polygon(u.layout.labels == k_stair if k_stair is not None else uf.stair, uf.grid)
+        out["upper"]["stair_opening"] = polygon_json(plan.to_world(opening), nd)
+        out["upper"]["stair_covered_sqft"] = round(max(0.0, floors.stair.area - opening.area), 1)
     if getattr(u.layout, "structure", None) is not None:                 # S2.2f
         out["structure"] = u.layout.structure
     if frame is not None:                                                 # S2.2g
@@ -624,6 +663,7 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
                           "polygon": polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)}
                          for s, m in lay.open_air],
             **({"hall_trim": lay.trim} if lay.trim else {}),
+            **({"stair_cover": lay.stair_cover} if getattr(lay, "stair_cover", None) else {}),
             "score": round(r.score, 4),
             "relations": {"hard_failed": r.relations["hard_failed"],
                           "met": sorted(p for p, v in r.relations["results"].items() if v == "met")}}

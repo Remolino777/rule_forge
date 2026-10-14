@@ -283,6 +283,40 @@ class _Trim:
         self.report["joined_sqft"] += area
 
 
+def stair_cover_closet(layout: FloorLayout, rules: SpaceRules) -> tuple[FloorLayout | None, dict[str, Any]]:
+    """S2.2i: the covered start of the stair (cells the upper floor covers over the first treads, left with the stair
+    when no unit could take them square) as a closet of the space it touches most (a room first, else the hall);
+    a new layout without doors, or None."""
+    cover = getattr(layout.floor, "stair_cover", None)
+    if cover is None or not cover.any():
+        return None, {}
+    lab = layout.labels
+    ca = layout.floor.res ** 2
+    area = int(cover.sum()) * ca
+    if area < rules.closet_min_sqft - 1e-9:
+        return None, {"stair_cover_sqft": round(area, 1), "applied": False, "reason": "small"}
+    ring_ = np.zeros_like(cover)
+    ring_[:, 1:] |= cover[:, :-1]
+    ring_[:, :-1] |= cover[:, 1:]
+    ring_[1:, :] |= cover[:-1, :]
+    ring_[:-1, :] |= cover[1:, :]
+    ring_ &= ~cover
+    near = [int(x) for x in lab[ring_] if x >= 0 and not layout.specs[int(x)].fixed
+            and layout.specs[int(x)].space_type not in ("stair", HALL_TYPE, rules.closet_type, WALK_IN)]
+    halls = [int(x) for x in lab[ring_] if x >= 0 and layout.specs[int(x)].space_type == HALL_TYPE]
+    pool = near or halls
+    if not pool:
+        return None, {"stair_cover_sqft": round(area, 1), "applied": False, "reason": "no neighbour"}
+    host = int(np.bincount(pool).argmax())
+    labels = lab.copy()
+    specs = list(layout.specs)
+    labels[cover] = len(specs)
+    specs.append(_closet_spec(rules, specs[host], 0, area, "stair_closet"))
+    out = FloorLayout(layout.floor, layout.options, specs, labels, layout.root, layout.landing_node,
+                      open_air=list(layout.open_air))
+    return out, {"stair_cover_sqft": round(area, 1), "host": specs[host].space_id}
+
+
 def trim_hall(layout: FloorLayout, rules: SpaceRules) -> tuple[FloorLayout | None, dict[str, Any]]:
     """The floor with its hall trimmed (no doors yet; None when there is nothing to trim) and the report."""
     st = trim_settings(rules)
@@ -314,4 +348,4 @@ def trim_hall(layout: FloorLayout, rules: SpaceRules) -> tuple[FloorLayout | Non
     return out, report
 
 
-__all__ = ["dead_end_sqft", "door_gaps", "hall_nodes", "remainders", "trim_hall", "trim_settings"]
+__all__ = ["dead_end_sqft", "door_gaps", "hall_nodes", "remainders", "stair_cover_closet", "trim_hall", "trim_settings"]

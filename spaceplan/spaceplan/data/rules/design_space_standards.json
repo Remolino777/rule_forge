@@ -1,6 +1,6 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.6.0",
+  "ruleset_version": "0.7.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
@@ -6385,6 +6385,73 @@
       "catalog_type": false,
       "note": "great_room is not a catalog space type yet: step S2.2c adds it as the open-plan unit.",
       "param_prefix": "space.great_room"
+    },
+    {
+      "rule_id": "S00-MASTER-BEDROOM",
+      "kind": "design",
+      "magnitude": "master_bedroom",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.master_bedroom",
+      "parameters": {
+        "enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Sin suite en la planta alta (aunque esté abajo), el dormitorio mayor es el principal",
+            "en": "With no suite on the upper floor (even when it is downstairs), the largest bedroom is the main one"
+          },
+          "note": "Client decision 2026-10-13 17:06 (S2.2i)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "walk_in": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "El principal tiene walk-in (los demás, clóset de pared)",
+            "en": "The main bedroom has a walk-in (the others, a reach-in closet)"
+          },
+          "note": "Client decision 2026-10-13 17:06 (S2.2i)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "extra_share": {
+          "value": 0.15,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Área adicional del principal sobre su área de programa",
+            "en": "Extra area of the main bedroom over its program area"
+          },
+          "range": [
+            0.0,
+            0.4
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        }
+      },
+      "text": [
+        "When an upper floor has two or more bedrooms and no primary suite, the largest bedroom becomes the main bedroom: extra_share more area and a walk-in closet en suite (from the FAR slack, else from the other bedrooms of the floor down to their minimum); it gets the floor's first en-suite bath."
+      ],
+      "source": {
+        "document": "S2.2i plan (2026-10-13)",
+        "section": "case 1"
+      },
+      "verified": false
     }
   ]
 }

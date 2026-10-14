@@ -194,5 +194,29 @@ def extend_rect(rect: Rect, axis: str, sign: int, length: float) -> Rect:
     return (x0, y0, x1, y1 + length) if sign > 0 else (x0, y0 - length, x1, y1)
 
 
-__all__ = ["ALIGNS", "KEEP_BOX", "SWAP_BOX", "End", "Part", "StairGeometry", "band_area", "band_rect", "extend_rect", "place",
+def covered_start(footprint: Polygon, start_zone: Polygon, length: float) -> Polygon | None:
+    """The part of a stair footprint within `length` of its start edge (the edge it shares with the zone where one
+    steps on): what a floor above can cover. None when the zone shares no edge with the footprint."""
+    if footprint is None or start_zone is None or footprint.is_empty or start_zone.is_empty or length <= TOL:
+        return None
+    shared = footprint.boundary.intersection(start_zone.buffer(1e-6))
+    lines = [g for g in getattr(shared, "geoms", [shared]) if isinstance(g, LineString) and g.length > TOL]
+    if not lines:
+        return None
+    segs = [(p, q) for g in lines for p, q in zip(g.coords, list(g.coords)[1:], strict=False)]
+    (ax, ay), (bx, by) = max(segs, key=lambda pq: (pq[1][0] - pq[0][0]) ** 2 + (pq[1][1] - pq[0][1]) ** 2)
+    nx_, ny_ = -(by - ay), bx - ax
+    norm = (nx_ ** 2 + ny_ ** 2) ** 0.5 or 1.0
+    nx_, ny_ = nx_ / norm, ny_ / norm
+    cx, cy = footprint.centroid.coords[0]
+    if (cx - ax) * nx_ + (cy - ay) * ny_ < 0:
+        nx_, ny_ = -nx_, -ny_
+    back = 1e-4                                       # from just outside the edge (no sliver left behind)
+    strip = Polygon([(ax - nx_ * back, ay - ny_ * back), (bx - nx_ * back, by - ny_ * back),
+                     (bx + nx_ * length, by + ny_ * length), (ax + nx_ * length, ay + ny_ * length)])
+    out = footprint.intersection(strip)
+    return out if not out.is_empty and out.area > TOL else None
+
+
+__all__ = ["ALIGNS", "KEEP_BOX", "SWAP_BOX", "End", "Part", "StairGeometry", "band_area", "band_rect", "covered_start", "extend_rect", "place",
            "transforms_for", "zone_beyond"]

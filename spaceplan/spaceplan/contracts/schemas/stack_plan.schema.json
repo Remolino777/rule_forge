@@ -1652,6 +1652,17 @@
               }
             }
           }
+        },
+        "stair_opening": {
+          "description": "S2.2i (upper floor): what the floor leaves open over the stair (the footprint less the covered first treads)."
+        },
+        "stair_covered_sqft": {
+          "type": "number",
+          "description": "S2.2i: stair footprint the upper floor covers (headroom kept under it)."
+        },
+        "stair_cover": {
+          "type": "object",
+          "description": "S2.2i: the covered stair start as a closet of the space beside it (applied, host, sq ft)."
         }
       }
     },

@@ -78,6 +78,7 @@ class FloorLayout:
     structure: dict | None = None                          # S2.2f: how the upper floor stands on the ground floor
     frame: dict | None = None                              # S2.2g: how the ground floor carries the frame's axes
     trim: dict | None = None                               # S2.2h: the upper hall trimmed (report)
+    stair_cover: dict | None = None                        # S2.2i: closet over the covered stair start (report)
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)
@@ -202,6 +203,12 @@ class DoorPlacer:
         if rules.design.get("door.grouping.nearest_corner") and f.landing is not None and f.landing.any():
             rows, cols = np.nonzero(f.landing)
             self.near = (float(cols.mean() + 0.5), float(rows.mean() + 0.5))
+        d_ = rules.design                         # S2.2i: a leaf never in another doorway's approach (R3)
+        self.shift = bool(d_.get("door.conflicts.shift_on_placement"))
+        self.off_corner = self.shift and bool(d_.get("door.conflicts.off_corner"))
+        self.appr_depth = int(np.ceil(float(d_.get("door.conflicts.approach_depth_ft") or 0.0) / self.res - 1e-9))
+        self.appr_tol = float(d_.get("door.conflicts.overlap_tolerance_sqft") or 0.0) / (self.res * self.res)
+        self.appr = np.zeros(layout.labels.shape, dtype=bool)
         self.vestibule = 0.0                      # S2.2h: bedroom doors at least this far (cells) from the landing
         self._landing_pts = None
         vmin = float(rules.design.get("circulation.upper_hall.vestibule_min_ft") or 0.0)
@@ -238,7 +245,7 @@ class DoorPlacer:
         clear = self.rules.clear_ft("closet" if kind == CLOSET_DOOR else "room", accessible)
         need = leaf + self.frame                       # the corner return is kept when the wall allows it
         labels = self.layout.labels
-        fallback = None
+        fallback = clash = None
         for run in self.runs_between(served, other):
             if run.cells + 1e-9 < need and check_swing:
                 continue
@@ -257,29 +264,62 @@ class DoorPlacer:
                     return (x - self.near[0]) ** 2 + (y - self.near[1]) ** 2
                 order = tuple(sorted(order, key=gap))
             vest = self._vestibule_applies(served, other)
-            for toward_plus, hinge, at_corner in self._positions(run, order, corner, leaf, vest):
+            for toward_plus, hinge, at_corner in self._positions(run, order, corner, leaf, vest or self.off_corner):
                 t0, t1 = (hinge, hinge + leaf) if toward_plus else (hinge - leaf, hinge)
                 if not check_swing:
                     return Door(served, other, kind, run, t0, t1, hinge, toward_plus, into_high, leaf, clear)
                 if vest and self.landing_gap(run, t0 - self.frame / 2, t1 + self.frame / 2) < self.vestibule - 1e-9:
                     continue                          # S2.2h: the vestibule before the first bedroom door
+                if not at_corner and not (vest or self.off_corner):
+                    continue                          # off its corner the open leaf would stand in the air (S2.1b);
+                                                      # S2.2i: allowed to keep clear of another door (off_corner)
                 if at_corner and not self._supported(run, into_high, toward_plus, served, leaf):
-                    continue                          # the open leaf would stand in the air
+                    continue                          # the open leaf would stand in the air (S2.2h: the vestibule
+                                                      # may move a bedroom door off its corner)
                 sw = swing_cells(labels.shape, run, into_high, hinge, leaf, toward_plus)
                 if not sw.any():
                     continue
                 if (labels[sw] != served).any() or (sw & self.forbidden).any() or (sw & self.layout.swept).any():
                     continue
                 door = Door(served, other, kind, run, t0, t1, hinge, toward_plus, into_high, leaf, clear)
+                if self._conflict(sw, run, t0, t1):  # S2.2i: slide on along the wall rather than strike a doorway
+                    clash = clash or (door, sw)
+                    continue
                 if self._on_landing(door):            # keep the landing free when another position exists
                     fallback = fallback or (door, sw)
                     continue
                 self.layout.swept |= sw
                 return door
-        if fallback is not None:
-            self.layout.swept |= fallback[1]
-            return fallback[0]
+        for kept in (fallback, clash):
+            if kept is not None:
+                self.layout.swept |= kept[1]
+                return kept[0]
         return None
+
+    def approach(self, run: WallRun, t0: float, t1: float) -> np.ndarray:
+        """Cells of the approach zone of a doorway: the doorway widened approach_depth on both sides (S2.2i)."""
+        m = np.zeros(self.layout.labels.shape, dtype=bool)
+        if run is None or self.appr_depth <= 0:
+            return m
+        ny, nx = m.shape
+        a, b = max(int(np.floor(t0 + 1e-9)), 0), int(np.ceil(t1 - 1e-9))
+        k, dd = run.k, self.appr_depth
+        if run.vertical:
+            m[a:min(b, ny), max(k - dd, 0):min(k + dd, nx)] = True
+        else:
+            m[max(k - dd, 0):min(k + dd, ny), a:min(b, nx)] = True
+        return m
+
+    def add_approach(self, d: Door) -> None:
+        if self.shift and d.run is not None:
+            self.appr |= self.approach(d.run, d.t0, d.t1)
+
+    def _conflict(self, sw: np.ndarray, run: WallRun, t0: float, t1: float) -> bool:
+        """The leaf enters a placed doorway's approach, or a placed leaf enters this doorway's approach (R3)."""
+        if not self.shift:
+            return False
+        own = self.approach(run, t0, t1)
+        return bool((sw & self.appr).sum() > self.appr_tol or (own & self.layout.swept).sum() > self.appr_tol)
 
     def _vestibule_applies(self, served: int, other: int) -> bool:
         specs = self.layout.specs
@@ -341,13 +381,22 @@ class DoorPlacer:
     def slider(self, room: int, other: int, min_width_ft: float, kind: str = SLIDER) -> Door | None:
         """A sliding door (no swing) centred on the longest shared run."""
         need = min_width_ft / self.res
+        first = None
         for run in self.runs_between(room, other):
             if run.cells + 1e-9 < need:
                 continue
             width = max(need, min(run.cells - 2 * self.corner, 2 * need))
             mid = 0.5 * (run.t0 + run.t1)
-            return Door(room, other, kind, run, mid - width / 2, mid + width / 2, clear_ft=width * self.res)
-        return None
+            spots = [mid]
+            if self.shift:                            # S2.2i: off a leaf that would sweep its doorway
+                free = 0.5 * (run.cells - width)
+                spots += [mid + sgn * n for n in range(1, int(free) + 1) for sgn in (-1.0, 1.0)]
+            for m in spots:
+                d = Door(room, other, kind, run, m - width / 2, m + width / 2, clear_ft=width * self.res)
+                if not self._conflict(np.zeros_like(self.appr), run, d.t0, d.t1):
+                    return d
+                first = first or d
+        return first
 
     def _on_landing(self, d: Door) -> bool:
         landing = self.layout.floor.landing
@@ -379,6 +428,7 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
         layout.doors.append(d)
         adj[d.a].add(d.b)
         adj[d.b].add(d.a)
+        placer.add_approach(d)                     # S2.2i
 
     stair = next((k for k, s in enumerate(specs) if s.space_type == STAIR_TYPE), None)
     landing = layout.landing_node

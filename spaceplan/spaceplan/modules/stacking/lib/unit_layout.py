@@ -39,6 +39,7 @@ import zlib
 from dataclasses import dataclass
 
 import numpy as np
+from scipy.ndimage import distance_transform_edt
 
 from spaceplan.modules.design.lib.area_criteria import drawn_cap
 from spaceplan.modules.stacking.lib.space_rules import SpaceRules
@@ -305,6 +306,7 @@ def _closet_spec(rules: SpaceRules, host: SpaceSpec, k: int, sqft: float, role: 
 
 
 BATH_TYPES = ("bathroom", "primary_bath", "social_bath", "half_bath")
+SIDE_NAMES = ("low_x", "high_x", "low_y", "high_y")           # the order of the exterior flags (-x, +x, -y, +y)
 ROOF_TYPE, TERRACE_TYPE = "upper_roof", "terrace"              # S2.2d: open air left on the upper floor
 OPEN_AIR = (ROOF_TYPE, TERRACE_TYPE)
 WALK_IN = "walk_in_closet"
@@ -361,6 +363,17 @@ class UnitLayout:
         i0, i1, j0, j1 = unit.box
         out = floor.outside
         self.landing = floor.landing[j0:j1, i0:i1]
+        d_ = rules.design                                      # S2.2i: bedrooms near the stair, baths on the sides
+        upper = floor.level > 0
+        self.near_w = float(d_.get("circulation.upper_rooms.bed_near_weight") or 0.0) if upper else 0.0
+        self.bath_w = float(d_.get("circulation.upper_rooms.bath_side_weight") or 0.0) if upper else 0.0
+        self.near_scale = float(d_.get("circulation.upper_rooms.near_scale_ft") or 1.0)
+        self.near_min = float(d_.get("circulation.upper_hall.vestibule_min_ft") or 0.0)
+        bath_walls = set(d_.get("circulation.upper_rooms.bath_walls") or ())
+        self.bath_sides = [k for k, n in enumerate(SIDE_NAMES) if n in bath_walls]
+        self.landing_dist = None
+        if self.near_w and floor.landing is not None and floor.landing.any():
+            self.landing_dist = distance_transform_edt(~floor.landing)[j0:j1, i0:i1] * self.res
         self.need_cells = float(catalog.data["circulation"]["door_contact_ft"]) / self.res   # as S2 links zones
         self.shared_cells = float(rules.s21["program"]["shared_contact_ft"]) / self.res
         by_id = {u.unit_id: u for u in floor.units}
@@ -884,7 +897,29 @@ class UnitLayout:
                  "light": light, "exterior": exterior, "daylit": daylit, "m_facade_share": m_share}
         w = shape_weighted(rules, rules.s21["layout"]["local_weights"], self.floor)
         parts["total"] = sum(w[k] * parts[k] for k in w) / (sum(w.values()) or 1.0)
+        self._upper_parts(pieces, parts)
         return parts
+
+    def _upper_parts(self, pieces: list[Piece], parts: dict) -> None:
+        """S2.2i (upper floor): bedrooms as near the stair landing as possible, baths against the preferred walls;
+        both blended into the total with their registry weights."""
+        extra, weight = 0.0, 0.0
+        if self.landing_dist is not None:
+            beds = [p for p in pieces if p.spec.space_type in self.rules.sleeping_types and p.mask.any()]
+            if beds:
+                near = float(np.mean([1.0 / (1.0 + max(0.0, float(self.landing_dist[p.mask].min()) - self.near_min)
+                                             / self.near_scale) for p in beds]))
+                parts["bed_near"] = near
+                extra, weight = extra + self.near_w * near, weight + self.near_w
+        if self.bath_w and self.bath_sides:
+            baths = [p for p in pieces if p.spec.space_type in BATH_TYPES and not p.spec.fixed and p.mask.any()]
+            if baths:
+                side = float(np.mean([1.0 if any((p.mask & self.ext[k]).any() for k in self.bath_sides)
+                                      else 0.5 if exterior_cells(p.mask, self.ext) else 0.0 for p in baths]))
+                parts["bath_side"] = side
+                extra, weight = extra + self.bath_w * side, weight + self.bath_w
+        if weight:
+            parts["total"] = (1.0 - weight) * parts["total"] + extra
 
     def _contact(self, box_mask: np.ndarray, target_pad: np.ndarray) -> int:
         m = np.zeros(target_pad.shape, dtype=bool)

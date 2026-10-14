@@ -1,6 +1,6 @@
 {
   "ruleset_id": "design-structure",
-  "ruleset_version": "0.2.0",
+  "ruleset_version": "0.3.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
@@ -232,12 +232,46 @@
           "kinds_allowed": [
             "soft"
           ]
+        },
+        "stair_opening": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "La planta alta abre solo lo que pide la altura libre sobre la escalera: los peldaños del arranque quedan cubiertos",
+            "en": "The upper floor opens only what the headroom over the stair needs: the first treads stay covered"
+          },
+          "note": "Client decision 2026-10-13 17:06 (S2.2i)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "floor_depth_in": {
+          "value": 12.0,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Espesor del entrepiso (viguetas y piso) para la altura libre bajo la planta alta",
+            "en": "Depth of the floor structure (joists and subfloor) for the headroom under the upper floor"
+          },
+          "range": [
+            9.0,
+            18.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
         }
       },
       "text": [
         "Walls of the upper floor are perimeter, structural (zone walls: on an axis shared with a ground-floor wall) or partitions (inside a zone, on the floor joists).",
         "A wall run stands on the ground-floor walls of the same line; the unsupported pieces are beams between supports (ground walls on the line or crossing it), each at most beam_span_max_ft.",
-        "Ground spaces under the upper floor span at most joist_span_max_ft on their short side; an open boundary of the great room under the upper floor is a beam."
+        "Ground spaces under the upper floor span at most joist_span_max_ft on their short side; an open boundary of the great room under the upper floor is a beam.",
+        "Stair opening (S2.2i): a tread whose nosing lies at most floor-to-floor - floor_depth_in - the code headroom (R311.7.2) below the upper floor keeps its headroom; those first treads of the first flight stay under the upper floor and the opening is the rest of the footprint."
       ],
       "source": {
         "document": "S2.2f analysis (2026-10-12): light wood platform framing, CRC R602.10 wall bracing and R301.2.2.6 irregular buildings (SDC D), common span tables; student research, verify with an engineer",

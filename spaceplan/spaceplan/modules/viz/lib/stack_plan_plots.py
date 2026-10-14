@@ -364,7 +364,8 @@ def plot_space_sheet(lot: dict, cells: list[dict], out_path: str | Path, colors:
             ax.set_axis_on()
         _space_panel(ax_g, s1["levels"][0]["polygon"], s21["ground"], colors, s1["stair"]["polygon"], s1, 0,
                      site=s21.get("site"), frame=s21.get("frame"))
-        _space_panel(ax_u, s1["levels"][1]["polygon"], s21["upper"], colors, s1["stair"]["polygon"], s1, 1,
+        _space_panel(ax_u, s1["levels"][1]["polygon"], s21["upper"], colors,
+                     s21["upper"].get("stair_opening") or s1["stair"]["polygon"], s1, 1,   # S2.2i: the opening only
                      frame=s21.get("frame"))
         built = len(s21["ground"].get("closets_in_rooms", [])) + len(s21["upper"].get("closets_in_rooms", []))
         ax_g.set_title(f"{c['household_id']} · {c['profile']} · {c['scheme_id']}\n{w['ground']} · "

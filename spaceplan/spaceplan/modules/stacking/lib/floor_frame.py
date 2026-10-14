@@ -17,7 +17,7 @@ the family room when it is upstairs, a vestibule in a small house, else a hall.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from shapely.geometry import shape
@@ -26,6 +26,7 @@ from shapely.ops import unary_union
 
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
 from spaceplan.modules.stacking.lib.stair_access import upper_rooms
+from spaceplan.modules.stacking.lib_aux.stair_geometry import covered_start
 from spaceplan.modules.stacking.lib_aux.zone_grid import Grid, cells_of, rasterize
 
 GROUND, UPPER = 0, 1
@@ -89,6 +90,7 @@ class CellFloors:
     entry_vestibule: BaseGeometry | None = None   # stage S1.2: vestibule behind the main door (fixed object)
     void: BaseGeometry | None = None              # stage S1.2: interior void of strategy C (no floor upstairs)
     door_area: BaseGeometry | None = None         # vestibule polygon, fixed or not (routes start there)
+    stair_opening: BaseGeometry | None = None     # S2.2i: what the upper floor leaves open over the stair (None: all)
 
 
 def _local(plan: LotPlan, geo: dict | None) -> BaseGeometry | None:
@@ -108,6 +110,38 @@ def cell_floors(s1: dict[str, Any], plan: LotPlan) -> CellFloors:
         half_bath=_local(plan, us.get("half_bath")), vestibule=_local(plan, us.get("vestibule")),
         entry_vestibule=_local(plan, ac.get("vestibule")) if ac.get("fixed", True) else None,
         void=_local(plan, ac.get("void")), door_area=_local(plan, ac.get("vestibule")))
+
+
+def stair_cover_ft(s1: dict[str, Any], floor_depth_in: float) -> float:
+    """S2.2i: length (ft) of the first treads a floor above can cover with the code headroom under it: the treads
+    whose nosing lies at most floor-to-floor - floor depth - headroom (R311.7.2) above the start."""
+    st = s1.get("stair") or {}
+    rules = st.get("rules") or {}
+    risers, riser, tread = int(st.get("risers") or 0), float(st.get("riser_in") or 0.0), float(st.get("tread_in") or 0.0)
+    head = float(rules.get("headroom_min_in") or 0.0)
+    if not (risers and riser > 0 and tread > 0 and head > 0):
+        return 0.0
+    n = int((risers * riser - floor_depth_in - head) // riser)
+    return max(0, n) * tread / 12.0
+
+
+def with_stair_opening(floors: CellFloors, s1: dict[str, Any], floor_depth_in: float | None) -> CellFloors:
+    """S2.2i: the floors with the upper floor's stair opening (the footprint less its covered start; at most half of
+    the footprint's depth from the start). Unchanged when off (floor_depth_in None) or nothing is covered."""
+    if floor_depth_in is None:
+        return floors
+    length = stair_cover_ft(s1, float(floor_depth_in))
+    if length <= 0:
+        return floors
+    x0, y0, x1, y1 = floors.stair.bounds
+    length = min(length, 0.5 * max(x1 - x0, y1 - y0))
+    covered = covered_start(floors.stair, floors.bottom_zone, length)
+    if covered is None:
+        return floors
+    opening = floors.stair.difference(covered)
+    if opening.is_empty:
+        return floors
+    return replace(floors, stair_opening=opening)
 
 
 # ------------------------------------------------------------------ program per floor
@@ -291,7 +325,8 @@ def ground_fixed(floors: CellFloors, use: str) -> list[tuple[str, BaseGeometry |
 
 def upper_fixed(floors: CellFloors) -> list[tuple[str, BaseGeometry | None]]:
     """Fixed objects of the upper floor: the stair opening and the interior void of strategy C."""
-    return [(FIXED_STAIR, floors.stair)] + ([(FIXED_VOID, floors.void)] if floors.void is not None else [])
+    stair = floors.stair_opening if floors.stair_opening is not None else floors.stair   # S2.2i
+    return [(FIXED_STAIR, stair)] + ([(FIXED_VOID, floors.void)] if floors.void is not None else [])
 
 
 def ground_frame(floors: CellFloors, units: list[ZoneUnit], res: float, use: str, notes: list[str]) -> FloorFrame:
@@ -373,7 +408,9 @@ __all__ = [
     "floor_units",
     "ground_fixed",
     "ground_frame",
+    "stair_cover_ft",
     "upper_arrival",
     "upper_fixed",
     "upper_frame",
+    "with_stair_opening",
 ]

@@ -1448,6 +1448,58 @@ recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote
 - Pasillos anchos de llegada (6.5–8 ft) y franjas junto a la escalera: dimensionar la circulación por servicio desde
   S2.
 
+## 4ab. Paso 6.7a, S2.2i (13 oct 2026): planta alta — principal, puertas, baños, cercanía y vano de escalera
+
+**Decisiones del cliente (17:06).**
+- Dormitorio principal con walk-in, también con la suite abajo.
+- Las puertas se corren para no chocar.
+- Baños en muros laterales.
+- Puertas de dormitorios lo más cerca posible de la escalera, sin máximo.
+- Vano de escalera por altura libre.
+
+**Datos.**
+- `design_space_standards` 0.7.0: S00 `space.master_bedroom.*` (`enabled`, `walk_in`, `extra_share` 0.15).
+- `design_circulation_doors` 0.5.0:
+  - P03 `door.conflicts.shift_on_placement` y `off_corner`;
+  - P10 `circulation.upper_rooms.*`: `bed_near_weight` 0.3, `near_scale_ft` 6, `bath_side_weight` 0.2,
+    `bath_walls` low_x / high_x.
+- `design_structure` 0.3.0: `structure.stair_opening`, `structure.floor_depth_in` 12.
+- Registro de 546 parámetros. Grupo LLM `structure` ampliado (`circulation.upper_rooms.`, `space.master_bedroom.`).
+
+**Código.**
+- `program_adjust`, paso 2b: principal (el "primary" o el mayor). Más área tomada de los otros dormitorios y walk-in
+  hospedado; el principal recibe primero el baño en suite; el bruto y S1 no cambian.
+- `door_placement`:
+  - zona de paso (`approach`) de cada puerta colocada;
+  - una hoja no entra en el paso de otra, ni otra en el suyo;
+  - posiciones en la otra esquina y corridas por el muro (`off_corner`);
+  - corredizas corridas.
+- `unit_layout._upper_parts`: puntaje de cercanía de los dormitorios al descanso (transformada de distancia) y de
+  baños en los muros preferidos.
+- `space_cell._floor_parts`: cercanía real de las puertas.
+- `floor_frame.stair_cover_ft` / `with_stair_opening` + `stair_geometry.covered_start`:
+  - el vano de la planta alta;
+  - `unit_frame._covered_stair`: el arranque cubierto va al cuarto vecino si queda rectangular; si no, vuelve a la
+    escalera;
+  - `hall_trim.stair_cover_closet` lo convierte en clóset del espacio que toca.
+- Salida `s21.upper.stair_opening`, `stair_covered_sqft`, `stair_cover`.
+- `space_quality.upper_rooms_summary`. Láminas: vano en vez de la huella. Esquema. Pruebas:
+  `tests/stacking/test_stage_s22i.py`. `test_stage_s21b`: la regla de la hoja contra el muro aplica a las puertas en
+  esquina.
+
+**Piloto (`docs/results/s22i_pilot/`).**
+- 42 casas (S2.2h: 39).
+- Walk-in en 21 de 21 casas con ≥ 2 dormitorios arriba.
+- R3: 94 → 45.
+- Baños con muro exterior: 56 → 80 %.
+- Puerta de dormitorio: mediana 6.8 → 3.5 ft de la llegada.
+- Arranque de escalera cubierto: 7.5 ft²; 39 clósets.
+
+**Pendiente.**
+- El principal debe ser el dormitorio mayor también al dibujarlo en S2.1.
+- Mobiliario que no cabe: 16.9 → 20.6 %.
+- Conflictos dentro de los baños.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1596,8 +1648,8 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4aa del HANDOFF). S2.2h recortó el pasillo de la planta alta: vestíbulo de 3–4 ft, clóset de blancos
-> de muro a muro y remanentes a clósets o techo, sin perder casas (39). Falta la fase 2: dimensionar la circulación
-> por servicio desde S2 (pasillos de llegada anchos). Mide con `spaceplan quality` contra
-> `docs/results/s22h_pilot/`. Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y
-> pregúntame antes de programar.
+> secciones 4t–4ab del HANDOFF). S2.2i dejó la planta alta con dormitorio principal con walk-in, puertas corridas
+> para no chocar (R3 94 → 45), baños en muros exteriores (80 %), puertas a 3.5 ft de la escalera y el vano de
+> escalera por altura libre; 42 casas. Pendiente: el principal como el dormitorio mayor en S2.1, el mobiliario y la
+> fase 2 de circulación por servicio. Mide con `spaceplan quality` contra `docs/results/s22i_pilot/`. Respeta las
+> reglas de la sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.

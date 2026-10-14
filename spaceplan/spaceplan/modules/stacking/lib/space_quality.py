@@ -168,6 +168,7 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
             "spaces": spaces, "suite": suite, "extra_room": extra, "structure": s21.get("structure"),
             "arrival": s21.get("arrival"), "frame": s21.get("frame"), "roofs": s21.get("roofs"),
             "hall_trim": (s21.get("upper") or {}).get("hall_trim"),
+            "upper_rooms": _upper_rooms((s21.get("upper") or {}), cell.get("program_adjustment") or {}),
             "upper_sqft": sum(sp.get("area_sqft", 0.0) for sp in (s21.get("upper") or {}).get("spaces", []))}
 
 
@@ -217,6 +218,40 @@ def frame_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
             "upper_zone_walls_on_ground_walls": _stats([r["upper_zone_walls_on_ground_walls"] for r in rows
                                                         if r.get("upper_zone_walls_on_ground_walls") is not None]),
             "open_air_sqft": {k: round(v, 1) for k, v in sorted(open_air.items())}}
+
+
+def _upper_rooms(upper: dict[str, Any], adjustment: dict[str, Any]) -> dict[str, Any] | None:
+    """S2.2i per cell: bedrooms upstairs, the main one and its walk-in, baths with an exterior wall, covered stair."""
+    spaces = upper.get("spaces") or []
+    if not spaces:
+        return None
+    beds = [s for s in spaces if s["space_type"] in ("bedroom", "primary_suite")]
+    walk_hosts = {s.get("host") for s in spaces if s["space_type"] == "walk_in_closet"}
+    baths = [s for s in spaces if s["space_type"] in ("bathroom", "primary_bath", "social_bath") and not s.get("fixed")]
+    areas = sorted(s["area_sqft"] for s in beds if s["space_type"] == "bedroom")
+    return {"bedrooms": len(beds), "with_walk_in": sum(1 for s in beds if s["space_id"] in walk_hosts),
+            "main": bool(adjustment.get("master")),
+            "same_size": len(areas) >= 2 and (areas[-1] - areas[0]) <= 0.1 * areas[-1],
+            "baths": len(baths), "baths_exterior": sum(1 for s in baths if s.get("exterior_ft", 0.0) > 0),
+            "stair_covered_sqft": float(upper.get("stair_covered_sqft") or 0.0),
+            "stair_closet": bool((upper.get("stair_cover") or {}).get("applied"))}
+
+
+def upper_rooms_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """S2.2i indicators: main bedroom differentiated, baths on exterior walls, covered stair start."""
+    rows = [c["upper_rooms"] for c in cells if c.get("upper_rooms")]
+    if not rows:
+        return None
+    multi = [r for r in rows if r["bedrooms"] >= 2]
+    baths = sum(r["baths"] for r in rows)
+    return {"n": len(rows), "houses_2_bedrooms_up": len(multi),
+            "with_walk_in_up": sum(1 for r in multi if r["with_walk_in"]),
+            "main_bedroom_added": sum(1 for r in rows if r["main"]),
+            "same_size_bedrooms": sum(1 for r in multi if r["same_size"]),
+            "baths_up": baths, "baths_exterior_pct": round(100.0 * sum(r["baths_exterior"] for r in rows) / baths, 1)
+            if baths else None,
+            "stair_covered_sqft": _stats([r["stair_covered_sqft"] for r in rows]),
+            "stair_closets": sum(1 for r in rows if r["stair_closet"])}
 
 
 def circulation_summary(cells: list[dict[str, Any]], vestibule_min_ft: float) -> dict[str, Any] | None:
@@ -383,6 +418,7 @@ def quality_report(stack_plans: list[dict[str, Any]], values: dict[str, Any]) ->
         "arrival": arrival_summary(cells),
         "frame": frame_summary(cells),
         "roofs": roofs_summary(cells),
+        "upper_rooms": upper_rooms_summary(cells),
         "circulation": circulation_summary(cells, float(values.get("circulation.upper_hall.vestibule_min_ft") or 0.0)),
     }
     return {"overall": overall, "by_type": type_summary(spaces), "cells": cells}
@@ -404,4 +440,5 @@ __all__ = [
     "structure_summary",
     "suite_metrics",
     "type_summary",
+    "upper_rooms_summary",
 ]

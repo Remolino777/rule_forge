@@ -394,6 +394,7 @@ def _zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2C
         return {**out, "status": NO_SPACE_SPLIT, "next_stage": None,
                 "warnings": ["area-matrix cell without space_split (area matrix older than step 6.7a S2)"]}
     floors = cell_floors(s1, plan)
+    st = ctx.structure
     core = s1["stair_core"]
     stair_type = scat.stair_space_type
     hall_types = set(catalog.data["circulation"]["derived_space_types"])
@@ -402,7 +403,6 @@ def _zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2C
 
     # upper floor
     arrival = upper_arrival(catalog, s2, scat.stair_access, rows, client.params(TOP_RULE))
-    st = ctx.structure
     if st is not None and not st["family_loft"] and len(arrival["order"]) > 1:   # S2.2f: no family-room arrival
         order = [k for k in arrival["order"] if k != "family_room"]
         arrival = {**arrival, "order": order, "receiving": order[0]}

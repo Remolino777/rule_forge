@@ -10,7 +10,12 @@ Runs on a copy of an area-matrix cell before S0/S1, so the area matrix and the g
     sides of its rooms as part of its zone target (a row flagged `allowance`, not a space), so stage S2 sizes the
     zone with its corridor and stage S2.1 does not take it from the rooms;
   * the gross area of each floor grows by what was added, within the FAR slack of the lot (the allowance first, then
-    the master's spaces, then the baths); without slack the allowance is reserved inside the floor.
+    the master's spaces, then the baths); without slack the allowance is reserved inside the floor;
+  * main bedroom (step 6.7a S2.2i, client 2026-10-13): an upper floor with two or more bedrooms and no primary suite
+    (even when the suite is downstairs) makes its largest bedroom the main one (`master`): space.master_bedroom
+    extra_share more area (taken from the floor's other bedrooms down to their catalog minimum) and a walk-in closet
+    en suite; the floor's gross, and so stage S1, stay as they are (stage S2 scales the targets to the floor); the
+    main bedroom (the one named primary first, else the largest) gets the floor's first en-suite bath.
 
 Area criteria (step 6.7a S2.2e, client decision 2026-10-12 10:18; design module area_criteria), when enabled:
 
@@ -32,7 +37,7 @@ from typing import Any
 
 from spaceplan.modules.design.lib import area_criteria as ac
 
-BEDROOM, SUITE = "bedroom", "primary_suite"
+BEDROOM, SUITE, WALK_IN = "bedroom", "primary_suite", "walk_in_closet"
 GARAGE_PREFIX = "garage"
 
 
@@ -257,10 +262,40 @@ def adjust_program(cell: dict[str, Any], far_max_sqft: float | None, catalog, sc
             else:
                 report["skipped"].append({"space_type": need, "floor": f, "reason": "FAR"})
 
+    # 2b. the main bedroom of an upper floor without a suite (S2.2i)
+    if values.get("space.master_bedroom.enabled"):
+        for f in floors:
+            if f == 0 or any(r["floor"] == f and r["space_type"] == SUITE for r in rows):
+                continue
+            beds = [r for r in rows if r["floor"] == f and r["space_type"] == BEDROOM and not r.get("host_space_id")]
+            if len(beds) < 2:
+                continue
+            main = max(beds, key=lambda r: ("primary" in r["space_id"], float(r["area_sqft"]), r["space_id"]))
+            extra = float(main["area_sqft"]) * float(values.get("space.master_bedroom.extra_share") or 0.0)
+            walk_in = target(WALK_IN) if values.get("space.master_bedroom.walk_in") else 0.0
+            source = "floor"                             # within the floor: the gross (and stage S1) stays as it
+            others = [r for r in beds if r is not main]  # is; the other bedrooms give the extra area down to their
+            floor_min = float(catalog.space_type(BEDROOM)["area"]["min"])   # minimum; the walk-in is new program
+            spare = sum(max(0.0, float(r["area_sqft"]) - floor_min) for r in others)   # that stage S2 fits in the
+            extra = min(spare, extra)                    # floor (its targets are scaled to the floor's area)
+            for r in others:
+                share = max(0.0, float(r["area_sqft"]) - floor_min) / spare if spare > 0 else 0.0
+                r["area_sqft"] = round(float(r["area_sqft"]) - extra * share, 1)
+            main["area_sqft"] = round(float(main["area_sqft"]) + extra, 1)
+            main["master"] = True
+            if main.get("area_cap_sqft") is not None:
+                main["area_cap_sqft"] = max(float(main["area_cap_sqft"]), main["area_sqft"])
+            if walk_in > 0:
+                rows.append(_row(new_id(f"{WALK_IN}_main"), WALK_IN, "private", f, walk_in, main["space_id"]))
+            report.setdefault("master", []).append({"bedroom": main["space_id"], "floor": f,
+                                                    "extra_sqft": round(extra, 1), "walk_in_sqft": round(walk_in, 1),
+                                                    "from": source})
+
     # 3. a bath per bedroom while the FAR allows, then the assignment (en suite, or shared by two bedrooms)
     bath = prog["bath_type"]
     for f in floors:
-        beds = sorted(r["space_id"] for r in rows if r["floor"] == f and r["space_type"] == BEDROOM)
+        beds = [r["space_id"] for r in sorted((r for r in rows if r["floor"] == f and r["space_type"] == BEDROOM),
+                                              key=lambda r: (not r.get("master"), r["space_id"]))]   # main first
         if not beds:
             continue
         baths = sorted((r for r in rows if r["floor"] == f and r["space_type"] == bath and not r.get("host_space_id")),

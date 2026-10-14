@@ -26,7 +26,7 @@ from typing import Any
 AREA, DOORS, STRUCTURE = "area", "doors", "structure"
 GROUPS = (AREA, DOORS, STRUCTURE)
 STRUCTURE_PREFIXES = ("structure.", "circulation.arrival.", "door.grouping.", "upper.cantilever",
-                      "circulation.upper_hall.")   # S2.2f; upper_hall: S2.2h
+                      "circulation.upper_hall.", "circulation.upper_rooms.", "space.master_bedroom.")   # S2.2f-i
 POLICY_PREFIX = "space.area."
 DOOR_PREFIX = "door.conflicts."
 SUITE, BEDROOM, DINING, LIVING = "primary_suite", "bedroom", "dining_room", "living_room"

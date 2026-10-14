@@ -1,6 +1,6 @@
 {
   "ruleset_id": "design-circulation-doors",
-  "ruleset_version": "0.4.0",
+  "ruleset_version": "0.5.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
@@ -382,6 +382,36 @@
           "kinds_allowed": [
             "soft"
           ]
+        },
+        "shift_on_placement": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Al colocar una puerta, se corre por su muro (o cambia de bisagra) para que su hoja no entre en el paso de otra puerta ni otra hoja en el suyo",
+            "en": "When placing a door, it slides along its wall (or changes hinge) so its leaf does not enter another doorway's approach nor another leaf its own"
+          },
+          "note": "Client decision 2026-10-13 17:06 (S2.2i)",
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "off_corner": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Una puerta puede correrse fuera de la esquina de su muro (como en el vestíbulo) para no chocar con otra; su hoja abierta ya no descansa contra un muro",
+            "en": "A door may slide off the corner of its wall (as in the vestibule) to keep clear of another door; its open leaf no longer rests against a wall"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-13 17:06 (S2.2i): move the door as in the vestibule examples."
         }
       },
       "text": [
@@ -987,6 +1017,105 @@
       "source": {
         "document": "S2.2h plan (2026-10-12)",
         "section": "upper hall"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P10-UPPER-ROOMS",
+      "kind": "design",
+      "magnitude": "upper_rooms",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "circulation.upper_rooms",
+      "parameters": {
+        "bed_near_weight": {
+          "value": 0.3,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "client",
+          "description": {
+            "es": "Peso de tener los dormitorios (y sus puertas) lo más cerca posible del núcleo de la escalera",
+            "en": "Weight of the bedrooms (and their doors) as near the stair core as possible"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ],
+          "note": "Client decision 2026-10-13 17:06 (S2.2i): no maximum, as near as possible"
+        },
+        "near_scale_ft": {
+          "value": 6.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Distancia a la que la cercanía vale la mitad",
+            "en": "Distance at which nearness is worth half"
+          },
+          "range": [
+            2.0,
+            20.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "bath_side_weight": {
+          "value": 0.2,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "client",
+          "description": {
+            "es": "Peso de los baños contra los muros laterales",
+            "en": "Weight of the baths against the side walls"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ],
+          "note": "Client decision 2026-10-13 17:06 (S2.2i)"
+        },
+        "bath_walls": {
+          "value": [
+            "low_x",
+            "high_x"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Muros preferidos para los baños de la planta alta (laterales del marco local: low_x, high_x)",
+            "en": "Preferred walls of the upper baths (sides of the local frame: low_x, high_x)"
+          },
+          "note": "Client decision 2026-10-13 17:06 (S2.2i)",
+          "kinds_allowed": [
+            "soft"
+          ],
+          "choices": [
+            "low_x",
+            "high_x",
+            "low_y",
+            "high_y"
+          ]
+        }
+      },
+      "text": [
+        "Upper floor: bedrooms and their doors as near the stair core as possible (scored, no maximum); baths preferably against the side walls, so the hall ends before them."
+      ],
+      "source": {
+        "document": "S2.2i plan (2026-10-13)",
+        "section": "cases 3 and 4"
       },
       "verified": false
     }
