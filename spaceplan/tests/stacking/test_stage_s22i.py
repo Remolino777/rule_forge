@@ -6,7 +6,11 @@ from shapely.geometry import box
 
 from spaceplan.core.lib.catalog import load_catalog
 from spaceplan.modules.design.lib.design_registry import load_registry
-from spaceplan.modules.stacking.lib.floor_frame import CellFloors, stair_cover_ft, with_stair_opening
+from spaceplan.modules.stacking.lib.floor_frame import (
+    CellFloors,
+    stair_cover_ft,
+    with_stair_opening,
+)
 from spaceplan.modules.stacking.lib.program_adjust import adjust_program
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
 from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset
