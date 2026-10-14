@@ -1,6 +1,6 @@
 {
   "ruleset_id": "design-circulation-doors",
-  "ruleset_version": "0.5.0",
+  "ruleset_version": "0.6.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
@@ -399,7 +399,7 @@
           ]
         },
         "off_corner": {
-          "value": true,
+          "value": false,
           "type": "bool",
           "unit": null,
           "kind": "soft",
@@ -411,7 +411,7 @@
           "kinds_allowed": [
             "soft"
           ],
-          "note": "Client decision 2026-10-13 17:06 (S2.2i): move the door as in the vestibule examples."
+          "note": "Client decision 2026-10-13 17:06 (S2.2i): move the door as in the vestibule examples. | Client decision 2026-10-13 23:21 (S2.2j): a hinged door always opens against a wall, so it never slides off its corner"
         }
       },
       "text": [
@@ -1116,6 +1116,219 @@
       "source": {
         "document": "S2.2i plan (2026-10-13)",
         "section": "cases 3 and 4"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P11-IN-ROOM",
+      "kind": "design",
+      "magnitude": "in_room",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "circulation.in_room",
+      "parameters": {
+        "enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Circulación dentro del cuarto: el paso a las puertas internas nunca cruza la cama",
+            "en": "Circulation inside the room: the path to the inner doors never crosses the bed"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "path_width_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Ancho libre del paso dentro del cuarto",
+            "en": "Clear width of the path inside the room"
+          },
+          "range": [
+            2.5,
+            4.0
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "types": {
+          "value": [
+            "bedroom",
+            "primary_suite"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Cuartos donde se revisa la cama y el paso",
+            "en": "Rooms where the bed and the path are checked"
+          },
+          "choices": [
+            "bedroom",
+            "primary_suite",
+            "flex_room"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "service_near_entry_weight": {
+          "value": 0.25,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "client",
+          "description": {
+            "es": "Peso de tener walk-in, clóset y baño junto a la puerta de entrada del cuarto",
+            "en": "Weight of the walk-in, closet and bath beside the room's entry door"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "near_scale_ft": {
+          "value": 4.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Distancia entre la entrada y una puerta interna a la que la cercanía vale la mitad",
+            "en": "Distance from the entry to an inner door at which nearness is worth half"
+          },
+          "range": [
+            1.0,
+            12.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        }
+      },
+      "text": [
+        "Inside a bedroom the walk-in, the closet and the bath stand beside the entry door (scored), and the path from the entry door to every inner door, path_width_ft wide, never crosses the bed: a bed with its clearances fits with its headboard on a wall, off every door swing, and every door of the room is reached around it (hard)."
+      ],
+      "source": {
+        "document": "S2.2j plan (2026-10-13)",
+        "section": "R2, R3"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P12-DOOR-LEAF",
+      "kind": "design",
+      "magnitude": "leaf",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "door.leaf",
+      "parameters": {
+        "support_required": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "La hoja de una puerta abatible siempre abre contra un muro (nunca en el aire)",
+            "en": "A hinged leaf always opens against a wall (never in the air)"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "support_min_share": {
+          "value": 0.7,
+          "type": "number",
+          "unit": "ratio",
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Parte de la hoja que el muro de apoyo debe cubrir (un clóset de 2 ft apoya una hoja de 2'-10\")",
+            "en": "Share of the leaf the supporting wall must cover (a 2 ft closet holds a 2'-10\" leaf)"
+          },
+          "range": [
+            0.5,
+            1.0
+          ],
+          "kinds_allowed": [
+            "hard"
+          ]
+        },
+        "narrow_leaf_in": {
+          "value": 32.0,
+          "type": "number",
+          "unit": "in",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Hoja angosta permitida en baños y walk-ins (2'-8\", unos 80 cm)",
+            "en": "Narrow leaf allowed for baths and walk-ins (2'-8\", about 80 cm)"
+          },
+          "range": [
+            28.0,
+            34.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-13 23:30 (S2.2j, e)"
+        },
+        "narrow_types": {
+          "value": [
+            "bathroom",
+            "primary_bath",
+            "social_bath",
+            "walk_in_closet"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Espacios que pueden usar la hoja angosta",
+            "en": "Spaces that may use the narrow leaf"
+          },
+          "choices": [
+            "bathroom",
+            "primary_bath",
+            "social_bath",
+            "half_bath",
+            "walk_in_closet"
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-13 23:30 (S2.2j, e)"
+        }
+      },
+      "text": [
+        "Hinged doors stand at a corner of the wall so the open leaf rests on a wall; no pocket doors; baths and walk-ins may use a 2'-8\" leaf when the standard leaf does not fit."
+      ],
+      "source": {
+        "document": "S2.2j plan (2026-10-13)",
+        "section": "decision 5, e"
       },
       "verified": false
     }

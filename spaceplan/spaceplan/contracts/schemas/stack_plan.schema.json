@@ -1536,6 +1536,10 @@
         },
         "polygon": {
           "$ref": "#/$defs/polygon"
+        },
+        "under_stair_sqft": {
+          "type": "number",
+          "description": "S2.2j: area of a half bath under the stair that the stair covers (the space is drawn whole)."
         }
       }
     },
@@ -1663,6 +1667,24 @@
         "stair_cover": {
           "type": "object",
           "description": "S2.2i: the covered stair start as a closet of the space beside it (applied, host, sq ft)."
+        },
+        "in_room": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "S2.2j: per bedroom, whether a bed with its clearances fits off the door swings and approaches with every doorway reached around it (R3), and the distance from the entry doorway to the inner doorways (R2)."
+        },
+        "strips": {
+          "type": "object",
+          "description": "S2.2j: strips narrower than their least width joined to a neighbour or made closets, closets too small to open joined to their room, and what was left."
+        },
+        "fixtures": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "S2.2j: bath fixtures in line: the wet end (shower or tub) away from the bath closet and the door swing, and the bands of wet zone, toilet and vanity (polygons)."
         }
       }
     },
@@ -1814,6 +1836,17 @@
               }
             }
           }
+        },
+        "program_fallback": {
+          "type": "string",
+          "description": "S2.2j: the program fallback the layout needed (walk_in_to_closet, guest_to_study or both)."
+        },
+        "fallbacks_tried": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "S2.2j: program fallbacks tried after the program as adjusted had no valid layout, with their outcome."
         }
       }
     }

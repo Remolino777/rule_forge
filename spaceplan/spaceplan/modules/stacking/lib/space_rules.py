@@ -116,6 +116,37 @@ class SpaceRules:
     def furniture_hard(self, space_type: str) -> bool:
         return self.hard(space_type, "furniture_w_ft") or self.hard(space_type, "templates_allowed")
 
+    # ---------------------------------------------------------------- S2.2j (client 2026-10-13 23:21-23:30)
+    def furniture_of(self, space_type: str, master: bool = False) -> list[tuple[float, float]]:
+        """Clear furniture rectangles of a space: the main bedroom has its own (king bed)."""
+        if master and space_type == "bedroom":
+            w, d = self.design.get("space.master_bedroom.furniture_w_ft"), self.design.get(
+                "space.master_bedroom.furniture_d_ft")
+            if w is not None and d is not None:
+                return [(float(w), float(d))]
+        return self.furniture_ft(space_type)
+
+    def furniture_hard_of(self, space_type: str, master: bool = False) -> bool:
+        if master and space_type == "bedroom" and "space.master_bedroom.furniture_w_ft" in self.design:
+            return self.design_kinds.get("space.master_bedroom.furniture_w_ft") == "hard"
+        return self.furniture_hard(space_type)
+
+    def walk_through(self, host_type: str, host_master: bool) -> bool:
+        """The own bath of a room of this kind is reached through its walk-in (K11, S2.2j scope)."""
+        if not self.policy("walk_through_closet"):
+            return False
+        scope = self.policy("walk_through_scope")
+        if scope is None:
+            return host_type == "primary_suite"
+        return host_type in scope or (host_master and "master_bedroom" in scope)
+
+    def narrow_leaf_ft(self, space_type: str) -> float | None:
+        """The 2'-8\" leaf a bath or walk-in may use when the standard leaf does not fit (S2.2j, e)."""
+        if space_type not in (self.design.get("door.leaf.narrow_types") or ()):
+            return None
+        v = self.design.get("door.leaf.narrow_leaf_in")
+        return float(v) * INCH_FT if v else None
+
     def facade_need_ft(self, space_type: str, area_sqft: float, habitable: bool) -> float:
         """Exterior wall a space needs: glazing of a habitable room (O03 via C03) and the escape opening of a
         sleeping room (O01), each with the frame allowance; 0 when neither applies."""

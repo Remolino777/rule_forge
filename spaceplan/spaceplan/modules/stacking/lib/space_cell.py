@@ -4,6 +4,9 @@
                   doors (door_placement), then the floor checks: every space reached, the stair end received by an
                   allowed space (K01 upstairs, the chosen start option of K02 downstairs), the hard pairs of the
                   matrix on the door graph (space_relations, K05 over the base); valid layouts scored;
+                  S2.2j: no thin strips (strips), the own bath through the walk-in, the main bedroom the largest,
+                  the in-room path never across the bed (room_circulation), the shower off the closet and door
+                  (bath_fixtures); a program fallback (walk-in as closet, guest room as study) when nothing fits;
     cell       -> best pair (ground x upper) by floor scores and the pairs measured through the stair; metrics
                   (depth of the suite from the entry, rooms crossed); traces of the normative (C01, C06, O01-O03, S08)
                   and client (K01, K02, K04, K05) rules, closing what S2 left deferred_to_S2.1.
@@ -32,6 +35,7 @@ from spaceplan.modules.stacking.lib.door_placement import (
     FloorLayout,
     compose,
     place_doors,
+    walk_through_bath,
 )
 from spaceplan.modules.stacking.lib.floor_frame import (
     GROUND,
@@ -48,6 +52,10 @@ from spaceplan.modules.stacking.lib.hall_trim import (
     trim_settings,
 )
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
+from spaceplan.modules.stacking.lib.program_adjust import program_fallbacks
+from spaceplan.modules.stacking.lib.bath_fixtures import bath_fixtures
+from spaceplan.modules.stacking.lib.room_circulation import room_paths
+from spaceplan.modules.stacking.lib.strips import clean_strips, strip_violation
 from spaceplan.modules.stacking.lib.roof_planes import roof_pieces, roof_settings
 from spaceplan.modules.stacking.lib.space_relations import evaluate_space_floor, space_graph
 from spaceplan.modules.stacking.lib.space_rules import (
@@ -67,7 +75,7 @@ from spaceplan.modules.stacking.lib.unit_frame import (
     SpaceFloor,
     space_floor,
 )
-from spaceplan.modules.stacking.lib.unit_layout import UnitLayout, shape_weighted
+from spaceplan.modules.stacking.lib.unit_layout import UnitLayout, master_largest, shape_weighted
 from spaceplan.modules.stacking.lib.zone_relations import FloorGraph, ZoneMatrix, vertical_pairs
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
 from spaceplan.modules.stacking.lib_aux.space_grid import exterior_run, mask_polygon
@@ -161,12 +169,14 @@ def _floor_parts(layout: FloorLayout, rel: dict[str, Any], rules: SpaceRules, ca
 
 
 def _walk_through_violation(layout: FloorLayout, rules: SpaceRules) -> str | None:
-    """K11 (client 2026-10-12): when the suite has a walk-in on the floor, its bath is reached through it."""
+    """K11 (client 2026-10-12): when the suite has a walk-in on the floor, its bath is reached through it; S2.2j
+    (client 2026-10-13 23:21): the main bedroom too (space.policy.walk_through_scope)."""
     if not rules.policy("walk_through_closet") or rules.design_kinds.get("space.policy.walk_through_closet") != "hard":
         return None
     specs = layout.specs
+    by_id = {s.space_id: s for s in specs}
     for b, s in enumerate(specs):
-        if s.space_type != "primary_bath" or not s.host:
+        if not walk_through_bath(rules, s, by_id.get(s.host) if s.host else None):
             continue
         host = layout.node(s.host)
         walk = next((k for k, w in enumerate(specs) if w.space_type == "walk_in_closet" and w.host == s.host), None)
@@ -175,6 +185,12 @@ def _walk_through_violation(layout: FloorLayout, rules: SpaceRules) -> str | Non
         if host in layout.adj.get(b, set()) or walk not in layout.adj.get(b, set()):
             return "k11:bath_not_through_walk_in"
     return None
+
+
+@dataclass(frozen=True)
+class _Node:
+    spec: Any
+    cells: int
 
 
 def _door_centre(d) -> tuple[float, float] | None:
@@ -241,6 +257,27 @@ def _stair_closet(layout, rules, ctx: S21Context):
     return new
 
 
+def _cleaned(layout, rules, ctx: S21Context):
+    """S2.2j: the floor without thin strips (joined to a neighbour) nor closets too small to open, its doors placed
+    again; a strip that no neighbour takes is a violation when the rule is hard."""
+    for keep_circ in (False, True):                       # the halls' strips too, else only the rooms'
+        new, report = clean_strips(layout, rules, keep_circ)
+        if new is None:
+            layout.strips = report or None
+            why = strip_violation(report, rules)
+            if why:
+                layout.violations.append(why)
+            return layout
+        place_doors(new, rules, ctx.matrix)
+        new.strips = report
+        why = strip_violation(report, rules)
+        if why and not new.violations:
+            new.violations.append(why)
+        if not new.violations:
+            return new
+    return new
+
+
 def _trimmed(layout, rules, ctx: S21Context):
     """S2.2h: the layout with its upper hall trimmed when the doors and checks still hold; else the layout, with
     the reason in its trim report."""
@@ -296,7 +333,20 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
             layout = _trimmed(layout, rules, ctx)
             layout = _stair_closet(layout, rules, ctx)           # S2.2i: a closet over the covered stair start
         if not layout.violations:
+            layout = _cleaned(layout, rules, ctx)                # S2.2j: no thin strips, no tiny closets
+        if not layout.violations:
             why = _walk_through_violation(layout, rules)          # S2.2c: suite -> walk-in -> bath
+            if why:
+                layout.violations.append(why)
+        if not layout.violations and not master_largest(
+                [_Node(sp, layout.cells(k)) for k, sp in enumerate(layout.specs)], rules):
+            layout.violations.append("master:not_largest")       # S2.2j: the main bedroom is the largest
+        if not layout.violations:
+            layout.in_room, why = room_paths(layout, rules)           # S2.2j: the in-room path never crosses the bed
+            if why:
+                layout.violations.append(why)
+        if not layout.violations:
+            layout.fixtures, why = bath_fixtures(layout, rules)       # S2.2j: shower away from the closet and door
             if why:
                 layout.violations.append(why)
         structure = None
@@ -426,7 +476,30 @@ def space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any
                profile: str | None, ctx: S21Context, lot_local=None, site_plan: dict | None = None,
                culture: str | None = None) -> dict[str, Any]:
     """Stage S2.1 block of a cell zoned by S2 (`rows` = the area-matrix space split of the cell, after the program
-    adjustment of stage S2.1; `lot_local` and `site_plan` give the secondary door its outside)."""
+    adjustment of stage S2.1; `lot_local` and `site_plan` give the secondary door its outside). S2.2j: when the
+    program has no valid layout, its fallbacks are tried in order (the walk-in of the suite or the main bedroom as a
+    closet, the guest room as a study, both); the block names the one used."""
+    out = _space_cell(rows, s1, s2, plan, profile, ctx, lot_local, site_plan, culture)
+    if out.get("status") != NO_VALID_LAYOUT:
+        return out
+    tried = []
+    for tag, alt in program_fallbacks(rows, ctx.rules.design, ctx.catalog):
+        got = _space_cell(alt, s1, s2, plan, profile, ctx, lot_local, site_plan, culture)
+        tried.append({"fallback": tag, "status": got.get("status"), "first_violation": got.get("first_violation")})
+        if got.get("status") == SPACED:
+            got["program_fallback"] = tag
+            got["warnings"].append(f"S2.2j fallback: {tag} (the program as adjusted had no valid layout: "
+                                   f"{out.get('first_violation')})")
+            got["fallbacks_tried"] = tried
+            return got
+    if tried:
+        out["fallbacks_tried"] = tried
+    return out
+
+
+def _space_cell(rows: list[dict[str, Any]], s1: dict[str, Any], s2: dict[str, Any], plan: LotPlan,
+                profile: str | None, ctx: S21Context, lot_local=None, site_plan: dict | None = None,
+                culture: str | None = None) -> dict[str, Any]:
     out: dict[str, Any] = {"stage": "S2.1", "warnings": []}
     if not s2 or s2.get("status") != "zoned" or not rows:
         return {**out, "status": NOT_EVALUATED_S21, "rule_traces": []}
@@ -642,12 +715,22 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
             continue
         ext = (np.roll(lay.labels, 1, 1) == OUT, np.roll(lay.labels, -1, 1) == OUT,
                np.roll(lay.labels, 1, 0) == OUT, np.roll(lay.labels, -1, 0) == OUT)
+        poly = mask_polygon(m, f.grid)
+        under = 0.0
+        geom = (getattr(f, "fixed_shapes", None) or {}).get(s.space_id) if s.fixed else None
+        if geom is not None and s.space_type in ctx.rules.half_bath_types:   # S2.2j: the half bath under the stair
+            stair_cells = mask_polygon(np.isin(lay.labels, [j for j, x in enumerate(lay.specs)   # drawn whole: with
+                                                            if x.space_type == "stair"]), f.grid)  # its part under
+            whole = poly.union(geom.intersection(stair_cells))                                     # the stair
+            under = max(0.0, whole.area - poly.area)
+            poly = whole
         spaces.append({"space_id": s.space_id, "space_type": s.space_type, "zone": s.zone, "unit_id": s.unit_id,
-                       "area_sqft": round(n * ca, 1), "target_sqft": round(s.target_sqft, 1),
+                       "area_sqft": round(n * ca + under, 1), "target_sqft": round(s.target_sqft, 1),
+                       **({"under_stair_sqft": round(under, 1)} if under > 0 else {}),
                        "exterior_ft": round(exterior_run(m, ext) * f.res, 2), "host": s.host,
                        "fixed": s.fixed, "synthetic": s.synthetic,
                        **({"cap_sqft": round(s.cap_sqft, 1)} if s.cap_sqft is not None else {}),
-                       "polygon": polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)})
+                       "polygon": polygon_json(plan.to_world(poly), nd)})
     return {"level": f.level, "variant": f.variant,
             "root": lay.specs[lay.root].space_id, "landing_space": lay.specs[lay.landing_node].space_id,
             "hall_sides": {lay.floor.units[[u.index for u in f.units].index(o.unit)].unit_id: o.hall_side
@@ -664,6 +747,12 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
                          for s, m in lay.open_air],
             **({"hall_trim": lay.trim} if lay.trim else {}),
             **({"stair_cover": lay.stair_cover} if getattr(lay, "stair_cover", None) else {}),
+            **({"in_room": lay.in_room} if getattr(lay, "in_room", None) else {}),
+            **({"strips": lay.strips} if getattr(lay, "strips", None) else {}),
+            **({"fixtures": [{**{k: v for k, v in fx.items() if k != "masks"},
+                              "bands": {b: polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)
+                                        for b, m in fx["masks"].items() if m.any()}}
+                             for fx in lay.fixtures]} if getattr(lay, "fixtures", None) else {}),
             "score": round(r.score, 4),
             "relations": {"hard_failed": r.relations["hard_failed"],
                           "met": sorted(p for p, v in r.relations["results"].items() if v == "met")}}

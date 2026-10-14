@@ -34,6 +34,7 @@ from spaceplan.modules.design.lib import area_criteria as ac
 from spaceplan.modules.stacking.lib_aux.door_geometry import floor_conflicts, summarize
 
 GRID_FT = 0.5            # raster step of the furniture test (the S2 grid)
+TIP_TOL_FT = 0.04        # S2.2j: points of a swing's arc (the tip of the open leaf), drawing tolerance
 SPACED = "spaced"
 CIRCULATION_TYPES = ("hall", "foyer")
 SUITE_HOSTS = ("primary_suite", "bedroom")       # rooms a private suite hangs from (E1 exception)
@@ -169,6 +170,7 @@ def cell_metrics(cell: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]
             "arrival": s21.get("arrival"), "frame": s21.get("frame"), "roofs": s21.get("roofs"),
             "hall_trim": (s21.get("upper") or {}).get("hall_trim"),
             "upper_rooms": _upper_rooms((s21.get("upper") or {}), cell.get("program_adjustment") or {}),
+            "rooms": _rooms(s21, cell.get("program_adjustment") or {}, values),
             "upper_sqft": sum(sp.get("area_sqft", 0.0) for sp in (s21.get("upper") or {}).get("spaces", []))}
 
 
@@ -235,6 +237,165 @@ def _upper_rooms(upper: dict[str, Any], adjustment: dict[str, Any]) -> dict[str,
             "baths": len(baths), "baths_exterior": sum(1 for s in baths if s.get("exterior_ft", 0.0) > 0),
             "stair_covered_sqft": float(upper.get("stair_covered_sqft") or 0.0),
             "stair_closet": bool((upper.get("stair_cover") or {}).get("applied"))}
+
+
+ROOM_TYPES = ("bedroom", "primary_suite")
+FULL_BATHS = ("bathroom", "primary_bath", "social_bath")
+
+
+def _room_band(room, entry, inner, path_ft: float) -> tuple[float, int, float]:
+    """(share of the room the straight paths from the entry doorway to the inner doorways cover, inner doorways on
+    the wall opposite the entry, total path length ft): the measure of the S2.2j analysis."""
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+
+    def centre(d):
+        (x0, y0), (x1, y1) = d["segment"]
+        return ((x0 + x1) / 2, (y0 + y1) / 2)
+
+    def wall(p):
+        x0, y0, x1, y1 = room.bounds
+        dd = {"W": abs(p[0] - x0), "E": abs(p[0] - x1), "S": abs(p[1] - y0), "N": abs(p[1] - y1)}
+        return min(dd, key=dd.get)
+
+    opp = {"W": "E", "E": "W", "N": "S", "S": "N"}
+    e = centre(entry)
+    lines = [LineString([e, centre(x)]) for x in inner]
+    band = unary_union([ln.buffer(path_ft / 2, cap_style=2) for ln in lines]).intersection(room)
+    return (band.area / room.area if room.area else 0.0, sum(1 for x in inner if wall(centre(x)) == opp[wall(e)]),
+            sum(ln.length for ln in lines))
+
+
+def leaf_supported(d: dict[str, Any], polys: dict[str, Any], share: float = 0.6) -> bool | None:
+    """Does the open leaf of a hinged door rest on a wall of the space it swings into? (None: no swing)."""
+    from shapely.geometry import LineString, Point
+
+    if not d.get("swing") or d.get("swing_into") not in polys:
+        return None
+    hinge, r = Point(d["hinge"]), d["leaf_ft"]
+    sw, seg = shape(d["swing"]), LineString(d["segment"])
+    tips = [Point(p) for p in sw.exterior.coords if abs(Point(p).distance(hinge) - r) < TIP_TOL_FT]
+    if not tips:
+        return None
+    tip = max(tips, key=seg.distance)
+    leaf = LineString([hinge, tip])
+    wall = polys[d["swing_into"]].boundary.buffer(0.75)
+    return all(wall.contains(leaf.interpolate(t, normalized=True)) for t in np.linspace(0.1, share, 4))
+
+
+def _rooms(s21: dict[str, Any], adjustment: dict[str, Any], values: dict[str, Any]) -> dict[str, Any] | None:
+    """S2.2j per cell (both floors): bed and paths inside the rooms, the own bath through the walk-in, the main
+    bedroom the largest, bath fixtures, strips, leaves on a wall, narrow doors, the guest room and the fallback."""
+    path_ft = float(values.get("circulation.in_room.path_width_ft") or 3.0)
+    std_leaf = None
+    out: dict[str, Any] = {"rooms": [], "through": [], "fixtures": [], "strips_left_sqft": 0.0, "strips_joined": 0,
+                           "closets_removed": 0, "hinged": 0, "unsupported": 0, "narrow_doors": 0}
+    main_ids = {m["bedroom"] for m in adjustment.get("master") or []}
+    for key in ("ground", "upper"):
+        fl = s21.get(key)
+        if not fl:
+            continue
+        spaces = {sp["space_id"]: sp for sp in fl["spaces"] if sp.get("polygon")}
+        polys = {k: shape(v["polygon"]) for k, v in spaces.items()}
+        doors = [d for d in fl.get("doors") or [] if d.get("segment")]
+        checks = {r["space_id"]: r for r in fl.get("in_room") or []}
+        for sid, sp in spaces.items():
+            if sp["space_type"] not in ROOM_TYPES or sp.get("fixed"):
+                continue
+            hosted = {k for k, v in spaces.items() if v.get("host") == sid}
+            mine = [d for d in doors if sid in (d["a"], d["b"])]
+            entry = next((d for d in mine if (d["b"] if d["a"] == sid else d["a"]) not in hosted
+                          and d["kind"] == "door"), None)
+            inner = [d for d in mine if d is not entry and d["kind"] != "patio_slider"]
+            band, opposite, length = _room_band(polys[sid], entry, inner, path_ft) if entry and inner else (0.0, 0, 0.0)
+            c = checks.get(sid) or {}
+            out["rooms"].append({"floor": key, "space_id": sid, "space_type": sp["space_type"],
+                                 "main": sid in main_ids or sp["space_type"] == SUITE,
+                                 "area_sqft": sp.get("area_sqft") or round(polys[sid].area, 1),
+                                 "path_share": round(band, 3), "opposite": opposite, "path_ft": round(length, 1),
+                                 "inner": len(inner), "bed_fits": c.get("bed_fits"),
+                                 "inner_gap_ft": min(c.get("inner_door_gaps_ft") or [None], key=lambda v: v or 0)})
+            walk = [k for k in hosted if spaces[k]["space_type"] == "walk_in_closet"]
+            for b in [k for k in hosted if spaces[k]["space_type"] in FULL_BATHS]:
+                if not walk:
+                    continue
+                via = {d["b"] if d["a"] == b else d["a"] for d in doors if b in (d["a"], d["b"]) and d["kind"] == "door"}
+                out["through"].append({"host": sid, "bath": b, "via_walk_in": bool(via & set(walk)),
+                                       "via_bedroom": sid in via})
+        for fx in fl.get("fixtures") or []:
+            out["fixtures"].append({k: fx.get(k) for k in ("space_id", "wet_end", "closet_ok", "door_ok", "has_closet")})
+        strips = fl.get("strips") or {}
+        out["strips_left_sqft"] += sum(x["sqft"] for x in strips.get("left", []))
+        out["strips_joined"] += len(strips.get("joined", []))
+        out["closets_removed"] += len(strips.get("closets_removed", []))
+        for d in doors:
+            ok = leaf_supported(d, polys)
+            if ok is None:
+                continue
+            out["hinged"] += 1
+            out["unsupported"] += int(not ok)
+            std_leaf = std_leaf or max(dd.get("leaf_ft", 0.0) for dd in doors)
+            if d.get("leaf_ft", 0.0) < std_leaf - 0.1 and d.get("kind") == "door":
+                out["narrow_doors"] += 1
+    ups = [r for r in out["rooms"] if r["floor"] == "upper" and r["space_type"] == "bedroom"]
+    mains = [r for r in ups if r["main"]]
+    out["main_largest"] = (all(mains[0]["area_sqft"] >= r["area_sqft"] for r in ups if not r["main"])
+                           if mains and len(ups) > 1 else None)
+    out["guest"] = adjustment.get("guest") or []
+    out["fallback"] = s21.get("program_fallback")
+    return out
+
+
+def rooms_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """S2.2j indicators: the circulation inside the rooms (the analysis measure), the bed with its clearances off
+    the paths, the own bath through the walk-in, the main bedroom the largest, the bath fixtures, strips, leaves on a
+    wall, narrow doors, guest rooms and program fallbacks."""
+    rows = [c["rooms"] for c in cells if c.get("rooms")]
+    if not rows:
+        return None
+    rooms = [r for x in rows for r in x["rooms"]]
+    through = [t for x in rows for t in x["through"]]
+    fx = [f for x in rows for f in x["fixtures"]]
+    guests = [g for x in rows for g in x["guest"]]
+    fb: dict[str, int] = defaultdict(int)
+    for x in rows:
+        if x["fallback"]:
+            fb[x["fallback"]] += 1
+
+    def group(sel):
+        g = [r for r in rooms if sel(r)]
+        if not g:
+            return None
+        with_inner = [r for r in g if r["inner"]]
+        return {"n": len(g), "area_sqft": _stats([r["area_sqft"] for r in g]),
+                "path_share": _stats([r["path_share"] for r in with_inner]),
+                "path_ft": _stats([r["path_ft"] for r in with_inner]),
+                "opposite_pct": round(100.0 * sum(1 for r in with_inner if r["opposite"]) / len(with_inner), 1)
+                if with_inner else None,
+                "bed_fits": sum(1 for r in g if r["bed_fits"]), "bed_checked": sum(1 for r in g if r["bed_fits"] is not None),
+                "inner_gap_ft": _stats([r["inner_gap_ft"] for r in g if r["inner_gap_ft"] is not None])}
+
+    hinged = sum(x["hinged"] for x in rows)
+    return {"n": len(rows),
+            "upper_suite": group(lambda r: r["floor"] == "upper" and r["space_type"] == SUITE),
+            "upper_main": group(lambda r: r["floor"] == "upper" and r["space_type"] == "bedroom" and r["main"]),
+            "upper_secondary": group(lambda r: r["floor"] == "upper" and r["space_type"] == "bedroom" and not r["main"]),
+            "ground_rooms": group(lambda r: r["floor"] == "ground"),
+            "baths_with_walk_in": len(through), "bath_via_walk_in": sum(1 for t in through if t["via_walk_in"]),
+            "bath_via_bedroom": sum(1 for t in through if t["via_bedroom"]),
+            "main_largest": sum(1 for x in rows if x["main_largest"]),
+            "main_checked": sum(1 for x in rows if x["main_largest"] is not None),
+            "baths_fixtures": len(fx), "baths_closet_ok": sum(1 for f in fx if f["closet_ok"]),
+            "baths_door_ok": sum(1 for f in fx if f["door_ok"]),
+            "baths_with_closet": sum(1 for f in fx if f["has_closet"]),
+            "strips_left_sqft": round(sum(x["strips_left_sqft"] for x in rows), 1),
+            "strips_joined": sum(x["strips_joined"] for x in rows),
+            "closets_removed": sum(x["closets_removed"] for x in rows),
+            "hinged_doors": hinged, "leaves_in_air": sum(x["unsupported"] for x in rows),
+            "narrow_doors": sum(x["narrow_doors"] for x in rows),
+            "guest_rooms": len(guests), "guest_shared_bath": sum(1 for g in guests if g.get("shared_bath")),
+            "guest_to_study": sum(1 for g in guests if g.get("converted_to")),
+            "program_fallbacks": dict(sorted(fb.items()))}
 
 
 def upper_rooms_summary(cells: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -419,6 +580,7 @@ def quality_report(stack_plans: list[dict[str, Any]], values: dict[str, Any]) ->
         "frame": frame_summary(cells),
         "roofs": roofs_summary(cells),
         "upper_rooms": upper_rooms_summary(cells),
+        "rooms": rooms_summary(cells),
         "circulation": circulation_summary(cells, float(values.get("circulation.upper_hall.vestibule_min_ft") or 0.0)),
     }
     return {"overall": overall, "by_type": type_summary(spaces), "cells": cells}
@@ -434,8 +596,10 @@ __all__ = [
     "fits_rectangle",
     "frame_summary",
     "furniture_options",
+    "leaf_supported",
     "quality_report",
     "roofs_summary",
+    "rooms_summary",
     "space_metrics",
     "structure_summary",
     "suite_metrics",

@@ -89,8 +89,9 @@ def test_catalog_weights_add_furniture_circulation_and_light(scat):
 
 
 def test_client_decisions_are_in_the_registry(rules):
-    # intermediate profile (client 2026-10-11 23:54): hard for baths, strong preferences for the rest
-    assert rules.std("bedroom", "furniture_w_ft") == 11.0 and not rules.hard("bedroom", "furniture_w_ft")
+    # intermediate profile (client 2026-10-11 23:54): hard for baths, strong preferences for the rest;
+    # S2.2j (client 2026-10-13 23:21): the bed with its clearances is hard (the in-room path never crosses it)
+    assert rules.std("bedroom", "furniture_w_ft") == 11.0 and rules.hard("bedroom", "furniture_w_ft")
     for st in ("bathroom", "primary_bath", "social_bath", "half_bath"):
         assert rules.hard(st, "aspect_max") and rules.furniture_hard(st), st
     for st in ("dining_room", "kitchen", "living_room"):
@@ -103,7 +104,7 @@ def test_client_decisions_are_in_the_registry(rules):
 
 def test_least_side_without_tolerance_and_from_hard_furniture(rules, catalog, matrix):
     bed = spec_of(catalog, rules, matrix, _row("b", "bedroom", 140), "u")
-    assert bed.min_side_ft == pytest.approx(9.0)             # catalog least side, no tolerance (bed is a preference)
+    assert bed.min_side_ft == pytest.approx(10.0)            # S2.2j: the bed with its clearances is hard (11 x 10)
     study = spec_of(catalog, rules, matrix, _row("s", "study", 130), "u")
     assert study.min_side_ft == pytest.approx(8.0)           # catalog least side, no tolerance (habitable)
     bath = spec_of(catalog, rules, matrix, _row("x", "bathroom", 55), "u")

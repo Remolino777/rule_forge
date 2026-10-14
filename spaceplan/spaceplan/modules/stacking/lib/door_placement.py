@@ -13,7 +13,10 @@ stair and its vestibule, garage). On its node-label grid:
      sleeping room (O02, self-closing door);
   3. a door sits near a corner of the shared wall (corner return + leaf + frame); its leaf swings into the space it
      serves (closets: into the host; garage: into the dwelling) and the swept quarter disc must stay inside that
-     space, off the stair and its landing (S08 / R311.7.6) and off every other swing.
+     space, off the stair and its landing (S08 / R311.7.6) and off every other swing;
+  4. S2.2j (client 2026-10-13 23:21-23:30): a hinged leaf always opens against a wall (never off its corner), a bath
+     or walk-in may take the narrow leaf (door.leaf.narrow_leaf_in) when the standard one does not fit, the doors of
+     a room's own spaces take the corner nearer the room's entry, and a bath door never opens over its shower.
 """
 
 from __future__ import annotations
@@ -23,6 +26,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from spaceplan.modules.stacking.lib.bath_fixtures import wet_keep_out
 from spaceplan.modules.stacking.lib.space_rules import SpaceRules
 from spaceplan.modules.stacking.lib.unit_frame import (
     STAIR_TYPE,
@@ -41,6 +45,7 @@ SLIDER, PATIO_SLIDER, EXTERIOR_DOOR = "closet_slider", "patio_slider", "exterior
 EXTERIOR = -1                                    # the other side of an exterior door
 OPEN_AIR_TYPES, OUT_LABEL = ("upper_roof", "terrace"), -1   # S2.2d (unit_layout.OPEN_AIR, unit_frame.OUT)
 WALK_IN_TYPE, WALK_THROUGH_BATHS = "walk_in_closet", ("primary_bath",)   # S2.2c: the suite only
+FULL_BATHS = ("bathroom", "primary_bath", "social_bath")       # S2.2j: walk-through by function (host with a walk-in)
 
 
 @dataclass
@@ -79,6 +84,9 @@ class FloorLayout:
     frame: dict | None = None                              # S2.2g: how the ground floor carries the frame's axes
     trim: dict | None = None                               # S2.2h: the upper hall trimmed (report)
     stair_cover: dict | None = None                        # S2.2i: closet over the covered stair start (report)
+    in_room: list | None = None                            # S2.2j: bed and paths inside the rooms (report)
+    fixtures: list | None = None                           # S2.2j: bath fixtures (report)
+    strips: dict | None = None                             # S2.2j: thin strips joined to their neighbours (report)
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)
@@ -131,18 +139,29 @@ def _private(rules: SpaceRules, s: SpaceSpec) -> bool:
     return bool(s.roles & rules.private_roles) or (s.zone == "private" and not s.passable)
 
 
-def door_choices(rules: SpaceRules, matrix: ZoneMatrix, room: SpaceSpec, other: SpaceSpec) -> int | None:
+def walk_through_bath(rules: SpaceRules, room: SpaceSpec, host: SpaceSpec | None = None) -> bool:
+    """Is `room` an own bath reached through its host's walk-in? S2.2c: the suite's primary bath; S2.2j (client
+    2026-10-13 23:21): any full bath of a room in space.policy.walk_through_scope (the suite, the main bedroom)."""
+    if not room.host or not rules.policy("walk_through_closet"):
+        return False
+    if host is not None:
+        return room.space_type in FULL_BATHS and rules.walk_through(host.space_type, host.master)
+    return room.space_type in WALK_THROUGH_BATHS
+
+
+def door_choices(rules: SpaceRules, matrix: ZoneMatrix, room: SpaceSpec, other: SpaceSpec,
+                 host: SpaceSpec | None = None) -> int | None:
     """Preference rank of a door from a non-passable space `room` onto `other` (lower is better), None when the
-    rules forbid it."""
+    rules forbid it. `host`: the space that hosts `room` (S2.2j: the walk-through scope reads it)."""
     if other.space_type == STAIR_TYPE:
         return None
     if room.between:                                                # K10: a shared bath opens onto the hall only
         return 1 if other.circulation else None
-    if (room.host and room.space_type in WALK_THROUGH_BATHS and rules.policy("walk_through_closet")
-            and other.space_type == WALK_IN_TYPE and other.host == room.host):
-        return 0                                                   # S2.2c: the suite's bath through its walk-in
+    through = walk_through_bath(rules, room, host)
+    if through and other.space_type == WALK_IN_TYPE and other.host == room.host:
+        return 0                                                   # S2.2c/j: the bath through its walk-in
     if room.host and room.host == other.space_id:
-        if room.space_type in WALK_THROUGH_BATHS and rules.policy("walk_through_closet"):
+        if through:
             return 1                                               # straight from the bedroom only without walk-in
         return 0                                                   # closet, pantry, en-suite space onto its host
     if room.host and _private(rules, room) and room.space_type not in rules.s21["doors"]["sliding_space_types"]:
@@ -209,6 +228,11 @@ class DoorPlacer:
         self.appr_depth = int(np.ceil(float(d_.get("door.conflicts.approach_depth_ft") or 0.0) / self.res - 1e-9))
         self.appr_tol = float(d_.get("door.conflicts.overlap_tolerance_sqft") or 0.0) / (self.res * self.res)
         self.appr = np.zeros(layout.labels.shape, dtype=bool)
+        self.support = bool(d_.get("door.leaf.support_required"))     # S2.2j: a hinged leaf always on a wall
+        self.support_share = float(d_.get("door.leaf.support_min_share") or 1.0) if self.support else 1.0
+        self.inner_near = bool(d_.get("circulation.in_room.enabled"))  # S2.2j R2: inner doors near the entry
+        self.placed: list[Door] = []
+        self.keep_out = wet_keep_out(layout.labels, layout.specs, rules, self.res)   # S2.2j: wet end of each bath
         self.vestibule = 0.0                      # S2.2h: bedroom doors at least this far (cells) from the landing
         self._landing_pts = None
         vmin = float(rules.design.get("circulation.upper_hall.vestibule_min_ft") or 0.0)
@@ -240,12 +264,49 @@ class DoorPlacer:
         return None
 
     def door(self, served: int, other: int, kind: str, accessible: bool, check_swing: bool = True) -> Door | None:
-        """A hinged door between `served` (the leaf swings into it) and `other`."""
+        """A hinged door between `served` (the leaf swings into it) and `other`. S2.2j: a bath or walk-in tries the
+        narrow leaf (door.leaf.narrow_leaf_in) when the standard one finds no clean position; a clean position of
+        either leaf beats a fallback (on the landing) or a clash of the standard one."""
         leaf = self.rules.leaf_ft("closet" if kind == CLOSET_DOOR else "room", accessible) / self.res
         clear = self.rules.clear_ft("closet" if kind == CLOSET_DOOR else "room", accessible)
+        leaves = [(leaf, clear)]
+        narrow = self.rules.narrow_leaf_ft(self.layout.specs[served].space_type) if kind == DOOR and served >= 0 \
+            else None
+        if narrow is not None and narrow / self.res < leaf - 1e-9 and check_swing:
+            leaves.append((narrow / self.res, narrow - float(self.rules.door_ft["leaf_over_clear"])))
+        kept = []
+        for lf, cl in leaves:
+            door, sw, fallback, clash = self._door_with(served, other, kind, lf, cl, check_swing)
+            if door is not None:
+                if sw is not None:
+                    self.layout.swept |= sw
+                return door
+            kept.append((fallback, clash))
+        for pick in [f for f, _ in kept] + [c for _, c in kept]:
+            if pick is not None:
+                self.layout.swept |= pick[1]
+                return pick[0]
+        return None
+
+    def _entry_of(self, room: int) -> tuple[float, float] | None:
+        """Centre (cells) of the placed door of `room` onto circulation (its entry), or None (S2.2j, R2)."""
+        if room < 0:
+            return None
+        for d in self.placed:
+            o = d.b if d.a == room else d.a if d.b == room else None
+            if o is not None and o >= 0 and self.layout.specs[o].circulation and d.run is not None:
+                t = 0.5 * (d.t0 + d.t1)
+                return (d.run.k, t) if d.run.vertical else (t, d.run.k)
+        return None
+
+    def _door_with(self, served: int, other: int, kind: str, leaf: float, clear: float, check_swing: bool):
+        """(door, swept cells, fallback, clash) for one leaf width."""
         need = leaf + self.frame                       # the corner return is kept when the wall allows it
         labels = self.layout.labels
+        specs = self.layout.specs
         fallback = clash = None
+        hosted = other >= 0 and specs[served].host is not None and specs[served].host == specs[other].space_id
+        entry = self._entry_of(other) if hosted and self.inner_near else None     # S2.2j R2: inner doors by the entry
         for run in self.runs_between(served, other):
             if run.cells + 1e-9 < need and check_swing:
                 continue
@@ -253,34 +314,40 @@ class DoorPlacer:
             if not check_swing:                           # a door S1 already sized (half bath under the stair)
                 mid = 0.5 * (run.t0 + run.t1)
                 half = min(leaf, run.cells) / 2
-                return Door(served, other, kind, run, mid - half, mid + half, None, None, run.high == served, leaf, clear)
+                return Door(served, other, kind, run, mid - half, mid + half, None, None, run.high == served, leaf,
+                            clear), None, None, None
             into_high = run.high == served
             order = (True, False)
-            if self.near is not None and (self.layout.specs[served].space_type in self.rules.sleeping_types
-                                          and other >= 0 and self.layout.specs[other].circulation):
-                def gap(tp, run=run, corner=corner):
+            target = None
+            if self.near is not None and (specs[served].space_type in self.rules.sleeping_types
+                                          and other >= 0 and specs[other].circulation):
+                target = self.near
+            elif entry is not None:
+                target = entry
+            if target is not None:
+                def gap(tp, run=run, corner=corner, target=target):
                     h = run.t0 + corner + self.frame / 2 + leaf / 2 if tp else run.t1 - corner - self.frame / 2 - leaf / 2
                     x, y = (run.k, h) if run.vertical else (h, run.k)
-                    return (x - self.near[0]) ** 2 + (y - self.near[1]) ** 2
+                    return (x - target[0]) ** 2 + (y - target[1]) ** 2
                 order = tuple(sorted(order, key=gap))
             vest = self._vestibule_applies(served, other)
-            for toward_plus, hinge, at_corner in self._positions(run, order, corner, leaf, vest or self.off_corner):
+            for toward_plus, hinge, at_corner in self._positions(run, order, corner, leaf,
+                                                                 (vest or self.off_corner) and not self.support):
                 t0, t1 = (hinge, hinge + leaf) if toward_plus else (hinge - leaf, hinge)
-                if not check_swing:
-                    return Door(served, other, kind, run, t0, t1, hinge, toward_plus, into_high, leaf, clear)
                 if vest and self.landing_gap(run, t0 - self.frame / 2, t1 + self.frame / 2) < self.vestibule - 1e-9:
                     continue                          # S2.2h: the vestibule before the first bedroom door
-                if not at_corner and not (vest or self.off_corner):
-                    continue                          # off its corner the open leaf would stand in the air (S2.1b);
-                                                      # S2.2i: allowed to keep clear of another door (off_corner)
+                if not at_corner and (self.support or not (vest or self.off_corner)):
+                    continue                          # off its corner the open leaf would stand in the air (S2.1b;
+                                                      # S2.2j: never, client 2026-10-13 23:21)
                 if at_corner and not self._supported(run, into_high, toward_plus, served, leaf):
-                    continue                          # the open leaf would stand in the air (S2.2h: the vestibule
-                                                      # may move a bedroom door off its corner)
+                    continue                          # the open leaf would stand in the air
                 sw = swing_cells(labels.shape, run, into_high, hinge, leaf, toward_plus)
                 if not sw.any():
                     continue
                 if (labels[sw] != served).any() or (sw & self.forbidden).any() or (sw & self.layout.swept).any():
                     continue
+                if served in self.keep_out and (sw & self.keep_out[served]).any():
+                    continue                          # S2.2j: a bath door never opens over the shower or tub
                 door = Door(served, other, kind, run, t0, t1, hinge, toward_plus, into_high, leaf, clear)
                 if self._conflict(sw, run, t0, t1):  # S2.2i: slide on along the wall rather than strike a doorway
                     clash = clash or (door, sw)
@@ -288,13 +355,8 @@ class DoorPlacer:
                 if self._on_landing(door):            # keep the landing free when another position exists
                     fallback = fallback or (door, sw)
                     continue
-                self.layout.swept |= sw
-                return door
-        for kept in (fallback, clash):
-            if kept is not None:
-                self.layout.swept |= kept[1]
-                return kept[0]
-        return None
+                return door, sw, None, None
+        return None, None, fallback, clash
 
     def approach(self, run: WallRun, t0: float, t1: float) -> np.ndarray:
         """Cells of the approach zone of a doorway: the doorway widened approach_depth on both sides (S2.2i)."""
@@ -360,7 +422,7 @@ class DoorPlacer:
         on, perpendicular to the door wall, at least as deep as the leaf."""
         labels = self.layout.labels
         ny, nx = labels.shape
-        n = int(np.ceil(leaf - 1e-9))
+        n = max(1, int(np.ceil(leaf * getattr(self, "support_share", 1.0) - 1e-9)))   # S2.2j: share a wall holds
         k = run.k
         if run.vertical:
             cols = range(k, k + n) if into_high else range(k - n, k)
@@ -426,6 +488,7 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
 
     def link(d: Door) -> None:
         layout.doors.append(d)
+        placer.placed.append(d)
         adj[d.a].add(d.b)
         adj[d.b].add(d.a)
         placer.add_approach(d)                     # S2.2i
@@ -502,7 +565,8 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
     # 2. one door per other space, iterated until no space can be reached any more
     rooms = [k for k in range(len(specs)) if k not in passable and k != stair and k not in reached]
     pending = sorted(rooms, key=lambda k: (specs[k].host is not None,              # walk-ins before their baths
-                                           specs[k].space_type in WALK_THROUGH_BATHS, specs[k].space_id))
+                                           specs[k].space_type in FULL_BATHS, specs[k].space_id))
+    by_id = {s.space_id: s for s in specs}
     accessible = f.accessible
     out_swing = set(rules.s21["doors"]["out_swing_space_types"])
     sliding = set(rules.s21["doors"]["sliding_space_types"])
@@ -522,7 +586,7 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
                 j = hi if lo == k else lo
                 if j not in reached:
                     continue
-                rank = door_choices(rules, matrix, room, specs[j])
+                rank = door_choices(rules, matrix, room, specs[j], by_id.get(room.host) if room.host else None)
                 if rank is not None:
                     cands.append((rank, -placer.longest(k, j), j))
             if not cands:
@@ -755,4 +819,5 @@ __all__ = [
     "great_room_pair",
     "place_doors",
     "place_terrace_doors",
+    "walk_through_bath",
 ]

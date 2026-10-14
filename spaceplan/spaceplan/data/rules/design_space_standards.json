@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.7.0",
+  "ruleset_version": "0.8.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile. Version 0.5.0 (2026-10-12): upper floor at optimal areas, the rest as roof or a terrace up to 3 ft deep (client decision). Version 0.6.0 (2026-10-12, step S2.2e): area criteria (recommended and maximum net area per space type, hierarchy ratios, share of the house's net program area adapted to the house size, policy for the area the caps free and for an extra bedroom with bath); client decision 2026-10-12 10:18.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile. Version 0.5.0 (2026-10-12): upper floor at optimal areas, the rest as roof or a terrace up to 3 ft deep (client decision). Version 0.6.0 (2026-10-12, step S2.2e): area criteria (recommended and maximum net area per space type, hierarchy ratios, share of the house's net program area adapted to the house size, policy for the area the caps free and for an extra bedroom with bath); client decision 2026-10-12 10:18. Version 0.8.0 (2026-10-13 23:21-23:30, step S2.2j): main bedroom with a king bed and the largest bedroom of its floor; bed furniture hard (the in-room path never crosses the bed); the main bedroom's bath through its walk-in; guest room only with a bath shared with another bedroom, else a study; no thin strips; bath closet never on the shower side.",
   "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -302,6 +302,48 @@
             "hard"
           ],
           "note": "Client decision 2026-10-12: doors close together for a short route."
+        },
+        "walk_through_scope": {
+          "value": [
+            "primary_suite",
+            "master_bedroom"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Cuartos cuyo baño propio se alcanza por su walk-in (dormitorio → walk-in → baño)",
+            "en": "Rooms whose own bath is reached through their walk-in (bedroom -> walk-in -> bath)"
+          },
+          "choices": [
+            "primary_suite",
+            "master_bedroom",
+            "bedroom"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "walk_through_fallback": {
+          "value": "closet",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Si la secuencia no cabe, el walk-in pasa a clóset de pared",
+            "en": "When the sequence does not fit, the walk-in becomes a reach-in closet"
+          },
+          "choices": [
+            "closet",
+            "none"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
         }
       },
       "text": [
@@ -928,7 +970,7 @@
           "value": 12.5,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de primary_suite",
@@ -942,13 +984,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j): bed clearance hard (rule R3)"
         },
         "furniture_d_ft": {
           "value": 10,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de primary_suite",
@@ -962,7 +1004,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j): bed clearance hard (rule R3)"
         },
         "bed": {
           "value": "king",
@@ -1190,7 +1232,7 @@
           "value": 11.0,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Ancho del rectángulo libre de mobiliario (mueble + holguras) de bedroom",
@@ -1204,13 +1246,13 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j): bed clearance hard (rule R3)"
         },
         "furniture_d_ft": {
           "value": 10.0,
           "type": "number",
           "unit": "ft",
-          "kind": "soft",
+          "kind": "hard",
           "who": "client",
           "description": {
             "es": "Fondo del rectángulo libre de mobiliario de bedroom",
@@ -1224,7 +1266,7 @@
             "soft",
             "hard"
           ],
-          "note": "Client decision 2026-10-11 23:54 (intermediate profile): strong preference until S2.2d, then hard."
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j): bed clearance hard (rule R3)"
         },
         "bed": {
           "value": "queen",
@@ -6442,14 +6484,442 @@
           "kinds_allowed": [
             "soft"
           ]
+        },
+        "bed": {
+          "value": "king",
+          "type": "enum",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Cama de referencia del dormitorio principal",
+            "en": "Reference bed of the main bedroom"
+          },
+          "choices": [
+            "full",
+            "queen",
+            "king"
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "furniture_w_ft": {
+          "value": 12.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Ancho del rectángulo libre de mobiliario del principal (cama king + 36 in a los lados)",
+            "en": "Width of the clear furniture rectangle of the main bedroom (king bed + 36 in at the sides)"
+          },
+          "range": [
+            9.0,
+            16.5
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "furniture_d_ft": {
+          "value": 10.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Fondo del rectángulo libre de mobiliario del principal (cama + 36 in al pie)",
+            "en": "Depth of the clear furniture rectangle of the main bedroom (bed + 36 in at the foot)"
+          },
+          "range": [
+            8.0,
+            15.0
+          ],
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "largest": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "El principal es el dormitorio mayor de su planta",
+            "en": "The main bedroom is the largest bedroom of its floor"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
         }
       },
       "text": [
-        "When an upper floor has two or more bedrooms and no primary suite, the largest bedroom becomes the main bedroom: extra_share more area and a walk-in closet en suite (from the FAR slack, else from the other bedrooms of the floor down to their minimum); it gets the floor's first en-suite bath."
+        "When an upper floor has two or more bedrooms and no primary suite, the largest bedroom becomes the main bedroom: extra_share more area and a walk-in closet en suite (from the FAR slack, else from the other bedrooms of the floor down to their minimum); it gets the floor's first en-suite bath.",
+        "S2.2j: the main bedroom has a king bed (its own clear furniture rectangle) and is drawn as the largest bedroom of its floor."
       ],
       "source": {
         "document": "S2.2i plan (2026-10-13)",
         "section": "case 1"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S00-GUEST-ROOM",
+      "kind": "design",
+      "magnitude": "guest_room",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.guest_room",
+      "parameters": {
+        "shared_bath_required": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "El cuarto de huéspedes solo existe si comparte baño con otro dormitorio",
+            "en": "The guest room exists only when it shares a bath with another bedroom"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "fallback": {
+          "value": "study",
+          "type": "enum",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Uso del cuarto de huéspedes sin baño compartido",
+            "en": "Use of a guest room without a shared bath"
+          },
+          "choices": [
+            "study",
+            "family_room"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "family_room_when_fits": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Sala familiar en lugar de estudio cuando su área llega al mínimo de la sala familiar",
+            "en": "A family room instead of a study when its area reaches the family room minimum"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        }
+      },
+      "text": [
+        "A convertible guest room (flex_room, guest role) is kept only when it shares a bath with another bedroom of its floor (the bath between them, onto the hall); otherwise it becomes a study, or a family room when its area reaches the family room's minimum."
+      ],
+      "source": {
+        "document": "S2.2j plan (2026-10-13)",
+        "section": "decision 8"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S00-STRIPS",
+      "kind": "design",
+      "magnitude": "strips",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.strips",
+      "parameters": {
+        "enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "No hay tiras de espacio más angostas que su mínimo",
+            "en": "No strip of a space narrower than its minimum"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "min_part_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Ancho mínimo de cualquier parte de un cuarto o pasillo",
+            "en": "Least width of any part of a room or hall"
+          },
+          "range": [
+            2.0,
+            4.0
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "closet_min_part_ft": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Ancho mínimo de cualquier parte de un clóset o espacio de guardado",
+            "en": "Least width of any part of a closet or storage space"
+          },
+          "range": [
+            1.5,
+            3.0
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "closet_min_front_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Frente mínimo de un clóset (clóset mínimo 2 x 3 ft)",
+            "en": "Least front of a closet (closet at least 2 x 3 ft)"
+          },
+          "range": [
+            2.0,
+            5.0
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "storage_types": {
+          "value": [
+            "closet",
+            "walk_in_closet",
+            "pantry",
+            "storage",
+            "mechanical",
+            "laundry_closet"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Tipos que usan el ancho mínimo de clóset",
+            "en": "Types that use the closet least width"
+          },
+          "choices": [
+            "closet",
+            "walk_in_closet",
+            "pantry",
+            "storage",
+            "mechanical",
+            "laundry_closet"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ]
+        },
+        "min_length_ft": {
+          "value": 2.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Largo mínimo de una tira para tratarla como tal (un escalón de muro más corto no es tira)",
+            "en": "Least length of a strip to count as one (a shorter jog of the wall is no strip)"
+          },
+          "range": [
+            0.5,
+            4.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "circulation_hard": {
+          "value": false,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Una tira de pasillo o foyer que no se puede resolver invalida la planta (si no, se reporta: viene de la geometría de la escalera de S1 y se resuelve en la fase 2 de S2)",
+            "en": "A hall or foyer strip that cannot be resolved invalidates the floor (else it is reported: it comes from the S1 stair geometry and is solved in S2 phase 2)"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "S2.2j pilot (2026-10-14): circulation strips come from the stair core of S1; pending client decision"
+        }
+      },
+      "text": [
+        "No space keeps a strip narrower than its least width (3 ft rooms and halls, 2 ft closets); a strip joins the neighbour it shares the most wall with (the stair takes slivers along it as its enclosure); a closet is at least 2 x 3 ft, a smaller one joins its room.",
+        "S2.2j pilot: a strip shorter than min_length_ft is a jog of the wall, not a strip; a hall or foyer strip that cannot be resolved is reported (circulation_hard False) until S2 phase 2 sizes the circulation."
+      ],
+      "source": {
+        "document": "S2.2j plan (2026-10-13)",
+        "section": "decision 6"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S00-BATH-FIXTURES",
+      "kind": "design",
+      "magnitude": "bath_fixtures",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.bath_fixtures",
+      "parameters": {
+        "enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Aparatos del baño en línea (ducha o tina en un extremo)",
+            "en": "Bath fixtures in line (shower or tub at one end)"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "wet_depth_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Fondo de la zona de ducha o tina en el extremo",
+            "en": "Depth of the shower or tub zone at the end"
+          },
+          "range": [
+            2.5,
+            4.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "toilet_ft": {
+          "value": 2.5,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Tramo del inodoro (30 in)",
+            "en": "Toilet stretch (30 in)"
+          },
+          "range": [
+            2.5,
+            3.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "closet_not_wet_side": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "El clóset del baño nunca del mismo lado que la ducha",
+            "en": "The bath closet never on the shower side"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "door_not_wet": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "La puerta del baño no abre sobre la ducha o tina",
+            "en": "The bath door does not open over the shower or tub"
+          },
+          "kinds_allowed": [
+            "soft",
+            "hard"
+          ],
+          "note": "Client decision 2026-10-13 23:21-23:30 (S2.2j)"
+        },
+        "types": {
+          "value": [
+            "bathroom",
+            "primary_bath",
+            "social_bath"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Baños con ducha o tina",
+            "en": "Baths with a shower or tub"
+          },
+          "choices": [
+            "bathroom",
+            "primary_bath",
+            "social_bath"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ]
+        }
+      },
+      "text": [
+        "Full baths get their fixtures in line: the shower or tub at the short end away from the bath closet and the door, then the toilet and the vanity; the closet never borders the wet zone."
+      ],
+      "source": {
+        "document": "S2.2j plan (2026-10-13)",
+        "section": "decision 7"
       },
       "verified": false
     }

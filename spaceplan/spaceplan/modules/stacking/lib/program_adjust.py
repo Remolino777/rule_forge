@@ -15,7 +15,10 @@ Runs on a copy of an area-matrix cell before S0/S1, so the area matrix and the g
     (even when the suite is downstairs) makes its largest bedroom the main one (`master`): space.master_bedroom
     extra_share more area (taken from the floor's other bedrooms down to their catalog minimum) and a walk-in closet
     en suite; the floor's gross, and so stage S1, stay as they are (stage S2 scales the targets to the floor); the
-    main bedroom (the one named primary first, else the largest) gets the floor's first en-suite bath.
+    main bedroom (the one named primary first, else the largest) gets the floor's first en-suite bath;
+  * guest room (step 6.7a S2.2j, client 2026-10-13 23:21): a convertible guest room is kept only when it shares a bath
+    with another bedroom of its floor (a secondary bedroom's own bath becomes shared, or a new bath while the FAR
+    allows); otherwise it becomes a study, or a family room when it reaches the family room's minimum area.
 
 Area criteria (step 6.7a S2.2e, client decision 2026-10-12 10:18; design module area_criteria), when enabled:
 
@@ -180,6 +183,109 @@ def _extra_room(rows: list[dict[str, Any]], values: dict[str, Any], catalog, sla
     return res
 
 
+FLEX, STUDY, FAMILY = "flex_room", "study", "family_room"
+
+
+def _is_guest(r: dict[str, Any]) -> bool:
+    """A convertible guest room of the household program (flex_room in the guest role)."""
+    return r["space_type"] == FLEX and (r.get("household_role") == "guest" or "guest" in str(r["space_id"]))
+
+
+def to_study(r: dict[str, Any], values: dict[str, Any], catalog) -> str:
+    """S2.2j: a guest room without a shared bath becomes a study, or a family room when its area reaches the family
+    room's minimum (space.guest_room.family_room_when_fits); returns the new type."""
+    new = str(values.get("space.guest_room.fallback") or STUDY)
+    if new == STUDY and values.get("space.guest_room.family_room_when_fits") and catalog.has_space_type(FAMILY) \
+            and float(r["area_sqft"]) >= float(catalog.space_type(FAMILY)["area"]["min"]):
+        new = FAMILY
+    r["space_type"] = new
+    r["converted_from"] = FLEX
+    return new
+
+
+def _guest_room(rows: list[dict[str, Any]], guest: dict[str, Any], values: dict[str, Any], catalog, bath: str,
+                take, new_id, added_by_floor: list[float]) -> dict[str, Any]:
+    """Step 3d (S2.2j, client 2026-10-13 23:21): the guest room shares a bath with another bedroom of its floor (the
+    bath between them, onto the hall): a secondary bedroom's own bath becomes shared, else a new bath while the FAR
+    allows; without a bedroom to share with, the room becomes a study (or a family room)."""
+    f = guest["floor"]
+    beds = sorted((r for r in rows if r["floor"] == f and r["space_type"] == BEDROOM and not r.get("host_space_id")
+                   and not r.get("master")), key=lambda r: r["space_id"])
+    for bed in beds:                                     # a secondary bedroom's own bath, shared with the guest
+        own = next((r for r in rows if r["floor"] == f and r["space_type"] == bath
+                    and r.get("host_space_id") == bed["space_id"]), None)
+        if own is not None:
+            own["host_space_id"] = None
+            own["shared_by"] = [bed["space_id"], guest["space_id"]]
+            own["guest_share"] = True
+            return {"guest": guest["space_id"], "floor": f, "shared_bath": own["space_id"], "with": bed["space_id"]}
+    for bed in beds:                                     # a bedroom without a bath: a new bath for both
+        if any(bed["space_id"] in (r.get("shared_by") or ()) for r in rows):
+            continue
+        area = float(catalog.space_type(bath)["area"]["target"])
+        if take(area):
+            sid = new_id(f"{bath}_guest")
+            rows.append(_row(sid, bath, "private", f, area, shared_by=[bed["space_id"], guest["space_id"]],
+                             guest_share=True))
+            added_by_floor[f] += area
+            return {"guest": guest["space_id"], "floor": f, "shared_bath": sid, "with": bed["space_id"],
+                    "added_sqft": area}
+    return {"guest": guest["space_id"], "floor": f, "converted_to": to_study(guest, values, catalog)}
+
+
+def _walk_ins_to_closets(rows: list[dict[str, Any]], catalog) -> bool:
+    """R1 fallback (client 2026-10-13 23:30, a): the walk-in of the suite or the main bedroom becomes a reach-in
+    closet of its room (at most the closet's maximum area; the rest joins the room); True when one changed."""
+    hosts = {r["space_id"]: r for r in rows if r["space_type"] == SUITE or r.get("master")}
+    cap = float(catalog.space_type("closet")["area"]["max"])
+    changed = False
+    for r in rows:
+        if r["space_type"] == WALK_IN and r.get("host_space_id") in hosts:
+            host = hosts[r["host_space_id"]]
+            area = float(r["area_sqft"])
+            r["space_type"], r["converted_from"] = "closet", WALK_IN
+            r["area_sqft"] = round(min(area, cap), 1)
+            host["area_sqft"] = round(float(host["area_sqft"]) + area - r["area_sqft"], 1)
+            changed = True
+    return changed
+
+
+def _guests_to_studies(rows: list[dict[str, Any]], values: dict[str, Any], catalog) -> bool:
+    """Guest fallback: a guest room whose shared bath cannot be drawn becomes a study (or a family room) and the
+    bath goes back to the other bedroom, en suite; True when one changed."""
+    changed = False
+    for r in rows:
+        if not r.get("guest_share") or len(r.get("shared_by") or ()) != 2:
+            continue
+        bed, guest = r["shared_by"]
+        g = next((x for x in rows if x["space_id"] == guest), None)
+        if g is None or g["space_type"] != FLEX:
+            continue
+        to_study(g, values, catalog)
+        r.pop("shared_by", None)
+        r["host_space_id"] = bed
+        changed = True
+    return changed
+
+
+def program_fallbacks(rows: list[dict[str, Any]], values: dict[str, Any] | None, catalog):
+    """(tag, rows) to try in stage S2.1 when the program as adjusted has no valid layout (S2.2j): the walk-ins of
+    the walk-through scope as closets, the guest rooms as studies, then both. Each is a deep copy."""
+    values = values or {}
+    out = []
+    a = copy.deepcopy(rows)
+    if values.get("space.policy.walk_through_fallback") == "closet" and _walk_ins_to_closets(a, catalog):
+        out.append(("walk_in_to_closet", a))
+    b = copy.deepcopy(rows)
+    if _guests_to_studies(b, values, catalog):
+        out.append(("guest_to_study", b))
+        if out[0][0] == "walk_in_to_closet":
+            c = copy.deepcopy(a)
+            _guests_to_studies(c, values, catalog)
+            out.append(("walk_in_to_closet+guest_to_study", c))
+    return out
+
+
 def adjust_program(cell: dict[str, Any], far_max_sqft: float | None, catalog, scat, client_rs,
                    design_values: dict[str, Any] | None = None) -> tuple[dict, dict]:
     """(adjusted copy of the cell, report). Cells with one floor or without a space split come back unchanged.
@@ -262,11 +368,28 @@ def adjust_program(cell: dict[str, Any], far_max_sqft: float | None, catalog, sc
             else:
                 report["skipped"].append({"space_type": need, "floor": f, "reason": "FAR"})
 
+    # 2a. a walk-in of the program with no room (S2.2j): it hangs from the floor's main bedroom (the one named
+    # primary, else the largest), which becomes the main one
+    for w in [r for r in rows if r["space_type"] == WALK_IN and not r.get("host_space_id")]:
+        beds = [r for r in rows if r["floor"] == w["floor"] and r["space_type"] in (BEDROOM, SUITE)
+                and not r.get("host_space_id")]
+        if not beds:
+            continue
+        main = max(beds, key=lambda r: (r["space_type"] == SUITE, "primary" in r["space_id"], float(r["area_sqft"]),
+                                        r["space_id"]))
+        w["host_space_id"] = main["space_id"]
+        if main["space_type"] == BEDROOM:
+            main["master"] = True
+        for b in [r for r in rows if r["floor"] == w["floor"] and r["space_type"] == "primary_bath"
+                  and not r.get("host_space_id")][:1]:
+            b["host_space_id"] = main["space_id"]       # and the primary bath of the program with it
+        report.setdefault("walk_in_hosted", []).append({"walk_in": w["space_id"], "host": main["space_id"]})
+
     # 2b. the main bedroom of an upper floor without a suite (S2.2i)
     if values.get("space.master_bedroom.enabled"):
         for f in floors:
-            if f == 0 or any(r["floor"] == f and r["space_type"] == SUITE for r in rows):
-                continue
+            if f == 0 or any(r["floor"] == f and (r["space_type"] == SUITE or r.get("master")) for r in rows):
+                continue                                 # a suite, or a main bedroom already (2a)
             beds = [r for r in rows if r["floor"] == f and r["space_type"] == BEDROOM and not r.get("host_space_id")]
             if len(beds) < 2:
                 continue
@@ -294,7 +417,10 @@ def adjust_program(cell: dict[str, Any], far_max_sqft: float | None, catalog, sc
     # 3. a bath per bedroom while the FAR allows, then the assignment (en suite, or shared by two bedrooms)
     bath = prog["bath_type"]
     for f in floors:
-        beds = [r["space_id"] for r in sorted((r for r in rows if r["floor"] == f and r["space_type"] == BEDROOM),
+        hosts_bath = {r.get("host_space_id") for r in rows if r["space_type"] in ("primary_bath", bath)
+                      and r.get("host_space_id")}
+        beds = [r["space_id"] for r in sorted((r for r in rows if r["floor"] == f and r["space_type"] == BEDROOM
+                                               and r["space_id"] not in hosts_bath),     # S2.2j: one own bath
                                               key=lambda r: (not r.get("master"), r["space_id"]))]   # main first
         if not beds:
             continue
@@ -324,6 +450,11 @@ def adjust_program(cell: dict[str, Any], far_max_sqft: float | None, catalog, sc
                 r["shared_by"] = pair
                 report["shared"].append({"bath": r["space_id"], "bedrooms": pair})
             k += 2
+
+    # 3d. the guest room shares a bath with another bedroom of its floor, else it becomes a study (S2.2j)
+    if values.get("space.guest_room.shared_bath_required"):
+        report["guest"] = [_guest_room(rows, g, values, catalog, bath, take, new_id, added_by_floor)
+                           for g in [r for r in rows if _is_guest(r)]]
 
     if caps_on:
         for r in rows:                                   # spaces K10 added get their cap too
@@ -373,4 +504,4 @@ def adjust_program(cell: dict[str, Any], far_max_sqft: float | None, catalog, sc
     return out, report
 
 
-__all__ = ["adjust_program"]
+__all__ = ["adjust_program", "program_fallbacks", "to_study"]

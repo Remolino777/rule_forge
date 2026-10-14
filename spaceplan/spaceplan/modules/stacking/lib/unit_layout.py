@@ -688,6 +688,19 @@ class UnitLayout:
         else:
             ends = [(box[0], box[1], box[2], box[2] + d), (box[0], box[1], box[3] - d, box[3])]
         best = None
+        d_ = rules.design                         # S2.2j R2: a bedroom's closet at the end nearer its entry side
+        r2 = bool(d_.get("circulation.in_room.enabled")) and t in set(d_.get("circulation.in_room.types") or ())
+        entry = None
+        if r2:
+            entry = np.zeros_like(kept)
+            for m in self.circ_targets:
+                entry |= self._edge_cells(kept, m)
+            if avoid is not None:
+                pad = np.zeros((avoid.shape[0] + 2, avoid.shape[1] + 2), dtype=bool)
+                pad[1:-1, 1:-1] = avoid
+                entry |= self._edge_cells(kept, pad)
+            if not entry.any():
+                entry = None
         for e in ends:
             strip = np.zeros_like(kept)
             strip[e[2]:e[3], e[0]:e[1]] = True
@@ -699,6 +712,13 @@ class UnitLayout:
                 continue
             area = int(strip.sum()) * self.res * self.res
             if not (rules.closet_min_sqft - 1e-9 <= area <= rules.closet_max_sqft + 1e-9):
+                continue
+            if entry is not None:                 # near the entry side, never over all of it (the door stays)
+                blocks = not (entry & rest).any()
+                near = float(distance_transform_edt(~entry)[strip].min())
+                cost = exterior_cells(strip, self.ext) + 1000 * blocks + 2 * near
+                if best is None or cost < best[0]:
+                    best = (cost, rest, strip, e)
                 continue
             door_side = sum(self._contact(strip, m) for m in self.circ_targets) + (
                 self._touch_cells(strip, avoid) if avoid is not None else 0)
@@ -722,8 +742,8 @@ class UnitLayout:
         amax = rules.std(t, "aspect_max")
         if amax is not None and rules.hard(t, "aspect_max") and _aspect(box) > float(amax) + 1e-9:
             return f"aspect:{t}"
-        if rules.furniture_hard(t):
-            options = rules.furniture_ft(t)
+        if rules.furniture_hard_of(t, spec.master):
+            options = rules.furniture_of(t, spec.master)          # S2.2j: the main bedroom's king bed
             if options and not any(fits_in_mask(kept, self._cells(w), self._cells(d)) for w, d in options):
                 return f"furniture:{t}"
         return None
@@ -862,7 +882,7 @@ class UnitLayout:
                 dev = abs(p.cells - targets[p.spec.space_id]) / targets[p.spec.space_id]
                 fits.append(max(0.0, 1.0 - dev / self.tol) if self.tol else 1.0)
             if not p.spec.synthetic:
-                options = rules.furniture_ft(t)
+                options = rules.furniture_of(t, p.spec.master)
                 if options:
                     furn.append(1.0 if any(fits_in_mask(p.mask, self._cells(w), self._cells(d)) for w, d in options)
                                 else 0.0)
@@ -898,7 +918,53 @@ class UnitLayout:
         w = shape_weighted(rules, rules.s21["layout"]["local_weights"], self.floor)
         parts["total"] = sum(w[k] * parts[k] for k in w) / (sum(w.values()) or 1.0)
         self._upper_parts(pieces, parts)
+        self._service_parts(pieces, parts)
         return parts
+
+    def _edge_cells(self, mask: np.ndarray, target_pad: np.ndarray) -> np.ndarray:
+        """Cells of `mask` (box coordinates) with a 4-neighbour in `target_pad` (box + 1 border)."""
+        t = target_pad
+        return mask & (t[1:-1, :-2] | t[1:-1, 2:] | t[:-2, 1:-1] | t[2:, 1:-1])
+
+    def _service_parts(self, pieces: list[Piece], parts: dict) -> None:
+        """S2.2j R2 (client 2026-10-13 23:21): the walk-in, closets and bath of a room beside its entry: for each space
+        a room hosts, the distance from the room's cells on circulation to its cells on that space, as nearness;
+        blended into the total with circulation.in_room.service_near_entry_weight."""
+        d = self.rules.design
+        w = float(d.get("circulation.in_room.service_near_entry_weight") or 0.0) if d.get(
+            "circulation.in_room.enabled") else 0.0
+        if w <= 0:
+            return
+        types = set(d.get("circulation.in_room.types") or ())
+        scale = float(d.get("circulation.in_room.near_scale_ft") or 1.0)
+        vals = []
+        for p in pieces:
+            if p.spec.space_type not in types or p.spec.fixed or not p.mask.any():
+                continue
+            hosted = [q for q in pieces if q.spec.host == p.spec.space_id and q.spec.space_type not in OPEN_AIR
+                      and q.mask.any()]
+            if not hosted:
+                continue
+            entry = np.zeros_like(p.mask)
+            for q in pieces:
+                if q.spec.circulation and q is not p:
+                    pad = np.zeros((q.mask.shape[0] + 2, q.mask.shape[1] + 2), dtype=bool)
+                    pad[1:-1, 1:-1] = q.mask
+                    entry |= self._edge_cells(p.mask, pad)
+            for t in self.circ_targets:
+                entry |= self._edge_cells(p.mask, t)
+            if not entry.any():
+                continue
+            dist = distance_transform_edt(~entry) * self.res
+            for q in hosted:
+                pad = np.zeros((q.mask.shape[0] + 2, q.mask.shape[1] + 2), dtype=bool)
+                pad[1:-1, 1:-1] = q.mask
+                inner = self._edge_cells(p.mask, pad)
+                if inner.any():
+                    vals.append(1.0 / (1.0 + float(dist[inner].min()) / scale))
+        if vals:
+            parts["service_near_entry"] = float(np.mean(vals))
+            parts["total"] = (1.0 - w) * parts["total"] + w * parts["service_near_entry"]
 
     def _upper_parts(self, pieces: list[Piece], parts: dict) -> None:
         """S2.2i (upper floor): bedrooms as near the stair landing as possible, baths against the preferred walls;
@@ -986,13 +1052,19 @@ class UnitLayout:
                 qs = q.spec
                 ok = (qs.circulation or (sp.host and sp.host == qs.space_id) or (qs.host == sp.space_id and False)
                       or (self.rules.policy("walk_through_closet") and sp.space_type in BATH_TYPES and sp.host
-                          and qs.space_type == WALK_IN and qs.host == sp.host)            # S2.2c: through the walk-in
+                          and qs.space_type == WALK_IN and qs.host == sp.host)            # S2.2c/j: through the walk-in
                       or (sp.roles & self.from_roles and qs.roles & self.to_roles)
                       or (not private and qs.passable))
             if not ok and not private:
                 ok = any(self._contact(p.mask, t) >= need for t in self.room_targets)
             if not ok and private:                # a hall strip of a neighbouring private unit may reach it
                 ok = any(self._contact(p.mask, t) >= need for t in self.private_targets)
+            if ok and sp.host and sp.space_type in BATH_TYPES:     # S2.2j: an own bath of the walk-through scope
+                host = next((q.spec for q in pieces if q.spec.space_id == sp.host), None)   # touches the walk-in
+                walk = next((q for q in pieces if q.spec.space_type == WALK_IN and q.spec.host == sp.host), None)
+                if (host is not None and walk is not None and rules.walk_through(host.space_type, host.master)
+                        and self._touch_cells(p.mask, walk.mask) < need):
+                    return False
             if ok and sp.between:                 # K10: between its two bedrooms
                 for b in sp.between:
                     q = next((x for x in pieces if x.spec.space_id == b), None)
@@ -1274,6 +1346,8 @@ class UnitLayout:
                             self._fail("reach")
                         elif not self._hard_pairs_ok(cand):
                             self._fail("hard_pair")
+                        elif not master_largest(cand, self.rules):
+                            self._fail("master:not_largest")
                         else:
                             parts = self._score(cand, targets, slack)
                             parts["closets_in_rooms"] = list(merged)
@@ -1281,6 +1355,19 @@ class UnitLayout:
                     if not has_closet:
                         break
         return found
+
+
+def master_largest(pieces, rules: SpaceRules) -> bool:
+    """S2.2j (client 2026-10-13 23:21): the main bedroom is at least as large as every other bedroom beside it
+    (pieces: anything with .spec and .cells); True when the rule is off or not hard."""
+    if not rules.design.get("space.master_bedroom.largest") or \
+            rules.design_kinds.get("space.master_bedroom.largest") != "hard":
+        return True
+    beds = [p for p in pieces if p.spec.space_type == "bedroom"]
+    main = [p for p in beds if p.spec.master]
+    if not main:
+        return True
+    return all(main[0].cells >= p.cells for p in beds if not p.spec.master)
 
 
 def _rect_mask(shape, rect) -> np.ndarray:
@@ -1296,4 +1383,4 @@ def _touches(a: np.ndarray, b: np.ndarray) -> bool:
                 or (a[1:, :] & b[:-1, :]).any() or (a[:-1, :] & b[1:, :]).any())
 
 
-__all__ = ["HALL_TYPE", "NO_HALL", "Piece", "UnitLayout", "UnitOption"]
+__all__ = ["HALL_TYPE", "NO_HALL", "Piece", "UnitLayout", "UnitOption", "master_largest"]

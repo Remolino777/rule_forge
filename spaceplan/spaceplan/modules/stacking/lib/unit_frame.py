@@ -66,6 +66,7 @@ class SpaceSpec:
     synthetic: bool = False
     between: tuple[str, ...] = ()       # K10: the two bedrooms a shared bath sits between
     cap_sqft: float | None = None       # S2.2e: effective maximum net area (program adjustment), None: no cap
+    master: bool = False                # S2.2j: the main bedroom of an upper floor (program adjustment)
 
 
 @dataclass
@@ -103,6 +104,7 @@ class SpaceFloor:
     open_plan: bool = False             # S2.2c: kitchen and social units merged into a great room
     below_lines: tuple | None = None    # S2.2f: (V, H) ground walls seen from this upper floor's grid
     stair_cover: np.ndarray | None = None   # S2.2i: covered start of the stair left with the stair (a closet later)
+    fixed_shapes: dict | None = None        # S2.2j: local outline of each fixed node (the half bath under the stair)
 
     @property
     def res(self) -> float:
@@ -147,15 +149,16 @@ def spec_of(catalog, rules: SpaceRules, matrix: ZoneMatrix, row: dict[str, Any],
         min_side = max(min_side, rules.hall_min_ft)
     if st == "walk_in_closet" and row.get("host_space_id") and rules.policy("walk_through_closet"):
         min_side = max(min_side, float(rules.policy("walk_through_min_side_ft") or 0.0))   # S2.2c: walk-through
-    if rules.furniture_hard(st):                       # S2.2b: hard furniture sets the least side of the cuts
-        options = rules.furniture_ft(st)
+    master = bool(row.get("master"))                   # S2.2j: the main bedroom (king bed, largest, walk-through)
+    if rules.furniture_hard_of(st, master):            # S2.2b: hard furniture sets the least side of the cuts
+        options = rules.furniture_of(st, master)
         if options:
             min_side = max(min_side, min(min(w, d) for w, d in options))
     return SpaceSpec(row["space_id"], st, row.get("zone") or t.get("zone", ""), unit_id,
                      float(row["area_sqft"] if target is None else target), min_sqft, min_side, habitable,
                      bool(t.get("passable")), st in CIRCULATION_TYPES, roles_of(matrix, st),
                      row.get("host_space_id"), fixed, False, tuple(row.get("shared_by") or ()),
-                     float(row["area_cap_sqft"]) if row.get("area_cap_sqft") is not None else None)
+                     float(row["area_cap_sqft"]) if row.get("area_cap_sqft") is not None else None, master)
 
 
 def _fixed_spec(name: str, space_id: str, space_type: str, matrix: ZoneMatrix, extra_roles=()) -> SpaceSpec:
@@ -211,6 +214,7 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
     by_id = {r["space_id"]: r for r in rows}
     fixed: list[SpaceSpec] = []
     notes: list[str] = []
+    shapes: dict[str, Any] = {}
     for name, geom in fixed_objs:
         if geom is None or geom.is_empty or name not in grid.label_ids:
             continue
@@ -226,6 +230,7 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
             continue
         base[cells] = len(fixed)
         fixed.append(spec)
+        shapes[spec.space_id] = geom                # S2.2j: its whole outline (a half bath under the stair)
 
     for o in floor_block.get("open_air", []):     # S2.2g: open ends of the bands (roof, porch, unbuilt) are outside
         rr, cc = cells_of(grid, plan.frame.to_local(shape(o["polygon"])))
@@ -276,6 +281,7 @@ def space_floor(level: int, floors: CellFloors, floor_block: dict[str, Any], row
     out = SpaceFloor(level, grid, base, fixed, units, landing, stair, tuple(receiving), accessible, variant, notes,
                      links, exterior, profile, open_plan)
     out.stair_cover = cover
+    out.fixed_shapes = shapes
     return out
 
 

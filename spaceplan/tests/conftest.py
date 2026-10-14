@@ -92,3 +92,30 @@ def assert_close(actual, expected, tol: float, path: str = "") -> None:
         assert abs(actual - expected) <= tol, (path, actual, expected)
     else:
         assert actual == expected, (path, actual, expected)
+
+
+# ------------------------------------------------------------------ S2.2j: the S2.1 mechanics before the bedroom rules
+# Tests of stage S2.1 mechanics (S2.1, S2.1b) run on the interior lot's teens family, which the S2.2j bedroom rules
+# (hard bed clearances, in-room paths, strips...) leave without a layout; they run with those rules relaxed.
+
+PRE_S22J_CHANGES = [
+    *({"id": f"space.{t}.furniture_{s}", "kind": "soft"} for t in ("bedroom", "primary_suite", "master_bedroom")
+      for s in ("w_ft", "d_ft")),
+    {"id": "circulation.in_room.enabled", "value": False},
+    {"id": "space.strips.enabled", "value": False},
+    {"id": "space.bath_fixtures.enabled", "value": False},
+    {"id": "door.leaf.support_required", "value": False},
+    {"id": "door.conflicts.off_corner", "value": True},
+    {"id": "space.master_bedroom.largest", "value": False},
+    {"id": "space.guest_room.shared_bath_required", "value": False},
+    {"id": "space.policy.walk_through_scope", "value": ["primary_suite"]},
+]
+
+
+def pre_s22j_profile() -> dict:
+    from spaceplan.modules.design.lib import design_profile as dp
+    from spaceplan.modules.design.lib.design_registry import load_registry
+
+    reg = load_registry()
+    return dp.apply(reg, dp.new_profile(reg, "pre_s22j"), PRE_S22J_CHANGES, "tests", "2026-10-14",
+                    "S2.1 mechanics without the S2.2j bedroom rules")

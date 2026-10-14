@@ -1500,6 +1500,62 @@ recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote
 - Mobiliario que no cabe: 16.9 → 20.6 %.
 - Conflictos dentro de los baños.
 
+## 4ac. Paso 6.7a, S2.2j (14 oct 2026): dormitorios — walk-in de paso, cama sin cruces, hojas sobre muro, tiras, ducha y huéspedes
+
+**Decisiones del cliente (13 oct 23:21–23:30, 14 oct 00:11).**
+- R1: el baño propio de la suite y del principal se alcanza por el walk-in (obligatorio); si no cabe, walk-in → clóset.
+- R3: el paso dentro del cuarto nunca cruza la cama (obligatorio); cama king en el principal, queen en los demás,
+  36 in a los lados y al pie (mobiliario obligatorio).
+- R2: walk-in, clóset y baño junto a la entrada del cuarto, también en los secundarios. R4: el principal es el mayor.
+- La hoja abatible siempre abre contra un muro; sin puertas de bolsillo; baños y walk-ins pueden usar 2'-8".
+- Sin tiras: 3 ft en cuartos y pasillos, 2 ft en clósets, clóset mínimo 2 × 3 ft.
+- El clóset del baño nunca del lado de la ducha.
+- Cuarto de huéspedes solo con baño compartido con otro dormitorio; si no, estudio (sala familiar desde 220 ft²).
+
+**Datos.**
+- `design_space_standards` 0.8.0: mobiliario `hard` en `bedroom` y `primary_suite`; S00 `space.master_bedroom`
+  (`bed` king, `furniture_w_ft` 12.5, `furniture_d_ft` 10, `largest`); `space.policy.walk_through_scope`
+  (suite, principal) y `walk_through_fallback` (closet); S00-GUEST-ROOM `space.guest_room.*`; S00-STRIPS
+  `space.strips.*` (`min_part_ft` 3, `closet_min_part_ft` 2, `closet_min_front_ft` 3, `min_length_ft` 2,
+  `circulation_hard` False); S00-BATH-FIXTURES `space.bath_fixtures.*`.
+- `design_circulation_doors`: P03 `off_corner` → False; P11 `circulation.in_room.*` (`path_width_ft` 3, `types`,
+  `service_near_entry_weight` 0.25, `near_scale_ft` 4); P12 `door.leaf.*` (`support_required`, `support_min_share`
+  0.7, `narrow_leaf_in` 32, `narrow_types`).
+- Registro de 577 parámetros; grupo LLM `structure` con los prefijos nuevos.
+
+**Código.**
+- `program_adjust`: 2a walk-in sin cuarto → el principal (y su baño principal); 3 un baño propio por dormitorio;
+  3d huésped con baño compartido o estudio (`to_study`); `program_fallbacks` (walk-in → clóset, huésped → estudio,
+  ambos) que `space_cell.space_cell` prueba si el programa no tiene distribución.
+- `space_rules`: `furniture_of`, `furniture_hard_of` (king del principal), `walk_through`, `narrow_leaf_ft`;
+  `SpaceSpec.master`.
+- `door_placement`: `walk_through_bath` por función; hoja solo en esquina con muro de apoyo (`support_min_share`);
+  hoja angosta para baños y walk-ins; puertas internas en la esquina más cercana a la entrada del cuarto; la puerta del
+  baño nunca abre sobre la ducha (`wet_keep_out`).
+- `unit_layout`: principal el mayor (`master_largest`), baño de paso junto al walk-in, `_service_parts` (R2) y el
+  clóset tallado del lado de la entrada.
+- Nuevos: `lib/room_circulation` + `lib_aux/room_paths` (cama con holguras con la cabecera en un muro, fuera de los
+  giros y accesos, y todas las puertas unidas alrededor con paso de 3 ft); `lib/strips` + `lib_aux/strip_grid`
+  (tira → clóset, porche/techo si da a fachada, muro si es astilla, o vecino; clósets chicos al cuarto);
+  `lib/bath_fixtures` + `lib_aux/bath_geometry` (ducha, inodoro, lavabo en línea).
+- `space_cell.search_floor`: tiras → walk-in de paso → principal mayor → cama sin cruces → aparatos del baño.
+  Salida `in_room`, `strips`, `fixtures`, `program_fallback`, `under_stair_sqft` (el medio baño bajo la escalera se
+  dibuja completo). `hall_trim`: el clóset de escalera nunca de un baño.
+- `space_quality.rooms_summary` (bloque `rooms`), láminas con los aparatos, esquema, pruebas
+  `tests/stacking/test_stage_s22j.py`; `test_stage_s21` y `s21b` corren la mecánica con el perfil `pre_s22j_profile`
+  (conftest).
+
+**Piloto (`docs/results/s22j_pilot/`).**
+- 30 casas (S2.2i: 42); pierden los lotes de 50 ft (interior 6 → 2, ladera 6 → 3, poco fondo 4 → 2).
+- Baño por el walk-in 17/17; principal el mayor 8/8; cama sin cruces en todos los cuartos; 0 hojas al aire (105);
+  0 clósets del lado de la ducha; mobiliario que no cabe 20.6 → 11.8 %.
+- R3 45 → 87; walk-in arriba en 4 de 16 casas (13 usaron el respaldo walk-in → clóset).
+
+**Pendiente.**
+- Decisión del cliente sobre las casas perdidas (holgura de 30 in u otra).
+- Tiras de pasillo y foyer (199 ft², reportadas): fase 2.
+- R2 en el principal (la puerta del walk-in aún en el muro opuesto en la distribución que queda).
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1648,8 +1704,8 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4ab del HANDOFF). S2.2i dejó la planta alta con dormitorio principal con walk-in, puertas corridas
-> para no chocar (R3 94 → 45), baños en muros exteriores (80 %), puertas a 3.5 ft de la escalera y el vano de
-> escalera por altura libre; 42 casas. Pendiente: el principal como el dormitorio mayor en S2.1, el mobiliario y la
-> fase 2 de circulación por servicio. Mide con `spaceplan quality` contra `docs/results/s22i_pilot/`. Respeta las
-> reglas de la sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.
+> secciones 4t–4ac del HANDOFF). S2.2j dejó los dormitorios con baño por el walk-in, la cama sin cruces de paso, hojas
+> siempre sobre muro, sin tiras en cuartos, la ducha lejos del clóset y el cuarto de huéspedes solo con baño
+> compartido; 30 casas (S2.2i: 42), las pérdidas en los lotes de 50 ft. Pendiente: decidir la holgura de la cama,
+> las tiras de pasillo (fase 2) y R2 en el principal. Mide con `spaceplan quality` contra `docs/results/s22j_pilot/`.
+> Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.

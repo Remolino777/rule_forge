@@ -29,7 +29,7 @@ import numpy as np
 from spaceplan.modules.stacking.lib.door_placement import FloorLayout
 from spaceplan.modules.stacking.lib.space_rules import SpaceRules
 from spaceplan.modules.stacking.lib.unit_frame import OUT, SpaceSpec
-from spaceplan.modules.stacking.lib.unit_layout import ROOF_TYPE, WALK_IN, _closet_spec
+from spaceplan.modules.stacking.lib.unit_layout import BATH_TYPES, ROOF_TYPE, WALK_IN, _closet_spec
 from spaceplan.modules.stacking.lib_aux.hall_geometry import (
     along,
     cells,
@@ -302,7 +302,8 @@ def stair_cover_closet(layout: FloorLayout, rules: SpaceRules) -> tuple[FloorLay
     ring_[:-1, :] |= cover[1:, :]
     ring_ &= ~cover
     near = [int(x) for x in lab[ring_] if x >= 0 and not layout.specs[int(x)].fixed
-            and layout.specs[int(x)].space_type not in ("stair", HALL_TYPE, rules.closet_type, WALK_IN)]
+            and layout.specs[int(x)].space_type not in ("stair", HALL_TYPE, rules.closet_type, WALK_IN)
+            and layout.specs[int(x)].space_type not in BATH_TYPES]          # S2.2j: no closet by a shower
     halls = [int(x) for x in lab[ring_] if x >= 0 and layout.specs[int(x)].space_type == HALL_TYPE]
     pool = near or halls
     if not pool:

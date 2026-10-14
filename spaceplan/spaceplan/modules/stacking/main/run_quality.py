@@ -38,6 +38,8 @@ OVERALL_LABELS = {
     "extra_room": "ambiente adicional: casas donde cabe / agregado",
     "structure": "estructura de la planta alta (muros sobre muros de abajo, luces, vigas, postes) (S2.2f)",
     "arrival": "llegada de la escalera arriba (halls, lado corto de la llegada, puertas de dormitorios) (S2.2f)",
+    "rooms": ("dormitorios (S2.2j): paso dentro del cuarto, cama con holguras, baño por el walk-in, principal mayor, "
+              "aparatos del baño, tiras, hojas sobre muro, puertas angostas, huéspedes y respaldos del programa"),
 }
 
 

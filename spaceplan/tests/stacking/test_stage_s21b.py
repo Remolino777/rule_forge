@@ -6,7 +6,7 @@ from collections import defaultdict
 
 import numpy as np
 import pytest
-from conftest import load_fixture
+from conftest import load_fixture, pre_s22j_profile
 from shapely.geometry import LineString, Point, box, shape
 
 from spaceplan.core.lib.catalog import load_catalog
@@ -58,7 +58,8 @@ def result():
     from spaceplan.pipeline.main.run_modules import area_matrix_contract_for
 
     am = area_matrix_contract_for(lots=["interior_50x100"], households=[("teens_family", "latino")], zone_top=0)
-    return run_stacking(am, [load_fixture("lot_capacity", "interior_50x100")], stage="S2.1")
+    return run_stacking(am, [load_fixture("lot_capacity", "interior_50x100")], stage="S2.1",
+                        design_profile=pre_s22j_profile())        # S2.2j: the mechanics, rules relaxed
 
 
 def _spaced(result):
@@ -176,7 +177,7 @@ def test_closets_slide_and_no_hinged_leaf_stands_in_the_air(result):
                 hinge, r = Point(d["hinge"]), d["leaf_ft"]
                 corners = [Point(p) for p in polys[d["a"]].exterior.coords]
                 if min(hinge.distance(p) for p in corners) > 1.0:
-                    continue        # S2.2i (client 2026-10-13): a door slid off its corner (vestibule, clear of a door)
+                    continue        # S2.2i: a door slid off its corner (the S2.2j rule is tested in test_stage_s22j)
                 sw, seg = shape(d["swing"]), LineString(d["segment"])
                 tip = max((Point(p) for p in sw.exterior.coords if abs(Point(p).distance(hinge) - r) < 0.05),
                           key=seg.distance)

@@ -36,6 +36,9 @@ WORDS = {
 }
 
 
+FIXTURE_FILL = {"wet": "#9ec9e2", "toilet": "#cfe2ee", "vanity": "#e6f0f6"}     # S2.2j: bath fixture bands
+
+
 def _rings(poly: dict | None) -> list[list[list[float]]]:
     if not poly:
         return []
@@ -314,6 +317,9 @@ def _space_panel(ax, floor_poly, block, colors, stair, s1, level, garage=None, s
             ax.text(sum(xs[:-1]) / (len(xs) - 1), sum(ys[:-1]) / (len(ys) - 1),
                     f"{SHORT.get(sp['space_type'], sp['space_type'])}\n{sp['area_sqft']:.0f}", fontsize=3.6,
                     color=INK, ha="center", va="center")
+    for fx in block.get("fixtures") or []:               # S2.2j: shower or tub (darker), toilet, vanity
+        for band, poly in (fx.get("bands") or {}).items():
+            _fill(ax, poly, color=FIXTURE_FILL.get(band, "#d6eaf8"), ec=INK2, lw=0.2)
     _fill(ax, stair, color=STAIR_FILL, ec=STAIR_FILL)
     _access(ax, s1, level)
     for d in block["doors"]:

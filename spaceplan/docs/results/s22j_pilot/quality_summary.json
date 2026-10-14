@@ -1,0 +1,782 @@
+{
+  "overall": {
+    "cells_with_s21": 283,
+    "cells_zoned": 247,
+    "cells_spaced": 30,
+    "spaces": 667,
+    "pct_over_pref": 38.3,
+    "pct_over_max": 18.6,
+    "pct_under_min_side": 2.2,
+    "pct_furniture_misfit": 11.8,
+    "fragmented_spaces": 10,
+    "irregular_circulation": 55,
+    "circulation_fraction_median": 0.168,
+    "hall_long_ft_median": 19.5,
+    "pct_n_not_daylit": 12.3,
+    "closets_by_role": {
+      "closet": 64,
+      "linen": 18,
+      "bath_closet": 53
+    },
+    "m_spaces_with_facade": 228,
+    "m_facade_ft": 1178.5,
+    "pct_over_cap": 3.7,
+    "doors": {
+      "R1": 0,
+      "E1": 0,
+      "R1b": 0,
+      "R2": 0,
+      "R3": 87
+    },
+    "floors_with_door_conflicts": 50,
+    "floors": 60,
+    "suite": {
+      "n": 24,
+      "bedroom_sqft_median": 236.5,
+      "bedroom_sqft_max": 289.0,
+      "total_sqft_median": 355.15,
+      "total_sqft_max": 410.8,
+      "bedroom_to_garage_median": 0.516,
+      "bedroom_to_garage_max": 0.896,
+      "total_to_garage_median": 0.776,
+      "total_to_garage_max": 1.326
+    },
+    "extra_room": {
+      "fits": 28,
+      "applied": 0
+    },
+    "structure": {
+      "n": 30,
+      "zone_walls_on_ground_walls": {
+        "median": 0.487,
+        "max": 1.0,
+        "min": 0.138
+      },
+      "all_walls_on_ground_walls": {
+        "median": 0.276,
+        "max": 0.71,
+        "min": 0.093
+      },
+      "bearing_ok": 24,
+      "joist_span_ft": {
+        "median": 16.5,
+        "max": 24.5,
+        "min": 11.0
+      },
+      "beams": 320,
+      "beam_max_ft": 20.0,
+      "posts": 128
+    },
+    "arrival": {
+      "n": 30,
+      "halls": {
+        "1": 28,
+        "2": 2
+      },
+      "arrival_short_side_ft": {
+        "median": 6.5,
+        "max": 13.5,
+        "min": 3.0
+      },
+      "bedroom_door_spread_ft": {
+        "median": 5.585,
+        "max": 31.0,
+        "min": 3.75
+      },
+      "route_to_bedroom_ft": {
+        "median": 8.8,
+        "max": 25.62,
+        "min": 6.18
+      }
+    },
+    "frame": {
+      "n": 30,
+      "patterns": {
+        "single": 2,
+        "spine": 5,
+        "two_bay": 23
+      },
+      "bays_ft": {
+        "median": 12.0,
+        "max": 17.14,
+        "min": 3.5
+      },
+      "axes_shared": 33,
+      "axis_wall_fraction": {
+        "median": 0.526,
+        "max": 1.0,
+        "min": 0.092
+      },
+      "beam_ft": 1039.5,
+      "posts": 20,
+      "upper_walls_on_ground_walls": {
+        "median": 0.276,
+        "max": 0.71,
+        "min": 0.093
+      },
+      "upper_zone_walls_on_ground_walls": {
+        "median": 0.487,
+        "max": 1.0,
+        "min": 0.138
+      },
+      "open_air_sqft": {
+        "ground:porch": 1489.6,
+        "ground:unbuilt": 392.5,
+        "upper:roof": 1186.3
+      }
+    },
+    "roofs": {
+      "n": 30,
+      "planes": {
+        "median": 4.5,
+        "max": 11,
+        "min": 3
+      },
+      "kinds": {
+        "garage:shed": 29,
+        "lower:shed": 88,
+        "porch:shed": 11,
+        "upper:flat": 1,
+        "upper:pitched": 29
+      },
+      "area_sqft": {
+        "garage": 3275.2,
+        "lower": 25593.6,
+        "porch": 1489.6,
+        "upper": 21366.9
+      },
+      "top_ft": {
+        "median": 14.0,
+        "max": 26.653,
+        "min": 11.456
+      }
+    },
+    "upper_rooms": {
+      "n": 30,
+      "houses_2_bedrooms_up": 16,
+      "with_walk_in_up": 4,
+      "main_bedroom_added": 8,
+      "same_size_bedrooms": 0,
+      "baths_up": 49,
+      "baths_exterior_pct": 98.0,
+      "stair_covered_sqft": {
+        "median": 7.0,
+        "max": 11.5,
+        "min": 0.0
+      },
+      "stair_closets": 22
+    },
+    "rooms": {
+      "n": 30,
+      "upper_suite": {
+        "n": 12,
+        "area_sqft": {
+          "median": 228.0,
+          "max": 289.0,
+          "min": 200.0
+        },
+        "path_share": {
+          "median": 0.17,
+          "max": 0.332,
+          "min": 0.024
+        },
+        "path_ft": {
+          "median": 14.8,
+          "max": 26.3,
+          "min": 2.7
+        },
+        "opposite_pct": 8.3,
+        "bed_fits": 12,
+        "bed_checked": 12,
+        "inner_gap_ft": {
+          "median": 8.515,
+          "max": 14.93,
+          "min": 2.65
+        }
+      },
+      "upper_main": {
+        "n": 8,
+        "area_sqft": {
+          "median": 161.0,
+          "max": 161.0,
+          "min": 161.0
+        },
+        "path_share": {
+          "median": 0.234,
+          "max": 0.234,
+          "min": 0.234
+        },
+        "path_ft": {
+          "median": 13.0,
+          "max": 13.0,
+          "min": 13.0
+        },
+        "opposite_pct": 100.0,
+        "bed_fits": 8,
+        "bed_checked": 8,
+        "inner_gap_ft": {
+          "median": 12.97,
+          "max": 12.97,
+          "min": 12.97
+        }
+      },
+      "upper_secondary": {
+        "n": 16,
+        "area_sqft": {
+          "median": 120.5,
+          "max": 195.0,
+          "min": 115.0
+        },
+        "path_share": {
+          "median": 0.301,
+          "max": 0.322,
+          "min": 0.13
+        },
+        "path_ft": {
+          "median": 11.7,
+          "max": 23.5,
+          "min": 10.2
+        },
+        "opposite_pct": 62.5,
+        "bed_fits": 16,
+        "bed_checked": 16,
+        "inner_gap_ft": {
+          "median": 11.67,
+          "max": 14.88,
+          "min": 2.12
+        }
+      },
+      "ground_rooms": {
+        "n": 24,
+        "area_sqft": {
+          "median": 193.6,
+          "max": 258.0,
+          "min": 144.0
+        },
+        "path_share": {
+          "median": 0.155,
+          "max": 0.279,
+          "min": 0.024
+        },
+        "path_ft": {
+          "median": 11.8,
+          "max": 24.1,
+          "min": 2.8
+        },
+        "opposite_pct": 0.0,
+        "bed_fits": 24,
+        "bed_checked": 24,
+        "inner_gap_ft": {
+          "median": 11.31,
+          "max": 21.2,
+          "min": 2.77
+        }
+      },
+      "baths_with_walk_in": 17,
+      "bath_via_walk_in": 17,
+      "bath_via_bedroom": 0,
+      "main_largest": 8,
+      "main_checked": 8,
+      "baths_fixtures": 74,
+      "baths_closet_ok": 74,
+      "baths_door_ok": 74,
+      "baths_with_closet": 52,
+      "strips_left_sqft": 198.9,
+      "strips_joined": 64,
+      "closets_removed": 0,
+      "hinged_doors": 246,
+      "leaves_in_air": 0,
+      "narrow_doors": 5,
+      "guest_rooms": 22,
+      "guest_shared_bath": 8,
+      "guest_to_study": 14,
+      "program_fallbacks": {
+        "guest_to_study": 4,
+        "walk_in_to_closet": 9,
+        "walk_in_to_closet+guest_to_study": 4
+      }
+    },
+    "circulation": {
+      "n": 30,
+      "trimmed": 17,
+      "not_trimmed": {
+        "door": 1
+      },
+      "dead_end_before_sqft": {
+        "median": 20.8,
+        "max": 149.0,
+        "min": 0.0
+      },
+      "dead_end_sqft": {
+        "median": 0.0,
+        "max": 90.0,
+        "min": 0.0
+      },
+      "hall_share_before": {
+        "median": 0.217,
+        "max": 0.333,
+        "min": 0.152
+      },
+      "hall_share_after": {
+        "median": 0.137,
+        "max": 0.293,
+        "min": 0.088
+      },
+      "linen": 13,
+      "closets": 2,
+      "walk_ins": 0,
+      "roof_sqft": 552.3,
+      "joined_sqft": 140.6,
+      "bedroom_door_gap_ft": {
+        "median": 4.32,
+        "max": 22.27,
+        "min": 3.0
+      },
+      "bedroom_doors_inside_vestibule": 0
+    }
+  },
+  "by_type": [
+    {
+      "space_type": "hall",
+      "n": 51,
+      "aspect_median": 3.69,
+      "aspect_p90": 5.71,
+      "short_median_ft": 4.5,
+      "long_median_ft": 19.0,
+      "pct_over_pref": null,
+      "pct_over_max": null,
+      "pct_under_min_side": 2.0,
+      "pct_over_max_side": null,
+      "pct_furniture_misfit": null,
+      "pct_not_rectangular": 49.0,
+      "pct_fragmented": 5.9,
+      "pct_not_daylit": null,
+      "area_median": 74.0,
+      "area_p90": 118.5,
+      "area_max": 185.0,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "bathroom",
+      "n": 44,
+      "aspect_median": 1.6,
+      "aspect_p90": 1.6,
+      "short_median_ft": 5.0,
+      "long_median_ft": 8.0,
+      "pct_over_pref": 2.3,
+      "pct_over_max": 2.3,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 6.8,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 11.4,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 40.0,
+      "area_p90": 54.5,
+      "area_max": 90.0,
+      "pct_over_cap": 6.8
+    },
+    {
+      "space_type": "study",
+      "n": 43,
+      "aspect_median": 1.29,
+      "aspect_p90": 1.88,
+      "short_median_ft": 9.0,
+      "long_median_ft": 11.5,
+      "pct_over_pref": 25.6,
+      "pct_over_max": 16.3,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 9.3,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 20.9,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 2.3,
+      "area_median": 117.0,
+      "area_p90": 132.0,
+      "area_max": 148.5,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "bedroom",
+      "n": 36,
+      "aspect_median": 1.15,
+      "aspect_p90": 1.22,
+      "short_median_ft": 11.5,
+      "long_median_ft": 12.5,
+      "pct_over_pref": 2.8,
+      "pct_over_max": 0.0,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 2.8,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 5.6,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 0.0,
+      "area_median": 144.0,
+      "area_p90": 182.2,
+      "area_max": 195.0,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "foyer",
+      "n": 30,
+      "aspect_median": 1.83,
+      "aspect_p90": 2.44,
+      "short_median_ft": 12.0,
+      "long_median_ft": 22.0,
+      "pct_over_pref": 66.7,
+      "pct_over_max": 26.7,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 100.0,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 100.0,
+      "pct_fragmented": 20.0,
+      "pct_not_daylit": null,
+      "area_median": 157.5,
+      "area_p90": 184.0,
+      "area_max": 200.2,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "storage",
+      "n": 30,
+      "aspect_median": 2.0,
+      "aspect_p90": 2.17,
+      "short_median_ft": 3.0,
+      "long_median_ft": 6.0,
+      "pct_over_pref": 36.7,
+      "pct_over_max": 3.3,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 0.0,
+      "pct_furniture_misfit": null,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 19.5,
+      "area_p90": 24.0,
+      "area_max": 30.0,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "pantry",
+      "n": 30,
+      "aspect_median": 2.0,
+      "aspect_p90": 4.67,
+      "short_median_ft": 3.0,
+      "long_median_ft": 6.0,
+      "pct_over_pref": 76.7,
+      "pct_over_max": 40.0,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 26.7,
+      "pct_furniture_misfit": 80.0,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 21.8,
+      "area_p90": 45.0,
+      "area_max": 49.5,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "kitchen",
+      "n": 30,
+      "aspect_median": 1.45,
+      "aspect_p90": 1.94,
+      "short_median_ft": 10.0,
+      "long_median_ft": 14.5,
+      "pct_over_pref": 36.7,
+      "pct_over_max": 20.0,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 13.3,
+      "pct_furniture_misfit": 6.7,
+      "pct_not_rectangular": 3.3,
+      "pct_fragmented": 3.3,
+      "pct_not_daylit": 6.7,
+      "area_median": 148.6,
+      "area_p90": 178.3,
+      "area_max": 184.0,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "mechanical",
+      "n": 30,
+      "aspect_median": 2.0,
+      "aspect_p90": 3.0,
+      "short_median_ft": 3.0,
+      "long_median_ft": 6.0,
+      "pct_over_pref": 43.3,
+      "pct_over_max": 3.3,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 13.3,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 19.5,
+      "area_p90": 27.0,
+      "area_max": 28.5,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "primary_bath",
+      "n": 30,
+      "aspect_median": 1.46,
+      "aspect_p90": 1.79,
+      "short_median_ft": 6.5,
+      "long_median_ft": 9.0,
+      "pct_over_pref": 33.3,
+      "pct_over_max": 6.7,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 0.0,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 10.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 60.0,
+      "area_p90": 78.8,
+      "area_max": 87.5,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "mudroom",
+      "n": 24,
+      "aspect_median": 1.33,
+      "aspect_p90": 2.11,
+      "short_median_ft": 5.8,
+      "long_median_ft": 7.8,
+      "pct_over_pref": 33.3,
+      "pct_over_max": 16.7,
+      "pct_under_min_side": 25.0,
+      "pct_over_max_side": 0.0,
+      "pct_furniture_misfit": 25.0,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 45.2,
+      "area_p90": 49.5,
+      "area_max": 56.2,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "dining_room",
+      "n": 24,
+      "aspect_median": 1.89,
+      "aspect_p90": 2.0,
+      "short_median_ft": 9.0,
+      "long_median_ft": 17.2,
+      "pct_over_pref": 87.5,
+      "pct_over_max": 87.5,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 16.7,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 41.7,
+      "area_median": 162.0,
+      "area_p90": 189.0,
+      "area_max": 243.0,
+      "pct_over_cap": 12.5
+    },
+    {
+      "space_type": "primary_suite",
+      "n": 24,
+      "aspect_median": 1.29,
+      "aspect_p90": 1.6,
+      "short_median_ft": 13.5,
+      "long_median_ft": 17.0,
+      "pct_over_pref": 50.0,
+      "pct_over_max": 8.3,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 12.5,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 45.8,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 8.3,
+      "area_median": 236.5,
+      "area_p90": 256.0,
+      "area_max": 289.0,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "living_room",
+      "n": 22,
+      "aspect_median": 1.26,
+      "aspect_p90": 1.64,
+      "short_median_ft": 14.5,
+      "long_median_ft": 18.0,
+      "pct_over_pref": 18.2,
+      "pct_over_max": 9.1,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 13.6,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 50.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 18.2,
+      "area_median": 244.8,
+      "area_p90": 301.5,
+      "area_max": 313.5,
+      "pct_over_cap": 9.1
+    },
+    {
+      "space_type": "walk_in_closet",
+      "n": 17,
+      "aspect_median": 1.33,
+      "aspect_p90": 2.0,
+      "short_median_ft": 6.0,
+      "long_median_ft": 8.5,
+      "pct_over_pref": 23.5,
+      "pct_over_max": 5.9,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 5.9,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 5.9,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 54.0,
+      "area_p90": 72.0,
+      "area_max": 114.0,
+      "pct_over_cap": 11.8
+    },
+    {
+      "space_type": "breakfast_nook",
+      "n": 16,
+      "aspect_median": 1.93,
+      "aspect_p90": 2.43,
+      "short_median_ft": 7.0,
+      "long_median_ft": 13.5,
+      "pct_over_pref": 75.0,
+      "pct_over_max": 68.8,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 56.2,
+      "pct_furniture_misfit": 75.0,
+      "pct_not_rectangular": 12.5,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 6.2,
+      "area_median": 92.2,
+      "area_p90": 119.0,
+      "area_max": 136.5,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "laundry",
+      "n": 16,
+      "aspect_median": 1.89,
+      "aspect_p90": 2.22,
+      "short_median_ft": 4.8,
+      "long_median_ft": 9.5,
+      "pct_over_pref": 62.5,
+      "pct_over_max": 37.5,
+      "pct_under_min_side": 50.0,
+      "pct_over_max_side": 0.0,
+      "pct_furniture_misfit": 50.0,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 45.0,
+      "area_p90": 57.0,
+      "area_max": 64.0,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "laundry_closet",
+      "n": 14,
+      "aspect_median": 2.54,
+      "aspect_p90": 3.0,
+      "short_median_ft": 3.0,
+      "long_median_ft": 8.2,
+      "pct_over_pref": null,
+      "pct_over_max": null,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 50.0,
+      "pct_furniture_misfit": 7.1,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 24.8,
+      "area_p90": 28.5,
+      "area_max": 38.2,
+      "pct_over_cap": null
+    },
+    {
+      "space_type": "family_room",
+      "n": 8,
+      "aspect_median": 1.6,
+      "aspect_p90": 2.21,
+      "short_median_ft": 13.0,
+      "long_median_ft": 22.5,
+      "pct_over_pref": 50.0,
+      "pct_over_max": 25.0,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 25.0,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 12.5,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 37.5,
+      "area_median": 297.6,
+      "area_p90": 312.0,
+      "area_max": 318.0,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "living_dining",
+      "n": 8,
+      "aspect_median": 1.5,
+      "aspect_p90": 1.7,
+      "short_median_ft": 15.0,
+      "long_median_ft": 22.5,
+      "pct_over_pref": 37.5,
+      "pct_over_max": 0.0,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 0.0,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 12.5,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": 37.5,
+      "area_median": 337.5,
+      "area_p90": 356.2,
+      "area_max": 360.0,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "closet",
+      "n": 7,
+      "aspect_median": 2.5,
+      "aspect_p90": 5.75,
+      "short_median_ft": 2.0,
+      "long_median_ft": 6.0,
+      "pct_over_pref": null,
+      "pct_over_max": null,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 42.9,
+      "pct_furniture_misfit": null,
+      "pct_not_rectangular": 14.3,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 22.0,
+      "area_p90": 23.0,
+      "area_max": 34.5,
+      "pct_over_cap": 0.0
+    },
+    {
+      "space_type": "half_bath",
+      "n": 5,
+      "aspect_median": 1.43,
+      "aspect_p90": 1.5,
+      "short_median_ft": 4.0,
+      "long_median_ft": 6.0,
+      "pct_over_pref": 0.0,
+      "pct_over_max": 0.0,
+      "pct_under_min_side": 0.0,
+      "pct_over_max_side": 0.0,
+      "pct_furniture_misfit": 0.0,
+      "pct_not_rectangular": 0.0,
+      "pct_fragmented": 0.0,
+      "pct_not_daylit": null,
+      "area_median": 24.0,
+      "area_p90": 24.0,
+      "area_max": 42.2,
+      "pct_over_cap": 20.0
+    }
+  ],
+  "profile_id": "baseline",
+  "registry_version": "0.5.0"
+}
