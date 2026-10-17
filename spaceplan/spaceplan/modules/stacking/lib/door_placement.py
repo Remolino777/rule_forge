@@ -27,6 +27,12 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from spaceplan.modules.stacking.lib.bath_fixtures import wet_keep_out
+from spaceplan.modules.stacking.lib.garage_route import (
+    door_target_ok,
+    is_garage,
+    plan_route,
+    route_settings,
+)
 from spaceplan.modules.stacking.lib.space_rules import SpaceRules
 from spaceplan.modules.stacking.lib.unit_frame import (
     STAIR_TYPE,
@@ -87,6 +93,7 @@ class FloorLayout:
     in_room: list | None = None                            # S2.2j: bed and paths inside the rooms (report)
     fixtures: list | None = None                           # S2.2j: bath fixtures (report)
     strips: dict | None = None                             # S2.2j: thin strips joined to their neighbours (report)
+    garage_route: dict | None = None                       # V6.8 k2: garage -> kitchen over the doors (report)
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)
@@ -171,6 +178,8 @@ def door_choices(rules: SpaceRules, matrix: ZoneMatrix, room: SpaceSpec, other: 
     if room.zone == "garage" or room.space_type.startswith("garage"):
         if other.space_type in rules.garage_forbidden or other.zone not in rules.garage_opens_to:
             return None
+        if not door_target_ok(route_settings(rules.design, rules.design_kinds), other.space_type):
+            return None                                            # V6.8 k2: mudroom, kitchen, service hall...
         return 1 if other.circulation else 2
     if other.zone == "garage" or other.space_type.startswith("garage"):
         return None                                                # the garage door is placed from the garage side
@@ -562,6 +571,11 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
                         link(d)
                         break
 
+    # V6.8 k2: the garage door where the route to the kitchen crosses no living or dining room (with its openings)
+    rs = route_settings(rules.design, rules.design_kinds)
+    if f.level == 0 and rs.required:
+        _route_doors(layout, placer, rules, matrix, rs, link, reached, f.accessible)
+
     # 2. one door per other space, iterated until no space can be reached any more
     rooms = [k for k in range(len(specs)) if k not in passable and k != stair and k not in reached]
     pending = sorted(rooms, key=lambda k: (specs[k].host is not None,              # walk-ins before their baths
@@ -627,6 +641,64 @@ def place_doors(layout: FloorLayout, rules: SpaceRules, matrix: ZoneMatrix) -> F
     if f.level > 0 and not layout.violations and layout.open_air:
         place_terrace_doors(layout, placer, rules)                 # S2.2d: room -> terrace slider
     return layout
+
+
+# ------------------------------------------------------------------ V6.8 k2: the garage route
+
+
+def _route_doors(layout: FloorLayout, placer: DoorPlacer, rules: SpaceRules, matrix: ZoneMatrix, rs, link,
+                 reached: set, accessible: bool) -> bool:
+    """Place the garage-to-house door onto the space whose route to the kitchen is cheapest without crossing a space
+    to avoid, and the cased openings that route still lacks between passable spaces. False when no such route
+    exists (the garage door is then left to the ordinary pass and the route check of S2.1 reports it)."""
+    specs = layout.specs
+    garage = next((k for k, s in enumerate(specs) if is_garage(s)), None)
+    if garage is None or garage in reached:
+        return False
+    nbrs: dict[int, set] = {}
+    for lo, hi in placer.runs:
+        if lo >= 0 and hi >= 0:
+            nbrs.setdefault(lo, set()).add(hi)
+            nbrs.setdefault(hi, set()).add(lo)
+    openable: dict[tuple[int, int], bool] = {}
+
+    def joined(x: int, y: int) -> bool:
+        if y in layout.adj.get(x, ()):
+            return True
+        key = (min(x, y), max(x, y))
+        if key not in openable:
+            openable[key] = (specs[x].passable or specs[x].circulation) and \
+                (specs[y].passable or specs[y].circulation) and placer.opening(x, y) is not None
+        return openable[key]
+
+    def neighbours(x: int):
+        return [y for y in nbrs.get(x, ()) if y != garage and joined(x, y)]
+
+    starts = {}
+    for j in nbrs.get(garage, ()):
+        if j not in reached or door_choices(rules, matrix, specs[garage], specs[j]) is None:
+            continue
+        run = placer.runs_between(garage, j)[0]
+        t = 0.5 * (run.t0 + run.t1)
+        starts[j] = (run.k, t) if run.vertical else (t, run.k)
+    while starts:
+        got = plan_route(specs, layout.labels, garage, starts, neighbours, rs, placer.res)
+        if got is None:
+            return False
+        _, path = got
+        d = placer.door(path[0], garage, GARAGE_DOOR, accessible)
+        if d is None:
+            starts.pop(path[0])
+            continue
+        link(d)
+        reached.add(garage)
+        for x, y in zip(path, path[1:]):
+            if y not in layout.adj[x]:
+                o = placer.opening(x, y)
+                if o is not None:
+                    link(o)
+        return True
+    return False
 
 
 # ------------------------------------------------------------------ the secondary door (patio)

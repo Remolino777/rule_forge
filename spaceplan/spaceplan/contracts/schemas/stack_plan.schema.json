@@ -1679,6 +1679,10 @@
           "type": "object",
           "description": "S2.2j: strips narrower than their least width joined to a neighbour or made closets, closets too small to open joined to their room, and what was left."
         },
+        "garage_route": {
+          "type": "object",
+          "description": "V6.8 k2: the route garage -> kitchen over the doors of the ground floor: reached, clean (crosses no living, dining or family room), the space the garage door opens to, the spaces crossed and the length along the door centres (ft)."
+        },
         "fixtures": {
           "type": "array",
           "items": {

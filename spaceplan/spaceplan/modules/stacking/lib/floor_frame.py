@@ -233,9 +233,11 @@ def split_members(catalog, s2: dict[str, Any], zone: str, members: list[dict], f
 
 
 def floor_units(catalog, s2: dict[str, Any], rows: list[dict], level: int, floors: int, stair_type: str,
-                under_stair_half_bath: bool, arrival: str | None) -> list[tuple[str, list[ZoneUnit], list[str]]]:
+                under_stair_half_bath: bool, arrival: str | None,
+                merge_service: bool = False) -> list[tuple[str, list[ZoneUnit], list[str]]]:
     """Unit sets of one floor (unscaled targets, sq ft): the zones whole, and, for each zone the catalog lets split
-    on this floor, the same set with that zone in two units. Each set comes with its notes."""
+    on this floor, the same set with that zone in two units. Each set comes with its notes. `merge_service` (V6.8
+    k2): the service zone joins the first zone of merge_small.into whatever its size."""
     hall_types = set(catalog.data["circulation"]["derived_space_types"])
     halls = _halls_by_floor(rows, hall_types, floors)
     notes: list[str] = []
@@ -268,7 +270,7 @@ def floor_units(catalog, s2: dict[str, Any], rows: list[dict], level: int, floor
     if merge["zone"] in groups:
         area = sum(r["area_sqft"] for r in groups[merge["zone"]])
         into = next((z for z in merge["into"][floor] if z in groups), None)
-        if area <= small_max and into is not None:
+        if (area <= small_max or merge_service) and into is not None:
             groups[into] = groups[into] + groups.pop(merge["zone"])
             notes.append(f"{merge['zone']} ({area:.0f} sq ft) merged into {into}")
     # circulation holds at least the catalog's share of the floor (the gross allowance of the program

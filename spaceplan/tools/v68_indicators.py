@@ -149,6 +149,10 @@ def cell_rows(plan: dict) -> list[dict]:
                         row["half_bath_opens_to"] = next((o for o in outs if o and o != "half_bath"), None)
                     row["landing_space_ground"] = types.get(f.get("landing_space"), f.get("landing_space"))
                     row["garage_kitchen"] = _route(f)
+                    g_ids = {x["space_id"] for x in sp if str(x["space_type"]).startswith("garage")}
+                    row["garage_door_opens_to"] = next(
+                        (types.get(d["b"] if d["a"] in g_ids else d["a"]) for d in f.get("doors", [])
+                         if (d["a"] in g_ids) != (d["b"] in g_ids)), None)
                 else:
                     row["landing_space_upper"] = {x["space_id"]: x["space_type"] for x in sp}.get(
                         f.get("landing_space"), f.get("landing_space"))
@@ -201,6 +205,7 @@ def summarize(rows: list[dict]) -> dict:
             "clean": sum(1 for r in houses if (r.get("garage_kitchen") or {}).get("clean")),
             "median_ft": _median([r["garage_kitchen"]["length_ft"] for r in houses
                                   if (r.get("garage_kitchen") or {}).get("reached")])},
+        "garage_door_opens_to_houses": dict(collections.Counter(r.get("garage_door_opens_to") for r in houses)),
         "first_violations": dict(collections.Counter(":".join(str(r["first_violation"]).split(":")[:3])
                                                      for r in rows if not r["spaced"]).most_common(20)),
     }

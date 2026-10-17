@@ -9,7 +9,8 @@ the columns they fall in. Each realization is checked in this order, stopping at
   area      realized area within the catalog tolerance of the target;
   landing   the arrival zone of the stair falls (mostly) in one unit;
   doors     zone-level door rules (private zones open only onto circulation), every unit reachable from the entry
-            (ground) or from the arrival (upper); the garage opens to an allowed zone;
+            (ground) or from the arrival (upper); the garage opens to an allowed zone (V6.8 k2: against the
+            service or kitchen unit, and the service unit against the kitchen unit);
   entry     the entry zone of the house profile on the front facade (ground);
   K04       the vestibule of the half bath under the stair opens onto circulation (ground, half-bath variant);
   K01       the stair arrives into the receiving space of the catalog's arrival order (upper);
@@ -58,6 +59,7 @@ from spaceplan.modules.stacking.lib.frame_bands import (
     side_order,
     surplus_kind,
 )
+from spaceplan.modules.stacking.lib.garage_route import direct_violation, zone_violation
 from spaceplan.modules.stacking.lib.stair_core import touched_score
 from spaceplan.modules.stacking.lib.zone_relations import (
     ENTRY,
@@ -111,6 +113,8 @@ class FloorRules:
     arrival_order: tuple[str, ...] = ()      # upper floor: allowed receiving kinds by preference (K01)
     stair_hall: dict[str, Any] | None = None  # both floors: stair bordered by circulation, not inside a room
     core: Any = None                         # V6.8 k1b: stair_core.CoreSettings (None: pre-k1b zoning)
+    route: Any = None                        # V6.8 k2: garage_route.RouteSettings (None: pre-k2 zoning)
+    direct_pairs: tuple[Any, ...] = ()       # V6.8 k2: hard D pairs of passable rooms, met only by a link
 
 
 @dataclass(frozen=True)
@@ -675,10 +679,14 @@ class FloorSearch:
             rz.violation = f"doors:unreachable:{missing[0]}"
             return rz
         if self.f.level == GROUND and self.garage is not None and self.garage.any():
-            if not any(units[k].zone in self.r.garage_opens_to
-                       and label_contact(g, rects[k], self.garage) >= self.r.door_contact_ft - self.tol
-                       for k in range(len(units))):
+            at_garage = {k for k in range(len(units))
+                         if label_contact(g, rects[k], self.garage) >= self.r.door_contact_ft - self.tol}
+            if not any(units[k].zone in self.r.garage_opens_to for k in at_garage):
                 rz.violation = "doors:garage"
+                return rz
+            why = zone_violation([u.zone for u in units], at_garage, links, self.r.route)   # V6.8 k2
+            if why:
+                rz.violation = why
                 return rz
         if self.f.level == GROUND and self.f.variant == HALF_BATH_USE and self.vestibule is not None:
             if not any(label_contact(g, rects[k], self.vestibule) >= self.r.door_contact_ft - self.tol
@@ -700,6 +708,10 @@ class FloorSearch:
         rz.relations = evaluate_floor(self.m, rz.graph)
         if rz.relations["hard_failed"]:
             rz.violation = f"matrix:{rz.relations['hard_failed'][0]}"
+            return rz
+        why = direct_violation(self.r.direct_pairs, rz.graph.located, links)       # V6.8 k2
+        if why:
+            rz.violation = why
             return rz
         if self.fg is not None and len(topology) == 2:      # S2.2g: an S2 topology on a frame (free ground)
             rz.carried = 0.0 if self.fg.lines else 1.0

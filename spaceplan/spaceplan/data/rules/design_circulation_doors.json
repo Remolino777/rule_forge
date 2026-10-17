@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-circulation-doors",
-  "ruleset_version": "0.7.0",
+  "ruleset_version": "0.8.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice. Version 0.2.0 (2026-10-12, step S2.2e): exact door interference checks (swing vs swing, swing vs the doorway of another door, swing vs the closed leaf of another door, swing outside its room) with their tolerances and the same-suite exception; reported as indicators until the joint placement of step P3. Version 0.3.0 (2026-10-12, step S2.2f): compact arrival of the stair upstairs (the circulation zone at most node_short_side_max_ft on its short side, one continuous hall) and grouped bedroom doors (the corner nearer the arrival, spread and route scored). Version 0.7.0 (2026-10-17, step V6.8 k1b): the stair core first (start and arrival clear zones of the stair width and 4 ft deep, wholly inside one circulation space; the stair and its zones a block whose edges are zoning cuts) and the rear joint as a stair anchor with one preselection slot per joint edge (client 2026-10-14 12:47 and 2026-10-17 01:38).",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice. Version 0.2.0 (2026-10-12, step S2.2e): exact door interference checks (swing vs swing, swing vs the doorway of another door, swing vs the closed leaf of another door, swing outside its room) with their tolerances and the same-suite exception; reported as indicators until the joint placement of step P3. Version 0.3.0 (2026-10-12, step S2.2f): compact arrival of the stair upstairs (the circulation zone at most node_short_side_max_ft on its short side, one continuous hall) and grouped bedroom doors (the corner nearer the arrival, spread and route scored). Version 0.7.0 (2026-10-17, step V6.8 k1b): the stair core first (start and arrival clear zones of the stair width and 4 ft deep, wholly inside one circulation space; the stair and its zones a block whose edges are zoning cuts) and the rear joint as a stair anchor with one preselection slot per joint edge (client 2026-10-14 12:47 and 2026-10-17 01:38). Version 0.8.0 (2026-10-17, step V6.8 k2): the garage-to-kitchen route (P16): the garage against the service or kitchen unit and service against kitchen in S2; the garage door onto a mudroom, laundry, kitchen or service hall; a door route garage -> kitchen that crosses no living, dining or family room (hard), its length scored (client 2026-10-17).",
   "verification_note": "Design values, not code (the hallway width floor is CRC C06 R311.6 in crc_2025_habitability). The hall design width, the circulation target and warning fractions stay in the residential catalog (circulation block) and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -1540,6 +1540,290 @@
       "source": {
         "document": "V6.8 k1b plan (2026-10-14)",
         "section": "stair core"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P16-GARAGE-ROUTE",
+      "kind": "design",
+      "magnitude": "garage_kitchen_route",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "circulation.garage_route",
+      "parameters": {
+        "required": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Camino garaje -> cocina por puertas sin pasar por sala, comedor ni sala familiar",
+            "en": "Garage -> kitchen route over the doors that crosses no living, dining or family room"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k2: garage -> kitchen without crossing living or dining, mandatory)"
+        },
+        "avoid_space_types": {
+          "value": [
+            "living_room",
+            "dining_room",
+            "living_dining",
+            "family_room"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Espacios que el camino garaje -> cocina no cruza",
+            "en": "Spaces the garage -> kitchen route never crosses"
+          },
+          "choices": [
+            "living_room",
+            "dining_room",
+            "living_dining",
+            "family_room",
+            "breakfast_nook",
+            "foyer"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k2: garage -> kitchen without crossing living or dining, mandatory)"
+        },
+        "target_types": {
+          "value": [
+            "kitchen"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Destino del camino desde el garaje",
+            "en": "End of the route from the garage"
+          },
+          "choices": [
+            "kitchen",
+            "work_kitchen"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k2: garage -> kitchen without crossing living or dining, mandatory)"
+        },
+        "zone_opens_to": {
+          "value": [
+            "service",
+            "kitchen"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Unidades de zona (S2) junto a las que queda el garaje",
+            "en": "Zone units (S2) the garage must stand against"
+          },
+          "choices": [
+            "service",
+            "kitchen",
+            "circulation"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k2: garage -> kitchen without crossing living or dining, mandatory)"
+        },
+        "service_kitchen_adjacent": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "En planta baja la unidad de servicio queda junto a la de cocina (S2)",
+            "en": "On the ground floor the service unit stands against the kitchen unit (S2)"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k2: garage -> kitchen without crossing living or dining, mandatory)"
+        },
+        "service_with_kitchen": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "En planta baja la zona de servicio se une a la unidad de cocina (garaje -> mudroom -> cocina en una sola unidad)",
+            "en": "On the ground floor the service zone joins the kitchen unit (garage -> mudroom -> kitchen in one unit)"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "V6.8 k2 reading of 'servicio junto a cocina' (por confirmar con el cliente): the service zone is zoned with the kitchen whatever its size"
+        },
+        "door_to_types": {
+          "value": [
+            "mudroom",
+            "kitchen",
+            "laundry",
+            "hall",
+            "foyer"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Espacios a los que puede abrir la puerta garaje-casa (S2.1); el foyer solo si el camino no cruza lo social",
+            "en": "Spaces the garage-to-house door may open to (S2.1); the foyer only when the route crosses nothing social"
+          },
+          "choices": [
+            "mudroom",
+            "kitchen",
+            "laundry",
+            "hall",
+            "foyer",
+            "pantry",
+            "storage"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k2: garage -> kitchen without crossing living or dining, mandatory)"
+        },
+        "preferred_door_to": {
+          "value": [
+            "mudroom",
+            "laundry",
+            "kitchen"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Destinos preferidos de la puerta del garaje (mudroom, lavanderia, cocina)",
+            "en": "Preferred targets of the garage door (mudroom, laundry, kitchen)"
+          },
+          "choices": [
+            "mudroom",
+            "laundry",
+            "kitchen",
+            "hall"
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k2: garage -> kitchen without crossing living or dining, mandatory)"
+        },
+        "other_door_penalty_ft": {
+          "value": 10.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Recargo (en largo de camino) cuando la puerta del garaje no abre a un destino preferido",
+            "en": "Penalty (as route length) when the garage door does not open to a preferred target"
+          },
+          "range": [
+            0.0,
+            40.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "length_ref_ft": {
+          "value": 15.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Largo del camino garaje -> cocina con puntaje pleno",
+            "en": "Garage -> kitchen route length with a full score"
+          },
+          "range": [
+            5.0,
+            40.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "length_scale_ft": {
+          "value": 15.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Escala de caida del puntaje del largo",
+            "en": "Fall-off scale of the length score"
+          },
+          "range": [
+            5.0,
+            60.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ]
+        },
+        "length_weight": {
+          "value": 0.15,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Peso del largo garaje -> cocina en el puntaje de la planta baja (S2.1)",
+            "en": "Weight of the garage -> kitchen length in the ground-floor score (S2.1)"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        },
+        "unit_weight": {
+          "value": 0.3,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Peso, dentro de la unidad junto al garaje, de tener el mudroom o la cocina contra el garaje y seguido de la cocina (S2.1)",
+            "en": "Weight, inside the unit against the garage, of a mudroom or kitchen on the garage wall that leads on to the kitchen (S2.1)"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        }
+      },
+      "text": [
+        "The garage stands against the service or kitchen unit and the service unit against the kitchen (S2); the garage-to-house door opens to a mudroom, laundry, kitchen or service hall (a foyer only when the route crosses nothing social); the door graph has a route from the garage to the kitchen that crosses no living, dining or family room (hard). Its length along the door centres is scored and reported."
+      ],
+      "source": {
+        "document": "V6.8 autorun plan (2026-10-17)",
+        "section": "k2"
       },
       "verified": false
     }

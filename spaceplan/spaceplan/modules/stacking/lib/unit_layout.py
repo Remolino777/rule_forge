@@ -42,6 +42,7 @@ import numpy as np
 from scipy.ndimage import distance_transform_edt
 
 from spaceplan.modules.design.lib.area_criteria import drawn_cap
+from spaceplan.modules.stacking.lib.garage_route import is_garage, route_settings
 from spaceplan.modules.stacking.lib.space_rules import SpaceRules
 from spaceplan.modules.stacking.lib.unit_frame import (
     SpaceFloor,
@@ -383,6 +384,10 @@ class UnitLayout:
         circ_fixed = np.isin(floor.base, [k for k, s in enumerate(floor.fixed) if s.circulation and s.space_type != "stair"])
         self.fixed_circ = circ_fixed[pad] if circ_fixed[pad].any() else None
         self.stair_pad = floor.stair[pad] if floor.stair[pad].any() else None
+        self.route = route_settings(rules.design, rules.design_kinds)      # V6.8 k2: garage -> mudroom -> kitchen
+        g_ids = [k for k, sp in enumerate(floor.fixed) if is_garage(sp)] if floor.level == 0 else []
+        g_pad = np.isin(floor.base, g_ids)[pad] if g_ids else None
+        self.garage_pad = g_pad if g_pad is not None and g_pad.any() and self.route.required else None
         self.circ_targets = [m for uid, m in self.link_targets if by_id[uid].zone == "circulation"]
         self.room_targets = [m for uid, m in self.link_targets if by_id[uid].zone != "circulation"]
         self.private_targets = [m for uid, m in self.link_targets if by_id[uid].zone == "private"]
@@ -919,7 +924,40 @@ class UnitLayout:
         parts["total"] = sum(w[k] * parts[k] for k in w) / (sum(w.values()) or 1.0)
         self._upper_parts(pieces, parts)
         self._service_parts(pieces, parts)
+        self._garage_parts(pieces, parts)
         return parts
+
+    def _garage_parts(self, pieces: list[Piece], parts: dict) -> None:
+        """V6.8 k2 (client 2026-10-17): in a unit against the garage, a preferred door target (mudroom, kitchen)
+        on the garage wall, and that space on to the kitchen (a kitchen of the unit or a linked kitchen unit);
+        blended into the total with circulation.garage_route.unit_weight."""
+        w = float(self.rules.design.get("circulation.garage_route.unit_weight") or 0.0)
+        if self.garage_pad is None or w <= 0:
+            return
+        need = self.need_cells - 1e-9
+        rs = self.route
+        kitchens = [q for q in pieces if q.spec.space_type in rs.targets and q.mask.any()]
+        best = 0.0
+        for p in pieces:
+            t = p.spec.space_type
+            if not (p.spec.passable or p.spec.circulation) or t in rs.avoid or not p.mask.any():
+                continue
+            if (rs.door_to and t not in rs.door_to) or self._contact(p.mask, self.garage_pad) < need:
+                continue
+            if t in rs.targets:
+                val = 1.0
+            elif any(self._touch_cells(p.mask, q.mask) >= need for q in kitchens) or any(
+                    self._contact(p.mask, m) >= need for uid, m in self.link_targets
+                    if any(sp.space_type in rs.targets for sp in self._unit_specs(uid))):
+                val = 1.0 if not rs.preferred or t in rs.preferred else 0.75
+            else:
+                val = 0.25
+            best = max(best, val)
+        parts["garage_route"] = best
+        parts["total"] = (1.0 - w) * parts["total"] + w * best
+
+    def _unit_specs(self, unit_id: str) -> list[SpaceSpec]:
+        return next((u.specs for u in self.floor.units if u.unit_id == unit_id), [])
 
     def _edge_cells(self, mask: np.ndarray, target_pad: np.ndarray) -> np.ndarray:
         """Cells of `mask` (box coordinates) with a 4-neighbour in `target_pad` (box + 1 border)."""

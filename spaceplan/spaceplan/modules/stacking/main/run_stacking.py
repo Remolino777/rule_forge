@@ -57,10 +57,18 @@ from spaceplan.modules.stacking.lib.space_rules import (
 )
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
 from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations
+from spaceplan.modules.stacking.lib.garage_route import route_settings
 from spaceplan.modules.stacking.lib.stair_core import core_settings
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
 from spaceplan.modules.stacking.lib.access_cell import access_context, stage_s1, stage_s2
-from spaceplan.modules.stacking.lib.zone_cell import S2_STATUSES, ZONED, s2_context, structure_settings, with_core
+from spaceplan.modules.stacking.lib.zone_cell import (
+    S2_STATUSES,
+    ZONED,
+    s2_context,
+    structure_settings,
+    with_core,
+    with_route,
+)
 from spaceplan.modules.stacking.lib.zone_relations import build_matrix
 from spaceplan.modules.stacking.lib.vertical_rules import (
     garage_counts_in_gfa,
@@ -206,6 +214,8 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
     core = core_settings(*dview) if dview is not None else None           # V6.8 k1b: the stair core first
     if s2ctx is not None:
         s2ctx = with_core(s2ctx, core)
+        if dview is not None:                                              # V6.8 k2: garage against service
+            s2ctx = with_route(s2ctx, route_settings(*dview))
     if stage == "S2.1":
         s2ctx = replace(s2ctx, alternatives=int(scat.s21["search"]["s2_alternatives"]))
         crc, openings = load_crc_ruleset(), load_openings_ruleset()

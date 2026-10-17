@@ -47,6 +47,7 @@ from spaceplan.modules.stacking.lib.floor_frame import (
 )
 from spaceplan.modules.stacking.lib.frame_bands import ROOF
 from spaceplan.modules.stacking.lib.frame_positions import optimize_pair, positions_settings
+from spaceplan.modules.stacking.lib.garage_route import direct_pairs
 from spaceplan.modules.stacking.lib.lot_plan import LotPlan
 from spaceplan.modules.stacking.lib.routes import route_lengths, stair_walk_ft, two_floor_routes
 from spaceplan.modules.stacking.lib.stair_access import (
@@ -122,6 +123,19 @@ def with_core(ctx: S2Context, core) -> S2Context:
     """V6.8 k1b: the context and both floors' rules with the stair-core settings."""
     return replace(ctx, core=core, ground_rules=replace(ctx.ground_rules, core=core),
                    upper_rules=replace(ctx.upper_rules, core=core))
+
+
+def _service_with_kitchen(ctx: S2Context) -> bool:
+    """V6.8 k2: the ground floor's service zone joins the kitchen unit (garage -> mudroom -> kitchen in one unit)."""
+    r = ctx.ground_rules.route
+    return bool(r is not None and r.required and r.service_with_kitchen)
+
+
+def with_route(ctx: S2Context, route) -> S2Context:
+    """V6.8 k2: the ground floor's rules with the garage-route settings (garage against service or kitchen) and,
+    when the route is required, the hard D pairs of passable rooms (dining - kitchen) met only by a link."""
+    pairs = direct_pairs(ctx.matrix, ctx.catalog) if route is not None and route.required else ()
+    return replace(ctx, ground_rules=replace(ctx.ground_rules, route=route, direct_pairs=pairs))
 
 
 def structure_settings(values: dict[str, Any], s2: dict[str, Any],
@@ -483,7 +497,8 @@ def _zone_cell(cell: dict[str, Any], s1: dict[str, Any], plan: LotPlan, ctx: S2C
     g_runs: dict[str, tuple[dict[str, Any], list[Realization]]] = {}
     for v in variants:
         g_frames = [ground_frame(floors, units, res, v, notes) for _, units, notes in
-                  floor_units(catalog, s2, rows, GROUND, n_floors, stair_type, v == HALF_BATH_USE, None)]
+                  floor_units(catalog, s2, rows, GROUND, n_floors, stair_type, v == HALF_BATH_USE, None,
+                              merge_service=_service_with_kitchen(ctx))]
         if framed:                                   # S2.2g: the ground floor on each frame variant
             valid, summary = [], _empty_summary()
             for fr in frames:
@@ -692,5 +707,6 @@ __all__ = [
     "s2_context",
     "structure_settings",
     "with_core",
+    "with_route",
     "zone_cell",
 ]

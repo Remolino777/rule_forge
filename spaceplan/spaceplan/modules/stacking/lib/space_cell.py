@@ -44,6 +44,12 @@ from spaceplan.modules.stacking.lib.floor_frame import (
     with_stair_opening,
 )
 from spaceplan.modules.stacking.lib.front_yard import front_yard
+from spaceplan.modules.stacking.lib.garage_route import (
+    garage_route,
+    route_score,
+    route_settings,
+    route_violation,
+)
 from spaceplan.modules.stacking.lib.hall_trim import (
     dead_end_sqft,
     door_gaps,
@@ -209,6 +215,11 @@ def _door_centre(d) -> tuple[float, float] | None:
     return (d.run.k, t) if d.run.vertical else (t, d.run.k)
 
 
+def _door_points(layout: FloorLayout) -> list[tuple[int, int, tuple[float, float] | None]]:
+    """(a, b, centre in cells) of every door with a wall position (V6.8 k2: the garage route)."""
+    return [(d.a, d.b, _door_centre(d)) for d in layout.doors if d.run is not None]
+
+
 def shared_bath_doors(layout: FloorLayout, rules: SpaceRules) -> float:
     """1 when the doors of the bedrooms that share a bath are within the registry distance of the bath door,
     falling with the excess (S2.2c, client 2026-10-12); 1 without shared baths."""
@@ -315,6 +326,7 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
     carries each one with a wall or a beam (posts at most the registry's), the span checks give way."""
     rules, s21 = ctx.rules, ctx.rules.s21
     core = core_settings(rules.design, rules.design_kinds)            # V6.8 k1b
+    route_rs = route_settings(rules.design, rules.design_kinds)       # V6.8 k2
     k13 = under_rule(ctx.client) if ctx.client is not None else None
     if below is not None:                                  # S2.2f: room cuts upstairs move to the ground walls
         floor.below_lines = fs.below_walls(floor, below.layout, rules)
@@ -389,6 +401,11 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
                                           tuple(k13["half_bath_opens_to"]), ENTRY_TYPES + ("stair",))
             if why:                                                # K13: never beside the stair; toward the foyer
                 layout.violations.append(why)
+        if not layout.violations and floor.level == GROUND and route_rs.required:   # V6.8 k2: garage -> kitchen
+            layout.garage_route = garage_route(layout.specs, _door_points(layout), route_rs, floor.res)
+            why = route_violation(layout.garage_route, route_rs)
+            if why:
+                layout.violations.append(why)
         rel = None
         if not layout.violations:
             graph = space_graph(layout, ctx.matrix, _patio_nodes(layout, rules, garden))
@@ -409,8 +426,12 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
             parts["structure"] = ((1.0 - w_part) * structure["zones"]["interior_fraction"]
                                   + w_part * structure["partitions"]["interior_fraction"])
             layout.structure = structure
-        found.append(FloorResult(layout, graph, rel, parts,
-                                 _floor_score(parts, shape_weighted(rules, s21["weights"], floor))))
+        score = _floor_score(parts, shape_weighted(rules, s21["weights"], floor))
+        gr = route_score(layout.garage_route, route_rs) if route_rs.length_weight > 0 else None
+        if gr is not None:                                         # V6.8 k2: the route's length, scored
+            parts["garage_route"] = gr
+            score = (1.0 - route_rs.length_weight) * score + route_rs.length_weight * gr
+        found.append(FloorResult(layout, graph, rel, parts, score))
         if len(found) >= stop:
             break
     summary["valid"] = len(found)
@@ -771,6 +792,7 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
             **({"stair_cover": lay.stair_cover} if getattr(lay, "stair_cover", None) else {}),
             **({"in_room": lay.in_room} if getattr(lay, "in_room", None) else {}),
             **({"strips": lay.strips} if getattr(lay, "strips", None) else {}),
+            **({"garage_route": lay.garage_route} if getattr(lay, "garage_route", None) else {}),
             **({"fixtures": [{**{k: v for k, v in fx.items() if k != "masks"},
                               "bands": {b: polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)
                                         for b, m in fx["masks"].items() if m.any()}}

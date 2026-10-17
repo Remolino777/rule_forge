@@ -112,12 +112,12 @@ PRE_S22J_CHANGES = [
 ]
 
 
-def pre_s22j_profile() -> dict:
+def pre_s22j_profile(extra: list | None = None) -> dict:
     from spaceplan.modules.design.lib import design_profile as dp
     from spaceplan.modules.design.lib.design_registry import load_registry
 
     reg = load_registry()
-    return dp.apply(reg, dp.new_profile(reg, "pre_s22j"), PRE_S22J_CHANGES, "tests", "2026-10-14",
+    return dp.apply(reg, dp.new_profile(reg, "pre_s22j"), [*PRE_S22J_CHANGES, *(extra or [])], "tests", "2026-10-14",
                     "S2.1 mechanics without the S2.2j bedroom rules")
 
 
@@ -138,10 +138,22 @@ PRE_K1B_CHANGES = [
 ]
 
 
+# V6.8 k2: the garage -> kitchen route (garage against service or kitchen, service zoned with the kitchen, the
+# dining - kitchen link in S2, the route checked in S2.1) changes which zonings and layouts the earlier-mechanics tests
+# see; they run with it off as well.
+PRE_K2_CHANGES = [
+    {"id": "circulation.garage_route.required", "value": False},
+    {"id": "circulation.garage_route.service_kitchen_adjacent", "value": False},
+    {"id": "circulation.garage_route.service_with_kitchen", "value": False},
+    {"id": "circulation.garage_route.length_weight", "value": 0.0},
+    {"id": "circulation.garage_route.unit_weight", "value": 0.0},
+]
+
+
 def pre_k1b_profile(extra: list | None = None) -> dict:
     from spaceplan.modules.design.lib import design_profile as dp
     from spaceplan.modules.design.lib.design_registry import load_registry
 
     reg = load_registry()
-    return dp.apply(reg, dp.new_profile(reg, "pre_k1b"), [*(extra or []), *PRE_K1B_CHANGES], "tests", "2026-10-17",
-                    "earlier S2.1 mechanics without the V6.8 k1b stair core")
+    return dp.apply(reg, dp.new_profile(reg, "pre_k1b"), [*(extra or []), *PRE_K1B_CHANGES, *PRE_K2_CHANGES], "tests", "2026-10-17",
+                    "earlier S2.1 mechanics without the V6.8 k1b stair core nor the k2 garage route")

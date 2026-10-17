@@ -1598,6 +1598,42 @@ en las 28. Garaje → cocina limpio: 5 de 28 (k2).
 - Esquema del contrato: `open_air.kind` = `porch` en planta baja no está en el esquema `stack_plan` (falla
   `to_contract` en trapezoid); corregir en S2.2l.
 
+## 4ae. V6.8 k2 (17 oct 2026, corrida automática): garaje → cocina sin cruzar sala ni comedor
+
+**Decisión del cliente (obligatoria).** El garaje queda junto a servicio o cocina y servicio junto a cocina (S2); la
+puerta garaje–casa abre a mudroom, lavandería, cocina o pasillo de servicio; el grafo de puertas tiene un camino
+garaje → cocina que no pasa por sala, comedor, sala-comedor ni sala familiar (duro); el largo se puntúa.
+
+**Datos.** `design_circulation_doors` 0.8.0: P16 `circulation.garage_route.*` (`required`, `avoid_space_types`,
+`target_types`, `zone_opens_to`, `service_kitchen_adjacent`, `service_with_kitchen` — lectura tomada, por confirmar —,
+`door_to_types`, `preferred_door_to`, `other_door_penalty_ft`, `length_ref_ft`, `length_scale_ft`, `length_weight`,
+`unit_weight`). Registro: 599 parámetros; grupo LLM `structure` con el prefijo; `design_tools.json` regenerado. Esquema
+`stack_plan`: `s21_floor.garage_route`.
+
+**Código.**
+- Nuevos `lib/garage_route` (ajustes, regla de S2, pares directos, objetivo de la puerta, ruta planeada y ruta por
+  puertas, violación y puntaje) y `lib_aux/route_graph` (Dijkstra).
+- S2: `core_zoning` exige el garaje contra servicio/cocina y servicio contra cocina (`doors:garage_zone`,
+  `doors:service_kitchen`) y que los pares D duros de espacios pasables (comedor–cocina) tengan sus unidades unidas
+  (`matrix:direct:*`); `floor_frame.floor_units(merge_service=)` zonifica el servicio dentro de la cocina;
+  `zone_cell.with_route`.
+- S2.1: `door_placement._route_doors` coloca la puerta del garaje donde el camino a la cocina no cruza lo social y
+  agrega los vanos que faltan; `door_choices` limita los destinos; `space_cell.search_floor` verifica
+  `route:garage_kitchen`, puntúa el largo y escribe `garage_route` en la planta baja; `unit_layout._garage_parts`
+  premia el mudroom/cocina contra el garaje y seguido de la cocina.
+- Pruebas `tests/stacking/test_stage_s22k2.py`; `conftest.PRE_K2_CHANGES` (se suman a `pre_k1b_profile` y, en
+  `test_stage_s21b`, a `pre_s22j_profile`) para las pruebas de mecánica anterior. `tools/v68_indicators.py`: a qué abre
+  la puerta del garaje.
+
+**Piloto (`docs/results/v68_k2_pilot/`).** 11 casas (k1b: 28; corner 5 → 0, hillside e interior 4 → 1, narrow 4 → 2,
+shallow 4 → 1, trapezoid 4 → 4). Camino limpio en 11 de 11 (k1b: 5 de 28); largo mediano 29.8 → 6.2 ft; la puerta del
+garaje abre al mudroom en 9 y a la cocina en 2. Lectura B (garaje también contra el foyer): 9 casas — la restricción
+que manda es el camino en S2.1.
+
+**Pendiente.**
+- Casas: la cocina al frente contra el garaje deja zonificaciones que fallan en cortes de unidades (`social/kitchen:cuts`).
+- Por confirmar: servicio dentro de la unidad de cocina; lavandería de paso (hoy no es pasable).
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1746,8 +1782,9 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4ad del HANDOFF). V6.8 corre en automático (`docs/plans/v68_autorun.md`, estado en
-> `v68_autorun_state.json`): k1b dejó el núcleo de escalera primero (zonas de 4 ft en una sola circulación, bloque
-> fijado en S2, K13 bajo la escalera, cupo por borde de junta); 28 casas (k1: 23). Siguen k2 (garaje → cocina), k3
-> (rectángulos), k4 (clóset de pared) y k5 (foyer). Mide con `tools/run_pilot.py`, `spaceplan quality` y
-> `tools/v68_indicators.py`. Respeta las reglas de la sección 1.
+> secciones 4t–4ae del HANDOFF). V6.8 corre en automático (`docs/plans/v68_autorun.md`, estado en
+> `v68_autorun_state.json`): k1b dejó el núcleo de escalera primero (28 casas); k2 hizo obligatorio garaje → cocina sin
+> cruzar sala ni comedor (servicio dentro de la cocina, comedor–cocina unidos en S2, puerta del garaje al mudroom,
+> camino verificado en S2.1): 11 casas, camino limpio en todas, mediana 6.2 ft. Siguen k3 (rectángulos), k4 (clóset de
+> pared) y k5 (foyer). Mide con `tools/run_pilot.py`, `spaceplan quality` y `tools/v68_indicators.py`. Respeta las
+> reglas de la sección 1.
