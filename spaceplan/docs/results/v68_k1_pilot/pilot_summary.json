@@ -1,0 +1,53 @@
+{
+  "houses": 23,
+  "houses_by_lot": {
+    "corner_55x100": 3,
+    "fan_cul_de_sac_35_80x100": 0,
+    "fan_curve_35_80x100": 0,
+    "fan_reverse_80_40x100": 4,
+    "flag_70x80_pole20": 0,
+    "hillside_50x100": 4,
+    "interior_50x100": 4,
+    "narrow_40x125": 4,
+    "shallow_50x95": 3,
+    "trapezoid_asym_45_65x100": 1
+  },
+  "stairs_spaced": {
+    "B:straight:over_garage": 11,
+    "B:straight_landing:cantilever_rear": 3,
+    "A:u_turn:front": 2,
+    "B:straight:compact": 2,
+    "B:straight:compact_bands": 2,
+    "B:straight:cantilever_rear": 1,
+    "B:straight_landing:compact": 1,
+    "C:u_well:front": 1
+  },
+  "first_violations": {
+    "unit:social:cuts": 35,
+    "unit:private:cuts": 31,
+    "unit:circulation:min_side": 30,
+    "not_evaluated": 25,
+    "unit:kitchen:cuts": 21,
+    "unit:circulation:furniture": 16,
+    "unit:circulation:corridor": 15,
+    "unit:kitchen:min_side": 10,
+    "unit:circulation:aspect": 10,
+    "unit:private:2": 8,
+    "door:garage_1car": 6,
+    "unit:social:min_side": 5,
+    "reach:mudroom": 4,
+    "matrix:D:dining-kitchen": 4,
+    "unit:private:fragment": 4,
+    "unit:circulation:cuts": 4,
+    "unit:service:cuts": 3,
+    "unit:private:min_side": 3,
+    "reach:study": 3,
+    "landing:missing": 2,
+    "landing:dining_room": 2,
+    "reach:kitchen": 2,
+    "matrix:D:access-living": 2,
+    "structure:frame:posts": 2,
+    "matrix:D:kitchen-laundry": 1
+  },
+  "lots_failed_to_run": []
+}

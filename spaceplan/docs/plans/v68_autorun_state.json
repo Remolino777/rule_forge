@@ -1,0 +1,16 @@
+{
+  "branch": "stacking/6.7a-s2.2",
+  "spec": "spaceplan/docs/plans/v68_autorun.md",
+  "baseline_summary": "spaceplan/docs/results/v68_k1_pilot/pilot_summary.json",
+  "stop_houses_min": 10,
+  "stale_hours": 5,
+  "halted": false,
+  "halt_reason": null,
+  "steps": [
+    {"id": "k1b", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
+    {"id": "k2", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
+    {"id": "k3", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
+    {"id": "k4", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
+    {"id": "k5", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null}
+  ]
+}
