@@ -7,10 +7,50 @@
   "halted": false,
   "halt_reason": null,
   "steps": [
-    {"id": "k1b", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
-    {"id": "k2", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
-    {"id": "k3", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
-    {"id": "k4", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null},
-    {"id": "k5", "status": "pending", "started_at": null, "finished_at": null, "commit": null, "houses": null, "notes": null}
+    {
+      "id": "k1b",
+      "status": "in_progress",
+      "started_at": "2026-10-17T17:10:14Z",
+      "finished_at": null,
+      "commit": null,
+      "houses": null,
+      "notes": null
+    },
+    {
+      "id": "k2",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "commit": null,
+      "houses": null,
+      "notes": null
+    },
+    {
+      "id": "k3",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "commit": null,
+      "houses": null,
+      "notes": null
+    },
+    {
+      "id": "k4",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "commit": null,
+      "houses": null,
+      "notes": null
+    },
+    {
+      "id": "k5",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "commit": null,
+      "houses": null,
+      "notes": null
+    }
   ]
 }
