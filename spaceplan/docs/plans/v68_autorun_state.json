@@ -18,8 +18,8 @@
     },
     {
       "id": "k2",
-      "status": "pending",
-      "started_at": null,
+      "status": "in_progress",
+      "started_at": "2026-10-17T20:09:21Z",
       "finished_at": null,
       "commit": null,
       "houses": null,
