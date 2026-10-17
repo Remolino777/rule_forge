@@ -27,8 +27,8 @@
     },
     {
       "id": "k3",
-      "status": "pending",
-      "started_at": null,
+      "status": "in_progress",
+      "started_at": "2026-10-17T23:09:48Z",
       "finished_at": null,
       "commit": null,
       "houses": null,
