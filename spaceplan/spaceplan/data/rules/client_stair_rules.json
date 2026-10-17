@@ -1,9 +1,9 @@
 {
   "ruleset_id": "client-stair-rules",
-  "ruleset_version": "0.7.0",
+  "ruleset_version": "0.8.0",
   "jurisdiction_id": "client",
   "zone": "*",
-  "code_edition": "client decisions 2026-10-09 / 2026-10-10",
+  "code_edition": "client decisions 2026-10-09 / 2026-10-10 / 2026-10-17",
   "transcribed_from": "Client (student) design decisions for the stair of step 6.7a S1.1, recorded on 2026-10-09 in the project chat (spaceplan_6_7a_S1_1_plan.md).",
   "verification_note": "Design rules decided by the client, not code: verified=true means the client stated them; they are kept apart from the CRC and SDMC rulesets so a check can tell a normative failure from a client-rule failure (RuleForge case). Thresholds that the client did not fix live in the stacking catalog as provisional design values.",
   "kind": "client",
@@ -154,7 +154,8 @@
         ]
       },
       "text": [
-        "If the space under the stair opens toward the kitchen it is storage only, never a half bath."
+        "If the space under the stair opens toward the kitchen it is storage only, never a half bath.",
+        "2026-10-14 (V6.8 k1b): kept as the kitchen case of K13 (toward the kitchen: storage, pantry)."
       ],
       "source": {
         "document": "Client decisions",
@@ -193,6 +194,33 @@
       "source": {
         "document": "Client decisions",
         "section": "2026-10-09, half bath"
+      },
+      "verified": true
+    },
+    {
+      "rule_id": "K13-UNDER-STAIR-USE",
+      "kind": "client",
+      "magnitude": "under_stair_use",
+      "operator": "in",
+      "value": null,
+      "unit": null,
+      "parameters": {
+        "half_bath_opens_to": [
+          "foyer",
+          "hall"
+        ],
+        "otherwise": "pantry",
+        "zoning_use": "storage",
+        "half_bath_beside_stair": false,
+        "through_vestibule_to_living": false,
+        "decided": "2026-10-14 12:47 (V6.8 k1b): the half bath goes under the stair only when that space opens to the foyer or a hall and the half bath fits; in any other case the space under the stair is a pantry (the variant through a vestibule toward the living room is removed). The half bath never stands beside the stair: when it is not under the stair, S2.1 places it in the circulation like any other space."
+      },
+      "text": [
+        "The space under the stair holds the half bath only when it opens to the foyer or a hall and the half bath fits; otherwise it is a pantry (K03, toward the kitchen, is the same case). The half bath is never placed beside the stair."
+      ],
+      "source": {
+        "document": "Client decisions",
+        "section": "2026-10-14 12:47, under-stair space (V6.8 k1b)"
       },
       "verified": true
     },

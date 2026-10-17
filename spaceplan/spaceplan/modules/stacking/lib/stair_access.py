@@ -19,6 +19,7 @@ TOP_RULE = "K01-STAIR-TOP-ARRIVAL"
 BOTTOM_RULE = "K02-STAIR-BOTTOM-START"
 UNDER_KITCHEN_RULE = "K03-UNDER-STAIR-KITCHEN"
 HALF_BATH_RULE = "K04-HALF-BATH-VESTIBULE"
+UNDER_USE_RULE = "K13-UNDER-STAIR-USE"
 RELATIONS_RULE = "K05-STAIR-RELATIONS"
 NORMATIVE, CLIENT = "normative", "client"
 PASS, FAIL, DEFERRED = "pass", "fail", "deferred_to_S2"
@@ -89,14 +90,27 @@ def check_receiving(client: RuleSet, end: str, space_type: str) -> dict[str, Any
 
 
 def under_stair_use(client: RuleSet, opens_to: str | None, half_bath_fits: bool) -> dict[str, Any]:
-    """Use of the space under the stair given the space its access side opens to (None: decided in S2)."""
+    """Use of the space under the stair given the space its access side opens to (None: decided in S2).
+
+    K13 (client 2026-10-14, V6.8 k1b): the half bath only when the space opens to the foyer or a hall (or the side is
+    decided in S2, which then requires its vestibule on the circulation, K04) and it fits; any other case is a pantry
+    (zoned as storage). The old variant through a vestibule toward the living room is gone."""
     kitchen = client.params(UNDER_KITCHEN_RULE)
-    hb = client.params(HALF_BATH_RULE)
+    k13 = under_rule(client)
     if opens_to in kitchen["opens_to"]:
         return {"use": kitchen["uses"][0], "rule": UNDER_KITCHEN_RULE,
                 "trace": trace(client, UNDER_KITCHEN_RULE, PASS, f"opens to {opens_to}: storage only")}
     if not half_bath_fits:
         return {"use": "storage", "rule": None, "trace": None}
+    if k13 is not None:
+        if opens_to is None or opens_to in k13["half_bath_opens_to"]:
+            return {"use": "half_bath", "rule": UNDER_USE_RULE,
+                    "trace": trace(client, UNDER_USE_RULE, PASS if opens_to else DEFERRED,
+                                   f"opens to {opens_to}: half bath" if opens_to
+                                   else "half bath; door side set in S2 (vestibule on the circulation)")}
+        return {"use": k13["zoning_use"], "rule": UNDER_USE_RULE,
+                "trace": trace(client, UNDER_USE_RULE, PASS, f"opens to {opens_to}: {k13['otherwise']}")}
+    hb = client.params(HALF_BATH_RULE)
     if opens_to in hb["door_to_allowed"] or opens_to is None:
         return {"use": "half_bath", "rule": HALF_BATH_RULE,
                 "trace": trace(client, HALF_BATH_RULE, PASS if opens_to else DEFERRED,
@@ -104,6 +118,14 @@ def under_stair_use(client: RuleSet, opens_to: str | None, half_bath_fits: bool)
     return {"use": "half_bath", "rule": HALF_BATH_RULE,
             "trace": trace(client, HALF_BATH_RULE, PASS,
                            f"opens to {opens_to}: door through the vestibule, not directly into it")}
+
+
+def under_rule(client: RuleSet) -> dict[str, Any] | None:
+    """Parameters of K13 (None in a client ruleset older than 0.8.0)."""
+    try:
+        return client.params(UNDER_USE_RULE)
+    except (KeyError, StopIteration, AttributeError):
+        return None
 
 
 def access_side(half_bath: dict[str, Any] | None, bottom_zone, tol: float = 0.5) -> str:
@@ -145,6 +167,6 @@ def relations(client: RuleSet) -> dict[str, Any]:
 
 
 __all__ = ["BOTTOM_RULE", "CLIENT", "CLIENT_RULESET", "DEFERRED", "DEFERRED_S21", "FAIL", "NOT_EVALUATED", "HALF_BATH_RULE", "NORMATIVE", "PASS",
-           "RELATIONS_RULE", "TOP_RULE", "U_WIDTH_RULE", "u_min_span_ft", "UNDER_KITCHEN_RULE", "access_side", "bottom_receiving", "check_receiving",
+           "RELATIONS_RULE", "TOP_RULE", "U_WIDTH_RULE", "u_min_span_ft", "UNDER_KITCHEN_RULE", "UNDER_USE_RULE", "access_side", "bottom_receiving", "check_receiving",
            "load_client_ruleset", "relations", "rule_kind", "space_type_of", "top_receiving", "trace",
-           "under_stair_use", "upper_rooms", "uses_by_bottom_option"]
+           "under_rule", "under_stair_use", "upper_rooms", "uses_by_bottom_option"]

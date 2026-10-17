@@ -233,7 +233,10 @@ def candidates(shapes: list[StairShape], joints: list, upper: BaseGeometry, grou
                         bz = _first_zone(g.bottom, cfg["landing_ft"], shape.width_ft, in_ground, fp)
                         if bz is None:
                             continue
-                        tz = _first_zone(g.top, cfg["top_depth_ft"], cfg["top_width_ft"], in_upper, fp)
+                        tw = cfg["top_width_ft"]
+                        if cfg.get("top_width_from_stair"):       # V6.8 k1b: at least the stair's width
+                            tw = max(tw, shape.width_ft)
+                        tz = _first_zone(g.top, cfg["top_depth_ft"], tw, in_upper, fp)
                         if tz is None:
                             continue
                         entry = bz.centroid.y - ground.bounds[1]

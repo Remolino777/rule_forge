@@ -9,12 +9,12 @@
   "steps": [
     {
       "id": "k1b",
-      "status": "in_progress",
+      "status": "done",
       "started_at": "2026-10-17T17:10:14Z",
-      "finished_at": null,
+      "finished_at": "2026-10-17T19:20:33Z",
       "commit": null,
-      "houses": null,
-      "notes": null
+      "houses": 28,
+      "notes": "23 -> 28 houses; clear 4 ft zones in one circulation, core block pinned in S2, K13; first U on the joint spaced; rear joint over garage cannot hold a U along (needs V2)"
     },
     {
       "id": "k2",

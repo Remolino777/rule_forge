@@ -219,10 +219,12 @@ def test_under_stair_toward_the_kitchen_is_storage(client):
     assert under_stair_use(client, "kitchen", True)["use"] == "storage"
     assert under_stair_use(client, "hall", True)["use"] == "half_bath"
     assert under_stair_use(client, None, False)["use"] == "storage"
+    # V6.8 k1b (client 2026-10-14, K13): toward the living room the space is a pantry, not a half bath through a
+    # vestibule (the variant is removed)
     living = under_stair_use(client, "living_room", True)
-    assert living["use"] == "half_bath" and "vestibule" in living["trace"]["detail"]
+    assert living["use"] == "storage" and living["rule"] == "K13-UNDER-STAIR-USE"
     bottom = bottom_receiving(client, ["A", "B", "C"], "A")
-    assert uses_by_bottom_option(client, bottom, "bottom", True) == {"A": "half_bath", "B": "half_bath",
+    assert uses_by_bottom_option(client, bottom, "bottom", True) == {"A": "half_bath", "B": "storage",
                                                                       "C": "storage"}
     assert set(uses_by_bottom_option(client, bottom, "apart", True).values()) == {"half_bath"}
 

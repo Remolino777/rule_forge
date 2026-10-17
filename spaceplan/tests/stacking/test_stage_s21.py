@@ -5,7 +5,7 @@ import copy
 
 import numpy as np
 import pytest
-from conftest import load_fixture, pre_s22j_profile
+from conftest import PRE_S22J_CHANGES, load_fixture, pre_k1b_profile
 from shapely.geometry import shape
 
 from spaceplan.core.lib.catalog import load_catalog
@@ -64,7 +64,7 @@ def spaced():
 
     am = area_matrix_contract_for(lots=["interior_50x100"], households=[("teens_family", "latino")], zone_top=0)
     return run_stacking(am, [load_fixture("lot_capacity", "interior_50x100")], stage="S2.1",
-                        design_profile=pre_s22j_profile())        # S2.2j: the mechanics, rules relaxed
+                        design_profile=pre_k1b_profile(PRE_S22J_CHANGES))   # S2.2j and k1b relaxed: the mechanics
 
 
 def _spec(rules, matrix, sid, st, zone, passable=False, circulation=False, host=None, fixed=False):

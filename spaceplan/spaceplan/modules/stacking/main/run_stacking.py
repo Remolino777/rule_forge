@@ -57,9 +57,10 @@ from spaceplan.modules.stacking.lib.space_rules import (
 )
 from spaceplan.modules.stacking.lib.stacking_catalog import load_stacking_catalog
 from spaceplan.modules.stacking.lib.stair_access import load_client_ruleset, relations
+from spaceplan.modules.stacking.lib.stair_core import core_settings
 from spaceplan.modules.stacking.lib.stair_rules import load_stair_ruleset, stair_limits
 from spaceplan.modules.stacking.lib.access_cell import access_context, stage_s1, stage_s2
-from spaceplan.modules.stacking.lib.zone_cell import S2_STATUSES, ZONED, s2_context, structure_settings
+from spaceplan.modules.stacking.lib.zone_cell import S2_STATUSES, ZONED, s2_context, structure_settings, with_core
 from spaceplan.modules.stacking.lib.zone_relations import build_matrix
 from spaceplan.modules.stacking.lib.vertical_rules import (
     garage_counts_in_gfa,
@@ -201,14 +202,17 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
     s2ctx = (s2_context(scat, catalog, crs, build_matrix(catalog, relations(crs), scat.s2["pair_default_weights"]))
              if stage in ZONING_STAGES else None)
     s21ctx = None
+    dview = design_view(design_profile) if drawing else None
+    core = core_settings(*dview) if dview is not None else None           # V6.8 k1b: the stair core first
+    if s2ctx is not None:
+        s2ctx = with_core(s2ctx, core)
     if stage == "S2.1":
         s2ctx = replace(s2ctx, alternatives=int(scat.s21["search"]["s2_alternatives"]))
         crc, openings = load_crc_ruleset(), load_openings_ruleset()
-        dview = design_view(design_profile)
         s21ctx = S21Context(scat, catalog, s2ctx.matrix, space_rules(scat, catalog, crc, openings, srs, crs, dview), crc,
                             openings, srs, crs, load_ruleset())
         s2ctx = replace(s2ctx, structure=structure_settings(dview[0], scat.s2, dview[1]))     # S2.2f: S2.1 runs only
-    actx = access_context(scat, limits, crs) if drawing else None
+    actx = replace(access_context(scat, limits, crs), core=core) if drawing else None
 
     lots_out, cells_out, missing = [], [], []
     for lot in am["lots"]:
@@ -235,7 +239,8 @@ def run_stacking(area_matrix: dict, lot_capacities: dict[str, dict] | list[dict]
                 cant = scat.data["upper_floor"].get("cantilever") or {}
                 ctx = S1Context(scat, limits, srs, rs, crs, catalog, lot_envelope(rs, lc),
                                 (lc.get("terrain") or {}).get("mean_slope"), stair_sqft,
-                                float(cant.get("depth_ft", 0.0)) if stage in cant.get("stages", []) else 0.0)
+                                float(cant.get("depth_ft", 0.0)) if stage in cant.get("stages", []) else 0.0,
+                                core)
                 strategy = strategy_key(lot["budget"], c.get("strategy_used"))
                 s0 = dict(out)
                 s1, pool = stage_s1(c, s0, plan, strategy, ctx, actx, site, lot_local)

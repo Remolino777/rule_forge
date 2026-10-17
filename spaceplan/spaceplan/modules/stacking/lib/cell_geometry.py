@@ -49,6 +49,7 @@ from spaceplan.modules.stacking.lib.stair_access import (
     upper_rooms,
     uses_by_bottom_option,
 )
+from spaceplan.modules.stacking.lib.stair_core import zone_cfg
 from spaceplan.modules.stacking.lib.stair_rules import (
     FIXTURE_HEADROOM_RULE,
     FLIGHT_RISE_RULE,
@@ -112,6 +113,7 @@ class S1Context:
     slope: float | None
     stair_target_sqft: float
     cantilever_ft: float = 0.0                 # stage S2.1: rear cantilever of the upper floor (0: not tried)
+    core: Any = None                           # V6.8 k1b: stair_core.CoreSettings (None: the catalog's zones)
 
 
 def _band_depth(upper_names: list[str], ctx: S1Context, shapes) -> float | None:
@@ -175,7 +177,7 @@ def draw_cell(cell: dict[str, Any], s0: dict[str, Any], plan: LotPlan, strategy:
     upper_names = list(cell.get("split", {}).get("upper_spaces") or s0.get("upper_spaces") or [])
     rooms = upper_rooms(upper_names, ctx.catalog, scat.stair_access)
     top = top_receiving(ctx.client_rs, rooms, scat.stair_access["small_house_upper_rooms_max"])
-    cfg = _stair_cfg(ctx, top["receiving"])
+    cfg = zone_cfg(_stair_cfg(ctx, top["receiving"]), ctx.core)          # V6.8 k1b: clear start and arrival
 
     order = list(placements or scat.upper_placements(cell.get("scheme_id")))
     if ctx.cantilever_ft > 0.0 and placements is None:

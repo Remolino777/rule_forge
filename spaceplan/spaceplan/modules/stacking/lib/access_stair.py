@@ -24,6 +24,7 @@ from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
 from spaceplan.modules.stacking.lib.access_core import (
+    JOINT,
     NONE,
     EntryDoor,
     StairLight,
@@ -33,6 +34,7 @@ from spaceplan.modules.stacking.lib.access_core import (
     well_of,
 )
 from spaceplan.modules.stacking.lib.stair import StairCandidate, StairShape, candidates, half_bath_spot
+from spaceplan.modules.stacking.lib.stair_core import edge_class
 
 TOL = 1e-3
 U_WELL = "u_well"
@@ -215,10 +217,15 @@ def access_candidates(upper, ground, garage, door: EntryDoor, walls: list[Wall],
     return out, stats
 
 
-def preselect(cands: list[AccessCandidate], top_k: int, stair_order: list[str] | None = None) -> list[AccessCandidate]:
+def preselect(cands: list[AccessCandidate], top_k: int, stair_order: list[str] | None = None,
+              slots_per_edge: int = 0, edges: tuple[str, ...] = ()) -> list[AccessCandidate]:
     """Few candidates of each strategy for S2. S2.2k (client 2026-10-14): first one of each configuration in the
     catalog's stair order, a U turned along its wall (start and arrival on a hall) before a U across it, then the
-    least occupied, the nearest start to the vestibule and the half bath under the stair when one fits."""
+    least occupied, the nearest start to the vestibule and the half bath under the stair when one fits.
+
+    V6.8 k1b: on the joint, `slots_per_edge` candidates of each joint edge class in `edges` (side, rear) come first,
+    a U along the edge before anything else, so the rear joint over the garage is explored and not only the edge
+    nearest the door."""
     out = []
     order_ids = list(stair_order or [])
     for strategy in sorted({a.strategy for a in cands}):
@@ -231,6 +238,13 @@ def preselect(cands: list[AccessCandidate], top_k: int, stair_order: list[str] |
             if a not in picked and len(picked) < top_k:
                 picked.append(a)
 
+        if slots_per_edge > 0 and edges:
+            for edge in edges:                       # V6.8 k1b: one slot per joint edge, the U along it first
+                on = [a for a in orders[0] if a.wall.kind == JOINT and edge_class(a.wall.line) == edge]
+                on.sort(key=lambda a: (0 if (a.stair_id.startswith("u_") and a.along) else 1,
+                                       order_ids.index(a.stair_id) if a.stair_id in order_ids else len(order_ids)))
+                for a in on[:slots_per_edge]:
+                    add(a)
         sids = sorted({a.stair_id for a in mine},
                       key=lambda sid: (order_ids.index(sid) if sid in order_ids else len(order_ids), sid))
         for sid in sids:

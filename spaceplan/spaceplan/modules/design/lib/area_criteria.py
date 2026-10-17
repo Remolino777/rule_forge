@@ -28,7 +28,8 @@ GROUPS = (AREA, DOORS, STRUCTURE)
 STRUCTURE_PREFIXES = ("structure.", "circulation.arrival.", "door.grouping.", "upper.cantilever",
                       "circulation.upper_hall.", "circulation.upper_rooms.", "space.master_bedroom.",   # S2.2f-i
                       "circulation.in_room.", "door.leaf.", "space.guest_room.", "space.strips.",
-                      "space.bath_fixtures.")                                                       # S2.2j
+                      "space.bath_fixtures.",                                                       # S2.2j
+                      "stair.arrival_clear.", "stair.core.", "stair.joint.")                        # V6.8 k1b
 POLICY_PREFIX = "space.area."
 DOOR_PREFIX = "door.conflicts."
 SUITE, BEDROOM, DINING, LIVING = "primary_suite", "bedroom", "dining_room", "living_room"

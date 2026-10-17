@@ -58,6 +58,7 @@ from spaceplan.modules.stacking.lib.frame_bands import (
     side_order,
     surplus_kind,
 )
+from spaceplan.modules.stacking.lib.stair_core import touched_score
 from spaceplan.modules.stacking.lib.zone_relations import (
     ENTRY,
     PATIO,
@@ -68,6 +69,7 @@ from spaceplan.modules.stacking.lib.zone_relations import (
     evaluate_floor,
     floor_graph,
 )
+from spaceplan.modules.stacking.lib_aux.core_cells import block_bounds, rects_touching
 from spaceplan.modules.stacking.lib_aux.structure_grid import snap_line, support_report
 from spaceplan.modules.stacking.lib_aux.zone_grid import (
     FREE,
@@ -108,6 +110,7 @@ class FloorRules:
     arrival: str | None = None               # upper floor: K01 most preferred receiving kind
     arrival_order: tuple[str, ...] = ()      # upper floor: allowed receiving kinds by preference (K01)
     stair_hall: dict[str, Any] | None = None  # both floors: stair bordered by circulation, not inside a room
+    core: Any = None                         # V6.8 k1b: stair_core.CoreSettings (None: pre-k1b zoning)
 
 
 @dataclass(frozen=True)
@@ -183,6 +186,12 @@ class FloorSearch:
         if self.span is None:
             self.pin = None
         g = frame.grid
+        self.core = rules.core
+        if self.span is not None and self.core is not None and self.core.block_first \
+                and FIXED_STAIR in g.label_ids:                   # V6.8 k1b: the pin holds the whole core block
+            lm = np.zeros(g.labels.shape, dtype=bool)
+            lm[rows, cols] = True
+            self.span = block_bounds(lm, g.mask_of(FIXED_STAIR)) or self.span
         self.bbox = bounding_cells(g)
         self.outside = g.labels == OUTSIDE
         self.garage = g.mask_of(FIXED_GARAGE) if FIXED_GARAGE in g.label_ids else None
@@ -632,8 +641,12 @@ class FloorSearch:
             inside = [cells_in(landing, r) for r in rects]
             best = int(np.argmax(inside))
             rz.landing_unit, rz.landing_share = best, inside[best] / total
-            if rz.landing_share < self.r.receiving_min_share:
+            need = 1.0 if (self.core is not None and self.core.single_space) else self.r.receiving_min_share
+            if rz.landing_share < need - 1e-9:
                 rz.violation = "landing:split"
+                return rz
+            if self.core is not None and self.core.circulation_only and units[best].zone != CIRCULATION:
+                rz.violation = f"landing:not_circulation:{units[best].zone}"     # V6.8 k1b: a circulation unit
                 return rz
         else:
             rz.violation = "landing:outside"
@@ -692,6 +705,8 @@ class FloorSearch:
             rz.carried = 0.0 if self.fg.lines else 1.0
         rz.parts = {"relations": rz.relations["score"], "shape": self._shape(rects, counts),
                     "stair_access": self._stair_access(rz)}
+        if self.core is not None and self.core.touched_weight > 0 and self.stair is not None:   # V6.8 k1b
+            rz.parts["core"] = touched_score(rects_touching(g.labels.shape, rects, self.stair), self.core)
         if rz.structure is not None:
             rz.parts["structure"] = rz.structure["interior_fraction"]
         elif rz.carried is not None:                        # S2.2g: frame lines carried by zone walls
@@ -700,7 +715,7 @@ class FloorSearch:
             rz.parts["anchors"] = anchor_score
         elif self._order():
             rz.parts["arrival"] = self._arrival_score(rz.landing_unit)
-        w = self.r.weights
+        w = self.r.weights if "core" not in rz.parts else {**self.r.weights, "core": self.core.touched_weight}
         rz.score = sum(w[k] * v for k, v in rz.parts.items()) / (sum(w[k] for k in rz.parts) or 1.0)
         if rz.carried is not None and self.fg is not None:   # S2.2g: frame lines that are zone walls
             rz.score += self.fg.line_bonus * rz.carried

@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-circulation-doors",
-  "ruleset_version": "0.6.0",
+  "ruleset_version": "0.7.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice. Version 0.2.0 (2026-10-12, step S2.2e): exact door interference checks (swing vs swing, swing vs the doorway of another door, swing vs the closed leaf of another door, swing outside its room) with their tolerances and the same-suite exception; reported as indicators until the joint placement of step P3. Version 0.3.0 (2026-10-12, step S2.2f): compact arrival of the stair upstairs (the circulation zone at most node_short_side_max_ft on its short side, one continuous hall) and grouped bedroom doors (the corner nearer the arrival, spread and route scored).",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA guidelines 1, 2, 7 (doors, door interference, walkways), space-syntax literature on residential plans (RPLAN), common practice. Version 0.2.0 (2026-10-12, step S2.2e): exact door interference checks (swing vs swing, swing vs the doorway of another door, swing vs the closed leaf of another door, swing outside its room) with their tolerances and the same-suite exception; reported as indicators until the joint placement of step P3. Version 0.3.0 (2026-10-12, step S2.2f): compact arrival of the stair upstairs (the circulation zone at most node_short_side_max_ft on its short side, one continuous hall) and grouped bedroom doors (the corner nearer the arrival, spread and route scored). Version 0.7.0 (2026-10-17, step V6.8 k1b): the stair core first (start and arrival clear zones of the stair width and 4 ft deep, wholly inside one circulation space; the stair and its zones a block whose edges are zoning cuts) and the rear joint as a stair anchor with one preselection slot per joint edge (client 2026-10-14 12:47 and 2026-10-17 01:38).",
   "verification_note": "Design values, not code (the hallway width floor is CRC C06 R311.6 in crc_2025_habitability). The hall design width, the circulation target and warning fractions stay in the residential catalog (circulation block) and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -1329,6 +1329,217 @@
       "source": {
         "document": "S2.2j plan (2026-10-13)",
         "section": "decision 5, e"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P13-STAIR-CLEAR",
+      "kind": "design",
+      "magnitude": "stair_clear_zones",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "stair.arrival_clear",
+      "parameters": {
+        "depth_ft": {
+          "value": 4.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Fondo libre de la zona de arranque (abajo) y de llegada (arriba) de la escalera",
+            "en": "Clear depth of the start zone (below) and the arrival zone (above) of the stair"
+          },
+          "range": [
+            3.0,
+            6.0
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b)"
+        },
+        "width_from_stair": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Cada zona es al menos tan ancha como la escalera",
+            "en": "Each zone is at least as wide as the stair"
+          },
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b)"
+        },
+        "single_space": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Cada zona queda entera dentro de una sola unidad (S2) y un solo espacio (S2.1)",
+            "en": "Each zone lies wholly inside one zone unit (S2) and one space (S2.1)"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b)"
+        },
+        "circulation_only": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "La unidad que recibe cada zona es de circulación (foyer o pasillo abajo; pasillo o vestíbulo arriba)",
+            "en": "The unit receiving each zone is circulation (foyer or hall below; hall or vestibule above)"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b); reading taken: the start options B (living) and C (kitchen) are no longer used while this is hard (por confirmar)"
+        }
+      },
+      "text": [
+        "The start and the arrival of the stair have room enough: a clear zone of the stair's width and depth_ft deep at each end, no door leaf over it (S08 and the catalog's swing_forbidden_over), wholly inside one circulation unit."
+      ],
+      "source": {
+        "document": "V6.8 k1b plan (2026-10-14)",
+        "section": "stair core"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P14-STAIR-CORE",
+      "kind": "design",
+      "magnitude": "stair_core_block",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "stair.core",
+      "parameters": {
+        "block_first": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Núcleo primero: la escalera y sus zonas son un bloque cuyos bordes son cortes de la zonificación y del marco",
+            "en": "Core first: the stair and its zones are a block whose edges are cuts of the zoning and of the frame"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b)"
+        },
+        "units_touched_target": {
+          "value": 1,
+          "type": "number",
+          "unit": "count",
+          "kind": "soft",
+          "who": "client",
+          "description": {
+            "es": "Unidades de zona que toca la escalera (meta)",
+            "en": "Zone units the stair touches (target)"
+          },
+          "range": [
+            1,
+            3
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b)"
+        },
+        "units_touched_weight": {
+          "value": 0.5,
+          "type": "number",
+          "unit": "weight",
+          "kind": "weight",
+          "who": "designer",
+          "description": {
+            "es": "Peso del puntaje de unidades tocadas por la escalera en S2",
+            "en": "Weight of the stair's touched-units score in S2"
+          },
+          "range": [
+            0.0,
+            2.0
+          ],
+          "kinds_allowed": [
+            "weight"
+          ]
+        }
+      },
+      "text": [
+        "The stair core is zoned first: the block of the stair and its start and arrival zones is held by one circulation unit and its edges are band and column cuts; the frame takes the block's edges as candidate axes."
+      ],
+      "source": {
+        "document": "V6.8 k1b plan (2026-10-14)",
+        "section": "stair core"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "P15-STAIR-JOINT",
+      "kind": "design",
+      "magnitude": "stair_joint_edges",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "stair.joint",
+      "parameters": {
+        "rear_anchor": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Sobre el garaje (y atrás) se prueba la junta de fondo con la U a lo largo de la junta",
+            "en": "Over the garage (and at the rear) the rear joint is tried with the U along it"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b)"
+        },
+        "slots_per_edge": {
+          "value": 1,
+          "type": "number",
+          "unit": "count",
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Cupos del preselect por borde de junta (lateral y fondo), además de la cercanía a la puerta",
+            "en": "Preselection slots per joint edge (side and rear), besides the nearness to the door"
+          },
+          "range": [
+            0,
+            4
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-14 12:47 and 2026-10-17 01:38 (V6.8 k1b)"
+        }
+      },
+      "text": [
+        "The preselection keeps the best U along each joint edge (side and rear), so the rear joint is explored and not only the edge nearest the door."
+      ],
+      "source": {
+        "document": "V6.8 k1b plan (2026-10-14)",
+        "section": "stair core"
       },
       "verified": false
     }

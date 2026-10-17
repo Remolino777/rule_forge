@@ -68,10 +68,18 @@ from spaceplan.modules.stacking.lib.space_rules import (
     TOP_DOOR_RULE,
     SpaceRules,
 )
-from spaceplan.modules.stacking.lib.stair_access import FAIL, NOT_EVALUATED, PASS, trace
+from spaceplan.modules.stacking.lib.stair_access import FAIL, NOT_EVALUATED, PASS, trace, under_rule
+from spaceplan.modules.stacking.lib.stair_core import (
+    clear_zone_violation,
+    core_settings,
+    half_bath_beside_stair,
+    half_bath_opens_violation,
+)
 from spaceplan.modules.stacking.lib.unit_frame import (
     CIRCULATION_TYPES,
+    ENTRY_TYPE,
     OUT,
+    VESTIBULE_TYPE,
     SpaceFloor,
     space_floor,
 )
@@ -83,6 +91,7 @@ from spaceplan.modules.stacking.lib_aux.space_grid import exterior_run, mask_pol
 SPACED, NO_VALID_LAYOUT, NOT_EVALUATED_S21 = "spaced", "no_valid_layout", "not_evaluated"
 S21_STATUSES = (SPACED, NO_VALID_LAYOUT, NOT_EVALUATED_S21)
 TOP_RULE, BOTTOM_RULE, RELATIONS_RULE = "K01-STAIR-TOP-ARRIVAL", "K02-STAIR-BOTTOM-START", "K05-STAIR-RELATIONS"
+ENTRY_TYPES = (ENTRY_TYPE, VESTIBULE_TYPE)       # V6.8 k1b: fixed circulation a clear zone may also lie on
 ARRIVAL_TYPES = {"family_room": ("family_room",), "upper_vestibule": CIRCULATION_TYPES, "hall": CIRCULATION_TYPES}
 
 
@@ -305,6 +314,8 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
     S2.2g: `frame` (the S2 frame block) makes its axes the bearing lines: room cuts snap to them, the ground floor
     carries each one with a wall or a beam (posts at most the registry's), the span checks give way."""
     rules, s21 = ctx.rules, ctx.rules.s21
+    core = core_settings(rules.design, rules.design_kinds)            # V6.8 k1b
+    k13 = under_rule(ctx.client) if ctx.client is not None else None
     if below is not None:                                  # S2.2f: room cuts upstairs move to the ground walls
         floor.below_lines = fs.below_walls(floor, below.layout, rules)
     if frame is not None:                                  # S2.2g: and onto the frame's axes
@@ -367,6 +378,17 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
             land = layout.specs[layout.landing_node]
             if land.space_type not in floor.receiving:
                 layout.violations.append(f"landing:{land.space_type}")
+        if not layout.violations:                                  # V6.8 k1b: the clear zone in one circulation
+            why = clear_zone_violation(layout.labels, layout.specs, floor.landing, core, CIRCULATION_TYPES,
+                                       ENTRY_TYPES)
+            if why:
+                layout.violations.append(why)
+        if not layout.violations and k13 is not None and not k13.get("half_bath_beside_stair", True):
+            why = half_bath_beside_stair(layout.labels, layout.specs, floor.stair, rules.half_bath_types) or \
+                half_bath_opens_violation(layout.doors, layout.specs, rules.half_bath_types,
+                                          tuple(k13["half_bath_opens_to"]), ENTRY_TYPES + ("stair",))
+            if why:                                                # K13: never beside the stair; toward the foyer
+                layout.violations.append(why)
         rel = None
         if not layout.violations:
             graph = space_graph(layout, ctx.matrix, _patio_nodes(layout, rules, garden))

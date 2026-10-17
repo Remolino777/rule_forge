@@ -88,6 +88,7 @@ class S2Context:
     stair_flights: dict[str, int] = field(default_factory=dict)   # stair_id -> flights (stair walk of the routes)
     alternatives: int = 0                      # stage S2.1: zonings of each floor kept in memory (0: none)
     structure: dict[str, Any] | None = None    # S2.2f: structure settings (structure_settings); None: off
+    core: Any = None                           # V6.8 k1b: stair_core.CoreSettings (None: pre-k1b zoning)
 
 
 def floor_rules(catalog, s2: dict[str, Any], floor: str, stair_hall: dict[str, Any] | None = None) -> FloorRules:
@@ -115,6 +116,12 @@ def s2_context(scat, catalog, client_rs, matrix: ZoneMatrix) -> S2Context:
     return S2Context(scat, catalog, client_rs, matrix, floor_rules(catalog, s2, "ground", hall),
                      floor_rules(catalog, s2, "upper", hall), access.get("comparison"),
                      {t["stair_id"]: int(t["flights"]) for t in scat.data["stair"]["types"]})
+
+
+def with_core(ctx: S2Context, core) -> S2Context:
+    """V6.8 k1b: the context and both floors' rules with the stair-core settings."""
+    return replace(ctx, core=core, ground_rules=replace(ctx.ground_rules, core=core),
+                   upper_rules=replace(ctx.upper_rules, core=core))
 
 
 def structure_settings(values: dict[str, Any], s2: dict[str, Any],
@@ -684,5 +691,6 @@ __all__ = [
     "floor_rules",
     "s2_context",
     "structure_settings",
+    "with_core",
     "zone_cell",
 ]

@@ -279,13 +279,14 @@ def test_the_walk_in_fallback_makes_it_a_closet(values, catalog):
 
 @pytest.fixture(scope="module")
 def drawn():
-    from conftest import load_fixture
+    from conftest import load_fixture, pre_k1b_profile
 
     from spaceplan.modules.stacking.main.run_stacking import run_stacking
     from spaceplan.pipeline.main.run_modules import area_matrix_contract_for
 
     am = area_matrix_contract_for(lots=["interior_50x100"], households=[("multigenerational", "latino")], zone_top=0)
-    res = run_stacking(am, [load_fixture("lot_capacity", "interior_50x100")], stage="S2.1")
+    res = run_stacking(am, [load_fixture("lot_capacity", "interior_50x100")], stage="S2.1",
+                       design_profile=pre_k1b_profile())     # V6.8 k1b: the bedroom rules on a pre-k1b stair core
     cells = [c for c in res["cells"] if (c.get("s21") or {}).get("status") == "spaced"]
     assert cells
     return cells

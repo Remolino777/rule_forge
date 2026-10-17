@@ -1,0 +1,269 @@
+{
+  "baseline_k1": {
+    "zoned_cells": 255,
+    "houses": 23,
+    "houses_by_lot": {
+      "corner-55x100": 3,
+      "fan-reverse-80-40x100": 4,
+      "hillside-50x100": 4,
+      "interior-50x100": 4,
+      "narrow-40x125": 4,
+      "shallow-50x95": 3,
+      "trapezoid-asym-45-65x100": 1
+    },
+    "stairs_of_houses": {
+      "B:straight:over_garage": 11,
+      "B:straight_landing:cantilever_rear": 3,
+      "A:u_turn:front": 2,
+      "B:straight:compact": 2,
+      "B:straight:compact_bands": 2,
+      "B:straight:cantilever_rear": 1,
+      "B:straight_landing:compact": 1,
+      "C:u_well:front": 1
+    },
+    "u_on_joint": {
+      "zoned": 129,
+      "spaced": 0,
+      "along_spaced": 0,
+      "first_violations": {
+        "unit:social:cuts": 18,
+        "unit:circulation:min_side": 17,
+        "unit:kitchen:cuts": 17,
+        "unit:private:cuts": 12,
+        "unit:kitchen:min_side": 9,
+        "unit:circulation:aspect": 8,
+        "unit:circulation:corridor": 6,
+        "unit:private:2": 6,
+        "unit:circulation:furniture": 5,
+        "unit:social:min_side": 5
+      }
+    },
+    "s2_units_touched": {
+      "ground": {
+        "1": 89,
+        "2": 128,
+        "3": 33,
+        "4": 5
+      },
+      "upper": {
+        "1": 62,
+        "2": 160,
+        "3": 33
+      }
+    },
+    "s2_units_touched_houses": {
+      "ground": {
+        "1": 17,
+        "2": 6
+      },
+      "upper": {
+        "1": 15,
+        "2": 4,
+        "3": 4
+      }
+    },
+    "s21_spaces_touched_houses": {
+      "ground": {
+        "1": 18,
+        "2": 2,
+        "3": 2,
+        "4": 1
+      },
+      "upper": {
+        "1": 1,
+        "2": 17,
+        "3": 3,
+        "4": 1,
+        "5": 1
+      }
+    },
+    "under_stair_houses": {
+      "half_bath": 21,
+      "pantry": 2
+    },
+    "half_bath_under_stair_opens_to": {
+      "foyer": 19,
+      "kitchen": 1,
+      "mudroom": 1
+    },
+    "landing_spaces": {
+      "ground": {
+        "foyer": 23
+      },
+      "upper": {
+        "hall": 21,
+        "family_room": 2
+      }
+    },
+    "joint_edge_houses": {
+      "rear": 6,
+      "side": 14
+    },
+    "joint_edge_zoned_over_garage": {
+      "side": 88,
+      "rear": 12
+    },
+    "depth_fraction_houses": {
+      "median": 0.26,
+      "min": 0.251,
+      "max": 0.694
+    },
+    "over_garage_upper_sqft_houses": 546.4,
+    "garage_kitchen_houses": {
+      "with_route": 23,
+      "clean": 6,
+      "median_ft": 30.7
+    },
+    "first_violations": {
+      "unit:social:cuts": 35,
+      "unit:private:cuts": 31,
+      "unit:circulation:min_side": 30,
+      "unit:kitchen:cuts": 21,
+      "unit:circulation:furniture": 16,
+      "unit:circulation:corridor": 15,
+      "unit:kitchen:min_side": 10,
+      "unit:circulation:aspect": 10,
+      "unit:private:2": 8,
+      "door:garage_1car": 6,
+      "unit:social:min_side": 5,
+      "reach:mudroom": 4,
+      "matrix:D:dining-kitchen": 4,
+      "unit:private:fragment": 4,
+      "unit:circulation:cuts": 4,
+      "unit:service:cuts": 3,
+      "unit:private:min_side": 3,
+      "reach:study": 3,
+      "landing:missing": 2,
+      "landing:dining_room": 2
+    }
+  },
+  "k1b": {
+    "zoned_cells": 206,
+    "houses": 28,
+    "houses_by_lot": {
+      "corner-55x100": 5,
+      "fan-reverse-80-40x100": 3,
+      "hillside-50x100": 4,
+      "interior-50x100": 4,
+      "narrow-40x125": 4,
+      "shallow-50x95": 4,
+      "trapezoid-asym-45-65x100": 4
+    },
+    "stairs_of_houses": {
+      "B:straight:over_garage": 13,
+      "B:straight_landing:compact": 4,
+      "C:u_well:front": 3,
+      "B:straight_landing:cantilever_rear": 3,
+      "B:straight:compact_bands": 2,
+      "B:u_turn:compact": 1,
+      "B:straight:cantilever_rear": 1,
+      "B:straight:compact": 1
+    },
+    "u_on_joint": {
+      "zoned": 72,
+      "spaced": 1,
+      "along_spaced": 1,
+      "first_violations": {
+        "unit:social:cuts": 19,
+        "unit:kitchen:cuts": 11,
+        "unit:private:cuts": 10,
+        "structure:frame:posts": 8,
+        "unit:kitchen:min_side": 5,
+        "unit:circulation:corridor": 4,
+        "strip:kitchen": 3,
+        "matrix:D:dining-kitchen": 2,
+        "matrix:D:kitchen-laundry": 1,
+        "door:garage_1car": 1
+      }
+    },
+    "s2_units_touched": {
+      "ground": {
+        "1": 104,
+        "2": 80,
+        "3": 22
+      },
+      "upper": {
+        "1": 119,
+        "2": 79,
+        "3": 8
+      }
+    },
+    "s2_units_touched_houses": {
+      "ground": {
+        "1": 21,
+        "2": 7
+      },
+      "upper": {
+        "1": 23,
+        "2": 5
+      }
+    },
+    "s21_spaces_touched_houses": {
+      "ground": {
+        "1": 18,
+        "2": 7,
+        "3": 3
+      },
+      "upper": {
+        "1": 1,
+        "2": 23,
+        "3": 2,
+        "4": 2
+      }
+    },
+    "under_stair_houses": {
+      "half_bath": 28
+    },
+    "half_bath_under_stair_opens_to": {
+      "foyer": 28
+    },
+    "landing_spaces": {
+      "ground": {
+        "foyer": 28
+      },
+      "upper": {
+        "hall": 28
+      }
+    },
+    "joint_edge_houses": {
+      "rear": 7,
+      "side": 18
+    },
+    "joint_edge_zoned_over_garage": {
+      "side": 59
+    },
+    "depth_fraction_houses": {
+      "median": 0.28,
+      "min": 0.25,
+      "max": 0.694
+    },
+    "over_garage_upper_sqft_houses": 546.4,
+    "garage_kitchen_houses": {
+      "with_route": 28,
+      "clean": 5,
+      "median_ft": 29.8
+    },
+    "first_violations": {
+      "unit:social:cuts": 47,
+      "unit:private:cuts": 33,
+      "unit:kitchen:cuts": 21,
+      "unit:circulation:corridor": 19,
+      "structure:frame:posts": 9,
+      "unit:circulation:min_side": 8,
+      "unit:circulation:furniture": 7,
+      "matrix:D:dining-kitchen": 5,
+      "unit:kitchen:min_side": 5,
+      "unit:private:2": 4,
+      "reach:mudroom": 3,
+      "strip:kitchen": 3,
+      "reach:kitchen": 2,
+      "unit:circulation:aspect": 2,
+      "matrix:D:kitchen-laundry": 1,
+      "unit:kitchen:hard_pair": 1,
+      "door:garage_1car": 1,
+      "unit:kitchen:min_area": 1,
+      "unit:social:1": 1,
+      "unit:private:furniture": 1
+    }
+  }
+}

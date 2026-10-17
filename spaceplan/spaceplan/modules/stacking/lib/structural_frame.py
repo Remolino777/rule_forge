@@ -23,6 +23,8 @@ from dataclasses import dataclass, field, replace
 from itertools import pairwise
 from typing import Any
 
+from shapely.geometry import box
+
 from spaceplan.modules.stacking.lib.floor_frame import CellFloors
 from spaceplan.modules.stacking.lib_aux.frame_geometry import (
     EPS,
@@ -94,7 +96,8 @@ def frame_settings(values: dict[str, Any], hall_ft: float, grid_ft: float) -> di
             "variants": max(1, int(values["structure.frame.variants"])),
             "window": float(values["structure.frame.axis_window_ft"]),
             "pull": float(values["structure.frame.fixed_pull_ft"]),
-            "hall": float(hall_ft), "grid": float(grid_ft)}
+            "hall": float(hall_ft), "grid": float(grid_ft),
+            "core_block": bool(values.get("stair.core.block_first"))}          # V6.8 k1b
 
 
 def frame_axis(upper) -> str:
@@ -103,8 +106,14 @@ def frame_axis(upper) -> str:
     return "x" if (x1 - x0) <= (y1 - y0) else "y"
 
 
-def _fixed_lines(floors: CellFloors, axis: str, lo: float, hi: float) -> list[tuple[float, str]]:
+def _fixed_lines(floors: CellFloors, axis: str, lo: float, hi: float,
+                 core_block: bool = False) -> list[tuple[float, str]]:
     out = [(c, CORE) for c in edge_lines(floors.stair, axis)]
+    if core_block:                         # V6.8 k1b: the edges of the stair with its start or arrival zone
+        for zone in (floors.bottom_zone, floors.top_zone):
+            if zone is not None and not zone.is_empty:
+                block = box(*floors.stair.union(zone).bounds)
+                out += [(c, CORE) for c in edge_lines(block, axis) if all(abs(c - d) > EPS for d, _ in out)]
     if floors.garage is not None and not floors.garage.is_empty:
         out += [(c, GARAGE) for c in edge_lines(floors.garage, axis)]
     return [(c, t) for c, t in out if lo + EPS < c < hi - EPS]
@@ -137,7 +146,7 @@ def build_frames(floors: CellFloors, st: dict[str, Any]) -> list[Frame]:
     win = axis_window(lo, hi, bmin, joist, width)
     if win is None:
         return []
-    fixed = _fixed_lines(floors, axis, lo, hi)
+    fixed = _fixed_lines(floors, axis, lo, hi, bool(st.get("core_block")))
     cands: dict[float, str] = {}
     for c, tag in fixed:                          # fixed elements as the first axis or (spine) the second one
         for p in (c, c - width) if width else (c,):
@@ -157,6 +166,8 @@ def build_frames(floors: CellFloors, st: dict[str, Any]) -> list[Frame]:
                                                                                                     w[1] + width)))
         outer = (lo, axes[0].pos, hi) if pattern == TWO_BAY else (lo, axes[0].pos, axes[0].pos + (hi - axes[1].pos))
         score = _balance(outer) + (0.25 if tag != FREE else 0.0)          # balanced bays; a fixed element helps
+        if st.get("core_block") and tag == CORE:                          # V6.8 k1b: the core first
+            score += 0.25
         frames.append(Frame(axis, lo, hi, pattern, axes, width, joints, score, notes))
     frames.sort(key=lambda f: (-f.score, f.axes[0].pos))
     return [replace(f, variant=k) for k, f in enumerate(frames[: st["variants"]])]

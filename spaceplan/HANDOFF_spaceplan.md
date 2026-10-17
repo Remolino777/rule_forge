@@ -1556,6 +1556,48 @@ recámara o estancia y su terraza (ejemplo: el master de young_couple en el lote
 - Tiras de pasillo y foyer (199 ft², reportadas): fase 2.
 - R2 en el principal (la puerta del walk-in aún en el muro opuesto en la distribución que queda).
 
+## 4ad. V6.8 k1b (17 oct 2026, corrida automática): núcleo de escalera primero, zonas libres de 4 ft, bajo-escalera v2, junta de fondo
+
+**Decisiones del cliente (14 oct 12:47, 17 oct 01:38).** Zonas de arranque y llegada de ancho ≥ escalera y 4 ft de
+fondo, sin hojas encima, enteras en una unidad de circulación; la escalera y sus zonas son un bloque (núcleo primero);
+medio baño bajo la escalera solo si sale al foyer o a un pasillo y cabe (si no, despensa; nunca al lado de la
+escalera); junta de fondo con cupo propio en el preselect; planta alta sobre el garaje que crece de lado sobre el
+frente; la L sigue fuera.
+
+**Datos.**
+- `design_circulation_doors` 0.7.0: P13 `stair.arrival_clear.*` (`depth_ft` 4 hard, `width_from_stair`,
+  `single_space`, `circulation_only`), P14 `stair.core.*` (`block_first`, `units_touched_target` 1,
+  `units_touched_weight` 0.5), P15 `stair.joint.*` (`rear_anchor`, `slots_per_edge` 1). Registro: 586 parámetros;
+  grupo LLM `structure` con los prefijos nuevos; `design_tools.json` regenerado.
+- `client_stair_rules` 0.8.0: K13-UNDER-STAIR-USE (medio baño solo hacia foyer/pasillo, si no despensa; nunca al lado
+  de la escalera; se elimina la variante por vestíbulo hacia la sala). K03 queda como el caso cocina de K13.
+
+**Código.**
+- Nuevos `lib/stair_core` (ajustes del registro, tamaño de zonas, clase de borde de junta, puntaje de unidades
+  tocadas, chequeos de S2.1) y `lib_aux/core_cells` (operaciones de celdas).
+- S1: `zone_cfg` agranda arranque y llegada (`S1Context.core`); `stair.candidates` da a la llegada el ancho de la
+  escalera. S1.2: `preselect` reserva `slots_per_edge` por borde de junta (lateral y fondo; la U a lo largo primero).
+- S2: `FloorSearch` fija la unidad receptora sobre el bloque escalera + zona (`block_bounds`); la zona entera en una
+  unidad de circulación (hard); puntaje `core` de unidades tocadas. `structural_frame`: los bordes del bloque son ejes
+  candidatos (bonus al núcleo).
+- S2.1: zona libre en un solo espacio de circulación; K13 (medio baño nunca al lado; el par medio baño + vestíbulo
+  solo abre a foyer o pasillo).
+- Pruebas `tests/stacking/test_stage_s22k1b.py`; `conftest.pre_k1b_profile` para las pruebas de mecánica anterior
+  (S2.1, S2.2j); `test_stage_s1_1` actualizado a K13. Herramienta `tools/v68_indicators.py` (indicadores V6.8).
+
+**Piloto (`docs/results/v68_k1b_pilot/`).** 28 casas (k1: 23; corner 3 → 5, trapezoid 1 → 4, shallow 3 → 4,
+fan_reverse 4 → 3). Primera U en la junta espaciada (1 de 72 zonificadas). Escalera en una sola unidad S2: 35 → 50 %
+abajo y 24 → 58 % arriba (zonificadas). Medio baño bajo la escalera hacia el foyer en las 28 casas; llegada al hall
+en las 28. Garaje → cocina limpio: 5 de 28 (k2).
+
+**Pendiente.**
+- La U a lo largo de la junta de fondo sobre el garaje no cabe: la planta alta tiene el fondo del garaje y la parte
+  fuera del garaje mide ≤ 11 ft (la U + zona necesita 13.9 ft). Hace falta la variante con planta alta más honda que
+  el garaje (V2) o aceptar la U cruzada en la junta de fondo.
+- Lectura "solo circulación" deja fuera los arranques B (sala) y C (cocina): por confirmar.
+- Esquema del contrato: `open_air.kind` = `porch` en planta baja no está en el esquema `stack_plan` (falla
+  `to_contract` en trapezoid); corregir en S2.2l.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1704,8 +1746,8 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4ac del HANDOFF). S2.2j dejó los dormitorios con baño por el walk-in, la cama sin cruces de paso, hojas
-> siempre sobre muro, sin tiras en cuartos, la ducha lejos del clóset y el cuarto de huéspedes solo con baño
-> compartido; 30 casas (S2.2i: 42), las pérdidas en los lotes de 50 ft. Pendiente: decidir la holgura de la cama,
-> las tiras de pasillo (fase 2) y R2 en el principal. Mide con `spaceplan quality` contra `docs/results/s22j_pilot/`.
-> Respeta las reglas de la sección 1. Primero haz el análisis lógico y el plan, y pregúntame antes de programar.
+> secciones 4t–4ad del HANDOFF). V6.8 corre en automático (`docs/plans/v68_autorun.md`, estado en
+> `v68_autorun_state.json`): k1b dejó el núcleo de escalera primero (zonas de 4 ft en una sola circulación, bloque
+> fijado en S2, K13 bajo la escalera, cupo por borde de junta); 28 casas (k1: 23). Siguen k2 (garaje → cocina), k3
+> (rectángulos), k4 (clóset de pared) y k5 (foyer). Mide con `tools/run_pilot.py`, `spaceplan quality` y
+> `tools/v68_indicators.py`. Respeta las reglas de la sección 1.

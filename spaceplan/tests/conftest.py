@@ -119,3 +119,29 @@ def pre_s22j_profile() -> dict:
     reg = load_registry()
     return dp.apply(reg, dp.new_profile(reg, "pre_s22j"), PRE_S22J_CHANGES, "tests", "2026-10-14",
                     "S2.1 mechanics without the S2.2j bedroom rules")
+
+
+# ------------------------------------------------------------------ V6.8 k1b: the S2.1 mechanics before the stair core
+# Tests of earlier stages' mechanics (the S2.1 tiling, the S2.2j bedroom rules) run on cells that the k1b stair core
+# (4 ft clear zones in one circulation unit, the core block pinned in S2, a slot per joint edge) draws differently or
+# leaves without a layout; they run with the core settings of the registry turned back to the pre-k1b behaviour.
+
+PRE_K1B_CHANGES = [
+    {"id": "stair.arrival_clear.depth_ft", "value": 3.0},
+    {"id": "stair.arrival_clear.width_from_stair", "value": False},
+    {"id": "stair.arrival_clear.single_space", "value": False},
+    {"id": "stair.arrival_clear.circulation_only", "value": False},
+    {"id": "stair.core.block_first", "value": False},
+    {"id": "stair.core.units_touched_weight", "value": 0.0},
+    {"id": "stair.joint.rear_anchor", "value": False},
+    {"id": "stair.joint.slots_per_edge", "value": 0},
+]
+
+
+def pre_k1b_profile(extra: list | None = None) -> dict:
+    from spaceplan.modules.design.lib import design_profile as dp
+    from spaceplan.modules.design.lib.design_registry import load_registry
+
+    reg = load_registry()
+    return dp.apply(reg, dp.new_profile(reg, "pre_k1b"), [*(extra or []), *PRE_K1B_CHANGES], "tests", "2026-10-17",
+                    "earlier S2.1 mechanics without the V6.8 k1b stair core")

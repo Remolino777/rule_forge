@@ -34,6 +34,7 @@ from spaceplan.modules.stacking.lib.access_stair import (
 from spaceplan.modules.stacking.lib.cell_geometry import DRAWN, S1Context, draw_cell
 from spaceplan.modules.stacking.lib.stair import StairShape, stair_shape
 from spaceplan.modules.stacking.lib.stair_access import u_min_span_ft
+from spaceplan.modules.stacking.lib.stair_core import REAR_EDGE, SIDE_EDGE
 from spaceplan.modules.stacking.lib.zone_cell import ZONED, S2Context, zone_cell
 from spaceplan.modules.stacking.lib_aux.plan_geometry import polygon_json
 
@@ -52,6 +53,7 @@ class AccessContext:
     tolerance_ft: float
     top_k: int
     stair_order: tuple = ()                   # S2.2k: configurations in the client's order (U first)
+    core: Any = None                          # V6.8 k1b: stair_core.CoreSettings (joint edges, rear anchor)
 
 
 def access_context(scat, limits, client_rs) -> AccessContext:
@@ -130,7 +132,11 @@ def stage_s1(cell, s0, plan, strategy, ctx: S1Context, actx: AccessContext, site
                                 "door": None if pool.door is None else polygon_json(plan.to_world(pool.door.segment.buffer(0.25, cap_style="flat")))}
         return probe, pool
     placement_of = {id(a): p for p, a in found}
-    originals = preselect([a for _, a in found], actx.top_k, list(actx.stair_order))
+    cs = actx.core
+    edges = () if cs is None or cs.slots_per_edge <= 0 else \
+        ((SIDE_EDGE, REAR_EDGE) if cs.rear_anchor else (SIDE_EDGE,))       # V6.8 k1b: a slot per joint edge
+    originals = preselect([a for _, a in found], actx.top_k, list(actx.stair_order),
+                          cs.slots_per_edge if cs is not None else 0, edges)
     placements = [placement_of[id(o)] for o in originals]
     chosen = with_half_bath(originals, ground_ref["ground"], ground_ref["garage"], pool.door, ground_ref["cfg"])
     pool.picks = list(zip(placements, chosen))
