@@ -18,12 +18,12 @@
     },
     {
       "id": "k2",
-      "status": "in_progress",
+      "status": "done",
       "started_at": "2026-10-17T20:09:21Z",
-      "finished_at": null,
-      "commit": null,
-      "houses": null,
-      "notes": null
+      "finished_at": "2026-10-17T22:16:06Z",
+      "commit": "e5f7e48",
+      "houses": 11,
+      "notes": "28 -> 11 houses; clean garage -> kitchen route 11/11 (k1b 5/28), median 29.8 -> 6.2 ft; service zoned with the kitchen (por confirmar); reading B (garage vs foyer) 9 houses"
     },
     {
       "id": "k3",
