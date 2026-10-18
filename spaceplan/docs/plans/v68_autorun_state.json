@@ -36,8 +36,8 @@
     },
     {
       "id": "k4",
-      "status": "pending",
-      "started_at": null,
+      "status": "in_progress",
+      "started_at": "2026-10-18T02:09:27Z",
       "finished_at": null,
       "commit": null,
       "houses": null,
