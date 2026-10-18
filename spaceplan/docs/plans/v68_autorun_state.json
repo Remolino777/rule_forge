@@ -27,12 +27,12 @@
     },
     {
       "id": "k3",
-      "status": "in_progress",
+      "status": "done",
       "started_at": "2026-10-17T23:09:48Z",
-      "finished_at": null,
-      "commit": null,
-      "houses": null,
-      "notes": null
+      "finished_at": "2026-10-18T00:30:11Z",
+      "commit": "5befa20",
+      "houses": 11,
+      "notes": "11 -> 11 houses; non-rectangular rooms 0 % in every type (k2: living 50 %, bedroom 50 %, suite 27 %); hall/foyer composite (por confirmar); leftovers 174 ft2 to circulation, 55 neighbour, 28 closet; circulation 17 -> 20 %"
     },
     {
       "id": "k4",
