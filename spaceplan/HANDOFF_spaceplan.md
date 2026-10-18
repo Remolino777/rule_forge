@@ -1634,6 +1634,38 @@ que manda es el camino en S2.1.
 - Casas: la cocina al frente contra el garaje deja zonificaciones que fallan en cortes de unidades (`social/kitchen:cuts`).
 - Por confirmar: servicio dentro de la unidad de cocina; lavandería de paso (hoy no es pasable).
 
+## 4af. V6.8 k3 (17–18 oct 2026, corrida automática): todos los espacios rectangulares
+
+**Decisión del cliente (obligatoria).** Todos los cuartos y espacios de servicio son rectángulos. Lectura tomada (por
+confirmar): el pasillo y el foyer pueden ser compuestos (unión de rectángulos).
+
+**Datos.** `design_space_standards` 0.9.0: S00-RECTANGLES `space.rectangles.*` (`enabled` hard, `composite_types`
+hall/foyer, `leftover_to` circulación → vecino → clóset → aire libre → muro, `split_l_units`, `split_reach_ft` 3,
+`unit_weight` 0.2). Registro: 605 parámetros; grupo LLM `structure` con el prefijo; `design_tools.json` regenerado.
+Esquema `stack_plan`: `s21_floor.rectangles`.
+
+**Código.**
+- Nuevos `lib/rect_spaces` (`rectify`: cada espacio se queda con un rectángulo candidato que conserva área y lado
+  mínimos y el sobrante va a pasillo/foyer, a un vecino que sigue rectángulo, a un clóset, a porche/techo o a muro;
+  `rect_violation`, `rect_summary`) y `lib_aux/rect_grid` (`is_rect`, `corner_lines`, `candidate_rects`,
+  `rect_pieces`, `split_lines`, `merge_snap`). `space_rules.rect_settings` / `must_be_rect`.
+- S2.1: `unit_layout` agrega las líneas de las esquinas interiores de una unidad en L a las líneas de corte (snap) y
+  puntúa los espacios ya rectangulares; `space_cell.search_floor` corre `_rectified` después de las tiras (puertas de
+  nuevo, `rect:<tipo>` duro) y escribe `rectangles` en cada planta.
+- Pruebas `tests/stacking/test_stage_s22k3.py`; `conftest.PRE_K3_CHANGES` (regla apagada) se suma a
+  `pre_k1b_profile` para las pruebas de mecánica anterior. `tools/v68_indicators.py`: espacios no rectangulares por
+  tipo y sobrantes por destino.
+
+**Piloto (`docs/results/v68_k3_pilot/`).** 11 casas (k2: 11; ningún lote cambia). Cuartos no rectangulares: 0 % en
+todos los tipos (k2: sala 50 %, dormitorio 50 %, suite 27 %, comedor 18 %). Sobrante: 174.5 ft² a circulación,
+54.9 a vecinos, 28 a clósets, 4.5 a muro. Costo: circulación 17 → 20 % del piso, dormitorio secundario mediano
+185 → 130 ft², walk-in → clóset 3 → 5.
+
+**Pendiente.**
+- Confirmar la lectura pasillo/foyer compuestos (hoy reciben dos tercios del sobrante).
+- La regla "partir la L en S2" se hizo en S2.1 (líneas de corte); partir las unidades en S2 cambiaría el grafo de
+  zonas (S2.2l si se quiere).
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1782,9 +1814,9 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4ae del HANDOFF). V6.8 corre en automático (`docs/plans/v68_autorun.md`, estado en
+> secciones 4t–4af del HANDOFF). V6.8 corre en automático (`docs/plans/v68_autorun.md`, estado en
 > `v68_autorun_state.json`): k1b dejó el núcleo de escalera primero (28 casas); k2 hizo obligatorio garaje → cocina sin
-> cruzar sala ni comedor (servicio dentro de la cocina, comedor–cocina unidos en S2, puerta del garaje al mudroom,
-> camino verificado en S2.1): 11 casas, camino limpio en todas, mediana 6.2 ft. Siguen k3 (rectángulos), k4 (clóset de
-> pared) y k5 (foyer). Mide con `tools/run_pilot.py`, `spaceplan quality` y `tools/v68_indicators.py`. Respeta las
-> reglas de la sección 1.
+> cruzar sala ni comedor (11 casas, camino limpio en todas, mediana 6.2 ft); k3 hizo rectangulares todos los cuartos
+> y espacios de servicio (pasillo y foyer compuestos, por confirmar; sobrante a circulación, vecino, clóset, aire
+> libre o muro): 11 casas, 0 % de cuartos no rectangulares. Siguen k4 (clóset de pared) y k5 (foyer). Mide con
+> `tools/run_pilot.py`, `spaceplan quality` y `tools/v68_indicators.py`. Respeta las reglas de la sección 1.

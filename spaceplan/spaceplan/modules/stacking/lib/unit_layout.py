@@ -43,7 +43,7 @@ from scipy.ndimage import distance_transform_edt
 
 from spaceplan.modules.design.lib.area_criteria import drawn_cap
 from spaceplan.modules.stacking.lib.garage_route import is_garage, route_settings
-from spaceplan.modules.stacking.lib.space_rules import SpaceRules
+from spaceplan.modules.stacking.lib.space_rules import SpaceRules, must_be_rect, rect_settings
 from spaceplan.modules.stacking.lib.unit_frame import (
     SpaceFloor,
     SpaceSpec,
@@ -63,6 +63,7 @@ from spaceplan.modules.stacking.lib_aux.space_grid import (
     realize,
     shared_edge,
 )
+from spaceplan.modules.stacking.lib_aux.rect_grid import is_rect, merge_snap, split_lines
 from spaceplan.modules.stacking.lib_aux.structure_grid import box_lines
 from spaceplan.modules.zoning.lib.band_enumeration import band_arrangements
 
@@ -353,6 +354,10 @@ class UnitLayout:
         if walls is not None and reach > 0:
             xs, ys = box_lines(walls, unit.box, float(rules.design.get("structure.snap_share") or 0.25))
             self.snap = (xs, ys, reach)
+        self.rect = rect_settings(rules)                       # V6.8 k3: an L unit cut along its inner corners
+        if self.rect is not None and self.rect["split"]:
+            self.snap = merge_snap(self.snap, split_lines(unit.mask, unit.box,
+                                                          int(round(self.rect["reach_ft"] / floor.res))))
         self.catalog, self.matrix = catalog, matrix
         self.res = floor.res
         s = rules.s21
@@ -925,7 +930,22 @@ class UnitLayout:
         self._upper_parts(pieces, parts)
         self._service_parts(pieces, parts)
         self._garage_parts(pieces, parts)
+        self._rect_parts(pieces, parts)
         return parts
+
+    def _rect_parts(self, pieces: list[Piece], parts: dict) -> None:
+        """V6.8 k3 (client 2026-10-17): share of the unit's spaces held to a rectangle that already are one, blended
+        into the total with space.rectangles.unit_weight (the floor-level pass cuts the rest)."""
+        st = self.rect
+        if st is None or st["unit_weight"] <= 0:
+            return
+        held = [p for p in pieces if p.spec.space_type not in OPEN_AIR and must_be_rect(p.spec, st) and p.mask.any()]
+        if not held:
+            return
+        share = sum(1 for p in held if is_rect(p.mask)) / len(held)
+        w = st["unit_weight"]
+        parts["rectangles"] = share
+        parts["total"] = (1.0 - w) * parts["total"] + w * share
 
     def _garage_parts(self, pieces: list[Piece], parts: dict) -> None:
         """V6.8 k2 (client 2026-10-17): in a unit against the garage, a preferred door target (mudroom, kitchen)

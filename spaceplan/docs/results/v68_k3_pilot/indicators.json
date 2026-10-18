@@ -1,0 +1,139 @@
+{
+  "zoned_cells": 149,
+  "houses": 11,
+  "houses_by_lot": {
+    "fan-reverse-80-40x100": 2,
+    "hillside-50x100": 1,
+    "interior-50x100": 1,
+    "narrow-40x125": 2,
+    "shallow-50x95": 1,
+    "trapezoid-asym-45-65x100": 4
+  },
+  "stairs_of_houses": {
+    "C:u_well:front": 4,
+    "B:u_turn:compact": 3,
+    "B:straight:compact": 2,
+    "B:straight:over_garage": 1,
+    "B:straight_landing:compact": 1
+  },
+  "u_on_joint": {
+    "zoned": 63,
+    "spaced": 3,
+    "along_spaced": 3,
+    "first_violations": {
+      "unit:kitchen:cuts": 18,
+      "unit:social:cuts": 15,
+      "structure:frame:posts": 6,
+      "unit:private:cuts": 5,
+      "strip:kitchen": 3,
+      "unit:circulation:corridor": 2,
+      "door:primary_suite": 2,
+      "unit:kitchen:min_side": 1,
+      "matrix:D:access-living": 1,
+      "reach:walk_in_closet": 1
+    }
+  },
+  "s2_units_touched": {
+    "ground": {
+      "1": 68,
+      "2": 67,
+      "3": 14
+    },
+    "upper": {
+      "1": 74,
+      "2": 62,
+      "3": 13
+    }
+  },
+  "s2_units_touched_houses": {
+    "ground": {
+      "1": 8,
+      "2": 3
+    },
+    "upper": {
+      "1": 3,
+      "2": 8
+    }
+  },
+  "s21_spaces_touched_houses": {
+    "ground": {
+      "1": 7,
+      "2": 4
+    },
+    "upper": {
+      "2": 4,
+      "3": 3,
+      "4": 4
+    }
+  },
+  "under_stair_houses": {
+    "half_bath": 11
+  },
+  "half_bath_under_stair_opens_to": {
+    "foyer": 11
+  },
+  "landing_spaces": {
+    "ground": {
+      "foyer": 11
+    },
+    "upper": {
+      "hall": 11
+    }
+  },
+  "joint_edge_houses": {
+    "side": 7
+  },
+  "joint_edge_zoned_over_garage": {
+    "side": 35
+  },
+  "depth_fraction_houses": {
+    "median": 0.31,
+    "min": 0.25,
+    "max": 0.472
+  },
+  "over_garage_upper_sqft_houses": 566.5,
+  "garage_kitchen_houses": {
+    "with_route": 11,
+    "clean": 11,
+    "median_ft": 6.2
+  },
+  "garage_door_opens_to_houses": {
+    "kitchen": 3,
+    "mudroom": 8
+  },
+  "first_violations": {
+    "unit:kitchen:cuts": 41,
+    "unit:social:cuts": 32,
+    "unit:private:cuts": 12,
+    "unit:circulation:corridor": 8,
+    "unit:circulation:furniture": 7,
+    "structure:frame:posts": 7,
+    "unit:circulation:min_side": 5,
+    "reach:walk_in_closet": 3,
+    "unit:private:2": 3,
+    "strip:kitchen": 3,
+    "unit:private:1": 2,
+    "door:primary_suite": 2,
+    "unit:circulation:aspect": 2,
+    "landing:missing": 2,
+    "unit:circulation:cuts": 2,
+    "matrix:D:kitchen-laundry": 1,
+    "unit:kitchen:min_side": 1,
+    "matrix:D:access-living": 1,
+    "unit:kitchen:min_area": 1,
+    "door:bedroom": 1
+  },
+  "not_rectangular_houses": {
+    "rooms": {},
+    "composite": {
+      "foyer": 11,
+      "hall": 11
+    }
+  },
+  "leftovers_sqft_houses": {
+    "chase": 4.5,
+    "circulation": 174.5,
+    "closet": 28.0,
+    "neighbour": 54.9
+  }
+}

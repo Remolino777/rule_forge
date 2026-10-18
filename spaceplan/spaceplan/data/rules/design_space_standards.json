@@ -1,11 +1,11 @@
 {
   "ruleset_id": "design-space-standards",
-  "ruleset_version": "0.8.0",
+  "ruleset_version": "0.9.0",
   "jurisdiction_id": "us-ca",
   "zone": "*",
   "code_edition": "design",
   "kind": "design",
-  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile. Version 0.5.0 (2026-10-12): upper floor at optimal areas, the rest as roof or a terrace up to 3 ft deep (client decision). Version 0.6.0 (2026-10-12, step S2.2e): area criteria (recommended and maximum net area per space type, hierarchy ratios, share of the house's net program area adapted to the house size, policy for the area the caps free and for an extra bedroom with bath); client decision 2026-10-12 10:18. Version 0.8.0 (2026-10-13 23:21-23:30, step S2.2j): main bedroom with a king bed and the largest bedroom of its floor; bed furniture hard (the in-room path never crosses the bed); the main bedroom's bath through its walk-in; guest room only with a bath shared with another bedroom, else a study; no thin strips; bath closet never on the shower side.",
+  "transcribed_from": "Research of step 6.7a S2.2a (2026-10-11): NKBA kitchen and bath planning guidelines, Dimensions.com bedroom layouts, walk-in closet and dining-table sizing guides, common US residential practice. Version 0.2.0 (step S2.2b, 2026-10-11): client decisions of 2026-10-11 20:30-20:35 (bed clearance 36 in at both sides and the foot; proportion and furniture hard for baths, dining room and kitchen; small spaces cover the whole wall; linen and bath closets) and the layout policy parameters. Version 0.3.0 (2026-10-11 23:54): client chose the intermediate profile: hard for baths (proportion, furniture, bath closet) and one piece per space; strong preferences (scored) for the 11 x 10 bedroom, whole-wall closets, dining room and kitchen until step S2.2d sizes the zones for them. Version 0.4.0 (2026-10-12 01:59-02:06): bath templates accepted by the client (primary bath with one sink 5 x 8, secondary bath with shower 5 x 7, half bath 3 x 5 or 4 x 4 corner); open plan by culture; great room with the living room; primary bath reached through the walk-in; proportion weighs more in the maximum profile. Version 0.5.0 (2026-10-12): upper floor at optimal areas, the rest as roof or a terrace up to 3 ft deep (client decision). Version 0.6.0 (2026-10-12, step S2.2e): area criteria (recommended and maximum net area per space type, hierarchy ratios, share of the house's net program area adapted to the house size, policy for the area the caps free and for an extra bedroom with bath); client decision 2026-10-12 10:18. Version 0.8.0 (2026-10-13 23:21-23:30, step S2.2j): main bedroom with a king bed and the largest bedroom of its floor; bed furniture hard (the in-room path never crosses the bed); the main bedroom's bath through its walk-in; guest room only with a bath shared with another bedroom, else a study; no thin strips; bath closet never on the shower side. Version 0.9.0 (2026-10-17, step V6.8 k3): every room and service space a rectangle (hard); the hall and the foyer may be composite (reading taken, to be confirmed); L units cut along their inner corners; leftovers to circulation, a neighbour, a closet, open air or the wall.",
   "verification_note": "Design values, not code: every entry verified=false until checked against San Diego tract plans and the NKBA text. New constraints start as soft preferences and may be made hard after calibration (step S2.2f). The area range and the least side of each space type stay in the residential catalog and are registered by reference.",
   "scope": {
     "excluded_overlays": [],
@@ -6920,6 +6920,148 @@
       "source": {
         "document": "S2.2j plan (2026-10-13)",
         "section": "decision 7"
+      },
+      "verified": false
+    },
+    {
+      "rule_id": "S00-RECTANGLES",
+      "kind": "design",
+      "magnitude": "rectangles",
+      "operator": null,
+      "value": null,
+      "unit": null,
+      "param_prefix": "space.rectangles",
+      "text": [
+        "Every room and service space is one rectangle; the hall and the foyer may be a union of rectangles (reading taken from the V6.8 observations, to be confirmed by the client).",
+        "S2.1 cuts an L unit along the lines of its inner corners; on the composed floor the part of a space outside its rectangle goes to a hall or foyer beside it, to a neighbour that stays a rectangle with it, to a closet of the space, out of the house on the facade (porch, roof) or, a sliver, to the wall (the S2.2j strip logic)."
+      ],
+      "parameters": {
+        "enabled": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Todo cuarto y espacio de servicio es un rectángulo",
+            "en": "Every room and service space is a rectangle"
+          },
+          "kinds_allowed": [
+            "hard",
+            "soft"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k3: every space rectangular, mandatory)"
+        },
+        "composite_types": {
+          "value": [
+            "hall",
+            "foyer"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "client",
+          "description": {
+            "es": "Tipos que pueden ser unión de rectángulos (lectura tomada, por confirmar)",
+            "en": "Types that may be a union of rectangles (reading taken, to be confirmed)"
+          },
+          "choices": [
+            "hall",
+            "foyer",
+            "upper_vestibule",
+            "mudroom",
+            "family_room"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k3: every space rectangular, mandatory); reading taken from the V6.8 observations document: the hall and the foyer may be composite (por confirmar)"
+        },
+        "leftover_to": {
+          "value": [
+            "circulation",
+            "neighbour",
+            "closet",
+            "open_air",
+            "chase"
+          ],
+          "type": "list",
+          "unit": null,
+          "kind": "hard",
+          "who": "designer",
+          "description": {
+            "es": "Destinos del sobrante fuera del rectángulo, en orden",
+            "en": "Where the part outside the rectangle goes, in order"
+          },
+          "choices": [
+            "circulation",
+            "neighbour",
+            "closet",
+            "open_air",
+            "chase"
+          ],
+          "kinds_allowed": [
+            "hard"
+          ],
+          "note": "circulation = a hall or foyer beside it; neighbour = a space that stays a rectangle with it; closet = a closet of the space (S2.2j strip sizes); open_air = porch downstairs, roof upstairs, on the facade; chase = wall, only a sliver thinner than a closet"
+        },
+        "split_l_units": {
+          "value": true,
+          "type": "bool",
+          "unit": null,
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Las líneas de las esquinas interiores de una unidad en L son líneas de corte de S2.1",
+            "en": "The lines of the inner corners of an L unit are S2.1 cut lines"
+          },
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k3: every space rectangular, mandatory): L units split into rectangles before the spaces are placed"
+        },
+        "split_reach_ft": {
+          "value": 3.0,
+          "type": "number",
+          "unit": "ft",
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Distancia máxima a la que un corte se mueve a la línea de una esquina interior",
+            "en": "Farthest a cut moves onto the line of an inner corner"
+          },
+          "range": [
+            0.0,
+            8.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k3: every space rectangular, mandatory)"
+        },
+        "unit_weight": {
+          "value": 0.2,
+          "type": "number",
+          "unit": null,
+          "kind": "soft",
+          "who": "designer",
+          "description": {
+            "es": "Peso de los espacios rectangulares en el puntaje de la unidad (S2.1)",
+            "en": "Weight of rectangular spaces in the unit score (S2.1)"
+          },
+          "range": [
+            0.0,
+            1.0
+          ],
+          "kinds_allowed": [
+            "soft"
+          ],
+          "note": "Client decision 2026-10-17 (V6.8 k3: every space rectangular, mandatory)"
+        }
+      },
+      "source": {
+        "document": "V6.8 observations and autorun plan (client 2026-10-17)",
+        "section": "k3"
       },
       "verified": false
     }

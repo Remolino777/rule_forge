@@ -30,7 +30,8 @@ STRUCTURE_PREFIXES = ("structure.", "circulation.arrival.", "door.grouping.", "u
                       "circulation.in_room.", "door.leaf.", "space.guest_room.", "space.strips.",
                       "space.bath_fixtures.",                                                       # S2.2j
                       "stair.arrival_clear.", "stair.core.", "stair.joint.",                        # V6.8 k1b
-                      "circulation.garage_route.")                                                  # V6.8 k2
+                      "circulation.garage_route.",                                                  # V6.8 k2
+                      "space.rectangles.")                                                          # V6.8 k3
 POLICY_PREFIX = "space.area."
 DOOR_PREFIX = "door.conflicts."
 SUITE, BEDROOM, DINING, LIVING = "primary_suite", "bedroom", "dining_room", "living_room"

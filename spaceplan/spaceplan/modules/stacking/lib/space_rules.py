@@ -29,6 +29,7 @@ TOP_DOOR_RULE = "S08-STAIR-TOP-DOOR"
 HALF_BATH_RULE = "K04-HALF-BATH-VESTIBULE"
 INCH_FT = 1.0 / 12.0
 ACCESSIBLE_PROFILE = "accessible"
+STAIR_TYPE = "stair"
 
 
 def load_openings_ruleset(path: str | Path | None = None) -> RuleSet:
@@ -229,11 +230,31 @@ def space_rules(scat, catalog, crc: RuleSet, openings: RuleSet, stairs: RuleSet,
     )
 
 
+def rect_settings(rules: "SpaceRules") -> dict[str, Any] | None:
+    """V6.8 k3 (client 2026-10-17): every room and service space a rectangle; None when the rule is off."""
+    d = rules.design
+    if not d.get("space.rectangles.enabled"):
+        return None
+    return {"composite": frozenset(d.get("space.rectangles.composite_types") or ()),
+            "order": tuple(d.get("space.rectangles.leftover_to") or ()),
+            "split": bool(d.get("space.rectangles.split_l_units")),
+            "reach_ft": float(d.get("space.rectangles.split_reach_ft") or 0.0),
+            "unit_weight": float(d.get("space.rectangles.unit_weight") or 0.0),
+            "hard": rules.design_kinds.get("space.rectangles.enabled") == "hard"}
+
+
+def must_be_rect(spec, st: dict[str, Any]) -> bool:
+    """Does the rectangle rule hold this space (fixed spaces, the stair and the composite types are free)?"""
+    return not spec.fixed and spec.space_type != STAIR_TYPE and spec.space_type not in st["composite"]
+
+
 def load_crc_ruleset() -> RuleSet:
     return load_ruleset_resource(*CRC_RULESET)
 
 
 __all__ = [
+    "must_be_rect",
+    "rect_settings",
     "ACCESSIBLE_PROFILE",
     "ESCAPE_RULE",
     "FACADE_RULE",

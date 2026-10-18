@@ -150,10 +150,18 @@ PRE_K2_CHANGES = [
 ]
 
 
+# V6.8 k3: every room a rectangle (leftovers moved on the composed floor, the check hard) leaves the interior lot's
+# drawn house of the earlier-mechanics tests without a layout; they run with the rule off as well.
+PRE_K3_CHANGES = [
+    {"id": "space.rectangles.enabled", "value": False},
+]
+
+
 def pre_k1b_profile(extra: list | None = None) -> dict:
     from spaceplan.modules.design.lib import design_profile as dp
     from spaceplan.modules.design.lib.design_registry import load_registry
 
     reg = load_registry()
-    return dp.apply(reg, dp.new_profile(reg, "pre_k1b"), [*(extra or []), *PRE_K1B_CHANGES, *PRE_K2_CHANGES], "tests", "2026-10-17",
-                    "earlier S2.1 mechanics without the V6.8 k1b stair core nor the k2 garage route")
+    return dp.apply(reg, dp.new_profile(reg, "pre_k1b"), [*(extra or []), *PRE_K1B_CHANGES, *PRE_K2_CHANGES, *PRE_K3_CHANGES],
+                    "tests", "2026-10-17",
+                    "earlier S2.1 mechanics without the V6.8 k1b stair core, the k2 garage route nor the k3 rectangles")

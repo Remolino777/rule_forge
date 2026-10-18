@@ -7,7 +7,8 @@ S2.1) and for every zoned cell: the stair types, the U on the joint, the zone un
 touches, the use of the space under the stair and what it opens to, the stair position (joint edge and depth fraction
 of its centre in the ground floor), the area of the upper floor over the garage, and the garage-to-kitchen route of
 the houses (does the door graph reach the kitchen from the garage without crossing living, dining or family rooms;
-its length along door centres). Measurement only: no design values live here except the contact tolerance of a
+its length along door centres) and, for k3, the spaces of the houses that are not one rectangle by type and the
+leftovers the rectangle pass moved, by destination. Measurement only: no design values live here except the contact tolerance of a
 shared wall.
 """
 
@@ -23,6 +24,7 @@ from shapely.geometry import LineString, shape
 
 CONTACT_FT = 1.0          # least shared-wall length that counts as touching (measurement tolerance)
 SOCIAL = {"living_room", "dining_room", "living_dining", "family_room"}
+COMPOSITE = {"hall", "foyer"}  # V6.8 k3 reading (registry space.rectangles.composite_types): only reported apart
 
 
 def _poly(g):
@@ -131,8 +133,17 @@ def cell_rows(plan: dict) -> list[dict]:
         row["s2_half_bath"] = opt.get("half_bath")
         row["chosen_option"] = s2.get("chosen_option")
         if row["spaced"]:
+            row["not_rectangular"] = []
+            row["leftovers"] = collections.Counter()
             for key in ("ground", "upper"):
                 f = s21.get(key) or {}
+                for x in f.get("spaces", []):                       # V6.8 k3: area / bounding box below 1
+                    g = _poly(x.get("polygon"))
+                    if g is not None and not x.get("fixed") and x["space_type"] != "stair" and \
+                            g.area < 0.999 * g.envelope.area:
+                        row["not_rectangular"].append(x["space_type"])
+                for mv in (f.get("rectangles") or {}).get("moves", []):
+                    row["leftovers"][mv["to"]] += mv["sqft"]
                 sp = [x for x in f.get("spaces", []) if x["space_type"] != "stair"]
                 if fp is not None and sp:
                     row[f"s21_spaces_touched_{key}"] = _touching(
@@ -208,6 +219,13 @@ def summarize(rows: list[dict]) -> dict:
         "garage_door_opens_to_houses": dict(collections.Counter(r.get("garage_door_opens_to") for r in houses)),
         "first_violations": dict(collections.Counter(":".join(str(r["first_violation"]).split(":")[:3])
                                                      for r in rows if not r["spaced"]).most_common(20)),
+        "not_rectangular_houses": {
+            "rooms": dict(collections.Counter(t for r in houses for t in r.get("not_rectangular", [])
+                                              if t not in COMPOSITE)),
+            "composite": dict(collections.Counter(t for r in houses for t in r.get("not_rectangular", [])
+                                                  if t in COMPOSITE))},
+        "leftovers_sqft_houses": {k: round(sum(r.get("leftovers", {}).get(k, 0.0) for r in houses), 1)
+                                  for k in sorted({k for r in houses for k in r.get("leftovers", {})})},
     }
     return out
 

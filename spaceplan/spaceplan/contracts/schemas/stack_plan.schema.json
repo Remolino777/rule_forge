@@ -1683,6 +1683,10 @@
           "type": "object",
           "description": "V6.8 k2: the route garage -> kitchen over the doors of the ground floor: reached, clean (crosses no living, dining or family room), the space the garage door opens to, the spaces crossed and the length along the door centres (ft)."
         },
+        "rectangles": {
+          "type": "object",
+          "description": "V6.8 k3: every room and service space cut to one rectangle: the leftovers moved (from, into, destination circulation / neighbour / closet / open_air / chase, sq ft) and the spaces left that are no rectangle."
+        },
         "fixtures": {
           "type": "array",
           "items": {
