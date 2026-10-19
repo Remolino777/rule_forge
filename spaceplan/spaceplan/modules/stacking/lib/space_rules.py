@@ -248,6 +248,22 @@ def must_be_rect(spec, st: dict[str, Any]) -> bool:
     return not spec.fixed and spec.space_type != STAIR_TYPE and spec.space_type not in st["composite"]
 
 
+def wall_settings(rules: "SpaceRules") -> dict[str, Any] | None:
+    """V6.8 k4 (client 2026-10-17): the whole-wall closet of every bedroom without a walk-in; None when the rule is
+    off."""
+    d = rules.design
+    if not d.get("space.wall_closets.enabled"):
+        return None
+    return {"types": frozenset(d.get("space.wall_closets.types") or ()),
+            "depth_ft": float(d.get("space.wall_closets.depth_ft") or 0.0),
+            "front_ft": float(d.get("space.wall_closets.front_clear_ft") or 0.0),
+            "full_wall": bool(d.get("space.wall_closets.full_wall")),
+            "walls": tuple(d.get("space.wall_closets.walls") or ()),
+            "merge_partial": bool(d.get("space.wall_closets.merge_partial")),
+            "in_room_program": bool(d.get("space.wall_closets.in_room_program")),
+            "hard": rules.design_kinds.get("space.wall_closets.enabled") == "hard"}
+
+
 def load_crc_ruleset() -> RuleSet:
     return load_ruleset_resource(*CRC_RULESET)
 
@@ -255,6 +271,7 @@ def load_crc_ruleset() -> RuleSet:
 __all__ = [
     "must_be_rect",
     "rect_settings",
+    "wall_settings",
     "ACCESSIBLE_PROFILE",
     "ESCAPE_RULE",
     "FACADE_RULE",

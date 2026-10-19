@@ -62,6 +62,7 @@ from spaceplan.modules.stacking.lib.program_adjust import program_fallbacks
 from spaceplan.modules.stacking.lib.bath_fixtures import bath_fixtures
 from spaceplan.modules.stacking.lib.room_circulation import room_paths
 from spaceplan.modules.stacking.lib.rect_spaces import rect_violation, rectify
+from spaceplan.modules.stacking.lib.wall_closets import closet_report, wall_closet_violation, wall_closets
 from spaceplan.modules.stacking.lib.strips import clean_strips, strip_violation
 from spaceplan.modules.stacking.lib.roof_planes import roof_pieces, roof_settings
 from spaceplan.modules.stacking.lib.space_relations import evaluate_space_floor, space_graph
@@ -315,6 +316,41 @@ def _rectified(layout, rules, ctx: S21Context):
     return layout
 
 
+def _wall_closeted(layout, rules, ctx: S21Context):
+    """V6.8 k4: the floor with a whole-wall closet in every bedroom without a walk-in (an interior wall first, an
+    exterior side wall as the last resort, never the front or rear facade), its doors placed again; when the doors
+    fail with every closet, the rooms are tried one by one and a room whose closet breaks the doors keeps none. A
+    room left without one is a violation when the rule is hard."""
+    before = closet_report(layout, rules)
+    if before is None:
+        return layout
+    new, rep = wall_closets(layout, rules)
+    if new is not None:
+        place_doors(new, rules, ctx.matrix)
+        if new.violations:                                   # room by room: keep the closets the doors allow
+            cur = layout
+            for row in rep["carved"]:
+                cand, _ = wall_closets(cur, rules, only={row["space_id"]})
+                if cand is None:
+                    continue
+                place_doors(cand, rules, ctx.matrix)
+                if not cand.violations:
+                    cur = cand
+            new = cur if cur is not layout else None
+    if new is not None:
+        layout = new
+    report = closet_report(layout, rules)
+    report["before"] = [{"space_id": r["space_id"], "status": r["status"]} for r in before["rooms"]]
+    report["carved"], report["merged"], report["failed"] = rep.get("carved", []), rep.get("merged", []), \
+        rep.get("failed", [])
+    layout.wall_closets = report
+    if not layout.violations:
+        why = wall_closet_violation(report, rules)
+        if why:
+            layout.violations.append(why)
+    return layout
+
+
 def _trimmed(layout, rules, ctx: S21Context):
     """S2.2h: the layout with its upper hall trimmed when the doors and checks still hold; else the layout, with
     the reason in its trim report."""
@@ -376,6 +412,8 @@ def search_floor(floor: SpaceFloor, ctx: S21Context, below: FloorResult | None =
             layout = _cleaned(layout, rules, ctx)                # S2.2j: no thin strips, no tiny closets
         if not layout.violations:
             layout = _rectified(layout, rules, ctx)              # V6.8 k3: every room a rectangle
+        if not layout.violations:
+            layout = _wall_closeted(layout, rules, ctx)          # V6.8 k4: a whole-wall closet per bedroom
         if not layout.violations:
             why = _walk_through_violation(layout, rules)          # S2.2c: suite -> walk-in -> bath
             if why:
@@ -813,6 +851,7 @@ def _floor_block(r: FloorResult, plan: LotPlan, ctx: S21Context, nd: int) -> dic
             **({"strips": lay.strips} if getattr(lay, "strips", None) else {}),
             **({"garage_route": lay.garage_route} if getattr(lay, "garage_route", None) else {}),
             **({"rectangles": lay.rectangles} if getattr(lay, "rectangles", None) else {}),
+            **({"wall_closets": lay.wall_closets} if getattr(lay, "wall_closets", None) else {}),
             **({"fixtures": [{**{k: v for k, v in fx.items() if k != "masks"},
                               "bands": {b: polygon_json(plan.to_world(mask_polygon(m, f.grid)), nd)
                                         for b, m in fx["masks"].items() if m.any()}}

@@ -95,6 +95,7 @@ class FloorLayout:
     strips: dict | None = None                             # S2.2j: thin strips joined to their neighbours (report)
     garage_route: dict | None = None                       # V6.8 k2: garage -> kitchen over the doors (report)
     rectangles: dict | None = None                         # V6.8 k3: leftovers outside each space's rectangle
+    wall_closets: dict | None = None                       # V6.8 k4: the whole-wall closet of each bedroom
 
     def node(self, space_id: str) -> int | None:
         return next((k for k, s in enumerate(self.specs) if s.space_id == space_id), None)

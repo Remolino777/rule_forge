@@ -1683,6 +1683,10 @@
           "type": "object",
           "description": "V6.8 k2: the route garage -> kitchen over the doors of the ground floor: reached, clean (crosses no living, dining or family room), the space the garage door opens to, the spaces crossed and the length along the door centres (ft)."
         },
+        "wall_closets": {
+          "type": "object",
+          "description": "V6.8 k4: the bedrooms that need a wall closet: per room its status (walk_in, ok, no_closet, partial, wrong_wall), its closets (whole wall or not, wall kind interior / side / front / rear, sq ft), the status before the pass, the closets carved (room, wall, sq ft), the partial closets merged back and the rooms with no valid wall."
+        },
         "rectangles": {
           "type": "object",
           "description": "V6.8 k3: every room and service space cut to one rectangle: the leftovers moved (from, into, destination circulation / neighbour / closet / open_air / chase, sq ft) and the spaces left that are no rectangle."

@@ -43,7 +43,7 @@ from scipy.ndimage import distance_transform_edt
 
 from spaceplan.modules.design.lib.area_criteria import drawn_cap
 from spaceplan.modules.stacking.lib.garage_route import is_garage, route_settings
-from spaceplan.modules.stacking.lib.space_rules import SpaceRules, must_be_rect, rect_settings
+from spaceplan.modules.stacking.lib.space_rules import SpaceRules, must_be_rect, rect_settings, wall_settings
 from spaceplan.modules.stacking.lib.unit_frame import (
     SpaceFloor,
     SpaceSpec,
@@ -63,7 +63,8 @@ from spaceplan.modules.stacking.lib_aux.space_grid import (
     realize,
     shared_edge,
 )
-from spaceplan.modules.stacking.lib_aux.rect_grid import is_rect, merge_snap, split_lines
+from spaceplan.modules.stacking.lib_aux.rect_grid import is_rect, merge_snap, rect_mask, split_lines
+from spaceplan.modules.stacking.lib_aux.wall_grid import SIDES, X_HIGH, X_LOW, Y_HIGH, Y_LOW, side_depth, side_strip
 from spaceplan.modules.stacking.lib_aux.structure_grid import box_lines
 from spaceplan.modules.zoning.lib.band_enumeration import band_arrangements
 
@@ -532,7 +533,7 @@ class UnitLayout:
             ok, slack = self._facade_ok(spec, kept, sqft)
             if not ok:
                 return None, f"facade:{spec.space_type}"
-            why = self._hard_shape(spec, kept)
+            why = self._hard_shape(spec, kept) or self._wall_closet_room(spec, kept, avoid)
             if why:
                 return None, why
             if spec.habitable or spec.space_type in rules.sleeping_types:
@@ -741,6 +742,53 @@ class UnitLayout:
         i0, _, j0, _ = self.unit.box
         return rest, strip, (e[0] + i0, e[1] + i0, e[2] + j0, e[3] + j0), role
 
+    def _with_wall_closet(self, spec: SpaceSpec, options: list[tuple[float, float]]) -> list[tuple[float, float]]:
+        """V6.8 k4: a bedroom without a walk-in must hold its furniture and, along one side, its wall closet (the
+        closet depth added to either side of each furniture rectangle); the options unchanged otherwise."""
+        st = wall_settings(self.rules)
+        if st is None or not st["hard"] or spec.space_type not in st["types"] or any(
+                x.host == spec.space_id and x.space_type == WALK_IN for x in self.unit.specs):
+            return options
+        dep = st["depth_ft"]
+        return [o for w, d in options for o in ((w, d + dep), (w + dep, d))]
+
+    def _wall_closet_room(self, spec: SpaceSpec, kept: np.ndarray, avoid: np.ndarray | None) -> str | None:
+        """V6.8 k4: a rectangular bedroom without a walk-in needs one wall its closet may take whole: of an allowed
+        kind (interior, else an exterior side; the outside flags of the unit tell the facade sides), leaving the
+        furniture and, when the room touches circulation, a door's contact with it. A reason when none does."""
+        st = wall_settings(self.rules)
+        if st is None or not st["hard"] or spec.space_type not in st["types"] or not is_rect(kept) or any(
+                x.host == spec.space_id and x.space_type == WALK_IN for x in self.unit.specs):
+            return None
+        entry = np.zeros_like(kept)
+        for m in self.circ_targets:
+            entry |= self._edge_cells(kept, m)
+        if avoid is not None:
+            pad = np.zeros((avoid.shape[0] + 2, avoid.shape[1] + 2), dtype=bool)
+            pad[1:-1, 1:-1] = avoid
+            entry |= self._edge_cells(kept, pad)
+        r = mask_bounds(kept)
+        d = self._cells(st["depth_ft"])
+        rules = self.rules
+        furniture = rules.furniture_of(spec.space_type, spec.master) if rules.furniture_hard_of(
+            spec.space_type, spec.master) else []
+        lo_x, hi_x, lo_y, hi_y = self.ext
+        flags = {X_LOW: lo_x, X_HIGH: hi_x, Y_LOW: lo_y, Y_HIGH: hi_y}
+        kinds = {X_LOW: "side", X_HIGH: "side", Y_LOW: "front", Y_HIGH: "rear"}
+        for side in SIDES:
+            strip = rect_mask(kept.shape, side_strip(r, side, d))
+            edge = rect_mask(kept.shape, side_strip(r, side, 1))
+            kind = kinds[side] if (edge & flags[side]).any() else "interior"
+            if kind not in st["walls"] or side_depth(r, side) <= d:
+                continue
+            rest = kept & ~strip
+            if furniture and not any(fits_in_mask(rest, self._cells(w), self._cells(dd)) for w, dd in furniture):
+                continue
+            if entry.any() and int((entry & rest).sum()) < self.need_cells - 1e-9:
+                continue
+            return None
+        return f"wall_closet:{spec.space_type}"
+
     def _hard_shape(self, spec: SpaceSpec, kept: np.ndarray) -> str | None:
         """Hard proportion and furniture of the types the profile marks hard (client: baths, dining room, kitchen;
         bed clearance in bedrooms)."""
@@ -754,6 +802,7 @@ class UnitLayout:
             return f"aspect:{t}"
         if rules.furniture_hard_of(t, spec.master):
             options = rules.furniture_of(t, spec.master)          # S2.2j: the main bedroom's king bed
+            options = self._with_wall_closet(spec, options)        # V6.8 k4: and room for its wall closet
             if options and not any(fits_in_mask(kept, self._cells(w), self._cells(d)) for w, d in options):
                 return f"furniture:{t}"
         return None
@@ -1249,10 +1298,11 @@ class UnitLayout:
         """Options with every space of the unit and, when the unit has closets its rooms may hold, with those
         closets built into their rooms (layout.mergeable_into_host); best of each hall side first."""
         base = {s.space_id: s for s in self.unit.specs}
-        found = self._options(base, ())
+        base, forced = self._wall_closet_program(base)          # V6.8 k4: the closet inside its bedroom
+        found = self._options(base, forced)
         roof = self._roof_spec(base)
         if roof is not None:                      # S2.2d: rooms at their optimal areas, the rest roof or terrace
-            found += self._options(base, (), roof)
+            found += self._options(base, forced, roof)
         merge = set(self.rules.s21["layout"]["mergeable_into_host"])
         merged = [k for k, sp in base.items() if sp.space_type in merge and sp.host in base]
         if merged:
@@ -1262,7 +1312,7 @@ class UnitLayout:
                 cap = host.cap_sqft + base[k].target_sqft if host.cap_sqft is not None else None
                 specs[host.space_id] = SpaceSpec(**{**host.__dict__, "cap_sqft": cap,
                                                     "target_sqft": host.target_sqft + base[k].target_sqft})
-            found += self._options(specs, tuple(sorted(merged)))
+            found += self._options(specs, tuple(sorted((*merged, *forced))))
         found.sort(key=lambda o: (-o.score, o.hall_side))
         out, sides = [], {}
         for o in found:                          # keep the best of each hall side, then fill by score
@@ -1276,6 +1326,26 @@ class UnitLayout:
                 out.append(o)
         out.sort(key=lambda o: (-o.score, o.hall_side))
         return out[: max(self.keep, len(sides))]
+
+    def _wall_closet_program(self, base: dict[str, SpaceSpec]) -> tuple[dict[str, SpaceSpec], tuple[str, ...]]:
+        """V6.8 k4 (client 2026-10-17): the program closet of a bedroom without a walk-in is its wall closet: its area
+        joins the room (target and cap), and the wall-closet pass of the composed floor carves it across a whole
+        wall. (specs, the closets built in); unchanged when the rule or space.wall_closets.in_room_program is off."""
+        st = wall_settings(self.rules)
+        if st is None or not st["in_room_program"]:
+            return base, ()
+        hosts = {k for k, sp in base.items() if sp.space_type in st["types"]
+                 and not any(x.host == k and x.space_type == WALK_IN for x in base.values())}
+        forced = [k for k, sp in base.items() if sp.space_type == self.rules.closet_type and sp.host in hosts]
+        if not forced:
+            return base, ()
+        specs = {k: sp for k, sp in base.items() if k not in forced}
+        for k in forced:
+            host = specs[base[k].host]
+            cap = host.cap_sqft + base[k].target_sqft if host.cap_sqft is not None else None
+            specs[host.space_id] = SpaceSpec(**{**host.__dict__, "cap_sqft": cap,
+                                                "target_sqft": host.target_sqft + base[k].target_sqft})
+        return specs, tuple(sorted(forced))
 
     def _options(self, specs: dict[str, SpaceSpec], merged: tuple[str, ...],
                  roof: SpaceSpec | None = None) -> list[UnitOption]:
