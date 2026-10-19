@@ -1666,6 +1666,38 @@ todos los tipos (k2: sala 50 %, dormitorio 50 %, suite 27 %, comedor 18 %). Sobr
 - La regla "partir la L en S2" se hizo en S2.1 (líneas de corte); partir las unidades en S2 cambiaría el grafo de
   zonas (S2.2l si se quiere).
 
+## 4ag. V6.8 k4 (19 oct 2026, corrida automática): clóset de pared de muro completo — FRENO (9 casas)
+
+**Decisión del cliente (obligatoria).** Todo dormitorio sin walk-in lleva un clóset de pared (2 ft, corrediza, 3 ft
+libres al frente) en un muro interior (lateral exterior solo como respaldo; nunca fachada frontal ni posterior) que
+ocupa el muro completo (duro).
+
+**Datos.** `design_space_standards` 0.10.0: S00-WALL-CLOSETS `space.wall_closets.*` (`enabled`, `types` bedroom /
+primary_suite, `depth_ft` 2, `front_clear_ft` 3, `full_wall`, `walls` interior → side, todos hard; `merge_partial` e
+`in_room_program`, del diseñador). Registro: 613 parámetros; grupo LLM `structure` con el prefijo; `design_tools.json`
+regenerado. Esquema `stack_plan`: `s21_floor.wall_closets`.
+
+**Código.**
+- Nuevos `lib/wall_closets` (`wall_closets`: conserva un clóset de muro completo permitido, une los parciales que
+  dejan rectángulo, talla una franja de 2 ft en el muro válido más corto si quedan lado, área, frente, cama y el
+  contacto de las puertas; `closet_report`, `wall_closet_violation`, `closet_summary`, `wall_class`) y
+  `lib_aux/wall_grid` (lados, franjas y celdas al otro lado de un muro). `space_rules.wall_settings`.
+- S2.1: `unit_layout._wall_closet_program` suma el clóset del programa al dormitorio; `_with_wall_closet` exige cama
+  + fondo del clóset en el chequeo duro de mobiliario; `space_cell._wall_closeted` corre después de los rectángulos
+  (puertas de nuevo; si fallan, cuarto por cuarto) y escribe `wall_closets` en cada planta.
+- Pruebas `tests/stacking/test_stage_s22k4.py`; `conftest.PRE_K4_CHANGES` (regla apagada) se suma a
+  `pre_k1b_profile`. `tools/v68_indicators.py`: dormitorios con walk-in / clóset, clósets en muro exterior y de muro
+  completo, estado antes y después del pase.
+
+**Piloto (`docs/results/v68_k4_pilot/`).** 9 casas (k3: 11; trapezoid 4 → 2, las dos teens_family). 8 de 8
+dormitorios sin walk-in con clóset de muro completo (interior 6, lateral 2, frente/fondo 0); antes (trapezoid de k3)
+6 de 7 con clóset y solo 2 de 6 de muro completo. Circulación 0.199 → 0.208. **Freno**: bajo `stop_houses_min`.
+
+**Pendiente (decisión del cliente).** Las casas perdidas tienen dormitorios de 11 × 10 (sin fondo para el clóset) o
+11 × 13.5 con el único muro interior útil ocupado por la puerta. Opciones: clóset en el muro de la puerta (menos el
+vano), fachada frontal/posterior como respaldo, regla blanda, o aceptar 9 casas. También: clósets parciales de
+sobrante que quedan como extra (2), y la lectura `merge_partial`.
+
 ## 5. Resultados de referencia (paso 5) (paquete 0.6)
 
 | Brief | Estado zonificación | Válidos (zonas / espacios) | Tiempo | Nota |
@@ -1814,9 +1846,10 @@ nada cambia: `python tools/golden_check.py check`. El paso 6.7 se construye como
 ## 10. Mensaje sugerido para abrir el nuevo chat
 
 > Continuamos el módulo spaceplan del capstone (repositorio `Remolino777/rule_forge`, rama `stacking/6.7a-s2.2`,
-> secciones 4t–4af del HANDOFF). V6.8 corre en automático (`docs/plans/v68_autorun.md`, estado en
+> secciones 4t–4ag del HANDOFF). V6.8 corre en automático (`docs/plans/v68_autorun.md`, estado en
 > `v68_autorun_state.json`): k1b dejó el núcleo de escalera primero (28 casas); k2 hizo obligatorio garaje → cocina sin
-> cruzar sala ni comedor (11 casas, camino limpio en todas, mediana 6.2 ft); k3 hizo rectangulares todos los cuartos
-> y espacios de servicio (pasillo y foyer compuestos, por confirmar; sobrante a circulación, vecino, clóset, aire
-> libre o muro): 11 casas, 0 % de cuartos no rectangulares. Siguen k4 (clóset de pared) y k5 (foyer). Mide con
+> cruzar sala ni comedor (11 casas); k3 hizo rectangulares todos los cuartos (11 casas); k4 puso un clóset de pared de
+> muro completo en cada dormitorio sin walk-in (interior primero, lateral de respaldo, nunca frente/fondo) y dejó
+> **9 casas: la corrida está frenada** (`halted`). Decide cómo seguir (clóset en el muro de la puerta, fachada como
+> respaldo, regla blanda o aceptar 9 casas; ver `docs/results/v68_k4_pilot/README.md`) y luego k5 (foyer). Mide con
 > `tools/run_pilot.py`, `spaceplan quality` y `tools/v68_indicators.py`. Respeta las reglas de la sección 1.

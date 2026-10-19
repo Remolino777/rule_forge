@@ -157,11 +157,20 @@ PRE_K3_CHANGES = [
 ]
 
 
+# V6.8 k4: the whole-wall closet of every bedroom without a walk-in (carved on the composed floor, the check hard)
+# changes the rooms and doors the earlier-mechanics tests measure; they run with the rule off as well.
+PRE_K4_CHANGES = [
+    {"id": "space.wall_closets.enabled", "value": False},
+]
+
+
 def pre_k1b_profile(extra: list | None = None) -> dict:
     from spaceplan.modules.design.lib import design_profile as dp
     from spaceplan.modules.design.lib.design_registry import load_registry
 
     reg = load_registry()
-    return dp.apply(reg, dp.new_profile(reg, "pre_k1b"), [*(extra or []), *PRE_K1B_CHANGES, *PRE_K2_CHANGES, *PRE_K3_CHANGES],
+    return dp.apply(reg, dp.new_profile(reg, "pre_k1b"), [*(extra or []), *PRE_K1B_CHANGES, *PRE_K2_CHANGES, *PRE_K3_CHANGES,
+                                                                *PRE_K4_CHANGES],
                     "tests", "2026-10-17",
-                    "earlier S2.1 mechanics without the V6.8 k1b stair core, the k2 garage route nor the k3 rectangles")
+                    "earlier S2.1 mechanics without the V6.8 k1b stair core, the k2 garage route, the k3 rectangles nor "
+                    "the k4 wall closets")

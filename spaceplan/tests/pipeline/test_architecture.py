@@ -187,14 +187,14 @@ def test_files_follow_plan_table():
                          "hall_trim",  # S2.2h
                          "room_circulation", "strips", "bath_fixtures",  # S2.2j
                          "stair_core",  # V6.8 k1b
-                         "garage_route", "rect_spaces"},  # V6.8 k2, k3
+                         "garage_route", "rect_spaces", "wall_closets"},  # V6.8 k2, k3, k4
         "stacking/lib_aux": {"vertical_geometry", "plan_geometry", "stair_geometry", "zone_grid",
                              "space_grid", "door_geometry", "structure_grid",  # space_grid: S2.1; door_geometry: S2.2e; structure_grid: S2.2f
                              "frame_geometry", "milp_tools", "roof_geometry",  # S2.2g
                              "hall_geometry",  # S2.2h
                              "room_paths", "strip_grid", "bath_geometry",  # S2.2j
                              "core_cells",  # V6.8 k1b
-                             "route_graph", "rect_grid"},  # V6.8 k2, k3
+                             "route_graph", "rect_grid", "wall_grid"},  # V6.8 k2, k3, k4
         "stacking/main": {"run_stacking", "contract", "run_quality"},  # run_quality: S2.2a
         "design/lib": {"design_registry", "design_profile", "llm_tools", "area_criteria"},  # S2.2a; S2.2e
         "design/lib_aux": {"param_paths", "units"},

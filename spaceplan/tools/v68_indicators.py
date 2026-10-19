@@ -8,7 +8,9 @@ touches, the use of the space under the stair and what it opens to, the stair po
 of its centre in the ground floor), the area of the upper floor over the garage, and the garage-to-kitchen route of
 the houses (does the door graph reach the kitchen from the garage without crossing living, dining or family rooms;
 its length along door centres) and, for k3, the spaces of the houses that are not one rectangle by type and the
-leftovers the rectangle pass moved, by destination. Measurement only: no design values live here except the contact tolerance of a
+leftovers the rectangle pass moved, by destination, and, for k4, the closets of the bedrooms (with a walk-in, with
+a closet, closets on an exterior wall of the floor outline, closets across a whole wall of their room) and the status
+the wall-closet pass reports before and after it. Measurement only: no design values live here except the contact tolerance of a
 shared wall.
 """
 
@@ -24,6 +26,7 @@ from shapely.geometry import LineString, shape
 
 CONTACT_FT = 1.0          # least shared-wall length that counts as touching (measurement tolerance)
 SOCIAL = {"living_room", "dining_room", "living_dining", "family_room"}
+BEDROOMS = {"bedroom", "primary_suite"}   # V6.8 k4 (registry space.wall_closets.types)
 COMPOSITE = {"hall", "foyer"}  # V6.8 k3 reading (registry space.rectangles.composite_types): only reported apart
 
 
@@ -95,6 +98,47 @@ def _route(floor: dict) -> dict | None:
             "through": [(spaces.get(p) or {}).get("space_type", p) for p in best[1][1:-1]]}
 
 
+def _closets(f: dict, outline) -> collections.Counter:
+    """V6.8 k4: the bedrooms of a floor and their closets, measured on the polygons."""
+    out: collections.Counter = collections.Counter()
+    sp = f.get("spaces", [])
+    for room in (x for x in sp if x["space_type"] in BEDROOMS):
+        rg = _poly(room.get("polygon"))
+        hosted = [x for x in sp if x.get("host") == room["space_id"]]
+        out["bedrooms"] += 1
+        if any(x["space_type"] == "walk_in_closet" for x in hosted):
+            out["walk_in"] += 1
+            continue
+        cl = [x for x in hosted if x["space_type"] == "closet"]
+        out["with_closet" if cl else "without_closet"] += 1
+        for c in cl:
+            g = _poly(c.get("polygon"))
+            if g is None or rg is None:
+                continue
+            out["closets"] += 1
+            gx0, gy0, gx1, gy1 = g.bounds
+            back = max(gx1 - gx0, gy1 - gy0)                 # the closet's back wall: its long side
+            if outline is not None and g.boundary.intersection(outline.boundary).length >= 0.5 * back:
+                out["closets_exterior"] += 1
+            u = rg.union(g)
+            gx0, gy0, gx1, gy1 = g.bounds
+            ux0, uy0, ux1, uy1 = u.bounds
+            spans = (abs(gx0 - ux0) < 0.05 and abs(gx1 - ux1) < 0.05) or (abs(gy0 - uy0) < 0.05
+                                                                          and abs(gy1 - uy1) < 0.05)
+            if u.area >= 0.999 * u.envelope.area and g.area >= 0.999 * g.envelope.area and spans:
+                out["closets_whole_wall"] += 1
+    rep = f.get("wall_closets") or {}
+    for r in rep.get("rooms", []):
+        out[f"status:{r['status']}"] += 1
+        if r.get("wall"):
+            out[f"wall:{r['wall']}"] += 1
+    for r in rep.get("before", []):
+        out[f"before:{r['status']}"] += 1
+    out["carved"] += len(rep.get("carved", []))
+    out["merged"] += len(rep.get("merged", []))
+    return out
+
+
 def cell_rows(plan: dict) -> list[dict]:
     rows = []
     for c in plan["cells"]:
@@ -135,8 +179,11 @@ def cell_rows(plan: dict) -> list[dict]:
         if row["spaced"]:
             row["not_rectangular"] = []
             row["leftovers"] = collections.Counter()
-            for key in ("ground", "upper"):
+            row["closets_k4"] = collections.Counter()
+            for i, key in enumerate(("ground", "upper")):
                 f = s21.get(key) or {}
+                levels = s1.get("levels") or []
+                row["closets_k4"] += _closets(f, _poly(levels[i]["polygon"]) if i < len(levels) else None)
                 for x in f.get("spaces", []):                       # V6.8 k3: area / bounding box below 1
                     g = _poly(x.get("polygon"))
                     if g is not None and not x.get("fixed") and x["space_type"] != "stair" and \
@@ -224,6 +271,8 @@ def summarize(rows: list[dict]) -> dict:
                                               if t not in COMPOSITE)),
             "composite": dict(collections.Counter(t for r in houses for t in r.get("not_rectangular", [])
                                                   if t in COMPOSITE))},
+        "closets_k4_houses": dict(sorted(sum((collections.Counter(r.get("closets_k4") or {}) for r in houses),
+                                             collections.Counter()).items())),
         "leftovers_sqft_houses": {k: round(sum(r.get("leftovers", {}).get(k, 0.0) for r in houses), 1)
                                   for k in sorted({k for r in houses for k in r.get("leftovers", {})})},
     }

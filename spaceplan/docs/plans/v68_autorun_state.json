@@ -4,8 +4,8 @@
   "baseline_summary": "spaceplan/docs/results/v68_k1_pilot/pilot_summary.json",
   "stop_houses_min": 10,
   "stale_hours": 5,
-  "halted": false,
-  "halt_reason": null,
+  "halted": true,
+  "halt_reason": "k4 pilot 9 houses < stop_houses_min 10 (trapezoid 4 -> 2: teens_family upper bedrooms 11x10 without depth for the closet, or 11x13.5 whose only usable interior wall carries the hall door); client decision needed: closet on the door wall, front/rear facade as fallback, soft rule or accept 9 houses",
   "steps": [
     {
       "id": "k1b",
@@ -36,12 +36,12 @@
     },
     {
       "id": "k4",
-      "status": "in_progress",
+      "status": "blocked",
       "started_at": "2026-10-19T20:10:00Z",
-      "finished_at": null,
+      "finished_at": "2026-10-19T22:40:00Z",
       "commit": null,
-      "houses": null,
-      "notes": "resumed again after stale run (no code from 2026-10-18 nor 2026-10-19 14:20 runs)"
+      "houses": 9,
+      "notes": "11 -> 9 houses (HALT); 8/8 bedrooms without walk-in with a whole-wall closet (interior 6, side 2, front/rear 0); program closet inside the room + bed-and-closet furniture check in S2.1; trapezoid teens_family lost"
     },
     {
       "id": "k5",
