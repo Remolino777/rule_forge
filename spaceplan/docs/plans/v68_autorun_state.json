@@ -37,11 +37,11 @@
     {
       "id": "k4",
       "status": "in_progress",
-      "started_at": "2026-10-19T14:20:00Z",
+      "started_at": "2026-10-19T20:10:00Z",
       "finished_at": null,
       "commit": null,
       "houses": null,
-      "notes": "resumed after stale run (no code from the 2026-10-18 run)"
+      "notes": "resumed again after stale run (no code from 2026-10-18 nor 2026-10-19 14:20 runs)"
     },
     {
       "id": "k5",
